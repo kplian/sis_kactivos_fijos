@@ -3,7 +3,7 @@
 *@package pXP
 *@file gen-ACTActivoFijo.php
 *@author  (admin)
-*@date 04-09-2015 03:11:50
+*@date 29-10-2015 03:18:45
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 

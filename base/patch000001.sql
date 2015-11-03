@@ -16,34 +16,43 @@ create table kaf.tclasificacion (
 	constraint pk_tclasificacion__id_clasificacion primary key (id_clasificacion)
 ) inherits (pxp.tbase) without oids;
 
-create table kaf.tactivo_fijo (
-	id_activo_fijo serial,
-	id_clasificacion integer,
-	id_moneda integer,
-	id_moneda_orig integer,
-	id_cat_estado_fun integer,  --actual
-	id_depto integer,           --actual
-	id_centro_costo integer,    --actual
-	id_funcionario integer,     --actual
-	id_persona integer,         --actual
-	codigo varchar(50) not null,
-	denominacion varchar(100),
-	descripcion varchar(5000),
-	vida_util integer,
-	vida_util_restante integer,
-	monto_compra_mon_orig numeric(18,2),
-	monto_compra numeric(18,2),
-	monto_vigente numeric(18,2),
-	monto_actualiz numeric(18,2),
-	foto varchar(100),
-	estado varchar(15),
-	documento varchar(50),
-	fecha_ini_dep date,
-	depreciacion_acum numeric(18,2),
-	depreciacion_acum_ant numeric(18,2),
-	observaciones varchar(5000),
-	constraint pk_tactivo_fijo__id_activo_fijo primary key (id_activo_fijo)
-) inherits (pxp.tbase) without oids;
+CREATE TABLE kaf.tactivo_fijo (
+  id_activo_fijo SERIAL, 
+  id_clasificacion INTEGER, 
+  codigo VARCHAR(50), 
+  denominacion VARCHAR(100), 
+  descripcion VARCHAR(5000),
+  foto VARCHAR(100), 
+  estado VARCHAR(15), 
+  cantidad_revaloriz integer,
+  fecha_ini_dep DATE, 
+  monto_compra numeric,
+  id_moneda_orig INTEGER, 
+  fecha_compra date,
+  documento varchar(100),
+  id_proveedor integer,
+  vida_util_original integer,
+  id_cat_estado_compra integer,
+  id_cat_estado_fun INTEGER,
+  observaciones VARCHAR(5000), 
+  fecha_ult_dep DATE, 
+  monto_rescate NUMERIC(18,2), 
+  id_centro_costo INTEGER, 
+  id_depto INTEGER, 
+  id_oficina integer,
+  id_deposito integer,
+  ubicacion varchar(1000),
+  id_moneda INTEGER, 
+  depreciacion_mes NUMERIC,
+  depreciacion_acum NUMERIC,
+  depreciacion_per NUMERIC, 
+  monto_vigente NUMERIC,
+  vida_util INTEGER, 
+  id_funcionario INTEGER, 
+  id_persona INTEGER, 
+  CONSTRAINT pk_tactivo_fijo__id_activo_fijo PRIMARY KEY(id_activo_fijo)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
 
 create table kaf.tmovimiento (
 	id_movimiento serial,
@@ -105,9 +114,6 @@ create table kaf.tmovimiento_af_dep (
 alter table kaf.tclasificacion
 drop column porcentaje_dep;
 
-alter table kaf.tactivo_fijo
-add column fecha_ult_dep date;
-
 create function months_of(interval)
  returns int strict immutable language sql as $$
   select extract(years from $1)::int * 12 + extract(month from $1)::int
@@ -118,30 +124,6 @@ create function months_between(date, date)
    select abs(months_of(age($1, $2)))
 $$;
 /***********************************F-SCP-RCM-KAF-1-11/09/2015****************************************/
-
-/***********************************I-SCP-RCM-KAF-1-21/09/2015****************************************/
-alter table kaf.tactivo_fijo
-drop column depreciacion_acum_ant;
-
-alter table kaf.tactivo_fijo
-add column depreciacion_per numeric;
-
-alter table kaf.tactivo_fijo
-add column monto_rescate numeric(18,2);
-
-alter table kaf.tactivo_fijo
-add column depreciacion_mes numeric;
-
-alter table kaf.tactivo_fijo
-alter column monto_compra_mon_orig type numeric;
-alter table kaf.tactivo_fijo
-alter column monto_compra type numeric;
-alter table kaf.tactivo_fijo
-alter column monto_vigente type numeric;
-alter table kaf.tactivo_fijo
-alter column monto_actualiz type numeric;
-
-/***********************************F-SCP-RCM-KAF-1-21/09/2015****************************************/
 
 /***********************************I-SCP-RCM-KAF-1-06/10/2015****************************************/
 create table kaf.tactivo_fijo_valores (
@@ -177,12 +159,6 @@ ALTER TABLE kaf.tmovimiento_af
 /***********************************F-SCP-RCM-KAF-1-07/10/2015****************************************/  
 
 /***********************************I-SCP-RCM-KAF-1-08/10/2015****************************************/  
-ALTER TABLE kaf.tactivo_fijo
-  RENAME COLUMN vida_util TO vida_util_original;
-
-ALTER TABLE kaf.tactivo_fijo
-  RENAME COLUMN vida_util_restante TO vida_util;
-
 ALTER TABLE kaf.tactivo_fijo_valores
   ADD COLUMN monto_rescate NUMERIC;
 
@@ -211,3 +187,38 @@ ALTER TABLE kaf.tmovimiento_af
 ALTER TABLE kaf.tmovimiento_af
   DROP COLUMN id_centro_costo_nuevo;  
 /***********************************F-SCP-RCM-KAF-1-10/10/2015****************************************/      
+
+/***********************************I-SCP-RCM-KAF-1-25/10/2015****************************************/      
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN num_tramite VARCHAR(200);
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN fecha_mov DATE;  
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_oficina INTEGER;
+ALTER TABLE kaf.tmovimiento
+  direccion VARCHAR(500);
+
+COMMENT ON COLUMN kaf.tmovimiento.id_cat_movimiento
+IS 'Catálogo para el Movimiento de activos fijos (Alta, Baja, etc.)';
+COMMENT ON COLUMN kaf.tmovimiento.fecha_hasta
+IS 'Aplicable a la Depreciación. Límite superior para la ejecución de la deprecación.';
+COMMENT ON COLUMN kaf.tmovimiento.id_funcionario
+IS 'Aplicable a Asignación y Devolución';
+COMMENT ON COLUMN kaf.tmovimiento.id_oficina
+IS 'Aplicable a Asignación y Devolución';
+COMMENT ON COLUMN kaf.tmovimiento.direccion
+IS 'Aplicable a Asignación y Devolución';
+/***********************************F-SCP-RCM-KAF-1-25/10/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-28/10/2015****************************************/
+COMMENT ON COLUMN kaf.tactivo_fijo.estado
+IS 'Estado del activo fijo';
+COMMENT ON COLUMN kaf.tactivo_fijo.cantidad_revaloriz
+IS 'Contador de las revalorizaciones realizadas al activo fijo';
+COMMENT ON COLUMN kaf.tactivo_fijo.documento
+IS 'Numero de factura, recibo, nota de remision con la que se realizo la adquisicion del activo fijo';
+COMMENT ON COLUMN kaf.tactivo_fijo.id_cat_estado_compra
+IS 'Catalogo, estado del activo a la compra: nuevo, usado';
+COMMENT ON COLUMN kaf.tactivo_fijo.id_cat_estado_fun
+IS 'Catalogo, estado funcional actual del activo fijo';
+/***********************************F-SCP-RCM-KAF-1-28/10/2015****************************************/

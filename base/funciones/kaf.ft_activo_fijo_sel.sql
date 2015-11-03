@@ -7,7 +7,7 @@ $BODY$
  FUNCION: 		kaf.ft_activo_fijo_sel
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tactivo_fijo'
  AUTOR: 		 (admin)
- FECHA:	        04-09-2015 03:11:50
+ FECHA:	        29-10-2015 03:18:45
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
@@ -30,54 +30,80 @@ BEGIN
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'SKA_ACTIVO_SEL'
+ 	#TRANSACCION:  'SKA_AFIJ_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:		admin	
- 	#FECHA:		04-09-2015 03:11:50
+ 	#FECHA:		29-10-2015 03:18:45
 	***********************************/
 
-	if(p_transaccion='SKA_ACTIVO_SEL')then
+	if(p_transaccion='SKA_AFIJ_SEL')then
      				
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						activo.id_activo_fijo,
-						activo.id_clasificacion,
-						activo.id_centro_costo,
-						activo.monto_compra_mon_orig,
-						activo.id_persona,
-						activo.monto_compra,
-						activo.fecha_ini_dep,
-						activo.depreciacion_acum,
-						activo.documento,
-						activo.monto_vigente,
-						activo.observaciones,
-						activo.descripcion,
-						activo.id_depto,
-						activo.estado_reg,
-						activo.vida_util_restante,
-						activo.id_funcionario,
-						activo.denominacion,
-						activo.id_cat_estado_fun,
-						activo.id_moneda,
-						activo.id_moneda_orig,
-						activo.depreciacion_acum_ant,
-						activo.codigo,
-						activo.foto,
-						activo.monto_actualiz,
-						activo.estado,
-						activo.vida_util,
-						activo.usuario_ai,
-						activo.fecha_reg,
-						activo.id_usuario_reg,
-						activo.id_usuario_ai,
-						activo.fecha_mod,
-						activo.id_usuario_mod,
+						afij.id_activo_fijo,
+						afij.id_persona,
+						afij.cantidad_revaloriz,
+						coalesce(afij.foto,''default.jpg'') as foto,
+						afij.id_proveedor,
+						afij.estado_reg,
+						afij.fecha_compra,
+						afij.monto_vigente,
+						afij.id_cat_estado_fun,
+						afij.ubicacion,
+						afij.vida_util,
+						afij.documento,
+						afij.observaciones,
+						afij.fecha_ult_dep,
+						afij.monto_rescate,
+						afij.denominacion,
+						afij.id_funcionario,
+						afij.id_deposito,
+						afij.monto_compra,
+						afij.id_moneda,
+						afij.depreciacion_mes,
+						afij.codigo,
+						afij.descripcion,
+						afij.id_moneda_orig,
+						afij.fecha_ini_dep,
+						afij.id_cat_estado_compra,
+						afij.depreciacion_per,
+						afij.vida_util_original,
+						afij.depreciacion_acum,
+						afij.estado,
+						afij.id_clasificacion,
+						afij.id_centro_costo,
+						afij.id_oficina,
+						afij.id_depto,
+						afij.id_usuario_reg,
+						afij.fecha_reg,
+						afij.usuario_ai,
+						afij.id_usuario_ai,
+						afij.id_usuario_mod,
+						afij.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
-						from kaf.tactivo_fijo activo
-						inner join segu.tusuario usu1 on usu1.id_usuario = activo.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = activo.id_usuario_mod
+						usu2.cuenta as usr_mod,
+						per.nombre_completo2 as persona,
+						pro.desc_proveedor,
+						cat1.descripcion as estado_fun,
+						cat2.descripcion as estado_compra,
+						cla.codigo || '' '' || cla.nombre as clasificacion,
+						cc.codigo_cc as centro_costo,
+						ofi.codigo || '' '' || ofi.nombre as oficina,
+						dpto.codigo || '' '' || dpto.nombre as depto,
+						fun.desc_funcionario2 as funcionario
+						from kaf.tactivo_fijo afij
+						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+						inner join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+						left join segu.vpersona per on per.id_persona = afij.id_persona
+						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -90,20 +116,29 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'SKA_ACTIVO_CONT'
+ 	#TRANSACCION:  'SKA_AFIJ_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		admin	
- 	#FECHA:		04-09-2015 03:11:50
+ 	#FECHA:		29-10-2015 03:18:45
 	***********************************/
 
-	elsif(p_transaccion='SKA_ACTIVO_CONT')then
+	elsif(p_transaccion='SKA_AFIJ_CONT')then
 
 		begin
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_activo_fijo)
-					    from kaf.tactivo_fijo activo
-					    inner join segu.tusuario usu1 on usu1.id_usuario = activo.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = activo.id_usuario_mod
+					    from kaf.tactivo_fijo afij
+					    inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+						inner join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+						left join segu.vpersona per on per.id_persona = afij.id_persona
+						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
 					    where ';
 			
 			--Definicion de la respuesta		    
