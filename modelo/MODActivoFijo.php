@@ -71,6 +71,8 @@ class MODActivoFijo extends MODbase{
 		$this->captura('oficina','text');
 		$this->captura('depto','text');
 		$this->captura('funcionario','text');
+		$this->captura('deposito','varchar');
+		$this->captura('deposito_cod','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -57,6 +57,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 		);
 
 		this.detailsTemplate.compile();
+
     },
     Atributos: [{
         //configuracion del componente
@@ -1208,6 +1209,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         name: 'funcionario',
         type: 'string'
+    }, {
+        name: 'deposito',
+        type: 'string'
+    }, {
+        name: 'deposito_cod',
+        type: 'string'
     }],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -1233,7 +1240,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.abrirVentana('edit');
     },
     crearVentana: function() {
-        if(!this.afWindow){
+        if(this.afWindow){
+            this.form.destroy();
+            this.afWindow.destroy();
+        }
             this.form = new Ext.form.FormPanel({
                 id: this.idContenedor + '_af_form',
                 items: [{
@@ -1257,6 +1267,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             },
                             defaultType: 'textfield',
                             items: [{
+                                name: 'id_activo_fijo',
+                                hidden: true,
+                                id: this.idContenedor+'_id_activo_fijo'
+                            },{
+                                name: 'foto',
+                                hidden: true,
+                                id: this.idContenedor+'_foto'
+                            },{
                                 fieldLabel: 'Código',
                                 name: 'codigo',
                                 disabled: true,
@@ -1293,13 +1311,64 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 fieldLabel: 'Depto.',
                                 name: 'id_depto',
                                 allowBlank: false,
-                                id: this.idContenedor+'_id_depto'
+                                id: this.idContenedor+'_id_depto',
+                                emptyText: 'Elija un Departamento',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
+                                    id: 'id_depto',
+                                    root: 'datos',
+                                    fields: ['id_depto','codigo','nombre'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        modulo: 'KAF',
+                                        par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
+                                    }
+                                }),
+                                valueField: 'id_depto',
+                                displayField: 'nombre',
+                                gdisplayField: 'depto',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Clasificación',
                                 name: 'id_clasificacion',
                                 allowBlank: false,
-                                id: this.idContenedor+'_id_clasificacion'
+                                id: this.idContenedor+'_id_clasificacion',
+                                emptyText: 'Elija la Clasificación',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacion',
+                                    id: 'id_clasificacion',
+                                    root: 'datos',
+                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        par_filtro:'claf.codigo#claf.nombre'
+                                    }
+                                }),
+                                valueField: 'id_clasificacion',
+                                displayField: 'nombre',
+                                gdisplayField: 'clasificacion',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true
                             }, {
                                 fieldLabel: 'Vida útil inicial',
                                 name: 'vida_util_original',
@@ -1316,6 +1385,39 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 name: 'descripcion',
                                 allowBlank: false,
                                 id: this.idContenedor+'_descripcion'
+                            }, {
+                                xtype: 'combo',
+                                fieldLabel: 'Estado funcional',
+                                name: 'id_cat_estado_fun',
+                                allowBlank: false,
+                                id: this.idContenedor+'_id_cat_estado_fun',
+                                emptyText: 'Elija una opción',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/Catalogo/listarCatalogoCombo',
+                                    id: 'id_catalogo',
+                                    root: 'datos',
+                                    fields: ['id_catalogo','codigo','descripcion'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'descripcion',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'descripcion',
+                                        dir: 'ASC',
+                                        par_filtro:'cat.descripcion',
+                                        cod_subsistema:'KAF',
+                                        catalogo_tipo:'tactivo_fijo__id_cat_estado_fun'
+                                    }
+                                }),
+                                valueField: 'id_catalogo',
+                                displayField: 'descripcion',
+                                gdisplayField: 'cat_estado_fun',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true
                             }, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Observaciones',
@@ -1340,19 +1442,54 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 fieldLabel: 'Depósito',
                                 name: 'id_deposito',
                                 allowBlank: false,
-                                id: this.idContenedor+'_id_deposito'
+                                id: this.idContenedor+'_id_deposito',
+                                emptyText: 'Elija el depósito',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_kactivos_fijos/control/Deposito/listarDeposito',
+                                    id: 'id_deposito',
+                                    root: 'datos',
+                                    fields: ['id_deposito','id_funcionario','id_oficina','ubicacion','codigo','nombre','depto','depto_cod','funcionario','oficina_cod','oficina'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        par_filtro:'depaf.codigo#depaf.nombre'
+                                    }
+                                }),
+                                valueField: 'id_deposito',
+                                displayField: 'nombre',
+                                gdisplayField: 'deposito',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true
                             }, {
+                                xtype: 'combo',
                                 fieldLabel: 'Oficina',
                                 name: 'id_oficina',
                                 allowBlank: false,
                                 disabled: true,
-                                id: this.idContenedor+'_id_oficina'
+                                id: this.idContenedor+'_id_oficina',
+                                store: new Ext.data.JsonStore({}),
+                                valueField: 'id_oficina',
+                                displayField: 'nombre',
+                                gdisplayField: 'oficina'
                             }, {
+                                xtype: 'combo',
                                 fieldLabel: 'Responsable',
                                 name: 'id_funcionario',
                                 allowBlank: false,
                                 disabled: true,
-                                id: this.idContenedor+'_id_funcionario'
+                                id: this.idContenedor+'_id_funcionario',
+                                store: new Ext.data.JsonStore({}),
+                                valueField: 'id_funcionario',
+                                displayField: 'nombre',
+                                gdisplayField: 'funcionario'
                             }, {
                                 fieldLabel: 'Custodio',
                                 name: 'id_persona',
@@ -1362,7 +1499,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Ubicación',
                                 name: 'ubicacion',
-                                id: this.idContenedor+'_ubicacion'
+                                id: this.idContenedor+'_ubicacion',
+                                disabled: true
                             }]
                         }, {
                             title: 'Datos Compra',
@@ -1376,7 +1514,33 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 fieldLabel: 'Proveedor',
                                 name: 'id_proveedor',
                                 allowBlank: false,
-                                id: this.idContenedor+'_id_proveedor'
+                                id: this.idContenedor+'_id_proveedor',
+                                emptyText: 'Elija el Proveedor',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/Proveedor/listarProveedorCombos',
+                                    id: 'id_proveedor',
+                                    root: 'datos',
+                                    fields: ['id_proveedor','desc_proveedor'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'desc_proveedor',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'desc_proveedor',
+                                        dir: 'ASC',
+                                        par_filtro:'provee.desc_proveedor'
+                                    }
+                                }),
+                                valueField: 'id_proveedor',
+                                displayField: 'desc_proveedor',
+                                gdisplayField: 'desc_proveedor',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true,
+                                pageSize: 15
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha Compra',
@@ -1387,11 +1551,89 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 fieldLabel: 'Documento',
                                 name: 'documento',
                                 id: this.idContenedor+'_documento'
+                            },{
+                                xtype: 'compositefield',
+                                fieldLabel: 'Importe',
+                                msgTarget: 'side',
+                                anchor: '-20',
+                                defaults: {
+                                    flex: 1
+                                },
+                                items: [{
+                                    xtype: 'textfield',
+                                    fieldLabel: 'Monto compra',
+                                    name: 'monto_compra',
+                                    allowBlank: false,
+                                    id: this.idContenedor+'_monto_compra',
+                                    width: 140
+                                }, {
+                                    xtype: 'combo',
+                                    fieldLabel: 'Moneda',
+                                    name: 'id_moneda_orig',
+                                    allowBlank: false,
+                                    width: 50,
+                                    listWidth: 50,
+                                    id: this.idContenedor+'_id_moneda_orig',
+                                    emptyText: 'Elija la moneda de compra',
+                                    store: new Ext.data.JsonStore({
+                                        url: '../../sis_parametros/control/Moneda/listarMoneda',
+                                        id: 'id_moneda',
+                                        root: 'datos',
+                                        fields: ['id_moneda','codigo','moneda'],
+                                        totalProperty: 'total',
+                                        sortInfo: {
+                                            field: 'moneda',
+                                            direction: 'ASC'
+                                        },
+                                        baseParams:{
+                                            start: 0,
+                                            limit: 10,
+                                            sort: 'moneda',
+                                            dir: 'ASC',
+                                            par_filtro:'moneda.moneda'
+                                        }
+                                    }),
+                                    valueField: 'id_moneda',
+                                    displayField: 'codigo',
+                                    gdisplayField: 'codigo',
+                                    mode: 'remote',
+                                    triggerAction: 'all',
+                                    lazyRender: true,
+                                    pageSize: 15
+                                }]
                             }, {
-                                fieldLabel: 'Monto compra',
-                                name: 'monto_compra',
+                                xtype: 'combo',
+                                fieldLabel: 'Estado del Activo',
+                                name: 'id_cat_estado_compra',
                                 allowBlank: false,
-                                id: this.idContenedor+'_monto_compra'
+                                id: this.idContenedor+'_id_cat_estado_compra',
+                                emptyText: 'Elija una opción',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/Catalogo/listarCatalogoCombo',
+                                    id: 'id_catalogo',
+                                    root: 'datos',
+                                    fields: ['id_catalogo','codigo','descripcion'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'descripcion',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'descripcion',
+                                        dir: 'ASC',
+                                        par_filtro:'cat.descripcion',
+                                        cod_subsistema:'KAF',
+                                        catalogo_tipo:'tactivo_fijo__id_cat_estado_compra'
+                                    }
+                                }),
+                                valueField: 'id_catalogo',
+                                displayField: 'descripcion',
+                                gdisplayField: 'cat_estado_fun',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true
                             }]
                         }, {
                             title: 'Datos Depreciación',
@@ -1423,15 +1665,25 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_depreciacion_per'
                             }, {
                                 fieldLabel: 'Depreciación Mes',
-                                name: 'depreciacion_per',
+                                name: 'depreciacion',
                                 disabled: true,
-                                id: this.idContenedor+'_depreciacion_per'
+                                id: this.idContenedor+'_depreciacion'
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha última Depreciación',
                                 name: 'fecha_ult_dep',
                                 disabled: true,
                                 id: this.idContenedor+'_fecha_ult_dep'
+                            }, {
+                                fieldLabel: 'Vida Útil restante',
+                                name: 'vida_util',
+                                disabled: true,
+                                id: this.idContenedor+'_vida_util'
+                            }, {
+                                fieldLabel: 'Monto de rescate',
+                                name: 'monto_rescate',
+                                allowBlank: false,
+                                id: this.idContenedor+'_monto_rescate'
                             }]
                         }]
                     }]
@@ -1449,7 +1701,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
             this.afWindow = new Ext.Window({
                 width: 800,
-                height: 450,
+                height: 515,
                 modal: true,
                 closeAction: 'hide',
                 labelAlign: 'top',
@@ -1463,12 +1715,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     minWidth: 150,
                     maxWidth: 250,
                     items: [{
-                        id: 'img-detail-panel'
+                        id: 'img-detail-panel',
+                        region: 'north'
+                    }, {
+                        id: 'img-qr-panel',
+                        region: 'center'
                     }]
                 },this.form],
                 buttons: [{
                     text: 'Guardar',
-                    disabled: true
+                    handler: this.onSubmit,
+                    scope: this
                 }, {
                     text: 'Declinar',
                     handler: function() {
@@ -1477,7 +1734,47 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     scope: this
                 }]
             });
-        }
+
+            //Events
+            //Clasificación
+            Ext.getCmp(this.idContenedor+'_id_clasificacion').on('exception',this.conexionFailure,this);
+            Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
+                Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
+                Ext.getCmp(this.idContenedor+'_vida_util').setValue(rec.data.vida_util);
+                Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
+            },this);
+            //Denominación
+            Ext.getCmp(this.idContenedor+'_denominacion').on('blur',function(cmp){
+                if(Ext.getCmp(this.idContenedor+'_descripcion').getValue()==''){
+                    Ext.getCmp(this.idContenedor+'_descripcion').setValue(Ext.getCmp(this.idContenedor+'_denominacion').getValue());
+                }
+            },this);
+            //Deposito
+            Ext.getCmp(this.idContenedor+'_id_deposito').on('select',function(cmp,rec,index){
+                //Setear oficina
+                rec1 = new Ext.data.Record({nombre: rec.data.oficina, 'id_oficina': rec.data.id_oficina },rec.data.id_oficina);
+                Ext.getCmp(this.idContenedor+'_id_oficina').store.add(rec1);
+                Ext.getCmp(this.idContenedor+'_id_oficina').store.commitChanges();
+                Ext.getCmp(this.idContenedor+'_id_oficina').modificado = true;
+                Ext.getCmp(this.idContenedor+'_id_oficina').setValue(rec.data.id_oficina);
+                //Setear responsable
+                rec1 = new Ext.data.Record({nombre: rec.data.funcionario, 'id_funcionario': rec.data.id_funcionario },rec.data.id_funcionario);
+                Ext.getCmp(this.idContenedor+'_id_funcionario').store.add(rec1);
+                Ext.getCmp(this.idContenedor+'_id_funcionario').store.commitChanges();
+                Ext.getCmp(this.idContenedor+'_id_funcionario').modificado = true;
+                Ext.getCmp(this.idContenedor+'_id_funcionario').setValue(rec.data.id_funcionario);
+                //Setear Ubicación
+                Ext.getCmp(this.idContenedor+'_ubicacion').setValue(rec.data.ubicacion);
+            },this);
+            //Monto COmpra
+            Ext.getCmp(this.idContenedor+'_monto_compra').on('blur', function(a,b,c){
+                Ext.getCmp(this.idContenedor+'_monto_vigente').setValue(Ext.getCmp(this.idContenedor+'_monto_compra').getValue());
+                Ext.getCmp(this.idContenedor+'_depreciacion_acum').setValue('0.00');
+                Ext.getCmp(this.idContenedor+'_depreciacion_per').setValue('0.00');
+                Ext.getCmp(this.idContenedor+'_depreciacion').setValue('0.00');
+            },this);
+
+        //}
     },
     abrirVentana: function(tipo){
         var data;
@@ -1485,36 +1782,109 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             //Carga datos
             this.cargaFormulario(this.sm.getSelected().data);            
             data = this.sm.getSelected().data;
-        } else{
+        } else {
             //Inicializa el formulario
-            this.form.getForm().reset;
-            data = {foto:'default.jpg'}
+            this.form.getForm().reset();
+            this.cargarValoresDefecto();
+            data = {foto:'default.jpg',codigo:''}
         }
         //Renderea la imagen, abre la ventana
         this.afWindow.show();
         this.renderFoto(data);
     },
     cargaFormulario: function(data){
-        Ext.getCmp(this.idContenedor+'_codigo').setValue(data.codigo);
-        Ext.getCmp(this.idContenedor+'_estado').setValue(data.estado);
+        var obj,key,objsec,keysec;
+        Ext.each(this.form.getForm().items.keys, function(element, index){
+            //console.log(element);
+            obj = Ext.getCmp(element);
+            if(obj.items){
+                Ext.each(obj.items.items, function(elm, b, c){
+                    if(elm.getXType()=='combo'&&elm.mode=='remote'&&elm.store!=undefined){
+                        if (!elm.store.getById(data[elm.name])) {
+                            rec = new Ext.data.Record({nombre: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
+                            elm.store.add(rec);
+                            elm.store.commitChanges();
+                            elm.modificado = true;
+                        }
+                    } 
+                    elm.setValue(data[elm.name]);
+                },this);
+            } else {
+                key = element.replace(this.idContenedor+'_','');
+                if(obj.getXType()=='combo'&&obj.mode=='remote'&&obj.store!=undefined){
+                    if (!obj.store.getById(data[key])) {
+                        rec = new Ext.data.Record({nombre: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
+                        obj.store.add(rec);
+                        obj.store.commitChanges();
+                        obj.modificado = true;
+                    }
+                } 
+                obj.setValue(data[key]);    
+            }
+            
+        },this);
+
     },
     renderFoto: function(data){
         var detailEl = Ext.getCmp('img-detail-panel').body;
-        /*var data = {
-            foto:'af_2_001.jpg', 
-            codigo:'CD-SD-AS-0001',
-            estado:'alta',
-            denominacion:'Escritorio para computadora de 3 cajones',
-            fecha_compra: '10-12-2014',
-            proveedor: 'Las 3 carapelas SRL',
-            funcionario: 'Carlos Julian Gutierrez Villazón',
-            oficina: 'Aeropuerto Cochabamba',
-            monto_compra: '2.564',
-            monto_vigente: '1.982.23'
-        };*/
         this.detailsTemplate.overwrite(detailEl, data);
         detailEl.slideIn('l', {stopFx:true,duration:.3});
+
+        var qrcode = new QRCode("img-qr-panel", {
+            text: data.codigo,
+            width: 128,
+            height: 128,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        if(data.codigo==''){
+            qrcode.clear();
+        } else {
+            qrcode.makeCode(data.codigo);
+        }
     },
+    cargarValoresDefecto: function(){
+
+    },
+    onSubmit: function(o,x,force){
+        var formData;
+        if(this.form.getForm().isValid()){
+            //Phx.CP.loadingShow();
+            Ext.MessageBox.alert('Información','Ejecutando submit');
+            formData = this.dataSubmit();
+            console.log(formData);
+            Ext.Ajax.request({
+                url: '../../sis_kactivos_fijos/control/ActivoFijo/insertarActivoFijo',
+                params: this.dataSubmit,
+                isUpload: false,
+                success: function(a,b,c){
+                    console.log(a,b,c);
+                },
+                argument: this.argumentSave,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        } else {
+            Ext.MessageBox.alert('Advertencia','Existen datos inválidos en el formulario. Corrija y vuelva a intentarlo');
+        }
+    },
+    dataSubmit: function(){
+        var submit={};
+        Ext.each(this.form.getForm().items.keys, function(element, index){
+            obj = Ext.getCmp(element);
+            if(obj.items){
+                Ext.each(obj.items.items, function(elm, ind){
+                    submit[elm.name]=elm.getValue();    
+                },this)
+            } else {
+                submit[obj.name]=obj.getValue();
+            }
+        },this);
+        return submit;
+    }
+
 
 })
 </script>

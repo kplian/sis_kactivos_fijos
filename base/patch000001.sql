@@ -222,3 +222,16 @@ IS 'Catalogo, estado del activo a la compra: nuevo, usado';
 COMMENT ON COLUMN kaf.tactivo_fijo.id_cat_estado_fun
 IS 'Catalogo, estado funcional actual del activo fijo';
 /***********************************F-SCP-RCM-KAF-1-28/10/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-09/11/2015****************************************/
+create table kaf.tdeposito (
+	id_deposito serial,
+	id_depto integer not null,
+	id_funcionario integer not null,
+	id_oficina integer not null,
+	codigo varchar(15) not null,
+	nombre varchar(50) not null,
+	ubicacion varchar(200),
+	constraint pk_tdeposito__id_deposito primary key (id_deposito)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-1-09/11/2015****************************************/

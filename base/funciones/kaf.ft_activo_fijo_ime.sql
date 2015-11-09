@@ -86,8 +86,8 @@ BEGIN
 			fecha_mod
           	) values(
 			v_parametros.id_persona,
-			v_parametros.cantidad_revaloriz,
-			v_parametros.foto,
+			0,
+			'default.jpg',
 			v_parametros.id_proveedor,
 			'activo',
 			v_parametros.fecha_compra,
@@ -103,19 +103,19 @@ BEGIN
 			v_parametros.id_funcionario,
 			v_parametros.id_deposito,
 			v_parametros.monto_compra,
-			v_parametros.id_moneda,
-			v_parametros.depreciacion_mes,
+			v_parametros.id_moneda_orig,
+			0,
 			v_parametros.codigo,
 			v_parametros.descripcion,
 			v_parametros.id_moneda_orig,
 			v_parametros.fecha_ini_dep,
 			v_parametros.id_cat_estado_compra,
-			v_parametros.depreciacion_per,
+			0,
 			v_parametros.vida_util_original,
-			v_parametros.depreciacion_acum,
-			v_parametros.estado,
+			0,
+			'registrado',
 			v_parametros.id_clasificacion,
-			v_parametros.id_centro_costo,
+			null,
 			v_parametros.id_oficina,
 			v_parametros.id_depto,
 			p_id_usuario,
@@ -124,9 +124,6 @@ BEGIN
 			v_parametros._id_usuario_ai,
 			null,
 			null
-							
-			
-			
 			)RETURNING id_activo_fijo into v_id_activo_fijo;
 			
 			--Definicion de la respuesta
@@ -167,19 +164,16 @@ BEGIN
 			id_funcionario = v_parametros.id_funcionario,
 			id_deposito = v_parametros.id_deposito,
 			monto_compra = v_parametros.monto_compra,
-			id_moneda = v_parametros.id_moneda,
-			depreciacion_mes = v_parametros.depreciacion_mes,
+			id_moneda = v_parametros.id_moneda_orig,
 			codigo = v_parametros.codigo,
 			descripcion = v_parametros.descripcion,
 			id_moneda_orig = v_parametros.id_moneda_orig,
 			fecha_ini_dep = v_parametros.fecha_ini_dep,
 			id_cat_estado_compra = v_parametros.id_cat_estado_compra,
-			depreciacion_per = v_parametros.depreciacion_per,
 			vida_util_original = v_parametros.vida_util_original,
-			depreciacion_acum = v_parametros.depreciacion_acum,
 			estado = v_parametros.estado,
 			id_clasificacion = v_parametros.id_clasificacion,
-			id_centro_costo = v_parametros.id_centro_costo,
+			-- id_centro_costo = v_parametros.id_centro_costo,
 			id_oficina = v_parametros.id_oficina,
 			id_depto = v_parametros.id_depto,
 			id_usuario_mod = p_id_usuario,
