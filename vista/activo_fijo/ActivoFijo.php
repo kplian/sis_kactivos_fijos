@@ -11,6 +11,218 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
+    mainRegionPanel: {
+        region:'west',
+        collapsed: true,
+        width: 250,
+        title: 'Filtros',
+        items: [
+            new Ext.Panel({
+                id: 'af_filter_accordion',
+                region:'west',
+                margins:'5 0 5 5',
+                split:true,
+                width: 210,
+                layout:'accordion',
+                items: [
+                    new Ext.Panel({
+                        title: 'Clasificación',
+                        cls:'empty',
+                        autoScroll: true,
+                        tools:[{
+                            id:'refresh',
+                            qtip: 'Actualizar',
+                            handler: function(event, toolEl, panel){
+                                Ext.getCmp('tree_clasificacion_af').root.reload();
+                            }
+                        }],
+                        items: [
+                            new Ext.tree.TreePanel({
+                                id: 'tree_clasificacion_af',
+                                region: 'center',
+                                scale: 'large',
+                                singleClickExpand: true,
+                                rootVisible: false,
+                                root: new Ext.tree.AsyncTreeNode({
+                                    text: 'Clasificación Activos Fijos',
+                                    expandable: true
+                                }),
+                                animate: true,
+                                singleExpand: true,
+                                useArrows: true,
+                                autoScroll: true,
+                                loader: new Ext.tree.TreeLoader({
+                                    url: '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacionArb',
+                                    clearOnLoad: true,
+                                    baseParams: {
+                                        start: 0,
+                                        limit: 50,
+                                        sort: 'claf.nombre',
+                                        dir: 'ASC',
+                                        id_clasificacion_fk: ''
+                                    }
+                                }),
+                                containerScroll: true,
+                                border: false
+                            })
+                        ]
+                    }), 
+                    new Ext.Panel({
+                        id: 'af_filter_depto',
+                        title: 'Departamentos',
+                        autoScroll: true,
+                        tools:[{
+                            id:'refresh',
+                            qtip: 'Actualizar',
+                            handler: function(event, toolEl, panel){
+                                Ext.getCmp('af_filter_depto_cbo').store.reload();
+                            }
+                        }],
+                        items: [
+                            new Ext.list.ListView({
+                                id: 'af_filter_depto_cbo',
+                                scope: this,
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
+                                    id: 'id_depto',
+                                    root: 'datos',
+                                    fields: ['id_depto','codigo','nombre'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        modulo: 'KAF',
+                                        par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
+                                    }
+                                }),
+                                singleSelect: true,
+                                emptyText: 'No existen departamentos habilitados',
+                                reserveScrollOffset: true,
+
+                                columns: [{
+                                    //header: 'id_depto',
+                                    width: 0.01,
+                                    dataIndex: 'id_depto',
+                                    hidden: true
+                                },{
+                                    header: 'Código',
+                                    width: .3,
+                                    dataIndex: 'codigo'
+                                },{
+                                    header: 'Nombre',
+                                    width: .6, 
+                                    dataIndex: 'nombre'
+                                }]
+                            })
+                       ]
+                    }), 
+                    new Ext.Panel({
+                        id: 'af_filter_oficina',
+                        title: 'Oficinas',
+                        autoScroll: true,
+                        cls:'empty',
+                        tools:[{
+                            id:'refresh',
+                            qtip: 'Actualizar',
+                            handler: function(event, toolEl, panel){
+                                Ext.getCmp('af_filter_oficina_cbo').store.reload();
+                            }
+                        }],
+                        items: [
+                            new Ext.list.ListView({
+                                id: 'af_filter_oficina_cbo',
+                                scope: this,
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_organigrama/control/Oficina/listarOficina',
+                                    id: 'id_oficina',
+                                    root: 'datos',
+                                    fields: ['id_oficina','codigo','nombre'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC'
+                                    }
+                                }),
+                                singleSelect: true,
+                                emptyText: 'No existen Oficina habilitadas',
+                                reserveScrollOffset: true,
+                                columns: [{
+                                    //header: 'id_depto',
+                                    width: 0.01,
+                                    dataIndex: 'id_oficina',
+                                    hidden: true
+                                },{
+                                    header: 'Código',
+                                    width: .3,
+                                    dataIndex: 'codigo'
+                                },{
+                                    header: 'Nombre',
+                                    width: .6, 
+                                    dataIndex: 'nombre'
+                                }]
+                            })
+                       ]
+                    }), 
+                    new Ext.Panel({
+                        title: 'Organigrama',
+                        cls:'empty',
+                        autoScroll: true,
+                        tools:[{
+                            id:'refresh',
+                            qtip: 'Actualizar',
+                            handler: function(event, toolEl, panel){
+                                Ext.getCmp('tree_organigrama_af').root.reload();
+                            }
+                        }],
+                        items: [
+                            new Ext.tree.TreePanel({
+                                id: 'tree_organigrama_af',
+                                region: 'center',
+                                scale: 'large',
+                                singleClickExpand: true,
+                                rootVisible: false,
+                                root: new Ext.tree.AsyncTreeNode({
+                                    text: 'Organigrama',
+                                    expandable: true
+                                }),
+                                animate: true,
+                                singleExpand: true,
+                                useArrows: true,
+                                autoScroll: true,
+                                loader: new Ext.tree.TreeLoader({
+                                    url: '../../sis_organigrama/control/EstructuraUo/listarEstructuraUo',
+                                    clearOnLoad: true,
+                                    baseParams: {
+                                        start: 0,
+                                        limit: 50,
+                                        sort: 'uo.nombre',
+                                        dir: 'ASC',
+                                        id_uo: '',
+                                        node: 'idXX',
+                                        filtro:'inactivo',
+                                        criterio_filtro_arb:'FASS'
+                                    }
+                                }),
+                                containerScroll: true,
+                                border: false
+                            })
+                        ]
+                    })]
+            })
+        ]
+    },
     constructor: function(config) {
         this.maestro = config.maestro;
         //llama al constructor de la clase padre
@@ -22,15 +234,66 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 limit: this.tam_pag
             }
         });
+         //Load data for Departamentos
+        Ext.getCmp('af_filter_depto').on('activate',function(){
+            Ext.getCmp('af_filter_depto_cbo').store.load();
+        },this);
+        //Load data for Oficinas
+        Ext.getCmp('af_filter_oficina').on('activate',function(){
+            Ext.getCmp('af_filter_oficina_cbo').store.load();
+        },this);
+        
+        Ext.getCmp('af_filter_accordion').on('expand',function(){alert('evento')},this);
+
+        Ext.getCmp('tree_clasificacion_af').loader.on('beforeload', function(treeLoader,node){
+            console.log('ss',node.attributes['id_clasificacion']);
+            Ext.apply(Ext.getCmp('tree_clasificacion_af').loader.baseParams,{
+                id_clasificacion: node.attributes['id_clasificacion']
+            });
+        },this);
+
+        Ext.getCmp('tree_organigrama_af').loader.on('beforeload', function(treeLoader,node){
+            Ext.apply(Ext.getCmp('tree_organigrama_af').loader.baseParams,{
+                id_uo: node.attributes['id_uo'],
+                node: node.attributes['id_uo']
+            });
+        },this);
+
+        //Apply filter in main grid from Clasification
+        Ext.getCmp('tree_clasificacion_af').on('click',function(node, e){
+            this.filtrarGrid({
+                id_filter_panel: node.id,
+                col_filter_panel: 'id_clasificacion'
+            });
+        },this);
+
+        //Apply filter in main grid from Departamentos
+        Ext.getCmp('af_filter_depto_cbo').addListener('selectionChange', function(cmp,cls){
+            var data=cmp.store.data.items[cmp.last].data;
+            this.filtrarGrid({
+                id_filter_panel: data.id_depto,
+                col_filter_panel: 'id_depto'
+            });
+        }, this);
+
+        //Apply filter in main grid from Departamentos
+        Ext.getCmp('af_filter_oficina_cbo').addListener('selectionChange', function(cmp,cls){
+            var data=cmp.store.data.items[cmp.last].data;
+            this.filtrarGrid({
+                id_filter_panel: data.id_oficina,
+                col_filter_panel: 'id_oficina'
+            });
+        }, this);
+
 
         this.detailsTemplate = new Ext.XTemplate(
-        	'<div class="details">',
-				'<tpl for=".">',
-					'<img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150"><div class="details-info">',
-					'<b>Código: </b>',
-					'<span>{codigo}</span>',
-					'<br><b>Estado: </b>',
-					'<span>{estado}</span>',
+            '<div class="details">',
+                '<tpl for=".">',
+                    '<img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150"><div class="details-info">',
+                    '<b>Código: </b>',
+                    '<span>{codigo}</span>',
+                    '<br><b>Estado: </b>',
+                    '<span>{estado}</span>',
                     '<br><b>Denominación: </b>',
                     '<span>{denominacion}</span>',
                     '<br><b>Fecha Compra: </b>',
@@ -51,12 +314,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     '<span>{depreciacion_per}</span>',
                     '<br><b>Vida útil: </b>',
                     '<span>{vida_util}</span>',
-					'</div>',
-				'</tpl>',
-			'</div>'
-		);
+                    '</div>',
+                '</tpl>',
+            '</div>'
+        );
 
-		this.detailsTemplate.compile();
+        this.detailsTemplate.compile();
 
     },
     Atributos: [{
@@ -1389,6 +1652,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 xtype: 'combo',
                                 fieldLabel: 'Estado funcional',
                                 name: 'id_cat_estado_fun',
+                                hiddenName: 'id_cat_estado_fun',
                                 allowBlank: false,
                                 id: this.idContenedor+'_id_cat_estado_fun',
                                 emptyText: 'Elija una opción',
@@ -1413,8 +1677,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     }
                                 }),
                                 valueField: 'id_catalogo',
+                                hiddenValue: 'id_catalogo',
                                 displayField: 'descripcion',
-                                gdisplayField: 'cat_estado_fun',
+                                gdisplayField: 'estado_fun',
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true
@@ -1540,7 +1805,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                valueNotFoundText: 'Proveedor no encontrado'
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha Compra',
@@ -1630,7 +1896,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 }),
                                 valueField: 'id_catalogo',
                                 displayField: 'descripcion',
-                                gdisplayField: 'cat_estado_fun',
+                                gdisplayField: 'estado_compra',
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true
@@ -1766,7 +2032,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 //Setear Ubicación
                 Ext.getCmp(this.idContenedor+'_ubicacion').setValue(rec.data.ubicacion);
             },this);
-            //Monto COmpra
+            //Monto Compra
             Ext.getCmp(this.idContenedor+'_monto_compra').on('blur', function(a,b,c){
                 Ext.getCmp(this.idContenedor+'_monto_vigente').setValue(Ext.getCmp(this.idContenedor+'_monto_compra').getValue());
                 Ext.getCmp(this.idContenedor+'_depreciacion_acum').setValue('0.00');
@@ -1795,7 +2061,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     cargaFormulario: function(data){
         var obj,key,objsec,keysec;
         Ext.each(this.form.getForm().items.keys, function(element, index){
-            //console.log(element);
             obj = Ext.getCmp(element);
             if(obj.items){
                 Ext.each(obj.items.items, function(elm, b, c){
@@ -1817,11 +2082,13 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                         obj.store.add(rec);
                         obj.store.commitChanges();
                         obj.modificado = true;
-                    }
-                } 
+                        //console.log('key:'+key,',gdisplayField:'+obj.gdisplayField,',data[obj.gdisplayField]:'+data[obj.gdisplayField],',obj.valueField:'+obj.valueField,',data[key]:'+data[key]);
+                        //console.log(rec,obj.store, data[key],obj.valueField);
+                    } 
+
+                }
                 obj.setValue(data[key]);    
             }
-            
         },this);
 
     },
@@ -1850,16 +2117,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     onSubmit: function(o,x,force){
         var formData;
         if(this.form.getForm().isValid()){
-            //Phx.CP.loadingShow();
-            Ext.MessageBox.alert('Información','Ejecutando submit');
+            Phx.CP.loadingShow();
             formData = this.dataSubmit();
-            console.log(formData);
             Ext.Ajax.request({
                 url: '../../sis_kactivos_fijos/control/ActivoFijo/insertarActivoFijo',
                 params: this.dataSubmit,
                 isUpload: false,
                 success: function(a,b,c){
-                    console.log(a,b,c);
+                    this.store.rejectChanges();
+                    Phx.CP.loadingHide();
+                    this.afWindow.hide();
+                    this.reload();
                 },
                 argument: this.argumentSave,
                 failure: this.conexionFailure,
@@ -1883,10 +2151,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             }
         },this);
         return submit;
-    }
+    },
 
+    filtrarGrid: function(data){
+        Ext.apply(this.grid.store.baseParams,data);
+        this.load();
+    },
+
+    refreshClasif: function(){
+        alert('fasss');
+    }
 
 })
 </script>
-		
-		
+        
+        

@@ -50,6 +50,15 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.Movimiento.superclass.constructor.call(this,config);
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}})
+
+		this.addButton('btnMovGral',
+            {
+                text: 'Movimientos',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.openMovimientos
+            }
+        );
 	},
 			
 	Atributos:[
@@ -560,7 +569,19 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
 	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
 	        )
-    })
+    }),
+    openMovimientos: function(){
+    	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoGral.php',
+            'Movimientos',
+            {
+                width:'90%',
+                height:500
+            },
+            {},
+            this.idContenedor,
+            'MovimientoGral'
+        )
+    }
 })
 </script>
 		
