@@ -136,7 +136,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			form : true
 		},{
 			config: {
-                fieldLabel: 'Estado funcional',
+                fieldLabel: 'Método de Depreciación',
                 name: 'id_cat_metodo_dep',
                 hiddenName: 'id_cat_metodo_dep',
                 allowBlank: true,

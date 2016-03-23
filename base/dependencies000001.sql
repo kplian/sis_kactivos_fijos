@@ -58,3 +58,36 @@ add constraint fk_tmovimiento_af_dep__id_movimiento_af foreign key (id_movimient
 alter table kaf.tmovimiento_af_dep
 add constraint fk_tmovimiento_af_dep__id_moneda foreign key (id_moneda) references param.tmoneda (id_moneda);
 /***********************************F-DEP-RCM-KAF-1-02/09/2015****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-18/03/2016****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT fk_tmovimiento_af__id_movimiento FOREIGN KEY (id_movimiento)
+    REFERENCES kaf.tmovimiento(id_movimiento)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT fk_tmovimiento_af__id_activo_fijo FOREIGN KEY (id_activo_fijo)
+    REFERENCES kaf.tactivo_fijo(id_activo_fijo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT fk_tmovimiento_af__id_cat_estado_fun FOREIGN KEY (id_cat_estado_fun)
+    REFERENCES param.tcatalogo(id_catalogo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tmovimiento_tipo_motivo
+  ADD CONSTRAINT fk_tmovimiento_tipo_motivo__id_cat_movimiento FOREIGN KEY (id_cat_movimiento)
+    REFERENCES param.tcatalogo(id_catalogo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT fk_tmovimiento_af__id_movimiento_motivo FOREIGN KEY (id_movimiento_motivo)
+    REFERENCES kaf.tmovimiento_motivo(id_movimiento_motivo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-1-18/03/2016****************************************/    

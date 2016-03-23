@@ -57,10 +57,14 @@ class MODDeposito extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('ubicacion','ubicacion','varchar');
 		$this->setParametro('id_depto','id_depto','int4');
+		$this->setParametro('id_funcionario','id_funcionario','int4');
+		$this->setParametro('id_oficina','id_oficina','int4');
+		$this->setParametro('id_usuario_ai','id_usuario_ai','int4');
+		$this->setParametro('nombre_usuario_ai','nombre_usuario_ai','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -78,10 +82,14 @@ class MODDeposito extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('id_deposito','id_deposito','int4');
-		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('ubicacion','ubicacion','varchar');
 		$this->setParametro('id_depto','id_depto','int4');
+		$this->setParametro('id_funcionario','id_funcionario','int4');
+		$this->setParametro('id_oficina','id_oficina','int4');
+		$this->setParametro('id_usuario_ai','id_usuario_ai','int4');
+		$this->setParametro('nombre_usuario_ai','nombre_usuario_ai','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

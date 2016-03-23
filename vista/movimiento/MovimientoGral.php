@@ -10,14 +10,32 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 	Phx.vista.MovimientoGral = Ext.extend(Phx.frmInterfaz, {
+
+		bsubmit: false,
+		breset: false,
 		
 		constructor: function(config) {
 			Phx.vista.MovimientoGral.superclass.constructor.call(this, config);
-			this.init();
-			//Ext.getCmp('tree_af_clasif_mov').getRootNode().expand(true);
-			Ext.getCmp('tree_af_clasif_mov').loader.on('beforeload', this.onBeforeLoad, this);
-			//Ext.getCmp('tree_af_clasif_mov').root.reload();
-			//Ext.getCmp('tree_af_clasif_mov').root.expand(false,false);
+			
+			this.addButton('btnAddAF',
+	            {
+	                text: 'Agregar Activo Fijo',
+	                iconCls: 'bchecklist',
+	                disabled: false,
+	                handler: this.openAF
+	            }
+	        );
+	        this.addButton('btnSaveMov',
+	            {
+	                text: 'Guardar',
+	                iconCls: 'bchecklist',
+	                disabled: false //,
+	                //handler: this.openMovimientos
+	            }
+	        );
+	        this.initButtons=[this.cmbAF];
+
+	        this.init();
 		},
 		
 		Atributos : [{
@@ -37,6 +55,18 @@ header("content-type: text/javascript; charset=UTF-8");
 				fieldLabel: 'Movimiento',
 				disabled: true,
 				width: 250
+			},
+			type : 'Field',
+			id_grupo : 0,
+			form : true
+		},
+		{
+			config : {
+				name : 'nro_tramite',
+				id:this.idContenedor+'_nro_tramite',
+				fieldLabel: 'Num.Trámite',
+				disabled: true,
+				width: 160
 			},
 			type : 'Field',
 			id_grupo : 0,
@@ -68,6 +98,43 @@ header("content-type: text/javascript; charset=UTF-8");
 			type: 'TextArea',
 			id_grupo: 0,
 			form: true
+		}, {
+			config: {
+	        name: 'cmb_af',
+	        fieldLabel: 'Activos Fijos',
+	        typeAhead: false,
+	        forceSelection: true,
+	        allowBlank: false,
+	        emptyText: 'Activo Fijo...',
+	        store: new Ext.data.JsonStore({
+	            url: '../../sis_kactivos_fijos/control/ActivoFijo/listarActivoFijo',
+	            id: 'id_activo_fijo',
+	            root: 'datos',
+	            sortInfo: {
+	                field: 'codigo',
+	                direction: 'ASC'
+	            },
+	            totalProperty: 'total',
+	            fields: ['id_activo_fijo','codigo','denominacion','descripcion'],
+	            // turn on remote sorting
+	            remoteSort: true,
+	        }),
+	        valueField: 'id_activo_fijo',
+			displayField: 'denominacion',
+			gdisplayField: 'activo_fijo',
+			forceSelection:true,
+			typeAhead: false,
+			triggerAction: 'all',
+			lazyRender:true,
+			mode:'remote',
+			pageSize:10,
+			queryDelay:1000,
+			width:155,
+			minChars:2
+	    },
+	    type: 'ComboBox',
+		id_grupo: 0,
+		form: true
 		}],
 		title : 'Kardex x Item',
 		ActSave : '../../sis_almacenes/control/Reportes/listarKardexItem',
@@ -91,46 +158,38 @@ header("content-type: text/javascript; charset=UTF-8");
 				new Ext.grid.GridPanel({
 		        store: new Ext.data.ArrayStore({
 			        fields: [
-			           {name: 'company'},
-			           {name: 'price',      type: 'float'},
-			           {name: 'change',     type: 'float'},
-			           {name: 'pctChange',  type: 'float'},
-			           {name: 'lastChange', type: 'date', dateFormat: 'n/j h:ia'}
+			           {name: 'id_activo_fijo', type:'numeric'},
+			           {name: 'codigo',      type: 'string'},
+			           {name: 'nombre',     type: 'string'},
+			           {name: 'descripcion',     type: 'string'}
 			        ]
 			    }),
 		        columns: [
 		            {
-		                id       :'company',
-		                header   : 'Company', 
-		                width    : 160, 
+		                id       :'id_activo_fijo',
+		                header   : 'ID', 
+		                width    : 10, 
 		                sortable : true, 
-		                dataIndex: 'company'
+		                dataIndex: 'company',
+		                hidden: true
 		            },
 		            {
-		                header   : 'Price', 
-		                width    : 75, 
+		                header   : 'Código', 
+		                width    : 90, 
 		                sortable : true, 
-		                renderer : 'usMoney', 
-		                dataIndex: 'price'
+		                dataIndex: 'codigo'
 		            },
 		            {
-		                header   : 'Change', 
-		                width    : 75, 
+		                header   : 'Nombre', 
+		                width    : 190, 
 		                sortable : true, 
-		                dataIndex: 'change'
+		                dataIndex: 'nombre'
 		            },
 		            {
-		                header   : '% Change', 
-		                width    : 75, 
+		                header   : 'Descripción', 
+		                width    : 300, 
 		                sortable : true, 
-		                dataIndex: 'pctChange'
-		            },
-		            {
-		                header   : 'Last Updated', 
-		                width    : 85, 
-		                sortable : true, 
-		                renderer : Ext.util.Format.dateRenderer('m/d/Y'), 
-		                dataIndex: 'lastChange'
+		                dataIndex: 'descripcion'
 		            },
 		            {
 		                xtype: 'actioncolumn',
@@ -160,55 +219,14 @@ header("content-type: text/javascript; charset=UTF-8");
 		            }
 		        ],
 		        stripeRows: true,
-		        autoExpandColumn: 'company',
+		        autoExpandColumn: 'id_activo_fijo',
 		        height: 350,
-		        width: 600,
+		        width: '100%',
 		        title: 'Activos Fijos',
 		        // config options for stateful behavior
 		        stateful: true,
 		        stateId: 'grid'
-		    }),
-
-			new Ext.tree.TreePanel({
-				id: 'tree_af_clasif_mov',
-				region : 'center',
-				scale : 'large',
-				singleClickExpand : true,
-				// collapsed:true,
-				rootVisible: true,
-				root: new Ext.tree.AsyncTreeNode({
-					text : 'Activos Fijos',
-					draggable : false,
-					allowDelete : false,
-					allowEdit : false,
-					collapsed : true,
-					expanded : true,
-					expandable : true,
-					disabled : false,
-					hidden : false,
-					id : 'id'
-				}),
-				animate : true,
-				singleExpand : false,
-				autoScroll : true,
-				loader :  new Ext.tree.TreeLoader({
-					url : '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacionArb',
-					baseParams: {
-						start: 0,
-						limit: 10,
-						sort: 'codigo',
-						dir: 'ASC',
-						id_clasificacion_fk: 'null'
-					},
-					clearOnLoad : true
-				}),
-				enableDD : true,
-				containerScroll : true,
-				border: false,
-				dropConfig: this.dropConfig,
-				tbar: this.tbar
-			})
-
+		    })
 			],
 			id_grupo: 1
 		}],
@@ -220,7 +238,18 @@ header("content-type: text/javascript; charset=UTF-8");
 		desc_item:'',
 		onBeforeLoad : function(treeLoader, node) {
 			treeLoader.baseParams['id_clasificacion'] = node.attributes['id_clasificacion'];
-		}
-
+		},
+		openAF: function(){
+	    	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
+	            'Activos Fijos',
+	            {
+	                width:'50%',
+	                height:'85%'
+	            },
+	            {movimiento: true},
+	            this.idContenedor,
+	            'ActivoFijo'
+	        )
+	    }
 	})
 </script>

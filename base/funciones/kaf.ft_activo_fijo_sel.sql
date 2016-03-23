@@ -93,7 +93,8 @@ BEGIN
 						dpto.codigo || '' '' || dpto.nombre as depto,
 						fun.desc_funcionario2 as funcionario,
 						depaf.nombre as deposito,
-						depaf.codigo as deposito_cod
+						depaf.codigo as deposito_cod,
+						mon.codigo as desc_moneda_orig
 						from kaf.tactivo_fijo afij
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
@@ -107,6 +108,7 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
 						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -143,6 +145,7 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
 						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
 					    where ';
 			
 			--Definicion de la respuesta		    
@@ -152,6 +155,42 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_IDAF_SEL'
+ 	#DESCRIPCION:	Generación de lista de ID de activos fijos en base a un criterio
+ 	#AUTOR:			RCM
+ 	#FECHA:			30/12/2015
+	***********************************/
+
+	elsif(p_transaccion='SKA_IDAF_SEL')then
+
+		begin
+        	--Sentencia de la consulta
+			v_consulta:='select
+						pxp.list(afij.id_activo_fijo::text) as ids
+						from kaf.tactivo_fijo afij
+						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+						left join segu.vpersona per on per.id_persona = afij.id_persona
+						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+        
+        end;
 					
 	else
 					     

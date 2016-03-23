@@ -73,6 +73,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('funcionario','text');
 		$this->captura('deposito','varchar');
 		$this->captura('deposito_cod','varchar');
+		$this->captura('desc_moneda_orig','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -194,6 +195,41 @@ class MODActivoFijo extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function codificarActivoFijo(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_activo_fijo_ime';
+		$this->transaccion='SKA_AFCOD_MOD';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function seleccionarActivosFijos(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_sel';
+		$this->transaccion='SKA_IDAF_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('ids','text');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

@@ -196,7 +196,7 @@ ALTER TABLE kaf.tmovimiento
 ALTER TABLE kaf.tmovimiento
   ADD COLUMN id_oficina INTEGER;
 ALTER TABLE kaf.tmovimiento
-  direccion VARCHAR(500);
+  ADD COLUMN direccion VARCHAR(500);
 
 COMMENT ON COLUMN kaf.tmovimiento.id_cat_movimiento
 IS 'Catálogo para el Movimiento de activos fijos (Alta, Baja, etc.)';
@@ -235,3 +235,54 @@ create table kaf.tdeposito (
 	constraint pk_tdeposito__id_deposito primary key (id_deposito)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-1-09/11/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-18/03/2016****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN id_depto;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN id_funcionario;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN id_cat_estado_fun_nuevo;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN id_depto_nuevo;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN id_persona;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN vida_util_nuevo;
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN monto_vigente_nuevo;
+ALTER TABLE kaf.tmovimiento_af
+  RENAME COLUMN monto_vigente TO importe;
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_responsable_depto INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_responsable_depto
+IS 'Id del funcionario responsable del dpto en la fecha de procesamiento del movimiento';
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_persona INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_persona
+IS 'Id de la persona que estara como custodio de los activos fijos';
+
+
+CREATE TABLE kaf.tmovimiento_motivo (
+  id_movimiento_motivo SERIAL,
+  id_cat_movimiento INTEGER NOT NULL,
+  motivo VARCHAR(100) NOT NULL,
+  PRIMARY KEY(id_movimiento_motivo)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE kaf.tmovimiento_af
+  DROP COLUMN estado;
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN codigo VARCHAR(50);
+
+COMMENT ON COLUMN kaf.tmovimiento.codigo
+IS 'Codigo o numero del reporte generado';
+
+ALTER TABLE kaf.tmovimiento
+  ALTER COLUMN glosa TYPE VARCHAR(1500) COLLATE pg_catalog."default";
+/***********************************F-SCP-RCM-KAF-1-18/03/2016****************************************/

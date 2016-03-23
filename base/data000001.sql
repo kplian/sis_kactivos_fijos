@@ -187,3 +187,8 @@ select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Devolución','d
 select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_compra','Nuevo','nuevo','ball_close.png');
 select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_compra','Usado','usado','ball_yellow.png');
 /***********************************F-DAT-RCM-KAF-1-30/10/2015****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-18/03/2016****************************************/
+select pxp.f_insert_tgui ('Tipo Movimiento - Motivos', 'Tipo Movimiento - Motivos', 'KAFMMOT', 'si', 4, 'sis_kactivos_fijos/vista/movimiento_motivo/MovimientoMotivo.php', 2, '', 'MovimientoMotivo', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMMOT', 'KAF');
+/***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/

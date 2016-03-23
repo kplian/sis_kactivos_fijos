@@ -44,6 +44,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('codigo_met_dep','varchar');
 		$this->captura('met_dep','varchar');
 		$this->captura('desc_ingas','varchar');
+		$this->captura('clasificacion','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

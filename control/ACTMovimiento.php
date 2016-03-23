@@ -6,6 +6,9 @@
 *@date 22-10-2015 20:42:41
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
+require_once(dirname(__FILE__).'/../../pxp/pxpReport/ReportWriter.php');
+require_once (dirname(__FILE__) . '/../reportes/RMovimiento.php');
+require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 
 class ACTMovimiento extends ACTbase{    
 			
@@ -41,15 +44,54 @@ class ACTMovimiento extends ACTbase{
 		if($this->objParam->insertar('id_movimiento')){
 			$this->res=$this->objFunc->insertarMovimiento($this->objParam);			
 		} else{			
-			$this->res=$this->objFunc->modificarMovimiento($this->objParam);
+		$this->res=$this->objFunc->modificarMovimiento($this->objParam);
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 						
 	function eliminarMovimiento(){
-			$this->objFunc=$this->create('MODMovimiento');	
+		$this->objFunc=$this->create('MODMovimiento');	
 		$this->res=$this->objFunc->eliminarMovimiento($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function generarDetMovimiento(){
+		$this->objFunc=$this->create('MODMovimiento');	
+		$this->res=$this->objFunc->generarDetMovimiento($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function listarReporteMovimiento(){
+		$this->objParam->defecto('ordenacion','id_movimiento');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		$this->objFunc=$this->create('MODMovimiento');
+		$this->res=$this->objFunc->listarReporteMovimiento($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function generarReporteMovimiento(){
+		$idMovimiento = $this->objParam->getParametro('id_movimiento');
+		$this->objParam->addParametroConsulta('filtro', ' mov.id_movimiento = ' . $idMovimiento);
+		$this->objFunc=$this->create('MODMovimiento');
+		$obj = $this->objFunc->listarReporteMovimiento($this->objParam);
+		$data = $obj->getDatos();
+
+		//var_dump($data);exit;
+
+		$dataSource = new DataSource();
+		$dataSource->setDataSet($data);
+
+		$reporte = new RMovimiento();
+		$reporte->setDataSource($dataSource);
+		$nombreArchivo = 'movimiento_af.pdf';
+		$reportWriter = new ReportWriter($reporte, dirname(__FILE__) . '/../../reportes_generados/' . $nombreArchivo);
+		$reportWriter->writeReport(ReportWriter::PDF);
+		$mensajeExito = new Mensaje();
+		$mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->res = $mensajeExito;
+		$this->res->imprimirRespuesta($this->res->generarJson());
+
 	}
 			
 }

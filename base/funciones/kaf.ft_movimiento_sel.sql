@@ -67,12 +67,22 @@ BEGIN
 						cat.codigo as cod_movimiento,
 						cat.icono,
 						dep.nombre as depto,
-						dep.codigo as cod_depto
+						dep.codigo as cod_depto,
+						fun.desc_funcionario2,
+						ofi.nombre as oficina,
+						mov.id_responsable_depto,
+						mov.id_persona,
+						usu.desc_persona as responsable_depto,
+						per.nombre_completo2 as custodio
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
 						inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
 						inner join param.tdepto dep on dep.id_depto = mov.id_depto
+						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
+						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
+						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+						left join segu.vpersona per on per.id_persona = mov.id_persona
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -101,10 +111,82 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
 					    inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
 						inner join param.tdepto dep on dep.id_depto = mov.id_depto
+						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
+						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
+						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+						left join segu.vpersona per on per.id_persona = mov.id_persona
 					    where ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_MOV_REP'
+ 	#DESCRIPCION:	Reporte de movimientos
+ 	#AUTOR:			RCM
+ 	#FECHA:			20/03/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_MOV_REP')then
+
+		begin
+
+			--Consulta
+			v_consulta:='select
+						cat.descripcion as movimiento,
+						cat.codigo as cod_movimiento,
+						coalesce(mov.codigo,''S/N'') as formulario,
+						coalesce(mov.num_tramite,''S/N'') as num_tramite,
+						mov.fecha_mov, 
+						mov.fecha_hasta,
+						mov.glosa,
+						mov.estado,
+						dpto.nombre as depto,
+						fun.desc_funcionario2 as responsable,
+						fun.nombre_cargo,
+						fun.ci,
+						ofi.nombre as oficina,
+						mov.direccion,
+						usu.desc_persona as responsable_depto,
+						per.nombre_completo2 as custodio,
+						per.ci as ci_custodio,
+						af.codigo,
+						af.denominacion,
+						af.descripcion,
+						cat2.descripcion as estado_fun,
+						maf.vida_util,
+						maf.importe,
+						mmot.motivo
+						from kaf.tmovimiento mov
+						inner join param.tcatalogo cat
+						on cat.id_catalogo = mov.id_cat_movimiento
+						inner join param.tdepto dpto
+						on dpto.id_depto = mov.id_depto
+						left join orga.vfuncionario_cargo fun
+						on fun.id_funcionario = mov.id_funcionario
+						left join orga.toficina ofi
+						on ofi.id_oficina = mov.id_oficina
+						inner join segu.vusuario usu
+						on usu.id_usuario = mov.id_responsable_depto
+						left join segu.vpersona per
+						on per.id_persona = mov.id_persona
+						left join kaf.tmovimiento_af maf
+						on maf.id_movimiento = mov.id_movimiento
+						left join kaf.tactivo_fijo af
+						on af.id_activo_fijo = maf.id_activo_fijo
+						left join param.tcatalogo cat2
+						on cat2.id_catalogo = maf.id_cat_estado_fun
+						left join kaf.tmovimiento_motivo mmot
+						on mmot.id_movimiento_motivo = maf.id_movimiento_motivo
+					    where ';
+
+				v_consulta:=v_consulta||v_parametros.filtro;
+			
 
 			--Devuelve la respuesta
 			return v_consulta;

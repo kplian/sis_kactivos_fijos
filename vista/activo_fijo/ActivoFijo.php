@@ -228,12 +228,22 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         //llama al constructor de la clase padre
         Phx.vista.ActivoFijo.superclass.constructor.call(this, config);
         this.init();
+        //Carga los datos
         this.load({
             params: {
                 start: 0,
                 limit: this.tam_pag
             }
         });
+        //Button for select IDs
+        this.addButton('btnSelect', {
+            text : 'Seleccionar todos',
+            //iconCls : 'bpdf32',
+            disabled : false,
+            handler : this.obtenerCadenaIDs,
+            tooltip : '<b>Seleccionar todos</b><br/>Selecciona todos los activos fijos según el filtro aplicado.'
+        });
+
          //Load data for Departamentos
         Ext.getCmp('af_filter_depto').on('activate',function(){
             Ext.getCmp('af_filter_depto_cbo').store.load();
@@ -321,6 +331,37 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
         this.detailsTemplate.compile();
 
+        //Add button for codification
+        this.addButton('btnCodificar', {
+            text : 'Codificar',
+            iconCls : 'code',
+            disabled : true,
+            handler : this.codificar,
+            tooltip : '<b>Código</b><br/>Codificación del activo fijo'
+        });
+
+        //Add context menu
+        this.grid.on('rowcontextmenu', function(grid, rowIndex, e) {
+            e.stopEvent();
+            var selModel = this.grid.getSelectionModel();
+            if (!selModel.isSelected(rowIndex)) {
+                selModel.selectRow(rowIndex);
+                this.fireEvent('rowclick', this, rowIndex, e);
+            }
+            console.log('ctx',e);
+            this.ctxMenu.showAt(e.getXY())
+        }, this);
+
+        //Selection button
+        this.getBoton('triguerreturn').hide();
+        if(config.movimiento){
+            this.getBoton('triguerreturn').show();
+            this.getBoton('triguerreturn').enable();
+        }
+        
+
+        console.log('FFFFFF',config);
+
     },
     Atributos: [{
         //configuracion del componente
@@ -380,14 +421,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     direction: 'ASC'
                 },
                 totalProperty: 'total',
-                fields: ['id_clasificacion', 'nombre', 'codigo'],
+                fields: ['id_clasificacion', 'nombre', 'codigo', 'clasificacion'],
                 remoteSort: true,
                 baseParams: {
                     par_filtro: 'cla.nombre#cla.codigo'
                 }
             }),
             valueField: 'id_clasificacion',
-            displayField: 'nombre',
+            displayField: 'clasificacion',
             gdisplayField: 'clasificacion',
             hiddenName: 'id_clasificacion',
             forceSelection: true,
@@ -411,7 +452,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             type: 'string'
         },
         grid: true,
-        form: true
+        form: false
     }, {
         config: {
             name: 'cantidad_revaloriz',
@@ -1478,6 +1519,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         name: 'deposito_cod',
         type: 'string'
+    }, {
+        name: 'desc_moneda_orig',
+        type: 'string'
     }],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -1612,7 +1656,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     url: '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacion',
                                     id: 'id_clasificacion',
                                     root: 'datos',
-                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual'],
+                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual','clasificacion'],
                                     totalProperty: 'total',
                                     sortInfo: {
                                         field: 'codigo',
@@ -1627,7 +1671,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     }
                                 }),
                                 valueField: 'id_clasificacion',
-                                displayField: 'nombre',
+                                displayField: 'clasificacion',
                                 gdisplayField: 'clasificacion',
                                 mode: 'remote',
                                 triggerAction: 'all',
@@ -1652,7 +1696,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 xtype: 'combo',
                                 fieldLabel: 'Estado funcional',
                                 name: 'id_cat_estado_fun',
-                                hiddenName: 'id_cat_estado_fun',
+                                //hiddenName: 'id_cat_estado_fun',
                                 allowBlank: false,
                                 id: this.idContenedor+'_id_cat_estado_fun',
                                 emptyText: 'Elija una opción',
@@ -1861,7 +1905,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     }),
                                     valueField: 'id_moneda',
                                     displayField: 'codigo',
-                                    gdisplayField: 'codigo',
+                                    gdisplayField: 'desc_moneda_orig',
                                     mode: 'remote',
                                     triggerAction: 'all',
                                     lazyRender: true,
@@ -2062,11 +2106,13 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var obj,key,objsec,keysec;
         Ext.each(this.form.getForm().items.keys, function(element, index){
             obj = Ext.getCmp(element);
+            //console.log(element,obj);
             if(obj.items){
                 Ext.each(obj.items.items, function(elm, b, c){
                     if(elm.getXType()=='combo'&&elm.mode=='remote'&&elm.store!=undefined){
                         if (!elm.store.getById(data[elm.name])) {
-                            rec = new Ext.data.Record({nombre: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
+                            console.log('UNO',{[elm.displayField]: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
+                            rec = new Ext.data.Record({[elm.displayField]: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
                             elm.store.add(rec);
                             elm.store.commitChanges();
                             elm.modificado = true;
@@ -2078,7 +2124,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 key = element.replace(this.idContenedor+'_','');
                 if(obj.getXType()=='combo'&&obj.mode=='remote'&&obj.store!=undefined){
                     if (!obj.store.getById(data[key])) {
-                        rec = new Ext.data.Record({nombre: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
+                        console.log('dos',{[obj.displayField]: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
+                        rec = new Ext.data.Record({[obj.displayField]: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
                         obj.store.add(rec);
                         obj.store.commitChanges();
                         obj.modificado = true;
@@ -2160,9 +2207,86 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
     refreshClasif: function(){
         alert('fasss');
-    }
+    },
+
+    codificar: function(){
+        var rec = this.sm.getSelected();
+        Ext.Msg.confirm('Confirmación', '¿Está seguro de Codificar el activo fijo seleccionado?', function(btn) {
+            if (btn == "yes") {
+                Phx.CP.loadingShow();
+                Ext.Ajax.request({
+                    url: '../../sis_kactivos_fijos/control/ActivoFijo/codificarActivoFijo',
+                    params: {
+                        'id_activo_fijo' : rec.data.id_activo_fijo
+                    },
+                    success: this.successSave,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        },this);
+
+        
+    },
+
+    preparaMenu : function(n) {
+        var tb = Phx.vista.ActivoFijo.superclass.preparaMenu.call(this);
+        var data = this.getSelectedData();
+
+        this.getBoton('btnCodificar').disable();
+        if(data.estado=='registrado') {
+            this.getBoton('btnCodificar').enable();
+        }
+        return tb;
+    },
+
+    liberaMenu : function() {
+        var tb = Phx.vista.ActivoFijo.superclass.liberaMenu.call(this);
+        this.getBoton('btnCodificar').disable();
+        return tb;
+    },
+
+    obtenerCadenaIDs: function(){
+        var rec = this.sm.getSelected();
+        Ext.Msg.confirm('Confirmación', '¿Está seguro de seleccionar todos los Activos Fijos?', function(btn) {
+            if (btn == "yes") {
+                Phx.CP.loadingShow();
+                var obj = {
+                            start: 0,
+                            limit: 50,
+                            sort: 'claf.nombre',
+                            dir: 'ASC'
+                        };
+                Ext.apply(obj,this.grid.store.baseParams);
+                Ext.Ajax.request({
+                    url: '../../sis_kactivos_fijos/control/ActivoFijo/seleccionarActivosFijos',
+                    method: 'post',
+                    params: obj,
+                    success: this.successSave,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        },this);
+    },
+
+    cloneAF: function(){
+        this.ctxMenu.hide();
+        alert('dddddddd');
+    },
+
+    ctxMenu: new Ext.menu.Menu({
+        items: [{
+            handler: this.cloneAF,
+            icon: '../../../lib/imagenes/arrow-down.gif',
+            text: 'Clonar',
+            scope: this
+        }],
+        scope: this
+    }),
+    btriguerreturn:true
 
 })
 </script>
-        
-        

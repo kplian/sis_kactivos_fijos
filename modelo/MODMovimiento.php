@@ -47,6 +47,12 @@ class MODMovimiento extends MODbase{
 		$this->captura('icono','varchar');
 		$this->captura('depto','varchar');
 		$this->captura('cod_depto','varchar');
+		$this->captura('desc_funcionario2','text');
+		$this->captura('oficina','varchar');
+		$this->captura('id_responsable_depto','int4');
+		$this->captura('id_persona','int4');
+		$this->captura('responsable_depto','text');
+		$this->captura('custodio','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -76,6 +82,7 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('id_oficina','id_oficina','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('num_tramite','num_tramite','varchar');
+		$this->setParametro('id_persona','id_persona','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -106,6 +113,7 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('id_oficina','id_oficina','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('num_tramite','num_tramite','varchar');
+		$this->setParametro('id_persona','id_persona','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -128,6 +136,67 @@ class MODMovimiento extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function generarDetMovimiento(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_movimiento_ime';
+		$this->transaccion='SKA_MOVREL_DAT';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+		$this->setParametro('ids','ids','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarReporteMovimiento(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_sel';
+		$this->transaccion='SKA_MOV_REP';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('movimiento','varchar');
+		$this->captura('cod_movimiento','varchar');
+		$this->captura('formulario','varchar');
+		$this->captura('num_tramite','varchar');
+		$this->captura('fecha_mov','date');
+		$this->captura('fecha_hasta','date');
+		$this->captura('glosa','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('depto','varchar');
+		$this->captura('responsable','text');
+		$this->captura('nombre_cargo','varchar');
+		$this->captura('ci','varchar');
+		$this->captura('oficina','varchar');
+		$this->captura('direccion','varchar');
+		$this->captura('responsable_depto','text');
+		$this->captura('custodio','text');
+		$this->captura('ci_custodio','varchar');
+		$this->captura('codigo','varchar');
+		$this->captura('denominacion','varchar');
+		$this->captura('descripcion','varchar');
+		$this->captura('estado_fun','varchar');
+		$this->captura('vida_util','int4');
+		$this->captura('importe','numeric');
+		$this->captura('motivo','varchar');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_activo_fijo_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos
  FUNCION: 		kaf.ft_activo_fijo_ime
@@ -26,7 +29,11 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_activo_fijo	integer;
+	v_id_activo_fijo		integer;
+    v_codigo 				varchar;
+    v_cant_clon				integer;
+    v_rec_af         		record;
+    v_ids_clon				varchar;
 			    
 BEGIN
 
@@ -43,53 +50,10 @@ BEGIN
 	if(p_transaccion='SKA_AFIJ_INS')then
 					
         begin
-        	--Sentencia de la insercion
-        	insert into kaf.tactivo_fijo(
-			id_persona,
-			cantidad_revaloriz,
-			foto,
-			id_proveedor,
-			estado_reg,
-			fecha_compra,
-			monto_vigente,
-			id_cat_estado_fun,
-			ubicacion,
-			vida_util,
-			documento,
-			observaciones,
-			fecha_ult_dep,
-			monto_rescate,
-			denominacion,
-			id_funcionario,
-			id_deposito,
-			monto_compra,
-			id_moneda,
-			depreciacion_mes,
-			codigo,
-			descripcion,
-			id_moneda_orig,
-			fecha_ini_dep,
-			id_cat_estado_compra,
-			depreciacion_per,
-			vida_util_original,
-			depreciacion_acum,
-			estado,
-			id_clasificacion,
-			id_centro_costo,
-			id_oficina,
-			id_depto,
-			id_usuario_reg,
-			fecha_reg,
-			usuario_ai,
-			id_usuario_ai,
-			id_usuario_mod,
-			fecha_mod
-          	) values(
-			v_parametros.id_persona,
-			0,
-			'default.jpg',
+
+        	select
+	        v_parametros.id_persona,
 			v_parametros.id_proveedor,
-			'activo',
 			v_parametros.fecha_compra,
 			v_parametros.monto_vigente,
 			v_parametros.id_cat_estado_fun,
@@ -104,28 +68,23 @@ BEGIN
 			v_parametros.id_deposito,
 			v_parametros.monto_compra,
 			v_parametros.id_moneda_orig,
-			0,
 			v_parametros.codigo,
 			v_parametros.descripcion,
 			v_parametros.id_moneda_orig,
 			v_parametros.fecha_ini_dep,
 			v_parametros.id_cat_estado_compra,
-			0,
 			v_parametros.vida_util_original,
-			0,
-			'registrado',
 			v_parametros.id_clasificacion,
-			null,
 			v_parametros.id_oficina,
 			v_parametros.id_depto,
 			p_id_usuario,
-			now(),
-			v_parametros._nombre_usuario_ai,
-			v_parametros._id_usuario_ai,
-			null,
-			null
-			)RETURNING id_activo_fijo into v_id_activo_fijo;
-			
+			v_parametros.nombre_usuario_ai,
+			v_parametros.id_usuario_ai
+	        into v_rec_af;
+
+	        --Inserción del registro
+	        v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
+
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Activos Fijos almacenado(a) con exito (id_activo_fijo'||v_id_activo_fijo||')'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_id_activo_fijo::varchar);
@@ -213,7 +172,105 @@ BEGIN
             return v_resp;
 
 		end;
-         
+        
+    /*********************************    
+ 	#TRANSACCION:  'SKA_AFCOD_MOD'
+ 	#DESCRIPCION:	Generación del código de activo fijo
+ 	#AUTOR:			RCM
+ 	#FECHA:			30/12/2015
+	***********************************/
+
+	elsif(p_transaccion='SKA_AFCOD_MOD')then
+
+		begin
+        	--Generación del código activo fijo
+        	v_codigo = kaf.f_genera_codigo(v_parametros.id_activo_fijo);
+            
+            --Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Activos Fijo codificado (id_activo_fijo'||v_id_activo_fijo||')'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_codigo);
+
+            --Devuelve la respuesta
+            return v_resp;
+        
+        end;
+
+    /*********************************    
+ 	#TRANSACCION:  'SKA_AFCLO_INS'
+ 	#DESCRIPCION:	Clonación del activo fijo seleccionado
+ 	#AUTOR:			RCM
+ 	#FECHA:			10/01/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_AFCLO_INS')then
+
+		begin
+
+			--Verificación de existencia del registro
+			if not exists(select 1 from kaf.tactivo_fijo
+						where id_activo_fijo = v_parametros.id_activo_fijo) then
+				raise exception 'Activo fijo inexistente';
+			end if;
+
+			--Verifica que la cantidad solicitada sea mayor a cero y menor a un parámetro definido
+			v_cant_clon = coalesce(pxp.f_get_variable_global('kaf_cant_clon')::integer,100);
+
+			if v_parametros.cant_clon <= 0 then
+				raise exception 'La cantidad a clonar debe ser mayor a cero';
+			end if;
+
+			if v_parametros.cant_clon > v_cant_clon then
+				raise exception 'La cantidad excede el máximo de registros parametrizado: %. Este valor puede ser modificado en las variables globales del sistema.',v_cant_clon::varchar;
+			end if;
+
+			--Obtención de los datos del activo fijo
+			select
+	        null as id_persona,
+			id_proveedor,
+			fecha_compra,
+			monto_vigente,
+			id_cat_estado_fun,
+			ubicacion,
+			vida_util_original as vida_util,
+			documento,
+			observaciones,
+			null as fecha_ult_dep,
+			monto_rescate,
+			denominacion,
+			null as id_funcionario,
+			id_deposito,
+			monto_compra,
+			id_moneda_orig,
+			codigo,
+			descripcion,
+			id_moneda_orig,
+			fecha_ini_dep,
+			id_cat_estado_compra,
+			vida_util_original,
+			id_clasificacion,
+			id_oficina,
+			id_depto,
+			null as nombre_usuario_ai,
+			null as id_usuario_ai
+	        into v_rec_af
+	        from kaf.tactivo_fijo
+	        where id_activo_fijo = v_parametros.id_activo_fijo;
+
+	        v_ids_clon='';
+			for i in 1..v_parametros.cant_clon loop
+				--Inserción del registro
+	        	v_ids_clon = v_ids_clon || ','|| kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af))::varchar;
+			end loop;
+            
+            --Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Han sido clonados "'||v_parametros.cant_clon::varchar||'" Activos Fijos satisfactoriamente en base al activo fijo '|| v_rec_af.codigo||'('||v_parametros.id_activo_fijo::varchar||') [IDs generados: '||v_ids_clon||']'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'ids',v_ids_clon);
+
+            --Devuelve la respuesta
+            return v_resp;
+        
+        end;
+
 	else
      
     	raise exception 'Transaccion inexistente: %',p_transaccion;
@@ -230,7 +287,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "kaf"."ft_activo_fijo_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

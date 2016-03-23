@@ -68,7 +68,8 @@ BEGIN
 						usu2.cuenta as usr_mod,
 						cat.codigo as codigo_met_dep,
 						cat.descripcion as met_dep,
-						cig.desc_ingas
+						cig.desc_ingas,
+						claf.codigo||'' - ''||claf.nombre as clasificacion
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
