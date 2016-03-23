@@ -191,4 +191,7 @@ select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_compra','Usado','usa
 /***********************************I-DAT-RCM-KAF-1-18/03/2016****************************************/
 select pxp.f_insert_tgui ('Tipo Movimiento - Motivos', 'Tipo Movimiento - Motivos', 'KAFMMOT', 'si', 4, 'sis_kactivos_fijos/vista/movimiento_motivo/MovimientoMotivo.php', 2, '', 'MovimientoMotivo', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMMOT', 'KAF');
+
+select pxp.f_insert_tgui ('Tipo Movimiento', 'Tipo Movimiento', 'KAFMOVT', 'si', 5, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipo.php', 2, '', 'MovimientoTipo', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMOVT', 'KAF');
 /***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/
