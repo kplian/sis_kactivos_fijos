@@ -71,6 +71,32 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             handler : this.onButtonReport,
             tooltip : '<b>Reporte Ingreso/Salida</b><br/><b>Solicitud del ingreso o salida</b>'
        }); 
+
+        this.addButton('ant_estado',{argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+        this.addButton('sig_estado',{text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
+		this.addButton('diagrama_gantt',{text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt del proceso</b>'});
+		this.addButton('btnChequeoDocumentosWf',
+            {
+                text: 'Documentos',
+                iconCls: 'bchecklist',
+                disabled: true,
+                handler: this.loadCheckDocumentosPlanWf,
+                tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
+            }
+        );
+
+        function diagramGantt(){            
+            var data=this.sm.getSelected().data.id_proceso_wf;
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
+                params:{'id_proceso_wf':data},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });         
+        } 
 	},
 			
 	Atributos:[
@@ -151,7 +177,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				renderer: function (value,p,record) {
 					var result;
 					//if(value == "Borrador") {
-						result = "<div style='text-align:center'><img src = '../../../lib/imagenes/ball_red.png' align='center' width='18' height='18' title='"+record.data.estado+"'/></div>";
+						result = "<div style='text-align:center'><img src = '../../../lib/imagenes/"+record.data.icono_estado+"' align='center' width='18' height='18' title='"+record.data.estado+"'/></div>";
 					//}
 					return result;
 				}
@@ -214,7 +240,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					remoteSort : true,
 					baseParams : {
 						par_filtro : 'DEPPTO.nombre#DEPPTO.codigo',
-						modulo: 'ALM'
+						modulo: 'KAF'
 					}
 				}),
 				valueField : 'id_depto',
@@ -530,7 +556,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_responsable_depto', type: 'numeric'},
 		{name:'id_persona', type: 'numeric'},
 		{name:'responsable_depto', type: 'string'},
-		{name:'custodio', type: 'string'}
+		{name:'custodio', type: 'string'},
+		{name:'icono_estado', type: 'string'}
 		
 	],
 	sortInfo:{
@@ -640,18 +667,122 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 	liberaMenu:function(){
         var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
         if(tb){
-            this.getBoton('btnReporte').disable();  
+            this.getBoton('btnReporte').disable();
+            this.getBoton('ant_estado').disable();
+	        this.getBoton('sig_estado').disable();
+	        this.getBoton('btnChequeoDocumentosWf').disable();
+	        this.getBoton('diagrama_gantt').disable();
         }
        return tb
     },
     preparaMenu:function(n){
       	var data = this.getSelectedData();
-      	var tb =this.tbar;
+      	var tb = this.tbar;
 
-        this.getBoton('btnReporte').enable();  
+        this.getBoton('btnReporte').enable(); 
+        this.getBoton('ant_estado').enable();
+        this.getBoton('sig_estado').enable();
+        this.getBoton('btnChequeoDocumentosWf').enable();
+        this.getBoton('diagrama_gantt').enable();
 
-        return tb 
-     }
+        return tb;
+    },
+    antEstado:function(){
+        var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+            'Estado de Wf',
+            {
+                modal:true,
+                width:450,
+                height:250
+            }, {data:rec.data}, this.idContenedor,'AntFormEstadoWf',
+            {
+                config:[{
+                  event:'beforesave',
+                  delegate: this.onAntEstado,
+                }
+            ],
+            scope:this
+        })
+    },
+    onAntEstado:function(wizard,resp){
+        Phx.CP.loadingShow(); 
+        Ext.Ajax.request({ 
+            url:'../../sis_kactivos_fijos/control/Movimiento/anteriorEstadoMovimiento',
+            params:{
+                    id_proceso_wf:resp.id_proceso_wf,
+                    id_estado_wf:resp.id_estado_wf,  
+                    obs:resp.obs
+             },
+            argument:{wizard:wizard},  
+            success:this.successEstadoSinc,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    },
+    sigEstado:function(){
+		var rec=this.sm.getSelected();
+		console.log(rec);
+		this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
+	        'Estado de Wf',
+	        {
+	            modal:true,
+	            width:700,
+	            height:450
+	        }, {data:{
+	               id_estado_wf:rec.data.id_estado_wf,
+	               id_proceso_wf:rec.data.id_proceso_wf,
+	               fecha_ini:rec.data.fecha_mov,
+	            }}, this.idContenedor,'FormEstadoWf',
+	        {
+	            config:[{
+                  event:'beforesave',
+                  delegate: this.onSaveWizard,
+                  
+                }],
+	            scope:this
+	        });        
+    },
+    onSaveWizard:function(wizard,resp){
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Movimiento/siguienteEstadoMovimiento',
+            params:{
+                id_proceso_wf_act:  resp.id_proceso_wf_act,
+                id_estado_wf_act:   resp.id_estado_wf_act,
+                id_tipo_estado:     resp.id_tipo_estado,
+                id_funcionario_wf:  resp.id_funcionario_wf,
+                id_depto_wf:        resp.id_depto_wf,
+                obs:                resp.obs,
+                json_procesos:      Ext.util.JSON.encode(resp.procesos)
+                },
+            success:this.successWizard,
+            failure: this.conexionFailure,
+            argument:{wizard:wizard},
+            timeout:this.timeout,
+            scope:this
+        });
+    },
+    successWizard:function(resp){
+        Phx.CP.loadingHide();
+        resp.argument.wizard.panel.destroy()
+        this.reload();
+    },
+    loadCheckDocumentosPlanWf:function() {
+        var rec=this.sm.getSelected();
+        rec.data.nombreVista = this.nombreVista;
+        Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
+            'Chequear documento del WF',
+            {
+                width:'90%',
+                height:500
+            },
+            rec.data,
+            this.idContenedor,
+            'DocumentoWf'
+    	)
+    }
 
 })
 </script>

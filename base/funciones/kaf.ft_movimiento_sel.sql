@@ -73,7 +73,8 @@ BEGIN
 						mov.id_responsable_depto,
 						mov.id_persona,
 						usu.desc_persona as responsable_depto,
-						per.nombre_completo2 as custodio
+						per.nombre_completo2 as custodio,
+						tew.icono as icono_estado
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -83,6 +84,8 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
 						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
+						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -115,6 +118,8 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
 						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
+						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
 					    where ';
 			
 			--Definicion de la respuesta		    

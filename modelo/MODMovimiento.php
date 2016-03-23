@@ -53,6 +53,7 @@ class MODMovimiento extends MODbase{
 		$this->captura('id_persona','int4');
 		$this->captura('responsable_depto','text');
 		$this->captura('custodio','text');
+		$this->captura('icono_estado','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

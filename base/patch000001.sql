@@ -285,4 +285,21 @@ IS 'Codigo o numero del reporte generado';
 
 ALTER TABLE kaf.tmovimiento
   ALTER COLUMN glosa TYPE VARCHAR(1500) COLLATE pg_catalog."default";
+
 /***********************************F-SCP-RCM-KAF-1-18/03/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-23/03/2016****************************************/
+CREATE TABLE kaf.tmovimiento_tipo (
+  id_movimiento_tipo SERIAL,
+  id_cat_movimiento INTEGER NOT NULL,
+  id_proceso_macro INTEGER NOT NULL,
+  PRIMARY KEY(id_movimiento_tipo)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE kaf.tmovimiento_tipo
+  ADD CONSTRAINT uq_tmovimiento_tipo__id_cat_movimiento__id_proceso_macro 
+    UNIQUE (id_cat_movimiento, id_proceso_macro);
+   
+/***********************************F-SCP-RCM-KAF-1-23/03/2016****************************************/

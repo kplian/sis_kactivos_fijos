@@ -33,6 +33,13 @@ DECLARE
     v_sql					varchar;
     v_rec					record;
     v_id_responsable_depto	integer;
+    v_id_gestion			integer;
+    v_codigo_tipo_proceso	varchar;
+    v_id_proceso_macro		integer;
+    v_id_proceso_wf			integer;
+    v_id_estado_wf			integer;
+    v_codigo_estado			varchar;
+    v_num_tramite			varchar;
 			    
 BEGIN
 
@@ -61,6 +68,58 @@ BEGIN
         	from param.tdepto_usuario
         	where id_depto = v_parametros.id_depto
         	and cargo = 'responsable' limit 1;
+
+        	--------------------------
+        	--Obtiene el proceso macro
+        	--------------------------
+        	select pm.id_proceso_macro, tp.codigo
+        	into v_id_proceso_macro, v_codigo_tipo_proceso
+        	from kaf.tmovimiento_tipo mt
+        	inner join wf.tproceso_macro pm 
+        	on pm.id_proceso_macro =  mt.id_proceso_macro
+        	inner join wf.ttipo_proceso tp
+        	on tp.id_proceso_macro = pm.id_proceso_macro
+        	where mt.id_cat_movimiento = v_parametros.id_cat_movimiento
+        	and tp.estado_reg = 'activo'
+        	and tp.inicio = 'si';
+
+        	if v_id_proceso_macro is null then
+	           raise exception 'No existe un proceso inicial para el proceso macro indicado (Revise la configuración)';
+	        end if;
+
+	        --Obtencion de la gestion a partir de la fecha del movimiento
+	        select id_gestion
+	        into v_id_gestion
+	        from param.tgestion
+	        where gestion = extract(year from v_parametros.fecha_mov);
+
+	        if v_id_gestion is null then
+	        	raise exception 'No existe la gestion abierta';
+	        end if;
+
+        	----------------------
+        	--Inicio tramite en WF
+        	----------------------
+        	SELECT 
+            ps_num_tramite ,
+            ps_id_proceso_wf ,
+            ps_id_estado_wf ,
+            ps_codigo_estado 
+          	into
+            v_num_tramite,
+            v_id_proceso_wf,
+            v_id_estado_wf,
+            v_codigo_estado   
+            FROM wf.f_inicia_tramite(
+            p_id_usuario, 
+            v_parametros._id_usuario_ai,
+            v_parametros._nombre_usuario_ai,
+            v_id_gestion, 
+            v_codigo_tipo_proceso, 
+            NULL,
+            NULL,
+            'Movimiento Activo Fijo',
+            'S/N');
 
         	--Sentencia de la insercion
         	insert into kaf.tmovimiento(
@@ -91,14 +150,14 @@ BEGIN
 			v_parametros.id_cat_movimiento,
 			v_parametros.fecha_mov,
 			v_parametros.id_depto,
-			v_parametros.id_proceso_wf,
-			v_parametros.id_estado_wf,
+			v_id_proceso_wf,
+			v_id_estado_wf,
 			v_parametros.glosa,
 			v_parametros.id_funcionario,
-			'borrador',
+			v_codigo_estado,
 			v_parametros.id_oficina,
 			'activo',
-			v_parametros.num_tramite,
+			v_num_tramite,
 			v_parametros._id_usuario_ai,
 			p_id_usuario,
 			now(),
