@@ -312,3 +312,9 @@ ALTER TABLE kaf.tclasificacion
   ADD CONSTRAINT uq_tclasificacion__codigo 
     UNIQUE (codigo);
 /***********************************F-SCP-RCM-KAF-1-23/03/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-03/04/2016****************************************/
+ALTER TABLE "kaf"."tactivo_fijo_valores"
+ADD COLUMN "id_movimiento_af" int4,
+ADD PRIMARY KEY ("id_activo_fijo_valor");
+/***********************************F-SCP-RCM-KAF-1-03/04/2016****************************************/

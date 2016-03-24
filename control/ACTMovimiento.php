@@ -14,7 +14,7 @@ class ACTMovimiento extends ACTbase{
 			
 	function listarMovimiento(){
 		$this->objParam->defecto('ordenacion','id_movimiento');
-		$this->objParam->defecto('dir_ordenacion','asc');
+		$this->objParam->defecto('dir_ordenacion','desc');
 
 		if($this->objParam->getParametro('cod_movimiento')!=''){
 			if($this->objParam->getParametro('cod_movimiento')!='%'){
