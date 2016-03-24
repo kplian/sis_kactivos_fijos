@@ -103,7 +103,7 @@ class ACTMovimiento extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
-    function anteriorEstadoPlanilla(){
+    function anteriorEstadoMovimiento(){
         $this->objFunc=$this->create('MODMovimiento');
         $this->objParam->addParametro('id_funcionario_usu',$_SESSION["ss_id_funcionario"]); 
         $this->res=$this->objFunc->anteriorEstadoMovimiento($this->objParam);
