@@ -725,7 +725,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                     obs:resp.obs
              },
             argument:{wizard:wizard},  
-            success:this.successEstadoSinc,
+            success:this.successWizard,
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this

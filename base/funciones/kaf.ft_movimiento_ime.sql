@@ -449,6 +449,11 @@ BEGIN
     elseif(p_transaccion='KAF_ANTEMOV_IME') then   
 
         begin
+
+            select mov.*
+            into v_movimiento
+            from kaf.tmovimiento mov     
+            where id_proceso_wf = v_parametros.id_proceso_wf;
         
             --------------------------------------------------
             --Retrocede al estado inmediatamente anterior
