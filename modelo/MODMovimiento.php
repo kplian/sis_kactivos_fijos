@@ -229,7 +229,7 @@ class MODMovimiento extends MODbase{
     function anteriorEstadoMovimiento(){
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='kaf.ft_movimiento_ime';
-        $this->transaccion='KAF_SIGEMOV_IME';
+        $this->transaccion='KAF_ANTEMOV_IME';
         $this->tipo_procedimiento='IME';
                 
         //Define los parametros para la funcion

@@ -52,6 +52,9 @@ DECLARE
     v_id_depto              integer;
     v_obs                   varchar;
     v_id_estado_actual      integer;
+    v_id_funcionario        integer;
+    v_id_usuario_reg        integer;
+    v_id_estado_wf_ant      integer;
 			    
 BEGIN
 
@@ -433,7 +436,107 @@ BEGIN
             -- Devuelve la respuesta
             return v_resp;
             
-         end;        
+         end;     
+
+    
+    /*********************************    
+    #TRANSACCION:  'KAF_ANTEMOV_IME'
+    #DESCRIPCION:   Transaccion utilizada  pasar a  estados anterior al movimiento
+    #AUTOR:         RCM
+    #FECHA:         02/04/2016
+    ***********************************/
+
+    elseif(p_transaccion='KAF_ANTEMOV_IME') then   
+
+        begin
+        
+            --------------------------------------------------
+            --Retrocede al estado inmediatamente anterior
+            -------------------------------------------------
+            SELECT  
+            ps_id_tipo_estado,
+            ps_id_funcionario,
+            ps_id_usuario_reg,
+            ps_id_depto,
+            ps_codigo_estado,
+            ps_id_estado_wf_ant
+            into
+            v_id_tipo_estado,
+            v_id_funcionario,
+            v_id_usuario_reg,
+            v_id_depto,
+            v_codigo_estado,
+            v_id_estado_wf_ant 
+            FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
+                        
+            select 
+            ew.id_proceso_wf 
+            into 
+            v_id_proceso_wf
+            from wf.testado_wf ew
+            where ew.id_estado_wf= v_id_estado_wf_ant;
+          
+          
+            --Configurar acceso directo para la alarma   
+            v_acceso_directo = '';
+            v_clase = '';
+            v_parametros_ad = '';
+            v_tipo_noti = 'notificacion';
+            v_titulo  = 'Notificacion';
+             
+           
+            if v_codigo_estado_siguiente not in ('finalizado') then
+                v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
+                v_clase = 'Movimiento';
+                v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                v_tipo_noti = 'notificacion';
+                v_titulo  = 'Notificacion';             
+            end if;
+             
+          
+          -- registra nuevo estado
+                      
+            v_id_estado_actual = wf.f_registra_estado_wf(
+                v_id_tipo_estado, 
+                v_id_funcionario, 
+                v_parametros.id_estado_wf, 
+                v_id_proceso_wf, 
+                p_id_usuario,
+                v_parametros._id_usuario_ai,
+                v_parametros._nombre_usuario_ai,
+                v_id_depto,
+                '[RETROCESO] '|| v_parametros.obs,
+                v_acceso_directo,
+                v_clase,
+                v_parametros_ad,
+                v_tipo_noti,
+                v_titulo
+            );
+
+            --Actualiza el estado actual
+            select 
+            codigo
+            into v_codigo_estado_siguiente
+            from wf.ttipo_estado tes
+            inner join wf.testado_wf ew
+            on ew.id_tipo_estado = tes.id_tipo_estado
+            where ew.id_estado_wf = v_id_estado_actual;
+
+            update kaf.tmovimiento set
+            id_estado_wf = v_id_estado_actual,
+            estado = v_codigo_estado_siguiente
+            where id_movimiento = v_movimiento.id_movimiento;
+                      
+
+            -- si hay mas de un estado disponible  preguntamos al usuario
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se retorocedio el estado del movimiento)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+                        
+                              
+          --Devuelve la respuesta
+            return v_resp;
+
+        end;       
 
 
          
