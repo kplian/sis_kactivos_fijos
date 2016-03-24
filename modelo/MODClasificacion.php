@@ -45,6 +45,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('met_dep','varchar');
 		$this->captura('desc_ingas','varchar');
 		$this->captura('clasificacion','text');
+		$this->captura('descripcion','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -72,6 +73,7 @@ class MODClasificacion extends MODbase{
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('final','final','varchar');
 		$this->setParametro('icono','icono','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -88,17 +90,19 @@ class MODClasificacion extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
+		$this->setParametro('id_clasificacion','id_clasificacion','int4');
 		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','int4');
 		$this->setParametro('id_cat_metodo_dep','id_cat_metodo_dep','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('vida_util','vida_util','int4');
-		$this->setParametro('correlativo_act','correlativo_act','varchar');
+		$this->setParametro('correlativo_act','correlativo_act','integer');
 		$this->setParametro('monto_residual','monto_residual','numeric');
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('final','final','varchar');
 		$this->setParametro('icono','icono','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -159,6 +163,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('desc_ingas','varchar');
 		$this->captura('tipo_nodo','varchar');
 		$this->captura('checked','varchar');
+		$this->captura('descripcion','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

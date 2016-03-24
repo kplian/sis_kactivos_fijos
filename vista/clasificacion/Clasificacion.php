@@ -67,6 +67,23 @@ header("content-type: text/javascript; charset=UTF-8");
 			form : true
 		}, {
 			config : {
+				name : 'descripcion',
+				fieldLabel : 'Descripcion',
+				allowBlank : true,
+				anchor : '100%',
+				gwidth : 100,
+				maxLength : 100
+			},
+			type : 'TextField',
+			filters : {
+				pfiltro : 'claf.descripcion',
+				type : 'string'
+			},
+			id_grupo : 1,
+			grid : true,
+			form : true
+		}, {
+			config : {
 				name : 'vida_util',
 				fieldLabel : 'Vida Útil',
 				allowBlank : true,
@@ -220,7 +237,8 @@ header("content-type: text/javascript; charset=UTF-8");
         }, {
         	config: {
         		name: 'tipo',
-        		fieldLabel: 'Tipo'	
+        		fieldLabel: 'Tipo',
+        		hidden: true
         	},
         	type : 'TextField',
 			filters : {
@@ -233,7 +251,8 @@ header("content-type: text/javascript; charset=UTF-8");
         }, {
         	config: {
         		name: 'final',
-        		fieldLabel: 'Final'	
+        		fieldLabel: 'Final'	,
+        		hidden: true
         	},
         	type : 'TextField',
 			filters : {

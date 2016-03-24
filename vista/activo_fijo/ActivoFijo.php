@@ -1975,7 +1975,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_depreciacion_per'
                             }, {
                                 fieldLabel: 'Depreciación Mes',
-                                name: 'depreciacion',
+                                name: 'depreciacion_mes',
                                 disabled: true,
                                 id: this.idContenedor+'_depreciacion'
                             }, {

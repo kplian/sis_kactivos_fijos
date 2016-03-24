@@ -77,7 +77,8 @@ BEGIN
 			fecha_mod,
 			estado_reg,
 			id_usuario_ai,
-			usuario_ai
+			usuario_ai,
+			descripcion
           	) values(
           	v_parametros.id_clasificacion_fk,
 			v_parametros.id_cat_metodo_dep,
@@ -96,7 +97,8 @@ BEGIN
 			null,
 			'activo',
 			null,
-			null
+			null,
+			v_parametros.descripcion
 			)RETURNING id_clasificacion into v_id_clasificacion;
 			
 			--Definicion de la respuesta
@@ -135,7 +137,8 @@ BEGIN
 			fecha_mod = now(),
 			estado_reg = 'activo',
 			id_usuario_ai = v_parametros.id_usuario_ai,
-			usuario_ai = v_parametros.usuario_ai
+			usuario_ai = v_parametros.usuario_ai,
+			descripcion = v_parametros.descripcion
 			where id_clasificacion=v_parametros.id_clasificacion;
                
 			--Definicion de la respuesta

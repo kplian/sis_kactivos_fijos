@@ -301,5 +301,14 @@ WITH (oids = false);
 ALTER TABLE kaf.tmovimiento_tipo
   ADD CONSTRAINT uq_tmovimiento_tipo__id_cat_movimiento__id_proceso_macro 
     UNIQUE (id_cat_movimiento, id_proceso_macro);
-   
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN descripcion VARCHAR(250);
+
+ALTER TABLE kaf.tclasificacion
+  ALTER COLUMN nombre TYPE VARCHAR(100) COLLATE pg_catalog."default";   
+
+ALTER TABLE kaf.tclasificacion
+  ADD CONSTRAINT uq_tclasificacion__codigo 
+    UNIQUE (codigo);
 /***********************************F-SCP-RCM-KAF-1-23/03/2016****************************************/

@@ -91,3 +91,78 @@ ALTER TABLE kaf.tmovimiento_af
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-DEP-RCM-KAF-1-18/03/2016****************************************/    
+
+/***********************************I-DEP-RCM-KAF-1-28/03/2016****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_clasificacion FOREIGN KEY (id_clasificacion)
+    REFERENCES kaf.tclasificacion(id_clasificacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_moneda_orig FOREIGN KEY (id_moneda_orig)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo_id__proveedor FOREIGN KEY (id_proveedor)
+    REFERENCES param.tproveedor(id_proveedor)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_cat_estado_compra FOREIGN KEY (id_cat_estado_compra)
+    REFERENCES param.tcatalogo(id_catalogo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_cat_estado_fun FOREIGN KEY (id_cat_estado_fun)
+    REFERENCES param.tcatalogo(id_catalogo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_centro_costo FOREIGN KEY (id_centro_costo)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;    
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_depto FOREIGN KEY (id_depto)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;    
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT tactivo_fijo__id_oficina FOREIGN KEY (id_oficina)
+    REFERENCES orga.toficina(id_oficina)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_deposito FOREIGN KEY (id_deposito)
+    REFERENCES kaf.tdeposito(id_deposito)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT tactivo_fijo__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_persona FOREIGN KEY (id_persona)
+    REFERENCES segu.tpersona(id_persona)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;        
+/***********************************F-DEP-RCM-KAF-1-28/03/2016****************************************/
