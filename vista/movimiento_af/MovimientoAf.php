@@ -70,9 +70,9 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_activo_fijo', 'denominacion', 'codigo'],
+					fields: ['id_activo_fijo', 'denominacion', 'codigo','descripcion'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'af.denominacion#af.codigo'}
+					baseParams: {par_filtro: 'afij.denominacion#afij.codigo#afij.descripcion'}
 				}),
 				valueField: 'id_activo_fijo',
 				displayField: 'denominacion',
@@ -90,7 +90,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				minChars: 2,
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
-				}
+				},
+				tpl : '<tpl for="."><div class=<b>"x-comb</b>o-list<b>-item"></p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
