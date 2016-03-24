@@ -37,12 +37,12 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
     	this.store.baseParams.cod_movimiento = this.filterMov;
     	this.load({params:{start:0, limit:this.tam_pag}});
     },
-    bnewGroups: [0,1,2,3,4,5,6,7,8,9],
-    beditGroups: [0,1,2,3,4,5,6,7,8,9],
-    bdelGroups:  [0,1,2,3,4,5,6,7,8,9],
-    bactGroups:  [0,1,2,3,4,5,6,7,8,9],
-    btestGroups: [0,1,2,3,4,5,6,7,8,9],
-    bexcelGroups: [0,1,2,3,4,5,6,7,8,9],
+    bnewGroups: [0,1,2,3,4,5],
+    beditGroups: [0,1,2,3,4,5],
+    bdelGroups:  [0,1,2,3,4,5],
+    bactGroups:  [0,1,2,3,4,5],
+    btestGroups: [0,1,2,3,4,5],
+    bexcelGroups: [0,1,2,3,4,5],
 
 	constructor:function(config){
 		this.maestro=config.maestro;
@@ -130,14 +130,14 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'movimiento',
 				hiddenName: 'id_cat_movimiento',
-				gwidth: 45,
+				gwidth: 95,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tmovimiento__id_cat_movimiento'
 				},
 				renderer: function (value,p,record) {
 					var result;
-					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='18' height='18' title='"+record.data.movimiento+"'/></div>";
+					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='18' height='18' title='"+record.data.movimiento+"'/><br> <u>"+record.data.movimiento+"</u></div>";
 					return result;
 				},
 				valueField: 'id_catalogo'
@@ -171,13 +171,13 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Estado',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 50,
+				gwidth: 90,
 				maxLength:15,
 				disabled: true,
 				renderer: function (value,p,record) {
 					var result;
 					//if(value == "Borrador") {
-						result = "<div style='text-align:center'><img src = '../../../lib/imagenes/"+record.data.icono_estado+"' align='center' width='18' height='18' title='"+record.data.estado+"'/></div>";
+						result = "<div style='text-align:center'><img src = '../../../lib/imagenes/"+record.data.icono_estado+"' align='center' width='18' height='18' title='"+record.data.estado+"'/><br><u>"+record.data.estado+"</u></div>";
 					//}
 					return result;
 				}
