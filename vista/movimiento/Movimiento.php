@@ -37,12 +37,12 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
     	this.store.baseParams.cod_movimiento = this.filterMov;
     	this.load({params:{start:0, limit:this.tam_pag}});
     },
-    bnewGroups: [0,1,2,3,4,5],
-    beditGroups: [0,1,2,3,4,5],
-    bdelGroups:  [0,1,2,3,4,5],
-    bactGroups:  [0,1,2,3,4,5],
-    btestGroups: [0,1,2,3,4,5],
-    bexcelGroups: [0,1,2,3,4,5],
+    bnewGroups: [0,1,2,3,4,5,6,7,8,9],
+    beditGroups: [0,1,2,3,4,5,6,7,8,9],
+    bdelGroups:  [0,1,2,3,4,5,6,7,8,9],
+    bactGroups:  [0,1,2,3,4,5,6,7,8,9],
+    btestGroups: [0,1,2,3,4,5,6,7,8,9],
+    bexcelGroups: [0,1,2,3,4,5,6,7,8,9],
 
 	constructor:function(config){
 		this.maestro=config.maestro;
@@ -680,10 +680,19 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
       	var tb = this.tbar;
 
         this.getBoton('btnReporte').enable(); 
-        this.getBoton('ant_estado').enable();
-        this.getBoton('sig_estado').enable();
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
+
+        //Enable/disable WF buttons by status
+        this.getBoton('ant_estado').enable();
+        this.getBoton('sig_estado').enable();
+        if(data.estado=='borrador'){
+        	this.getBoton('ant_estado').disable();
+        }
+        if(data.estado=='finalizado'||data.estado=='cancelado'){
+        	this.getBoton('sig_estado').disable();
+        }
+        
 
         return tb;
     },

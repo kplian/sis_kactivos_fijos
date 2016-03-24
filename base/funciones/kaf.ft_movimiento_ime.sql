@@ -45,7 +45,7 @@ DECLARE
     v_parametros_ad         varchar;
     v_tipo_noti             varchar;
     v_titulo                varchar;
-    v_movimiento            varchar;
+    v_movimiento            record;
     v_id_tipo_estado        integer;
     v_pedir_obs             varchar;
     v_codigo_estado_siguiente   varchar;
@@ -345,7 +345,7 @@ BEGIN
             */        
             select mov.*
             into v_movimiento
-            from mov.tmovimiento mov     
+            from kaf.tmovimiento mov     
             where id_proceso_wf = v_parametros.id_proceso_wf_act;
           
             select 
@@ -411,101 +411,27 @@ BEGIN
                 v_titulo
             );
               
-            /*if plani.f_fun_inicio_planilla_wf(
-                p_id_usuario, 
-                v_parametros._id_usuario_ai, 
-                v_parametros._nombre_usuario_ai, 
-                v_id_estado_actual, 
-                v_parametros.id_proceso_wf_act, 
-                v_codigo_estado_siguiente
-            ) then
-                                                
-            end if;*/
-                    
-              --------------------------------------
-              -- registra los procesos disparados
-              --------------------------------------
-             
-              /*FOR v_registros_proc in (select *
-                                        from json_populate_recordset(null::wf.proceso_disparado_wf, v_parametros.json_procesos::json)) LOOP
-        
-                   --get cdigo tipo proceso
-                   select   
-                      tp.codigo,
-                      tp.codigo_llave  
-                   into 
-                      v_codigo_tipo_pro, 
-                      v_codigo_llave  
-                   from wf.ttipo_proceso tp 
-                    where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
+            --Actualiza el estado actual
+            select 
+            codigo
+            into v_codigo_estado_siguiente
+            from wf.ttipo_estado tes
+            inner join wf.testado_wf ew
+            on ew.id_tipo_estado = tes.id_tipo_estado
+            where ew.id_estado_wf = v_id_estado_actual;
+
+            update kaf.tmovimiento set
+            id_estado_wf = v_id_estado_actual,
+            estado = v_codigo_estado_siguiente
+            where id_movimiento = v_movimiento.id_movimiento;
+
+            -- si hay mas de un estado disponible  preguntamos al usuario
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
               
               
-                   -- disparar creacion de procesos seleccionados
-                  
-                  SELECT
-                           ps_id_proceso_wf,
-                           ps_id_estado_wf,
-                           ps_codigo_estado
-                     into
-                           v_id_proceso_wf,
-                           v_id_estado_wf,
-                           v_codigo_estado
-                  FROM wf.f_registra_proceso_disparado_wf(
-                           p_id_usuario,
-                           v_parametros._id_usuario_ai,
-                           v_parametros._nombre_usuario_ai,
-                           v_id_estado_actual, 
-                           v_registros_proc.id_funcionario_wf_pro, 
-                           v_registros_proc.id_depto_wf_pro,
-                           v_registros_proc.obs_pro,
-                           v_codigo_tipo_pro,    
-                           v_codigo_tipo_pro);
-                */  
-                  /*Generar una olbigacion de pago en caso de ser necesario*/
-                  /*IF v_codigo_llave = 'obligacion_pago' THEN
-                         
-                      IF  v_registros_proc.id_depto_wf_pro::integer  is NULL  THEN
-                              
-                         raise exception 'Para obligaciones de pago el depto es indispensable';
-                              
-                      END IF;
-                      
-                      IF NOT plani.f_generar_obligaciones_tesoreria(
-                                                    p_administrador,
-                                                    v_planilla.id_planilla,
-                                                    p_id_usuario,
-                                                    v_parametros._id_usuario_ai,
-                                                    v_parametros._nombre_usuario_ai,
-                                                    v_id_proceso_wf,
-                                                    v_id_estado_wf,
-                                                    v_registros_proc.id_depto_wf_pro 
-                                                    ) THEN
-                                                             
-                         raise exception 'Error al generar el contrato';
-                              
-                      END IF;
-                         
-                       
-                        
-                  ELSE
-                     raise exception 'Codigo llave no reconocido  verifique el WF (%)', v_codigo_llave;
-                  END IF;
-                           
-              END LOOP; */
-               
-               -- actualiza estado en la solicitud
-               -- funcion para cambio de estado     
-               
-              
-              
-              
-              -- si hay mas de un estado disponible  preguntamos al usuario
-              v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado de la planilla)'); 
-              v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
-              
-              
-              -- Devuelve la respuesta
-              return v_resp;
+            -- Devuelve la respuesta
+            return v_resp;
             
          end;        
 
