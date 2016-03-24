@@ -94,7 +94,8 @@ BEGIN
 						fun.desc_funcionario2 as funcionario,
 						depaf.nombre as deposito,
 						depaf.codigo as deposito_cod,
-						mon.codigo as desc_moneda_orig
+						mon.codigo as desc_moneda_orig,
+						afij.en_deposito
 						from kaf.tactivo_fijo afij
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
@@ -133,12 +134,12 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_activo_fijo)
 					    from kaf.tactivo_fijo afij
-					    inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
 						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						inner join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
 						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
 						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina

@@ -74,6 +74,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('deposito','varchar');
 		$this->captura('deposito_cod','varchar');
 		$this->captura('desc_moneda_orig','varchar');
+		$this->captura('en_deposito','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

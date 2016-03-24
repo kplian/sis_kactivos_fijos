@@ -408,6 +408,23 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
+            name: 'en_deposito',
+            fieldLabel: 'En Deposito',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 50,
+            maxLength: 15
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.estado',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: false
+    }, {
+        config: {
             name: 'id_clasificacion',
             fieldLabel: 'Clasificación',
             allowBlank: true,
@@ -1521,6 +1538,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         type: 'string'
     }, {
         name: 'desc_moneda_orig',
+        type: 'string'
+    },
+    , {
+        name: 'en_deposito',
         type: 'string'
     }],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],

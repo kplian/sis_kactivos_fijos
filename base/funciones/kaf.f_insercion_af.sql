@@ -55,7 +55,8 @@ BEGIN
         usuario_ai,
         id_usuario_ai,
         id_usuario_mod,
-        fecha_mod
+        fecha_mod,
+        en_deposito
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -95,7 +96,8 @@ BEGIN
         (p_parametros->'nombre_usuario_ai')::varchar,
         (p_parametros->'id_usuario_ai')::integer,
         null,
-        null
+        null,
+        'si'
     )RETURNING id_activo_fijo into v_id_activo_fijo;
 
 
