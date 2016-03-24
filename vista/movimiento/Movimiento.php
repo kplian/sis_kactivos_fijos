@@ -563,7 +563,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_movimiento',
-		direction: 'ASC'
+		direction: 'DESC'
 	},
 	bdel:true,
 	bsave:true,
