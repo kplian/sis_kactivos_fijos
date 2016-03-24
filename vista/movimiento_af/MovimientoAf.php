@@ -91,7 +91,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
 				},
-				tpl : '<tpl for="."><div class=<b>"x-comb</b>o-list<b>-item"></p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
+				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
