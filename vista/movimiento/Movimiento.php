@@ -1,3 +1,4 @@
+
 <?php
 /**
 *@package pXP
@@ -51,14 +52,14 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}})
 
-		this.addButton('btnMovGral',
+		/*this.addButton('btnMovGral',
             {
                 text: 'Movimientos',
                 iconCls: 'bchecklist',
                 disabled: false,
                 handler: this.openMovimientos
             }
-        );
+        );*/
         //Add handler to id_cat_movimiento field
         this.Cmp.id_cat_movimiento.on('select', function(cmp,rec,el){
         	this.habilitarCampos(rec.data.codigo);

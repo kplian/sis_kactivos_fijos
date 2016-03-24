@@ -43,6 +43,19 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
+			config:{
+				name: 'cod_af',
+				fieldLabel: 'Codigo',
+				gwidth: 130,
+				maxLength:10
+			},
+			type:'TextField',
+			filters:{pfiltro:'af.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
 			config: {
 				name: 'id_activo_fijo',
 				fieldLabel: 'Activo Fijo',
@@ -73,7 +86,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				pageSize: 15,
 				queryDelay: 1000,
 				anchor: '100%',
-				gwidth: 150,
+				gwidth: 300,
 				minChars: 2,
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
@@ -95,15 +108,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'estado_fun',
 				hiddenName: 'id_cat_estado_fun',
-				gwidth: 45,
+				gwidth: 95,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tactivo_fijo__id_cat_estado_fun'
 				},
 				renderer: function (value,p,record) {
-					var result;
-					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='18' height='18' title='"+record.data.movimiento+"'/></div>";
-					return result;
+					return String.format('{0}',record.data.estado_fun);
 				},
 				valueField: 'id_catalogo'
 			},
@@ -153,23 +164,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			type: 'ComboBox',
 			id_grupo: 0,
 			filters: {pfiltro: 'mmot.motivo',type: 'string'},
-			grid: true,
+			grid: false,
 			form: true
-		},
-		{
-			config:{
-				name: 'estado_reg',
-				fieldLabel: 'Estado Reg.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:10
-			},
-				type:'TextField',
-				filters:{pfiltro:'movaf.estado_reg',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
 		},
 		{
 			config:{
@@ -180,11 +176,11 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:1179650
 			},
-				type:'NumberField',
-				filters:{pfiltro:'movaf.importe',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'NumberField',
+			filters:{pfiltro:'movaf.importe',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:true
 		},
 		{
 			config:{
@@ -192,14 +188,29 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Respuesta',
 				allowBlank: true,
 				anchor: '100%',
-				gwidth: 100,
+				gwidth: 200,
 				maxLength:-5
 			},
-				type:'TextField',
-				filters:{pfiltro:'movaf.respuesta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'movaf.respuesta',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'estado_reg',
+				fieldLabel: 'Estado Reg.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 85,
+				maxLength:10
+			},
+			type:'TextField',
+			filters:{pfiltro:'movaf.estado_reg',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -210,11 +221,11 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'NumberField',
-				filters:{pfiltro:'movaf.vida_util',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'NumberField',
+			filters:{pfiltro:'movaf.vida_util',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:true
 		},
 		{
 			config:{
@@ -345,6 +356,19 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
+
+	rowExpander: new Ext.ux.grid.RowExpander({
+	        tpl : new Ext.Template(
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Registro:&nbsp;&nbsp;</b> {usr_reg}</p>',
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Registro:&nbsp;&nbsp;</b> {fecha_reg}</p>',	       
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>',
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Importe:&nbsp;&nbsp;</b> {importe}</p>',
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Vida Util:&nbsp;&nbsp;</b> {vida_util}</p>',
+	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Motivo:&nbsp;&nbsp;</b> {motivo}</p>'
+	        )
+    }),
+
 	onReloadPage : function(m) {
 		this.maestro = m;
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento;
