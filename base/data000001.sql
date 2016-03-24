@@ -208,3 +208,8 @@ select wf.f_import_ttipo_estado ('insert','cancelado','PRO-AF','Cancelado','no',
 select wf.f_import_testructura_estado ('insert','borrador','pendiente','PRO-AF',1,'');
 select wf.f_import_testructura_estado ('insert','pendiente','finalizacion','PRO-AF',1,'');
 /***********************************F-DAT-RCM-KAF-1-25/03/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-29/03/2016****************************************/
+select pxp.f_insert_tgui ('Depositos', 'Depositos', 'KAFDEP', 'si', 2, 'sis_kactivos_fijos/vista/deposito/Deposito.php', 2, '', 'Deposito', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFDEP', 'KAF');
+/***********************************F-DAT-RCM-KAF-1-29/03/2016****************************************/

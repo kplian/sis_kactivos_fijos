@@ -40,6 +40,18 @@ DECLARE
     v_id_estado_wf			integer;
     v_codigo_estado			varchar;
     v_num_tramite			varchar;
+    v_acceso_directo        varchar;
+    v_clase                 varchar;
+    v_parametros_ad         varchar;
+    v_tipo_noti             varchar;
+    v_titulo                varchar;
+    v_movimiento            varchar;
+    v_id_tipo_estado        integer;
+    v_pedir_obs             varchar;
+    v_codigo_estado_siguiente   varchar;
+    v_id_depto              integer;
+    v_obs                   varchar;
+    v_id_estado_actual      integer;
 			    
 BEGIN
 
@@ -311,6 +323,193 @@ BEGIN
             return v_resp;
 
 		end;
+
+    /*********************************    
+    #TRANSACCION:  'KAF_SIGEMOV_IME'
+    #DESCRIPCION:   funcion que controla el cambio al Siguiente estado del movimiento
+    #AUTOR:         RCM
+    #FECHA:         30/03/2016
+    ***********************************/
+
+    elseif(p_transaccion='KAF_SIGEMOV_IME')then   
+        begin
+            
+            /*   PARAMETROS
+             
+            $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
+            $this->setParametro('id_tipo_estado','id_tipo_estado','int4');
+            $this->setParametro('id_funcionario_wf','id_funcionario_wf','int4');
+            $this->setParametro('id_depto_wf','id_depto_wf','int4');
+            $this->setParametro('obs','obs','text');
+            $this->setParametro('json_procesos','json_procesos','text');
+            */        
+            select mov.*
+            into v_movimiento
+            from mov.tmovimiento mov     
+            where id_proceso_wf = v_parametros.id_proceso_wf_act;
+          
+            select 
+            ew.id_tipo_estado,
+            te.pedir_obs,
+            ew.id_estado_wf
+            into 
+            v_id_tipo_estado,
+            v_pedir_obs,
+            v_id_estado_wf
+            from wf.testado_wf ew
+            inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
+            where ew.id_estado_wf = v_parametros.id_estado_wf_act;
+              
+             
+            --Obtener datos tipo estado
+            select
+            te.codigo
+            into
+            v_codigo_estado_siguiente
+            from wf.ttipo_estado te
+            where te.id_tipo_estado = v_parametros.id_tipo_estado;
+                    
+            if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
+                v_id_depto = v_parametros.id_depto_wf;
+            end if;
+                    
+            if pxp.f_existe_parametro(p_tabla,'obs') THEN
+                v_obs=v_parametros.obs;
+            else
+                v_obs='---';
+            end if;
+                   
+            --Configurar acceso directo para la alarma   
+            v_acceso_directo = '';
+            v_clase = '';
+            v_parametros_ad = '';
+            v_tipo_noti = 'notificacion';
+            v_titulo  = 'Visto Bueno';
+                 
+            if v_codigo_estado_siguiente not in ('finalizado') then
+                v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
+                v_clase = 'Movimiento';
+                v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                v_tipo_noti = 'notificacion';
+                v_titulo  = 'Notificacion';             
+            end if;
+                 
+            v_id_estado_actual =  wf.f_registra_estado_wf(
+                v_parametros.id_tipo_estado, 
+                v_parametros.id_funcionario_wf, 
+                v_parametros.id_estado_wf_act, 
+                v_parametros.id_proceso_wf_act,
+                p_id_usuario,
+                v_parametros._id_usuario_ai,
+                v_parametros._nombre_usuario_ai,
+                v_id_depto,
+                coalesce(v_movimiento.codigo,'--')||' Obs:'||v_obs,
+                v_acceso_directo ,
+                v_clase,
+                v_parametros_ad,
+                v_tipo_noti,
+                v_titulo
+            );
+              
+            /*if plani.f_fun_inicio_planilla_wf(
+                p_id_usuario, 
+                v_parametros._id_usuario_ai, 
+                v_parametros._nombre_usuario_ai, 
+                v_id_estado_actual, 
+                v_parametros.id_proceso_wf_act, 
+                v_codigo_estado_siguiente
+            ) then
+                                                
+            end if;*/
+                    
+              --------------------------------------
+              -- registra los procesos disparados
+              --------------------------------------
+             
+              /*FOR v_registros_proc in (select *
+                                        from json_populate_recordset(null::wf.proceso_disparado_wf, v_parametros.json_procesos::json)) LOOP
+        
+                   --get cdigo tipo proceso
+                   select   
+                      tp.codigo,
+                      tp.codigo_llave  
+                   into 
+                      v_codigo_tipo_pro, 
+                      v_codigo_llave  
+                   from wf.ttipo_proceso tp 
+                    where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
+              
+              
+                   -- disparar creacion de procesos seleccionados
+                  
+                  SELECT
+                           ps_id_proceso_wf,
+                           ps_id_estado_wf,
+                           ps_codigo_estado
+                     into
+                           v_id_proceso_wf,
+                           v_id_estado_wf,
+                           v_codigo_estado
+                  FROM wf.f_registra_proceso_disparado_wf(
+                           p_id_usuario,
+                           v_parametros._id_usuario_ai,
+                           v_parametros._nombre_usuario_ai,
+                           v_id_estado_actual, 
+                           v_registros_proc.id_funcionario_wf_pro, 
+                           v_registros_proc.id_depto_wf_pro,
+                           v_registros_proc.obs_pro,
+                           v_codigo_tipo_pro,    
+                           v_codigo_tipo_pro);
+                */  
+                  /*Generar una olbigacion de pago en caso de ser necesario*/
+                  /*IF v_codigo_llave = 'obligacion_pago' THEN
+                         
+                      IF  v_registros_proc.id_depto_wf_pro::integer  is NULL  THEN
+                              
+                         raise exception 'Para obligaciones de pago el depto es indispensable';
+                              
+                      END IF;
+                      
+                      IF NOT plani.f_generar_obligaciones_tesoreria(
+                                                    p_administrador,
+                                                    v_planilla.id_planilla,
+                                                    p_id_usuario,
+                                                    v_parametros._id_usuario_ai,
+                                                    v_parametros._nombre_usuario_ai,
+                                                    v_id_proceso_wf,
+                                                    v_id_estado_wf,
+                                                    v_registros_proc.id_depto_wf_pro 
+                                                    ) THEN
+                                                             
+                         raise exception 'Error al generar el contrato';
+                              
+                      END IF;
+                         
+                       
+                        
+                  ELSE
+                     raise exception 'Codigo llave no reconocido  verifique el WF (%)', v_codigo_llave;
+                  END IF;
+                           
+              END LOOP; */
+               
+               -- actualiza estado en la solicitud
+               -- funcion para cambio de estado     
+               
+              
+              
+              
+              -- si hay mas de un estado disponible  preguntamos al usuario
+              v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado de la planilla)'); 
+              v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+              
+              
+              -- Devuelve la respuesta
+              return v_resp;
+            
+         end;        
+
+
          
 	else
      
