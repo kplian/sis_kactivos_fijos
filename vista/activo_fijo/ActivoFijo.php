@@ -236,13 +236,13 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             }
         });
         //Button for select IDs
-        this.addButton('btnSelect', {
-            text : 'Seleccionar todos',
-            //iconCls : 'bpdf32',
-            disabled : false,
-            handler : this.obtenerCadenaIDs,
-            tooltip : '<b>Seleccionar todos</b><br/>Selecciona todos los activos fijos según el filtro aplicado.'
-        });
+        // this.addButton('btnSelect', {
+        //     text : 'Seleccionar todos',
+        //     //iconCls : 'bpdf32',
+        //     disabled : false,
+        //     handler : this.obtenerCadenaIDs,
+        //     tooltip : '<b>Seleccionar todos</b><br/>Selecciona todos los activos fijos según el filtro aplicado.'
+        // });
 
          //Load data for Departamentos
         Ext.getCmp('af_filter_depto').on('activate',function(){
@@ -256,7 +256,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         Ext.getCmp('af_filter_accordion').on('expand',function(){alert('evento')},this);
 
         Ext.getCmp('tree_clasificacion_af').loader.on('beforeload', function(treeLoader,node){
-            console.log('ss',node.attributes['id_clasificacion']);
             Ext.apply(Ext.getCmp('tree_clasificacion_af').loader.baseParams,{
                 id_clasificacion: node.attributes['id_clasificacion']
             });
@@ -299,7 +298,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.detailsTemplate = new Ext.XTemplate(
             '<div class="details">',
                 '<tpl for=".">',
-                    '<img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150"><div class="details-info">',
+                    '<img src="{foto}" height="100" width="150"><div class="details-info">',
                     '<b>Código: </b>',
                     '<span>{codigo}</span>',
                     '<br><b>Estado: </b>',
@@ -340,6 +339,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             tooltip : '<b>Código</b><br/>Codificación del activo fijo'
         });
 
+        //Add button for upload Photo
+        this.addButton('btnPhoto', {
+            text : 'Subir Foto',
+            iconCls : 'code',
+            disabled : true,
+            handler : this.subirFoto,
+            tooltip : '<b>Foto</b><br/>Subir foto para el activo fijo'
+        });
+
         //Add context menu
         this.grid.on('rowcontextmenu', function(grid, rowIndex, e) {
             e.stopEvent();
@@ -348,20 +356,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 selModel.selectRow(rowIndex);
                 this.fireEvent('rowclick', this, rowIndex, e);
             }
-            console.log('ctx',e);
             this.ctxMenu.showAt(e.getXY())
         }, this);
 
         //Selection button
-        this.getBoton('triguerreturn').hide();
+        //this.getBoton('triguerreturn').hide();
         if(config.movimiento){
             this.getBoton('triguerreturn').show();
             this.getBoton('triguerreturn').enable();
         }
         
-
-        console.log('FFFFFF',config);
-
     },
     Atributos: [{
         //configuracion del componente
@@ -409,15 +413,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'en_deposito',
-            fieldLabel: 'En Deposito',
+            fieldLabel: 'Deposito',
             allowBlank: true,
             anchor: '80%',
-            gwidth: 50,
+            gwidth: 75,
             maxLength: 15
         },
         type: 'TextField',
         filters: {
-            pfiltro: 'afij.estado',
+            pfiltro: 'afij.en_deposito',
             type: 'string'
         },
         id_grupo: 1,
@@ -1540,8 +1544,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         name: 'desc_moneda_orig',
         type: 'string'
     },
-    , {
+    {
         name: 'en_deposito',
+        type: 'string'
+    },
+    {
+        name: 'extension',
         type: 'string'
     }],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
@@ -1553,7 +1561,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     //'<img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150">',
     bsave: true,
     rowExpander: new Ext.ux.grid.RowExpander({
-        tpl: new Ext.Template('<br>', '<table><tr><td rowspan="5"><img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150"></td></tr><tr><td colspan ="2"><b>Descripción:</b> {descripcion}</td></tr><tr><td><b>Responsable:</b> {funcionario}</td><td><b>Fecha Ini. Dep.:</b> {fecha_ini_dep}</td></tr><tr><td><b>Ubicación:</b> {ubicacion}</td><td><b>Documento:</b> {documento}</td></tr><tr><td><b>Oficina:</b> {oficina}</td><td><b>Estado funcional:</b> {estado_fun}</td></tr></table>')
+        tpl: new Ext.Template('<br>', '<table><tr><td rowspan="5"><img src="{foto}" height="100" width="150"></td></tr><tr><td colspan ="2"><b>Descripción:</b> {descripcion}</td></tr><tr><td><b>Responsable:</b> {funcionario}</td><td><b>Fecha Ini. Dep.:</b> {fecha_ini_dep}</td></tr><tr><td><b>Ubicación:</b> {ubicacion}</td><td><b>Documento:</b> {documento}</td></tr><tr><td><b>Oficina:</b> {oficina}</td><td><b>Estado funcional:</b> {estado_fun}</td></tr></table>')
     }),
     bodyStyleForm: 'padding:5px;', 
     borderForm: true,
@@ -2117,7 +2125,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             //Inicializa el formulario
             this.form.getForm().reset();
             this.cargarValoresDefecto();
-            data = {foto:'default.jpg',codigo:''}
+            data = {foto:'./../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg',codigo:''}
         }
         //Renderea la imagen, abre la ventana
         this.afWindow.show();
@@ -2132,7 +2140,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 Ext.each(obj.items.items, function(elm, b, c){
                     if(elm.getXType()=='combo'&&elm.mode=='remote'&&elm.store!=undefined){
                         if (!elm.store.getById(data[elm.name])) {
-                            console.log('UNO',{[elm.displayField]: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
                             rec = new Ext.data.Record({[elm.displayField]: data[elm.gdisplayField], [elm.valueField]: data[elm.name] },data[elm.name]);
                             elm.store.add(rec);
                             elm.store.commitChanges();
@@ -2145,7 +2152,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 key = element.replace(this.idContenedor+'_','');
                 if(obj.getXType()=='combo'&&obj.mode=='remote'&&obj.store!=undefined){
                     if (!obj.store.getById(data[key])) {
-                        console.log('dos',{[obj.displayField]: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
                         rec = new Ext.data.Record({[obj.displayField]: data[obj.gdisplayField], [obj.valueField]: data[key] },data[key]);
                         obj.store.add(rec);
                         obj.store.commitChanges();
@@ -2256,6 +2262,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var data = this.getSelectedData();
 
         this.getBoton('btnCodificar').disable();
+        this.getBoton('btnPhoto').enable();
         if(data.estado=='registrado') {
             this.getBoton('btnCodificar').enable();
         }
@@ -2265,6 +2272,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     liberaMenu : function() {
         var tb = Phx.vista.ActivoFijo.superclass.liberaMenu.call(this);
         this.getBoton('btnCodificar').disable();
+        this.getBoton('btnPhoto').disable();
         return tb;
     },
 
@@ -2307,7 +2315,19 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         }],
         scope: this
     }),
-    btriguerreturn:true
+    btriguerreturn:false,
+
+    subirFoto: function(){
+        var rec = this.sm.getSelected();
+        Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/SubirFoto.php',
+            'Subir Foto',
+            {
+                modal:true,
+                width:450,
+                height:150
+            },rec.data,this.idContenedor,'SubirFoto');
+
+    }
 
 })
 </script>

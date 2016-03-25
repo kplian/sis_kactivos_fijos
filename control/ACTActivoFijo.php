@@ -101,6 +101,12 @@ class ACTActivoFijo extends ACTbase{
 
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+	function subirFoto(){
+        $this->objFunc=$this->create('MODActivoFijo');
+        $this->res=$this->objFunc->SubirFoto();
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

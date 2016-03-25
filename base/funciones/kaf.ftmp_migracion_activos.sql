@@ -96,6 +96,15 @@ CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_activos"()
 	'activo','si',af.monto_rescate
 	from kaf.tactivo_fijo af;
 
+	--Actualiza el correlativo de las clasificaciones
+	update kaf.tclasificacion set
+	correlativo_act = cast(a.correl as int4)
+	from (select
+	id_clasificacion, max(cast(substring(codigo,15,10) as int4)) as correl
+	from kaf.tactivo_fijo
+	group by id_clasificacion) a
+	where a.id_clasificacion = kaf.tclasificacion.id_clasificacion<
+
 
 	return 'done';
 

@@ -75,6 +75,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('deposito_cod','varchar');
 		$this->captura('desc_moneda_orig','varchar');
 		$this->captura('en_deposito','varchar');
+		$this->captura('extension','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -235,6 +236,103 @@ class MODActivoFijo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function subirFoto(){ 
+                    
+        $cone = new conexion();
+		$link = $cone->conectarpdo();
+		$copiado = false;			
+		try {
+			
+			$link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);		
+	  	    $link->beginTransaction();
+			
+			if ($this->arregloFiles['archivo']['name'] == "") {
+				throw new Exception("El archivo no puede estar vacio");
+			}
+			
+            $this->procedimiento='kaf.ft_activo_fijo_ime';
+            $this->transaccion='SKA_PHOTO_UPL';
+            $this->tipo_procedimiento='IME';
+            
+            $ext = pathinfo($this->arregloFiles['archivo']['name']);
+            $this->arreglo['extension'] = $ext['extension'];
+            
+			//validar que no sea un arhvio en blanco
+			$file_name = $this->getFileName2('archivo', 'id_activo_fijo', '', false);
+			
+            //Define los parametros para la funcion 
+            $this->setParametro('id_activo_fijo','id_activo_fijo','integer');   
+            $this->setParametro('extension','extension','varchar');
+            
+            //manda como parametro la url completa del archivo 
+            $this->aParam->addParametro('file_name', $file_name[2]);
+            $this->arreglo['file_name'] = $file_name[2];
+            $this->setParametro('file_name','file_name','varchar'); 
+			
+			//manda como parametro el folder del arhivo 
+            $this->aParam->addParametro('folder', $file_name[1]);
+            $this->arreglo['folder'] = $file_name[1];
+            $this->setParametro('folder','folder','varchar'); 
+			
+			//manda como parametro el solo el nombre del arhivo  sin extencion
+            $this->aParam->addParametro('only_file', $file_name[0]);
+            $this->arreglo['only_file'] = $file_name[0];
+            $this->setParametro('only_file','only_file','varchar'); 
+			
+			      
+            //Ejecuta la instruccion
+            $this->armarConsulta();
+			$stmt = $link->prepare($this->consulta);		  
+		  	$stmt->execute();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);				
+			$resp_procedimiento = $this->divRespuesta($result['f_intermediario_ime']);
+			
+			if ($resp_procedimiento['tipo_respuesta']=='ERROR') {
+				throw new Exception("Error al ejecutar en la bd", 3);
+			}
+             
+
+			 if($resp_procedimiento['tipo_respuesta'] == 'EXITO'){
+              
+			   //revisamos si ya existe el archivo la verison anterior sera mayor a cero
+			   $respuesta = $resp_procedimiento['datos'];
+			   //var_dump($respuesta);
+			   if($respuesta['max_version'] != '0' && $respuesta['url_destino'] != ''){
+			   	 
+                      $this->copyFile($respuesta['url_origen'], $respuesta['url_destino'],  $folder = 'historico');
+			   	      $copiado = true;
+			   }
+			   
+			   //cipiamos el nuevo archivo 
+               $this->setFile('archivo','id_activo_fijo', false,100000 ,array('jpg','jpeg','bmp','gif','png'));
+            }
+			
+			$link->commit();
+			$this->respuesta=new Mensaje();
+			$this->respuesta->setMensaje($resp_procedimiento['tipo_respuesta'],$this->nombre_archivo,$resp_procedimiento['mensaje'],$resp_procedimiento['mensaje_tec'],'base',$this->procedimiento,$this->transaccion,$this->tipo_procedimiento,$this->consulta);
+			$this->respuesta->setDatos($respuesta);
+        } 
+        
+        catch (Exception $e) {			
+	    	$link->rollBack();
+			
+			if($copiado){
+			   	 $this->copyFile($respuesta['url_origen'], $respuesta['url_destino'],  $folder = 'historico', true);
+			}
+	    	$this->respuesta=new Mensaje();
+			if ($e->getCode() == 3) {//es un error de un procedimiento almacenado de pxp
+				$this->respuesta->setMensaje($resp_procedimiento['tipo_respuesta'],$this->nombre_archivo,$resp_procedimiento['mensaje'],$resp_procedimiento['mensaje_tec'],'base',$this->procedimiento,$this->transaccion,$this->tipo_procedimiento,$this->consulta);
+			} else if ($e->getCode() == 2) {//es un error en bd de una consulta
+				$this->respuesta->setMensaje('ERROR',$this->nombre_archivo,$e->getMessage(),$e->getMessage(),'modelo','','','','');
+			} else {//es un error lanzado con throw exception
+				throw new Exception($e->getMessage(), 2);
+			}
+		}    
+	    
+	    return $this->respuesta;
+	      
+    }
 			
 }
 ?>

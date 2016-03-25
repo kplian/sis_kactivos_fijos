@@ -59,9 +59,13 @@ BEGIN
     into v_correl, v_codigo
     from kaf.tclasificacion
     where id_clasificacion = v_id_clasificacion;
-    
+    --raise EXCEPTION 'sdsdsd: %',pxp.f_get_variable_global('kaf_codigo_longitud');
+        IF pxp.f_get_variable_global('kaf_codigo_longitud') = 'NULL' THEN
+            raise EXCEPTION 'Falta la definicion de la variable global: kaf_codigo_longitud';
+        END if;
+
     --4.Obtiene longitud del código
-    v_longitud = coalesce(cast(pxp.f_get_variable_global('kaf_codigo_longitud') as integer),0);
+    v_longitud = cast(pxp.f_get_variable_global('kaf_codigo_longitud') as integer);
     
     --5. Arma el código
     v_codigo = v_codigo || '.' || pxp.f_rellena_cero_din(v_correl,v_longitud);

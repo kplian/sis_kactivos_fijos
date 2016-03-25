@@ -44,7 +44,7 @@ BEGIN
 						afij.id_activo_fijo,
 						afij.id_persona,
 						afij.cantidad_revaloriz,
-						coalesce(afij.foto,''default.jpg'') as foto,
+						coalesce(afij.foto,''./../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg'') as foto,
 						afij.id_proveedor,
 						afij.estado_reg,
 						afij.fecha_compra,
@@ -95,7 +95,8 @@ BEGIN
 						depaf.nombre as deposito,
 						depaf.codigo as deposito_cod,
 						mon.codigo as desc_moneda_orig,
-						afij.en_deposito
+						afij.en_deposito,
+						coalesce(afij.extension,''jpg'') as extension
 						from kaf.tactivo_fijo afij
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod

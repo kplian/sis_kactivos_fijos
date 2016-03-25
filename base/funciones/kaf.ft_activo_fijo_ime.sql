@@ -78,8 +78,8 @@ BEGIN
 			v_parametros.id_oficina,
 			v_parametros.id_depto,
 			p_id_usuario,
-			v_parametros.nombre_usuario_ai,
-			v_parametros.id_usuario_ai
+			null, -- v_parametros.nombre_usuario_ai,
+			null --v_parametros.id_usuario_ai
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -265,6 +265,36 @@ BEGIN
             --Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Han sido clonados "'||v_parametros.cant_clon::varchar||'" Activos Fijos satisfactoriamente en base al activo fijo '|| v_rec_af.codigo||'('||v_parametros.id_activo_fijo::varchar||') [IDs generados: '||v_ids_clon||']'); 
             v_resp = pxp.f_agrega_clave(v_resp,'ids',v_ids_clon);
+
+            --Devuelve la respuesta
+            return v_resp;
+        
+        end;
+
+    /*********************************    
+ 	#TRANSACCION:  'SKA_AFCLO_INS'
+ 	#DESCRIPCION:	Clonación del activo fijo seleccionado
+ 	#AUTOR:			RCM
+ 	#FECHA:			10/01/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_PHOTO_UPL')then
+
+		begin
+
+			if not exists(select 1 from kaf.tactivo_fijo
+				where id_activo_fijo = v_parametros.id_activo_fijo) then
+				raise exception 'Activo fijo no existente';
+			end if;
+
+			update kaf.tactivo_fijo set
+			foto = v_parametros.file_name,
+			extension = v_parametros.extension
+			where id_activo_fijo = v_parametros.id_activo_fijo;
+            
+            --Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Foto subida correctamente'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
 
             --Devuelve la respuesta
             return v_resp;

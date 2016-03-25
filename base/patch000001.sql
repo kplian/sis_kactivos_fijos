@@ -317,6 +317,14 @@ ALTER TABLE kaf.tclasificacion
 ALTER TABLE "kaf"."tactivo_fijo_valores"
 ADD COLUMN "id_movimiento_af" int4,
 ADD PRIMARY KEY ("id_activo_fijo_valor");
+
+/***********************************F-SCP-RCM-KAF-1-03/04/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-04/04/2016****************************************/
 ALTER TABLE "kaf"."tactivo_fijo"
 ALTER COLUMN "denominacion" TYPE varchar(500) COLLATE "default";
-/***********************************F-SCP-RCM-KAF-1-03/04/2016****************************************/
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "en_deposito" varchar(2);
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "fecha_baja" date;
+/***********************************F-SCP-RCM-KAF-1-04/04/2016****************************************/
