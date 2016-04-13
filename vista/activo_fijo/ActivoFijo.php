@@ -1704,7 +1704,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'clasificacion',
                                 mode: 'remote',
                                 triggerAction: 'all',
-                                lazyRender: true
+                                lazyRender: true,
+                                pageSize: 15
                             }, {
                                 fieldLabel: 'Vida útil inicial',
                                 name: 'vida_util_original',

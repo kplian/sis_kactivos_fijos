@@ -100,11 +100,11 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_clasificacion)
 					    from kaf.tclasificacion claf
-					    inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
+						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
 						left join param.tcatalogo cat on cat.id_catalogo = claf.id_cat_metodo_dep
 						left join param.tconcepto_ingas cig on cig.id_concepto_ingas = claf.id_concepto_ingas
-					    where ';
+				        where  ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
