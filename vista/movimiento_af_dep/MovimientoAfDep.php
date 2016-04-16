@@ -13,7 +13,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		this.maestro=config.maestro;
+		this.maestro=config;
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAfDep.superclass.constructor.call(this,config);
 		this.init();
