@@ -213,3 +213,11 @@ select wf.f_import_testructura_estado ('insert','pendiente','finalizacion','PRO-
 select pxp.f_insert_tgui ('Depositos', 'Depositos', 'KAFDEP', 'si', 2, 'sis_kactivos_fijos/vista/deposito/Deposito.php', 2, '', 'Deposito', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFDEP', 'KAF');
 /***********************************F-DAT-RCM-KAF-1-29/03/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-18/04/2016****************************************/
+select pxp.f_insert_tgui ('Tipos de Bienes', 'Tipos de Bienes', 'KAFTIPBIE', 'si', 4, 'sis_kactivos_fijos/vista/tipo_bien/TipoBien.php', 6, '', 'TipoBien', 'KAF');
+select pxp.f_insert_tgui ('Tipos de Cuentas', 'Tipos de Cuentas', 'KAFMOVTIPCUE', 'si', 5, 'sis_kactivos_fijos/vista/tipo_cuenta/TipoCuenta.php', 7, '', 'TipoCuenta', 'KAF');
+
+select pxp.f_insert_testructura_gui ('KAFTIPBIE', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMOVTIPCUE', 'KAF');
+/***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/

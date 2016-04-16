@@ -333,3 +333,27 @@ ADD COLUMN "fecha_baja" date;
 ALTER TABLE "kaf"."tmovimiento_af_dep"
 ADD COLUMN "fecha" date;
 /***********************************F-SCP-RCM-KAF-1-18/04/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-2-18/04/2015****************************************/
+create table kaf.ttipo_bien (
+	id_tipo_bien serial,
+	codigo varchar(20) null,
+	descripcion varchar(100) not null,
+	constraint pk_ttipo_bien__id_tipo_bien primary key (id_tipo_bien)
+) inherits (pxp.tbase) without oids;
+
+create table kaf.ttipo_cuenta (
+	id_tipo_cuenta serial,
+	codigo varchar(25) null,
+	descripcion varchar(150) not null,
+	codigo_corto varchar(10) null,
+	constraint pk_ttipo_cuenta__id_tipo_cuenta primary key (id_tipo_cuenta)
+) inherits (pxp.tbase) without oids;
+
+create table kaf.ttipo_bien_cuenta (
+	id_tipo_bien_cuenta serial,
+	id_tipo_bien integer,
+	id_tipo_cuenta integer,
+	constraint pk_ttipo_bien_cuenta__id_tipo_bien_cuenta primary key (id_tipo_bien_cuenta)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-2-18/04/2015****************************************/
