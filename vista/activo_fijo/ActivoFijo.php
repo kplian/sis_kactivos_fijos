@@ -1332,7 +1332,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         type: 'TextField',
         filters: {
-            pfiltro: 'afij.codigo',
+            pfiltro: 'afij.caracteristicas',
             type: 'string'
         },
         id_grupo: 1,
@@ -1807,6 +1807,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 allowBlank: false,
                                 id: this.idContenedor+'_vida_util_original'
                             }, {
+                                fieldLabel: '#Serie',
+                                name: 'nro_serie',
+                                allowBlank: true,
+                                id: this.idContenedor+'_nro_serie'
+                            }, {
+                                fieldLabel: 'Marca',
+                                name: 'marca',
+                                allowBlank: true,
+                                id: this.idContenedor+'_marca'
+                            }, {
                                 fieldLabel: 'Denominación',
                                 name: 'denominacion',
                                 allowBlank: false,
@@ -1853,6 +1863,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15
+                            }, {
+                                xtype: 'textfield',
+                                fieldLabel: 'Codigo Ant.',
+                                name: 'codigo_ant',
+                                id: this.idContenedor+'_codigo_ant'
+                            }, {
+                                xtype: 'textarea',
+                                fieldLabel: 'Caracteristicas',
+                                name: 'observaciones',
+                                id: this.idContenedor+'_caracteristicas'
                             }, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Observaciones',
