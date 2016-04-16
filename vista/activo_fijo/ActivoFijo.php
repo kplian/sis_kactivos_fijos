@@ -1673,7 +1673,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'depto',
                                 mode: 'remote',
                                 triggerAction: 'all',
-                                lazyRender: true
+                                lazyRender: true,
+                                pageSize: 15
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Clasificación',
@@ -1756,7 +1757,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'estado_fun',
                                 mode: 'remote',
                                 triggerAction: 'all',
-                                lazyRender: true
+                                lazyRender: true,
+                                pageSize: 15
                             }, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Observaciones',
@@ -1806,7 +1808,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'deposito',
                                 mode: 'remote',
                                 triggerAction: 'all',
-                                lazyRender: true
+                                lazyRender: true,
+                                pageSize: 15
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Oficina',
@@ -1817,7 +1820,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 store: new Ext.data.JsonStore({}),
                                 valueField: 'id_oficina',
                                 displayField: 'nombre',
-                                gdisplayField: 'oficina'
+                                gdisplayField: 'oficina',
+                                pageSize: 15
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Responsable',
@@ -1880,7 +1884,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15,
-                                valueNotFoundText: 'Proveedor no encontrado'
+                                valueNotFoundText: 'Proveedor no encontrado',
+                                pageSize: 15
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha Compra',
@@ -1973,7 +1978,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'estado_compra',
                                 mode: 'remote',
                                 triggerAction: 'all',
-                                lazyRender: true
+                                lazyRender: true,
+                                pageSize: 15
                             }]
                         }, {
                             title: 'Datos Depreciación',

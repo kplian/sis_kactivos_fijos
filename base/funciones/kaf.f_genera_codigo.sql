@@ -31,15 +31,8 @@ BEGIN
                 where id_activo_fijo = p_id_activo_fijo) then
         raise exception 'Activo fijo inexistente';
     end if;
-    --Estado debe ser Registrado
-    if not exists(select 1 from kaf.tactivo_fijo
-                where id_activo_fijo = p_id_activo_fijo
-                and estado = 'registrado') then
-        raise exception 'El activo fijo debería estar en estado Registrado';
-    end if;
     if exists(select 1 from kaf.tactivo_fijo
             where id_activo_fijo = p_id_activo_fijo
-            and estado = 'registrado'
             and codigo is not null) then
         raise exception 'El Activo Fijo ya tiene un código asignado';
     end if;

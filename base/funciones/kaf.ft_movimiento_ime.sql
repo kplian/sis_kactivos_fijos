@@ -55,6 +55,7 @@ DECLARE
     v_id_funcionario        integer;
     v_id_usuario_reg        integer;
     v_id_estado_wf_ant      integer;
+    v_cod_movimiento        varchar;
 			    
 BEGIN
 
@@ -182,6 +183,40 @@ BEGIN
 			v_id_responsable_depto,
 			v_parametros.id_persona
 			)RETURNING id_movimiento into v_id_movimiento;
+
+            --Verifica si es depreciacion y esta en Estado Borrador, para precargar con todos los activos fijos del departamento
+            select 
+            cat.codigo
+            into v_cod_movimiento
+            from param.tcatalogo cat
+            where cat.id_catalogo = v_parametros.id_cat_movimiento;
+
+            if v_cod_movimiento = 'deprec' then
+
+                insert into kaf.tmovimiento_af(
+                    id_movimiento,
+                    id_activo_fijo,
+                    id_cat_estado_fun,
+                    estado_reg,
+                    fecha_reg,
+                    id_usuario_reg,
+                    fecha_mod
+                )
+                select 
+                v_id_movimiento,
+                afij.id_activo_fijo,
+                afij.id_cat_estado_fun,
+                'activo',
+                now(),
+                p_id_usuario,
+                null
+                from kaf.tactivo_fijo afij
+                where afij.estado = 'alta'
+                and afij.id_depto = v_parametros.id_depto
+                and ((afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) or (afij.fecha_ult_dep < v_parametros.fecha_hasta));
+
+
+            end if;
 			
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
@@ -336,21 +371,15 @@ BEGIN
 
     elseif(p_transaccion='KAF_SIGEMOV_IME')then   
         begin
-            
-            /*   PARAMETROS
-             
-            $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
-            $this->setParametro('id_tipo_estado','id_tipo_estado','int4');
-            $this->setParametro('id_funcionario_wf','id_funcionario_wf','int4');
-            $this->setParametro('id_depto_wf','id_depto_wf','int4');
-            $this->setParametro('obs','obs','text');
-            $this->setParametro('json_procesos','json_procesos','text');
-            */        
-            select mov.*
+            --Obtiene los datos del movimiento       
+            select mov.*, cat.codigo as cod_movimiento
             into v_movimiento
-            from kaf.tmovimiento mov     
+            from kaf.tmovimiento mov
+            inner join param.tcatalogo cat
+            on cat.id_catalogo = mov.id_cat_movimiento    
             where id_proceso_wf = v_parametros.id_proceso_wf_act;
-          
+
+            --Obtiene los datos del Estado Actual
             select 
             ew.id_tipo_estado,
             te.pedir_obs,
@@ -371,7 +400,134 @@ BEGIN
             v_codigo_estado_siguiente
             from wf.ttipo_estado te
             where te.id_tipo_estado = v_parametros.id_tipo_estado;
-                    
+
+            --raise exception '%: % -> %',v_movimiento.cod_movimiento,v_movimiento.estado,v_codigo_estado_siguiente;
+            --------------------------------------------
+            --Acciones por Tipo de Movimiento y Estado
+            --------------------------------------------
+            if v_movimiento.cod_movimiento = 'alta' then
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Crea el registro de importes
+                    insert into kaf.tactivo_fijo_valores(
+                    id_usuario_reg, fecha_reg,estado_reg,
+                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
+                    depreciacion_mes,depreciacion_per,depreciacion_acum,
+                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
+                    )
+                    select
+                    p_id_usuario,now(),'activo',
+                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
+                    0,0,0,
+                    af.monto_compra,af.vida_util_original,'activo','si',af.monto_rescate,movaf.id_movimiento_af
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tactivo_fijo af
+                    on af.id_activo_fijo = movaf.id_activo_fijo
+                    where movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    estado = 'alta',
+                    codigo = kaf.f_genera_codigo (movaf.id_activo_fijo)
+                    from kaf.tmovimiento_af movaf
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'baja' then
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    estado = 'baja',
+                    fecha_baja = mov.fecha_mov
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tmovimiento mov
+                    on mov.id_movimiento = movaf.id_movimiento
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'asig' then
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    en_deposito = 'no',
+                    id_funcionario = mov.id_funcionario,
+                    id_persona = mov.id_persona
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tmovimiento mov
+                    on mov.id_movimiento = movaf.id_movimiento
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'devol' then
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    en_deposito = 'si',
+                    id_funcionario = mov.id_funcionario,
+                    id_persona = null
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tmovimiento mov
+                    on mov.id_movimiento = movaf.id_movimiento
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'reval' then
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Crea el registro de importes
+                    insert into kaf.tactivo_fijo_valores(
+                    id_usuario_reg, fecha_reg,estado_reg,
+                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
+                    depreciacion_mes,depreciacion_per,depreciacion_acum,
+                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
+                    )
+                    select
+                    p_id_usuario,now(),'activo',
+                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
+                    0,0,0,
+                    moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tactivo_fijo af
+                    on af.id_activo_fijo = movaf.id_activo_fijo
+                    where movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    cantidad_revaloriz = cantidad_revaloriz + 1,
+                    monto_vigente = movaf.importe,
+                    vida_util = movaf.vida_util
+                    from kaf.tmovimiento_af movaf
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'deprec' then
+
+                if v_codigo_estado_siguiente = 'generado' then
+
+                    --Generacion de la depreciacion
+                    for v_rec in (select id_movimiento_af, id_activo_fijo
+                                from kaf.tmovimiento_af
+                                where id_movimiento = v_movimiento.id_movimiento) loop
+
+                        v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af);
+
+                    end loop;
+
+                elsif v_codigo_estado_siguiente = 'finalizado' then
+
+                end if;
+
+            end if;
+
+
             if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
                 v_id_depto = v_parametros.id_depto_wf;
             end if;
@@ -388,7 +544,8 @@ BEGIN
             v_parametros_ad = '';
             v_tipo_noti = 'notificacion';
             v_titulo  = 'Visto Bueno';
-                 
+
+                
             if v_codigo_estado_siguiente not in ('finalizado') then
                 v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
                 v_clase = 'Movimiento';

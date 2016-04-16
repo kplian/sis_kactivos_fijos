@@ -1,7 +1,8 @@
 CREATE OR REPLACE FUNCTION kaf.f_depreciacion_lineal (
   p_id_usuario integer,
   p_id_activo_fijo integer,
-  p_hasta date
+  p_hasta date,
+  p_id_movimiento_af integer
 )
 RETURNS varchar AS
 $body$
@@ -50,7 +51,8 @@ BEGIN
                       from kaf.tactivo_fijo_valores
                       where id_activo_fijo = p_id_activo_fijo
                       and estado = 'activo'
-                      and vida_util > 0) loop
+                      and vida_util > 0
+                      and estado = 'activo') loop
 
         --Inicialización mes inicio de depreciación
         v_mes_dep = v_rec_ant.fecha_inicio;
@@ -120,7 +122,7 @@ BEGIN
             null,
             null,
             1,
-            1,
+            p_id_movimiento_af,
             v_ant_dep_acum, --10
             v_ant_dep_per,
             v_ant_monto_vigente,
@@ -139,7 +141,6 @@ BEGIN
             v_rec_ant.id_activo_fijo_valor --25
             );
             
-
             --Incrementa en uno el mes
             v_mes_dep = v_mes_dep + interval '1' month;
             

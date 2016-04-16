@@ -36,6 +36,20 @@ class ACTActivoFijo extends ACTbase{
 			}
 		}
 
+		if($this->objParam->getParametro('id_depto')!=''){
+			$this->objParam->addFiltro("afij.id_depto = ".$this->objParam->getParametro('id_depto'));
+		}
+		if($this->objParam->getParametro('estado')!=''){
+			$this->objParam->addFiltro("afij.estado = ''".$this->objParam->getParametro('estado')."''");
+		}
+		if($this->objParam->getParametro('en_deposito')!=''){
+			$this->objParam->addFiltro("afij.en_deposito = ''".$this->objParam->getParametro('en_deposito')."''");
+		}
+		if($this->objParam->getParametro('id_funcionario')!=''){
+			$this->objParam->addFiltro("afij.id_funcionario = ".$this->objParam->getParametro('id_funcionario'));
+		}
+
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODActivoFijo','listarActivoFijo');

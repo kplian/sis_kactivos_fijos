@@ -20,6 +20,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.grid.getTopToolbar().disable();
 		this.grid.getBottomToolbar().disable();
 	},
+	filter:{},
 			
 	Atributos:[
 		{
@@ -373,6 +374,27 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	onReloadPage : function(m) {
 		this.maestro = m;
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento;
+
+		//Define the filter to apply for activos fijod drop down
+		this.Cmp.id_activo_fijo.store.baseParams = {
+		"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"afij.denominacion#afij.codigo#afij.descripcion"
+		};
+		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_depto: this.maestro.id_depto});
+		this.Cmp.id_activo_fijo.modificado=true;
+		if(this.maestro.cod_movimiento=='alta'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'borrador'});
+		} else if(this.maestro.cod_movimiento=='baja'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
+		} else if(this.maestro.cod_movimiento=='reval'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
+		} else if(this.maestro.cod_movimiento=='deprec'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
+		} else if(this.maestro.cod_movimiento=='asig'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{en_deposito:'si'});
+		} else if(this.maestro.cod_movimiento=='devol'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario: this.maestro.id_funcionario});
+		}
+
 		this.store.baseParams = {
 			id_movimiento : this.maestro.id_movimiento
 		};
