@@ -17,6 +17,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAfDep.superclass.constructor.call(this,config);
 		this.init();
+		console.log('AAA',this.maestro);
 		
 		this.Cmp.id_movimiento_af = this.maestro.id_movimiento_af;
 		this.load({params:{start:0, limit:this.tam_pag, id_movimiento_af: this.maestro.id_movimiento_af}});
