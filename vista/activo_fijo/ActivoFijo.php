@@ -392,7 +392,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'estado',
@@ -473,7 +474,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             type: 'string'
         },
         grid: true,
-        form: false
+        form: false,
+        bottom_filter:true
     }, {
         config: {
             name: 'cantidad_revaloriz',
@@ -507,7 +509,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'vida_util',
@@ -809,7 +812,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'observaciones',
@@ -826,7 +830,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'monto_rescate',
@@ -988,7 +993,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'id_moneda_orig',
