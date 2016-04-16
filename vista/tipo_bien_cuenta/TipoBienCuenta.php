@@ -17,7 +17,6 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.TipoBienCuenta.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
 	Atributos:[
@@ -40,6 +39,21 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'Field',
 			form:true 
+		},
+		{
+			config:{
+				name: 'codigo_bien',
+				fieldLabel: 'Codigo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:10
+			},
+				type:'TextField',
+				filters:{pfiltro:'tipbie.codigo',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
 		},
 		{
 			config: {
