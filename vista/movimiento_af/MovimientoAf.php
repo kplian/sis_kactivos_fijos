@@ -19,6 +19,15 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.grid.getTopToolbar().disable();
 		this.grid.getBottomToolbar().disable();
+
+		//Add report button
+        this.addButton('btnDet',{
+            text :'Detalle',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.onButtonDet,
+            tooltip : '<b>Detalle</b><br/><b>Detalle del calculo de la depreciacion</b>'
+       }); 
 	},
 	filter:{},
 			
@@ -404,7 +413,22 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				limit : 50
 			}
 		});
+	},
+
+	onButtonDet:function(){
+	    var rec=this.sm.getSelected();
+        Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDep.php',
+            'Detalle del calculo de depreciacion',
+            {
+                width:'90%',
+                height:500
+            },
+            rec.data,
+            this.idContenedor,
+            'MovimientoAfDep'
+    	)
 	}
+
 })
 </script>
 		

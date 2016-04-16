@@ -56,6 +56,7 @@ DECLARE
     v_id_usuario_reg        integer;
     v_id_estado_wf_ant      integer;
     v_cod_movimiento        varchar;
+    v_codigo_estado_anterior    varchar;
 			    
 BEGIN
 
@@ -392,7 +393,6 @@ BEGIN
             inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
             where ew.id_estado_wf = v_parametros.id_estado_wf_act;
               
-             
             --Obtener datos tipo estado
             select
             te.codigo
@@ -406,6 +406,7 @@ BEGIN
             --Acciones por Tipo de Movimiento y Estado
             --------------------------------------------
             if v_movimiento.cod_movimiento = 'alta' then
+
                 if v_codigo_estado_siguiente = 'finalizado' then
                     --Crea el registro de importes
                     insert into kaf.tactivo_fijo_valores(
@@ -431,8 +432,6 @@ BEGIN
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
-
-
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'baja' then
@@ -607,11 +606,28 @@ BEGIN
 
         begin
 
-            select mov.*
+            --Obtiene los datos del movimiento       
+            select mov.*, cat.codigo as cod_movimiento
             into v_movimiento
-            from kaf.tmovimiento mov     
+            from kaf.tmovimiento mov
+            inner join param.tcatalogo cat
+            on cat.id_catalogo = mov.id_cat_movimiento    
             where id_proceso_wf = v_parametros.id_proceso_wf;
-        
+
+            --Obtiene los datos del Estado Actual
+            select 
+            ew.id_tipo_estado,
+            te.pedir_obs,
+            ew.id_estado_wf
+            into 
+            v_id_tipo_estado,
+            v_pedir_obs,
+            v_id_estado_wf
+            from wf.testado_wf ew
+            inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
+            where ew.id_estado_wf = v_parametros.id_estado_wf;
+
+
             --------------------------------------------------
             --Retrocede al estado inmediatamente anterior
             -------------------------------------------------
@@ -630,7 +646,19 @@ BEGIN
             v_codigo_estado,
             v_id_estado_wf_ant 
             FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
-                        
+
+            --Obtener datos tipo estado
+             if v_movimiento.cod_movimiento = 'deprec' then
+                if v_codigo_estado = 'borrador' then
+                    --Eliminar registros de la depreciacion
+                    delete from kaf.tmovimiento_af_dep
+                    where id_movimiento_af in (select id_movimiento_af
+                                            from kaf.tmovimiento_af
+                                            where id_movimiento = v_movimiento.id_movimiento);
+                end if;
+            end if;
+
+
             select 
             ew.id_proceso_wf 
             into 
@@ -656,8 +684,7 @@ BEGIN
             end if;
              
           
-          -- registra nuevo estado
-                      
+          --Registra nuevo estado
             v_id_estado_actual = wf.f_registra_estado_wf(
                 v_id_tipo_estado, 
                 v_id_funcionario, 

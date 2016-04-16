@@ -328,3 +328,8 @@ ADD COLUMN "en_deposito" varchar(2);
 ALTER TABLE "kaf"."tactivo_fijo"
 ADD COLUMN "fecha_baja" date;
 /***********************************F-SCP-RCM-KAF-1-04/04/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-18/04/2016****************************************/
+ALTER TABLE "kaf"."tmovimiento_af_dep"
+ADD COLUMN "fecha" date;
+/***********************************F-SCP-RCM-KAF-1-18/04/2016****************************************/

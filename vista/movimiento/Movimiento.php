@@ -677,6 +677,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
        return tb
     },
     preparaMenu:function(n){
+    	var tb = Phx.vista.Movimiento.superclass.preparaMenu.call(this);
       	var data = this.getSelectedData();
       	var tb = this.tbar;
 

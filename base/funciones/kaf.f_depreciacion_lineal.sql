@@ -96,8 +96,8 @@ BEGIN
             id_usuario_ai,
             usuario_ai,
             id_movimiento_af,
-            id_moneda, --10
-            depreciacion_acum_ant,
+            id_moneda, 
+            depreciacion_acum_ant, --10
             depreciacion_per_ant,
             monto_vigente_ant,
             vida_util_ant,
@@ -112,7 +112,8 @@ BEGIN
             tipo_cambio_ini,
             tipo_cambio_fin,
             factor,
-            id_activo_fijo_valor --26
+            id_activo_fijo_valor, --26
+            fecha
             ) VALUES (
             1,
             null,
@@ -121,8 +122,8 @@ BEGIN
             'activo',
             null,
             null,
-            1,
             p_id_movimiento_af,
+            1,
             v_ant_dep_acum, --10
             v_ant_dep_per,
             v_ant_monto_vigente,
@@ -138,7 +139,8 @@ BEGIN
             v_rec_tc.o_tc_inicial,
             v_rec_tc.o_tc_final,
             v_rec_tc.o_tc_factor,
-            v_rec_ant.id_activo_fijo_valor --25
+            v_rec_ant.id_activo_fijo_valor, --25
+            v_mes_dep
             );
             
             --Incrementa en uno el mes
