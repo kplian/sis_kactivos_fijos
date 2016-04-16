@@ -166,7 +166,7 @@ BEGIN
 				        where ';
 			
 			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||v_parametros.filtro || ' ORDER BY claf.codigo ';
 			raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;

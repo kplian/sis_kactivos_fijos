@@ -56,11 +56,15 @@ BEGIN
         id_usuario_ai,
         id_usuario_mod,
         fecha_mod,
-        en_deposito
+        en_deposito,
+        codigo_ant,
+        marca,
+        nro_serie,
+        caracteristicas
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
-        'default.jpg',
+        './../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg',
         (p_parametros->'id_proveedor')::integer,
         'activo',
         (p_parametros->'fecha_compra')::date,
@@ -97,7 +101,11 @@ BEGIN
         (p_parametros->'id_usuario_ai')::integer,
         null,
         null,
-        'si'
+        'si',
+        (p_parametros->'codigo_ant')::varchar,
+        (p_parametros->'marca')::varchar,
+        (p_parametros->'nro_serie')::varchar,
+        (p_parametros->'caracteristicas')::text
     )RETURNING id_activo_fijo into v_id_activo_fijo;
 
 

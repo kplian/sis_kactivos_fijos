@@ -79,7 +79,11 @@ BEGIN
 			v_parametros.id_depto,
 			p_id_usuario,
 			null, -- v_parametros.nombre_usuario_ai,
-			null --v_parametros.id_usuario_ai
+			null, --v_parametros.id_usuario_ai
+			v_parametros.codigo_ant,
+			v_parametros.marca,
+			v_parametros.nro_serie,
+			v_parametros.caracteristicas
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -138,7 +142,11 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+			codigo_ant = v_parametros.codigo_ant,
+			nro_serie = v_parametros.nro_serie,
+			marca = v_parametros.marca,
+			caraceristicas = v_parametros._nombre_usuario_ai
 			where id_activo_fijo=v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta

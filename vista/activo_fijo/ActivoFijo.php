@@ -396,6 +396,42 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         bottom_filter:true
     }, {
         config: {
+            name: 'nro_serie',
+            fieldLabel: '# Serie',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 130,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.nro_serie',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
+            name: 'marca',
+            fieldLabel: 'Marca',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 150,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.marca',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
             name: 'estado',
             fieldLabel: 'Estado',
             allowBlank: true,
@@ -1269,6 +1305,42 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
+            name: 'codigo_ant',
+            fieldLabel: 'Código Anterior',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 120,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.codigo_ant',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
+            name: 'caracteristicas',
+            fieldLabel: 'Caracteristicas',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 200,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.codigo',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
             name: 'usr_reg',
             fieldLabel: 'Creado por',
             allowBlank: true,
@@ -1556,6 +1628,22 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     },
     {
         name: 'extension',
+        type: 'string'
+    },
+    {
+        name: 'codigo_ant',
+        type: 'string'
+    },
+    {
+        name: 'marca',
+        type: 'string'
+    },
+    {
+        name: 'nro_serie',
+        type: 'string'
+    },
+    {
+        name: 'caracteristicas',
         type: 'string'
     }],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],

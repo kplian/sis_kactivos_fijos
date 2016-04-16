@@ -76,6 +76,10 @@ class MODActivoFijo extends MODbase{
 		$this->captura('desc_moneda_orig','varchar');
 		$this->captura('en_deposito','varchar');
 		$this->captura('extension','varchar');
+		$this->captura('codigo_ant','varchar');
+		$this->captura('marca','varchar');
+		$this->captura('nro_serie','varchar');
+		$this->captura('caracteristicas','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -126,6 +130,10 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('id_centro_costo','id_centro_costo','int4');
 		$this->setParametro('id_oficina','id_oficina','int4');
 		$this->setParametro('id_depto','id_depto','int4');
+		$this->setParametro('codigo_ant','codigo_ant','varchar');
+		$this->setParametro('marca','marca','varchar');
+		$this->setParametro('nro_serie','nro_serie','varchar');
+		$this->setParametro('caracteristicas','caracteristicas','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -176,6 +184,10 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('id_centro_costo','id_centro_costo','int4');
 		$this->setParametro('id_oficina','id_oficina','int4');
 		$this->setParametro('id_depto','id_depto','int4');
+		$this->setParametro('codigo_ant','codigo_ant','varchar');
+		$this->setParametro('marca','marca','varchar');
+		$this->setParametro('nro_serie','nro_serie','varchar');
+		$this->setParametro('caracteristicas','caracteristicas','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

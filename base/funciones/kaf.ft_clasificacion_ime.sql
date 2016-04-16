@@ -136,8 +136,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			estado_reg = 'activo',
-			id_usuario_ai = v_parametros.id_usuario_ai,
-			usuario_ai = v_parametros.usuario_ai,
+			--id_usuario_ai = v_parametros.id_usuario_ai,
+			--usuario_ai = v_parametros.usuario_ai,
 			descripcion = v_parametros.descripcion
 			where id_clasificacion=v_parametros.id_clasificacion;
                

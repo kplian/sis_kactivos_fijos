@@ -357,3 +357,14 @@ create table kaf.ttipo_bien_cuenta (
 	constraint pk_ttipo_bien_cuenta__id_tipo_bien_cuenta primary key (id_tipo_bien_cuenta)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-2-18/04/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-19/04/2016****************************************/
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "codigo_ant" varchar(50);
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "marca" varchar(200);
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "nro_serie" varchar(50);
+ALTER TABLE "kaf"."tactivo_fijo"
+ADD COLUMN "caracteristicas" text;
+/***********************************F-SCP-RCM-KAF-1-19/04/2016****************************************/

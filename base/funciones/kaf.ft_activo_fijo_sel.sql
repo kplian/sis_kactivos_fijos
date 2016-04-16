@@ -96,7 +96,11 @@ BEGIN
 						depaf.codigo as deposito_cod,
 						mon.codigo as desc_moneda_orig,
 						afij.en_deposito,
-						coalesce(afij.extension,''jpg'') as extension
+						coalesce(afij.extension,''jpg'') as extension,
+						afij.codigo_ant,
+						afij.marca,
+						afij.nro_serie,
+						afij.caracteristicas
 						from kaf.tactivo_fijo afij
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
