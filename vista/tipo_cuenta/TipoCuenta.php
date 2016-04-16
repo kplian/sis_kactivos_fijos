@@ -211,7 +211,13 @@ Phx.vista.TipoCuenta=Ext.extend(Phx.gridInterfaz,{
 		direction: 'ASC'
 	},
 	bdel:true,
-	bsave:true
+	bsave:true,
+	south: {
+		url: '../../../sis_kactivos_fijos/vista/tipo_bien_cuenta/TipoBienCuenta.php',
+		title: 'Cuentas Contables',
+		height: '50%',
+		cls: 'TipoBienCuenta'
+	}
 	}
 )
 </script>

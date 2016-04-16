@@ -53,11 +53,10 @@ BEGIN
 						biecue.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-						tipcue.codigo as codigo_cuenta,
-						tipcue.descripcion as desc_cuenta,
-						tipcue.codigo_corto as codigo_corto_cuenta
+						tipbie.codigo as codigo_bien,
+						tipbie.descripcion as desc_bien
 						from kaf.ttipo_bien_cuenta biecue
-						inner join kaf.ttipo_cuenta tipcue on tipcue.id_tipo_cuenta = biecue.id_tipo_cuenta
+						inner join kaf.ttipo_bien tipbie on tipbie.id_tipo_bien = biecue.id_tipo_bien
 						inner join segu.tusuario usu1 on usu1.id_usuario = biecue.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = biecue.id_usuario_mod
 				        where  ';
@@ -84,7 +83,7 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_tipo_bien_cuenta)
 					    from kaf.ttipo_bien_cuenta biecue
-						inner join kaf.ttipo_cuenta tipcue on tipcue.id_tipo_cuenta = biecue.id_tipo_cuenta
+						inner join kaf.ttipo_bien tipbie on tipbie.id_tipo_bien = biecue.id_tipo_bien
 						inner join segu.tusuario usu1 on usu1.id_usuario = biecue.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = biecue.id_usuario_mod
 					    where ';

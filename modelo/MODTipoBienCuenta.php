@@ -32,9 +32,8 @@ class MODTipoBienCuenta extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		$this->captura('codigo_cuenta','varchar');
-		$this->captura('desc_cuenta','varchar');
-		$this->captura('codigo_corto_cuenta','varchar');
+		$this->captura('codigo_bien','varchar');
+		$this->captura('desc_bien','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

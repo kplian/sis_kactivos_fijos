@@ -36,34 +36,34 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
 			config:{
 					labelSeparator:'',
 					inputType:'hidden',
-					name: 'id_tipo_bien'
+					name: 'id_tipo_cuenta'
 			},
 			type:'Field',
 			form:true 
 		},
 		{
 			config: {
-				name: 'id_tipo_cuenta',
-				fieldLabel: 'Tipo Cuenta',
+				name: 'id_tipo_bien',
+				fieldLabel: 'Tipo Bien',
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
-					url: '../../sis_kactivos_fijos/control/TipoCuenta/listarTipoCuenta',
-					id: 'id_tipo_cuenta',
+					url: '../../sis_kactivos_fijos/control/TipoBien/listarTipoBien',
+					id: 'id_tipo_bien',
 					root: 'datos',
 					sortInfo: {
 						field: 'descripcion',
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_tipo_cuenta', 'codigo', 'descripcion','codigo_corto'],
+					fields: ['id_tipo_bien', 'codigo', 'descripcion'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'cuecon.codigo#cuecon.descripcion'}
+					baseParams: {par_filtro: 'tipbie.codigo#tipbie.descripcion'}
 				}),
-				valueField: 'id_tipo_cuenta',
+				valueField: 'id_tipo_bien',
 				displayField: 'descripcion',
-				gdisplayField: 'desc_cuenta',
-				hiddenName: 'id_tipo_cuenta',
+				gdisplayField: 'desc_bien',
+				hiddenName: 'id_tipo_bien',
 				forceSelection: true,
 				typeAhead: false,
 				triggerAction: 'all',
@@ -75,13 +75,13 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 300,
 				minChars: 2,
 				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_cuenta']);
+					return String.format('{0}', record.data['desc_bien']);
 				},
-				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Cuenta:</b> {descripcion}</p><p><b>Codigo corto:</b> {codigo_corto}</p></div></tpl>',
+				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Bien:</b> {descripcion}</p></div></tpl>',
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
-			filters: {pfiltro: 'tipcue.codigo',type: 'string'},
+			filters: {pfiltro: 'tipbi.codigo',type: 'string'},
 			grid: true,
 			form: true
 		},
@@ -212,10 +212,8 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		{name:'codigo_cuenta', type: 'string'},
-		{name:'desc_cuenta', type: 'string'},
-		{name:'codigo_corto_cuenta', type: 'string'}
-		
+		{name:'codigo_bien', type: 'string'},
+		{name:'desc_bien', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_tipo_bien_cuenta',
@@ -225,10 +223,10 @@ Phx.vista.TipoBienCuenta=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 	onReloadPage : function(m) {
 		this.maestro = m;
-		this.Atributos[1].valorInicial = this.maestro.id_tipo_bien;
+		this.Atributos[1].valorInicial = this.maestro.id_tipo_cuenta;
 
 		this.store.baseParams = {
-			id_tipo_bien: this.maestro.id_tipo_bien
+			id_tipo_cuenta: this.maestro.id_tipo_cuenta
 		};
 		this.load({
 			params : {

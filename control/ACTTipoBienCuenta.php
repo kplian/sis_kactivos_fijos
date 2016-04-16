@@ -13,8 +13,8 @@ class ACTTipoBienCuenta extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_tipo_bien_cuenta');
 		$this->objParam->defecto('dir_ordenacion','asc');
 
-		if($this->objParam->getParametro('id_tipo_bien')!=''){
-			$this->objParam->addFiltro("biecue.id_tipo_bien = ".$this->objParam->getParametro('id_tipo_bien'));	
+		if($this->objParam->getParametro('id_tipo_cuenta')!=''){
+			$this->objParam->addFiltro("biecue.id_tipo_cuenta = ".$this->objParam->getParametro('id_tipo_cuenta'));	
 		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
@@ -22,7 +22,6 @@ class ACTTipoBienCuenta extends ACTbase{
 			$this->res = $this->objReporte->generarReporteListado('MODTipoBienCuenta','listarTipoBienCuenta');
 		} else{
 			$this->objFunc=$this->create('MODTipoBienCuenta');
-			
 			$this->res=$this->objFunc->listarTipoBienCuenta($this->objParam);
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
