@@ -382,7 +382,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             fieldLabel: 'Código',
             allowBlank: true,
             anchor: '80%',
-            gwidth: 100,
+            gwidth: 120,
             maxLength: 50
         },
         type: 'TextField',
@@ -450,7 +450,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'en_deposito',
-            fieldLabel: 'Deposito',
+            fieldLabel: 'En Deposito',
             allowBlank: true,
             anchor: '80%',
             gwidth: 75,
@@ -1684,7 +1684,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                         xtype: 'tabpanel',
                         plain: true,
                         activeTab: 0,
-                        height: 380,
+                        height: 515,
                         deferredRender: false,
                         defaults: {
                             bodyStyle: 'padding:10px'
@@ -2161,7 +2161,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
             this.afWindow = new Ext.Window({
                 width: 800,
-                height: 515,
+                height: 620,
                 modal: true,
                 closeAction: 'hide',
                 labelAlign: 'top',

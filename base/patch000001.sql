@@ -368,3 +368,12 @@ ADD COLUMN "nro_serie" varchar(50);
 ALTER TABLE "kaf"."tactivo_fijo"
 ADD COLUMN "caracteristicas" text;
 /***********************************F-SCP-RCM-KAF-1-19/04/2016****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-20/04/2015****************************************/
+create table kaf.tactivo_fijo_caract (
+	id_activo_fijo_caract serial,
+	clave varchar(100),
+	valor varchar(1000),
+	constraint pk_tactivo_fijo_caract__id_activo_fijo_caract primary key (id_activo_fijo_caract)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-1-20/04/2015****************************************/
