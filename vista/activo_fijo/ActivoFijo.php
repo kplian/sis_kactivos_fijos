@@ -2467,6 +2467,13 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 height:150
             },rec.data,this.idContenedor,'SubirFoto');
 
+    },
+
+    east: {
+        url: '../../../sis_kactivos_fijos/vista/activo_fijo_caract/ActivoFijoCaract.php',
+        title: 'Caracteristicas',
+        width: '15%',
+        cls: 'ActivoFijoCaract'
     }
 
 })

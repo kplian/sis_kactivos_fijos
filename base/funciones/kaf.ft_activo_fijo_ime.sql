@@ -145,8 +145,8 @@ BEGIN
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			codigo_ant = v_parametros.codigo_ant,
 			nro_serie = v_parametros.nro_serie,
-			marca = v_parametros.marca,
-			caraceristicas = v_parametros._nombre_usuario_ai
+			marca = v_parametros.marca--,
+			--caraceristicas = v_parametros._nombre_usuario_ai
 			where id_activo_fijo=v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta
