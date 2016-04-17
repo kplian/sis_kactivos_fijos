@@ -1970,7 +1970,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 xtype: 'combo',
                                 fieldLabel: 'Proveedor',
                                 name: 'id_proveedor',
-                                allowBlank: true,
+                                allowBlank: false,
                                 id: this.idContenedor+'_id_proveedor',
                                 emptyText: 'Elija el Proveedor',
                                 store: new Ext.data.JsonStore({
@@ -2208,6 +2208,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 if(Ext.getCmp(this.idContenedor+'_descripcion').getValue()==''){
                     Ext.getCmp(this.idContenedor+'_descripcion').setValue(Ext.getCmp(this.idContenedor+'_denominacion').getValue());
                 }
+            },this);
+            //Depto
+            Ext.getCmp(this.idContenedor+'_id_depto').on('select',function(cmp,rec,index){
+                var obj = {
+                    start: 0,
+                    limit: 50,
+                    sort: 'claf.nombre',
+                    dir: 'ASC',
+                    id_depto: rec.data.id_depto
+                };
+                Ext.apply(obj,Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams);
+                
             },this);
             //Deposito
             Ext.getCmp(this.idContenedor+'_id_deposito').on('select',function(cmp,rec,index){
