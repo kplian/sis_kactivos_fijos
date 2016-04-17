@@ -391,7 +391,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_depto: this.maestro.id_depto});
 		this.Cmp.id_activo_fijo.modificado=true;
 		if(this.maestro.cod_movimiento=='alta'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'borrador'});
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'registrado'});
 		} else if(this.maestro.cod_movimiento=='baja'){
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
 		} else if(this.maestro.cod_movimiento=='reval'){

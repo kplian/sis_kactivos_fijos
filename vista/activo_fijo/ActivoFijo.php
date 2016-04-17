@@ -227,12 +227,85 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.maestro = config.maestro;
         //llama al constructor de la clase padre
         Phx.vista.ActivoFijo.superclass.constructor.call(this, config);
+
+        var cmbCaract = new Ext.form.ComboBox({
+            name:'caract_val',
+            fieldLabel:'Caracteristicas',
+            allowBlank:true,
+            emptyText:'Caracteristica...',
+            store: new Ext.data.JsonStore({
+                url : '../../sis_kactivos_fijos/control/ActivoFijoCaract/listarCaractFiltro',
+                id: 'clave',
+                root: 'datos',
+                sortInfo:{
+                    field: 'clave',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['clave'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams:{par_filtro:'clave'}
+            }),
+            valueField: 'clave',
+            displayField: 'clave',
+            forceSelection:false,
+            typeAhead: false,
+            triggerAction: 'all',
+            lazyRender:true,
+            mode:'remote',
+            pageSize:10,
+            queryDelay:1000,
+            minChars:2,
+            width:130,
+            listWidth:300
+        });
+
+        var txtFilter = new Ext.form.TextField({
+            name: 'valor_filtro',
+            emptyText: 'Valor...',
+            width: 150
+        });
+
+        this.tbar.add(cmbCaract);
+        this.tbar.add(txtFilter);
+
+        //Agrega eventos a los componentes creados
+        cmbCaract.on('select',function (combo, record, index){
+            //Verifica que el campo de texto tenga algun valor
+            if(cmbCaract.getValue()&&txtFilter.getValue()){
+                this.store.baseParams.caractFilter=cmbCaract.getValue();
+                this.store.baseParams.caractValue=txtFilter.getValue();
+                this.store.load({params:{start:0, limit:this.tam_pag}});    
+            } else {
+                this.store.baseParams.caractFilter='';
+                this.store.baseParams.caractValue='';
+                this.store.load({params:{start:0, limit:this.tam_pag}});
+            }
+            
+        },this);
+        txtFilter.on('blur',function (val){
+            //Verifica que el campo de texto tenga algun valor
+            if(cmbCaract.getValue()&&txtFilter.getValue()){
+                this.store.baseParams.caractFilter=cmbCaract.getValue();
+                this.store.baseParams.caractValue=txtFilter.getValue();
+                this.store.load({params:{start:0, limit:this.tam_pag}});    
+            } else {
+                this.store.baseParams.caractFilter='';
+                this.store.baseParams.caractValue='';
+                this.store.load({params:{start:0, limit:this.tam_pag}});
+            }
+            
+        },this);
+
         this.init();
         //Carga los datos
         this.load({
             params: {
                 start: 0,
-                limit: this.tam_pag
+                limit: this.tam_pag,
+                sort: 'id_activo_fijo',
+                dir: 'desc'
             }
         });
         //Button for select IDs
@@ -2019,7 +2092,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     flex: 1
                                 },
                                 items: [{
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     fieldLabel: 'Monto compra',
                                     name: 'monto_compra',
                                     allowBlank: false,
@@ -2472,7 +2545,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     east: {
         url: '../../../sis_kactivos_fijos/vista/activo_fijo_caract/ActivoFijoCaract.php',
         title: 'Caracteristicas',
-        width: '15%',
+        width: '20%',
         cls: 'ActivoFijoCaract'
     }
 

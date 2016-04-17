@@ -43,6 +43,21 @@ class ACTActivoFijoCaract extends ACTbase{
 		$this->res=$this->objFunc->eliminarActivoFijoCaract($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+	function listarCaractFiltro(){
+		$this->objParam->defecto('ordenacion','clave');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODActivoFijoCaract','listarCaractFiltro');
+		} else{
+			$this->objFunc=$this->create('MODActivoFijoCaract');
+			
+			$this->res=$this->objFunc->listarCaractFiltro($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 			
 }
 

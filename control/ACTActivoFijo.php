@@ -13,6 +13,7 @@ class ACTActivoFijo extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_activo_fijo');
 		$this->objParam->defecto('dir_ordenacion','asc');
 
+		//General filter by: depto, clasificacion, oficina, organigrama
 		if($this->objParam->getParametro('col_filter_panel')!=''){
 			$colFilter = $this->objParam->getParametro('col_filter_panel');
 			if($colFilter=='id_depto'){
@@ -21,11 +22,11 @@ class ACTActivoFijo extends ACTbase{
 				$this->objParam->addFiltro("afij.id_clasificacion in (
 					WITH RECURSIVE t(id,id_fk,nombre,n) AS (
     				SELECT l.id_clasificacion,l.id_clasificacion_fk, l.nombre,1
-    				FROM alm.tclasificacion l
+    				FROM kaf.tclasificacion l
     				WHERE l.id_clasificacion = ".$this->objParam->getParametro('id_filter_panel')."
     				UNION ALL
     				SELECT l.id_clasificacion,l.id_clasificacion_fk, l.nombre,n+1
-    				FROM alm.tclasificacion l, t
+    				FROM kaf.tclasificacion l, t
     				WHERE l.id_clasificacion_fk = t.id
 					)
 					SELECT id
@@ -33,6 +34,11 @@ class ACTActivoFijo extends ACTbase{
 
 			} else if($colFilter=='id_oficina'){
 				$this->objParam->addFiltro("afij.id_oficina = ".$this->objParam->getParametro('id_filter_panel'));
+			}
+
+			//Por caracteristicas
+			if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
+				$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
 			}
 		}
 
@@ -47,6 +53,11 @@ class ACTActivoFijo extends ACTbase{
 		}
 		if($this->objParam->getParametro('id_funcionario')!=''){
 			$this->objParam->addFiltro("afij.id_funcionario = ".$this->objParam->getParametro('id_funcionario'));
+		}
+
+		//Por caracteristicas
+		if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
+			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
 		}
 
 

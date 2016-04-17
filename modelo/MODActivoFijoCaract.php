@@ -99,6 +99,23 @@ class MODActivoFijoCaract extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarCaractFiltro(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_caract_sel';
+		$this->transaccion='SKA_CARALL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del quotemeta(str)																																									uery
+		$this->captura('clave','varchar');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

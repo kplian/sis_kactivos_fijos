@@ -92,6 +92,53 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_CARALL_SEL'
+ 	#DESCRIPCION:	Todas las caracteristicas
+ 	#AUTOR:			RCM
+ 	#FECHA:			29/04/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_CARALL_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select distinct clave
+						from kaf.tactivo_fijo_caract ac
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_CARALL_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin	
+ 	#FECHA:		17-04-2016 07:14:58
+	***********************************/
+
+	elsif(p_transaccion='SKA_CARALL_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(distinct clave)
+						from kaf.tactivo_fijo_caract
+						where ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 					
 	else
 					     
