@@ -83,7 +83,7 @@ BEGIN
 			v_parametros.codigo_ant,
 			v_parametros.marca,
 			v_parametros.nro_serie,
-			v_parametros.caracteristicas
+			NULL
 	        into v_rec_af;
 
 	        --Inserción del registro

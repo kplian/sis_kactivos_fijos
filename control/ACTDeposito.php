@@ -11,8 +11,12 @@ class ACTDeposito extends ACTbase{
 			
 	function listarDeposito(){
 		$this->objParam->defecto('ordenacion','id_deposito');
-
 		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('id_depto')!=''){
+			$this->objParam->addFiltro("depaf.id_depto = ".$this->objParam->getParametro('id_depto'));	
+		}
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
