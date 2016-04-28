@@ -1970,7 +1970,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 xtype: 'combo',
                                 fieldLabel: 'Proveedor',
                                 name: 'id_proveedor',
-                                allowBlank: false,
+                                allowBlank: true,
                                 id: this.idContenedor+'_id_proveedor',
                                 emptyText: 'Elija el Proveedor',
                                 store: new Ext.data.JsonStore({
