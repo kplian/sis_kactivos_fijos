@@ -1336,7 +1336,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             type: 'string'
         },
         id_grupo: 1,
-        grid: true,
+        grid: false,
         form: true,
         bottom_filter:true
     }, {
@@ -1868,12 +1868,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 fieldLabel: 'Codigo Ant.',
                                 name: 'codigo_ant',
                                 id: this.idContenedor+'_codigo_ant'
-                            }, {
+                            }/*, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Caracteristicas',
                                 name: 'observaciones',
                                 id: this.idContenedor+'_caracteristicas'
-                            }, {
+                            }*/, {
                                 xtype: 'textarea',
                                 fieldLabel: 'Observaciones',
                                 name: 'observaciones',

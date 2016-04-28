@@ -133,7 +133,7 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('codigo_ant','codigo_ant','varchar');
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
-		$this->setParametro('caracteristicas','caracteristicas','text');
+		//$this->setParametro('caracteristicas','caracteristicas','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -187,7 +187,7 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('codigo_ant','codigo_ant','varchar');
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
-		$this->setParametro('caracteristicas','caracteristicas','text');
+		//$this->setParametro('caracteristicas','caracteristicas','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
