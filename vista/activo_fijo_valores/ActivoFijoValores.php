@@ -14,7 +14,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
-		console.log('maestro',this.maestro);
+		console.log('maestro',config);
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		this.init();
