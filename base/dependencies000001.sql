@@ -37,19 +37,7 @@ add constraint fk_tmovimiento_af__id_activo_fijo foreign key (id_activo_fijo) re
 alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_cat_estado_fun foreign key (id_cat_estado_fun) references param.tcatalogo (id_catalogo);
 alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_depto foreign key (id_depto) references param.tdepto (id_depto);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_centro_costo foreign key (id_centro_costo) references param.tcentro_costo (id_centro_costo);
-alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_funcionario foreign key (id_funcionario) references orga.tfuncionario (id_funcionario);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_persona foreign key (id_persona) references segu.tpersona (id_persona);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_cat_estado_fun_nuevo foreign key (id_cat_estado_fun_nuevo) references param.tcatalogo (id_catalogo);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_depto_nuevo foreign key (id_depto_nuevo) references param.tdepto (id_depto);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_centro_costo_nuevo foreign key (id_centro_costo_nuevo) references param.tcentro_costo (id_centro_costo);
 alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_funcionario_nuevo foreign key (id_funcionario_nuevo) references orga.tfuncionario (id_funcionario);
 
@@ -166,3 +154,34 @@ ALTER TABLE kaf.tactivo_fijo
     ON UPDATE NO ACTION
     NOT DEFERRABLE;        
 /***********************************F-DEP-RCM-KAF-1-28/03/2016****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-06/05/2016****************************************/
+alter table kaf.tactivo_fijo_caract
+add constraint fk_tactivo_fijo_caract__id_activo_fijo foreign key (id_activo_fijo) references kaf.tactivo_fijo (id_activo_fijo);
+alter table kaf.tactivo_fijo_valores
+add constraint fk_tactivo_fijo_valores__id_activo_fijo foreign key (id_activo_fijo) references kaf.tactivo_fijo (id_activo_fijo);
+alter table kaf.tdeposito
+add constraint fk_tdeposito__id_depto foreign key (id_depto) references param.tdepto (id_depto);
+alter table kaf.tdeposito
+add constraint fk_tdeposito__id_funcionario foreign key (id_funcionario) references orga.tfuncionario (id_funcionario);
+alter table kaf.tdeposito
+add constraint fk_tdeposito__id_oficina foreign key (id_oficina) references orga.toficina (id_oficina);
+alter table kaf.tmovimiento
+add constraint fk_tmovimiento__id_depto foreign key (id_depto) references param.tdepto (id_depto);
+alter table kaf.tmovimiento
+add constraint fk_tmovimiento__id_funcionario foreign key (id_funcionario) references orga.tfuncionario (id_funcionario);
+alter table kaf.tmovimiento
+add constraint fk_tmovimiento__id_oficina foreign key (id_oficina) references orga.toficina (id_oficina);
+alter table kaf.tmovimiento
+add constraint fk_tmovimiento__id_responsable_depto foreign key (id_responsable_depto) references orga.tfuncionario (id_funcionario);
+alter table kaf.tmovimiento
+add constraint fk_tmovimiento__id_persona foreign key (id_persona) references segu.tpersona (id_persona);
+alter table kaf.tmovimiento_af_dep
+add constraint fk_tmovimiento_af_dep__id_activo_fijo_valor foreign key (id_activo_fijo_valor) references kaf.tactivo_fijo_valores (id_activo_fijo_valor);
+alter table kaf.tmovimiento_tipo
+add constraint fk_tmovimiento_tipo__id_cat_movimiento foreign key (id_cat_movimiento) references param.tcatalogo (id_catalogo);
+alter table kaf.tactivo_fijo_valores
+add constraint fk_tactivo_fijo_valores__id_movimiento_af foreign key (id_movimiento_af) references kaf.tmovimiento_af (id_movimiento_af);
+
+
+/***********************************F-DEP-RCM-KAF-1-06/05/2016****************************************/
