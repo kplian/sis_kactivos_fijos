@@ -13,12 +13,14 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		this.maestro=config.maestro;
+		this.maestro=config;
 		console.log('maestro',config);
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		this.init();
-		//this.load({params:{start:0, limit:this.tam_pag}})
+		this.load({params:{start:0, limit:this.tam_pag, id_activo_fijo:this.maestro.id_activo_fijo}});
+		this.Cmp.id_activo_fijo.setValue(this.maestro.id_activo_fijo);
+		this.Cmp.id_movimiento_af.setValue(this.maestro.id_movimiento_af);
 	},
 			
 	Atributos:[
@@ -33,52 +35,29 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
-			config: {
-				name: 'id_activo_fijo',
-				fieldLabel: 'id_activo_fijo',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_activo_fijo',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_activo_fijo'
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
+			type:'Field',
+			form:true 
+		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_movimiento_af'
+			},
+			type:'Field',
+			form:true 
 		},
 		{
 			config:{
 				name: 'depreciacion_per',
-				fieldLabel: 'depreciacion_per',
+				fieldLabel: 'Dep. Periodo',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -93,7 +72,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'estado',
-				fieldLabel: 'estado',
+				fieldLabel: 'Estado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -108,7 +87,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'principal',
-				fieldLabel: 'principal',
+				fieldLabel: 'Principal',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -123,7 +102,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'monto_vigente',
-				fieldLabel: 'monto_vigente',
+				fieldLabel: 'Monto Vigente',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -138,7 +117,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'monto_rescate',
-				fieldLabel: 'monto_rescate',
+				fieldLabel: 'Valor Rescate',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -153,7 +132,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'tipo_cambio_ini',
-				fieldLabel: 'tipo_cambio_ini',
+				fieldLabel: 'T.C. Inicial',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -183,7 +162,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'tipo',
-				fieldLabel: 'tipo',
+				fieldLabel: 'Tipo',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -198,7 +177,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'depreciacion_mes',
-				fieldLabel: 'depreciacion_mes',
+				fieldLabel: 'Depreciacion',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -213,7 +192,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'depreciacion_acum',
-				fieldLabel: 'depreciacion_acum',
+				fieldLabel: 'Dep. Acum.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -228,7 +207,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'fecha_ult_dep',
-				fieldLabel: 'fecha_ult_dep',
+				fieldLabel: 'Fecha Ult. Dep.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -244,7 +223,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'fecha_ini_dep',
-				fieldLabel: 'fecha_ini_dep',
+				fieldLabel: 'Fecha Ini. Dep.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -260,7 +239,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'monto_vigente_orig',
-				fieldLabel: 'monto_vigente_orig',
+				fieldLabel: 'Monto vigente Orig.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -275,7 +254,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'vida_util',
-				fieldLabel: 'vida_util',
+				fieldLabel: 'Vida util',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -290,7 +269,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'vida_util_orig',
-				fieldLabel: 'vida_util_orig',
+				fieldLabel: 'Vida util Original',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -303,52 +282,9 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				form:true
 		},
 		{
-			config: {
-				name: 'id_movimiento_af',
-				fieldLabel: 'id_movimiento_af',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_movimiento_af',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
 			config:{
 				name: 'tipo_cambio_fin',
-				fieldLabel: 'tipo_cambio_fin',
+				fieldLabel: 'T.C. Fin',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
