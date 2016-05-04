@@ -27,7 +27,16 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             disabled: true,
             handler : this.onButtonDet,
             tooltip : '<b>Detalle</b><br/><b>Detalle del calculo de la depreciacion</b>'
-       }); 
+       	}); 
+
+       	//Add report button
+        this.addButton('btnDetDep`',{
+            text :'Calculo',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.onButtonDetDep,
+            tooltip : '<b>Calculo Depreciacion</b><br/><b>Detalle del calculo de depreciacion</b>'
+       	});
 	},
 	filter:{},
 			
@@ -415,7 +424,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		});
 	},
 
-	onButtonDet:function(){
+	onButtonDet: function(){
 	    var rec=this.sm.getSelected();
         Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDep.php',
             'Detalle del calculo de depreciacion',
@@ -427,6 +436,19 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             this.idContenedor,
             'MovimientoAfDep'
     	)
+	},
+
+	onButtonDetDep: function(){
+	    var rec=this.sm.getSelected();
+		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValores.php',
+			'Detalle', {
+				width:900,
+				height:400
+		    },
+		    rec.data,
+		    this.idContenedor,
+		    'ActivoFijoValores'
+		);
 	}
 
 })

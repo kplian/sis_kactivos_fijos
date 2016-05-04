@@ -68,9 +68,9 @@ BEGIN
     correlativo_act = v_correl
     where id_clasificacion = v_id_clasificacion;
     
-    update kaf.tactivo_fijo set
-    codigo = v_codigo
-    where id_activo_fijo = p_id_activo_fijo;
+    --update kaf.tactivo_fijo set
+    --codigo = v_codigo
+    --where id_activo_fijo = p_id_activo_fijo;
     
     --7. Salida
     return v_codigo;

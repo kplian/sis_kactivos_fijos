@@ -238,6 +238,18 @@ BEGIN
 	elsif(p_transaccion='SKA_MOV_MOD')then
 
 		begin
+            --Edicion solo para estado borrador
+            if not exists(select 1 from kaf.tmovimiento
+                        where id_movimiento = v_parametros.id_movimiento
+                        and estado = 'borrador') then
+                raise exception 'No se puede Modificar los datos porque no esta en Borrador';
+            end if;
+
+            --Obtiene los datos actuales del movimiento
+            select *
+            into v_rec
+            from kaf.tmovimiento
+            where id_movimiento = v_parametros.id_movimiento;
 
 			--Obtiene el responsable de depto en base a los ultimos cambios
 			select id_usuario into v_id_responsable_depto
@@ -251,7 +263,7 @@ BEGIN
         		where id_movimiento=v_parametros.id_movimiento;
         	end if;
 
-			--Sentencia de la modificacion
+            --Sentencia de la modificacion
 			update kaf.tmovimiento set
 			direccion = v_parametros.direccion,
 			fecha_hasta = v_parametros.fecha_hasta,
@@ -271,6 +283,48 @@ BEGIN
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			id_persona = v_parametros.id_persona
 			where id_movimiento=v_parametros.id_movimiento;
+
+            --Verifica el tipo de movimiento para aplicar reglas
+            select 
+            cat.codigo
+            into v_cod_movimiento
+            from param.tcatalogo cat
+            where cat.id_catalogo = v_parametros.id_cat_movimiento;
+
+            if v_cod_movimiento = 'deprec' then
+                --Si se cambio de depto se borra el detalle y se lo vuelve a llenar
+                if v_rec.id_depto != v_parametros.id_depto then
+
+                    delete from kaf.tmovimiento_af
+                    where id_movimiento_af in (select id_movimiento_af from kaf.tmovimiento_af where id_movimiento = v_parametros.id_movimiento);
+                    
+                    delete from kaf.tmovimiento_af where id_movimiento = v_parametros.id_movimiento;
+
+                    insert into kaf.tmovimiento_af(
+                        id_movimiento,
+                        id_activo_fijo,
+                        id_cat_estado_fun,
+                        estado_reg,
+                        fecha_reg,
+                        id_usuario_reg,
+                        fecha_mod
+                    )
+                    select 
+                    v_parametros.id_movimiento,
+                    afij.id_activo_fijo,
+                    afij.id_cat_estado_fun,
+                    'activo',
+                    now(),
+                    p_id_usuario,
+                    null
+                    from kaf.tactivo_fijo afij
+                    where afij.estado = 'alta'
+                    and afij.id_depto = v_parametros.id_depto
+                    and ((afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) or (afij.fecha_ult_dep < v_parametros.fecha_hasta));
+
+                end if;
+
+            end if;
                
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos modificado(a)'); 
