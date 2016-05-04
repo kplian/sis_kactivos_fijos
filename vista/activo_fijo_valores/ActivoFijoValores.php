@@ -14,10 +14,11 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+		console.log('maestro',this.maestro);
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		//this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
 	Atributos:[
