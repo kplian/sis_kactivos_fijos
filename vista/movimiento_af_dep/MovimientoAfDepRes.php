@@ -12,7 +12,6 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		console.log('hola hola');
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAfDepRes.superclass.constructor.call(this,config);
@@ -297,8 +296,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 	bnew:false,
 
 	onReloadPage : function(m) {
-		console.log('chau chau');
 		this.maestro = m;
+		console.log(this.maestro);
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento_af;
 		this.Atributos[2].valorInicial = this.maestro.id_activo_fijo_valor;
 

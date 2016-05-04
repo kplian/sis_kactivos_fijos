@@ -439,6 +439,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 	onButtonDetDep: function(){
 	    var rec=this.sm.getSelected();
+	    console.log('UNO: ',rec.data);
 		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDep.php',
 			'Detalle', {
 				width:900,

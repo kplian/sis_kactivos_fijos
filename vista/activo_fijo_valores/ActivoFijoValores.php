@@ -20,6 +20,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		this.load({params:{start:0, limit:this.tam_pag, id_activo_fijo:this.maestro.id_activo_fijo}});
 		this.Cmp.id_activo_fijo.setValue(this.maestro.id_activo_fijo);
 		this.Cmp.id_movimiento_af.setValue(this.maestro.id_movimiento_af);
+		console.log('DOS: ',this.maestro);
 	},
 			
 	Atributos:[
