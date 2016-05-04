@@ -440,18 +440,16 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 	onButtonDetDep: function(){
 	    var rec=this.sm.getSelected();
-		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValores.php',
+		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDep.php',
 			'Detalle', {
 				width:900,
 				height:400
 		    },
 		    rec.data,
 		    this.idContenedor,
-		    'ActivoFijoValores'
+		    'ActivoFijoValoresDep'
 		);
 	}
 
 })
 </script>
-		
-		
