@@ -107,6 +107,57 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_MAFDEPRES_SEL'
+ 	#DESCRIPCION:	Consulta de datos
+ 	#AUTOR:		RCM	
+ 	#FECHA:		05/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_MAFDEPRES_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select mafdep.id_movimiento_af_dep, mafdep.id_movimiento_af, mafdep.id_activo_fijo_valor,
+						mafdep.fecha, mafdep.depreciacion_acum_ant, mafdep.depreciacion_per_ant, mafdep.monto_vigente_ant, mafdep.vida_util_ant,
+						mafdep.depreciacion_acum_actualiz, mafdep.depreciacion_per_actualiz, mafdep.monto_actualiz,
+						mafdep.depreciacion, mafdep.depreciacion_acum,mafdep.depreciacion_per, mafdep.monto_vigente, mafdep.vida_util,
+						mafdep.tipo_cambio_ini,mafdep.tipo_cambio_fin, mafdep.factor
+						from kaf.tmovimiento_af_dep mafdep
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_MAFDEPRES_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		RCM	
+ 	#FECHA:		05/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_MAFDEPRES_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(id_movimiento_af_dep)
+					    from kaf.tmovimiento_af_dep mafdep
+					    where ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 					
 	else
 					     

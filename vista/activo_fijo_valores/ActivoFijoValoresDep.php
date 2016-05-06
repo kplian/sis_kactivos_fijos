@@ -19,27 +19,17 @@ Phx.vista.ActivoFijoValoresDep = {
 	title:'Resumen Depreciacion',
 	nombreVista: 'ActivoFijoValoresDep',
 	
-	constructor: function(config) {
+	constructor: function(config) {  
 	    this.maestro=config.maestro;
-    	Phx.vista.MovimientoAlm.superclass.constructor.call(this,config);
-    	this.addButton('ini_estado',{argument: {operacion: 'inicio'},text:'Dev. a Borrador',iconCls: 'batras',disabled:true,handler:this.retroceder,tooltip: '<b>Retorna Movimiento al estado borrador</b>'});
-	    this.addButton('ant_estado',{argument: {operacion: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.retroceder,tooltip: '<b>Pasar al Anterior Estado</b>'});
-    	this.addButton('sig_estado',{text:'Finalizar',iconCls: 'badelante',disabled:true,handler:this.fin_requerimiento,tooltip: '<b>Finalizar Registro</b>'});
-		this.getBoton('btnRevertir').hide();
-	    this.getBoton('btnCancelar').hide();
-	    this.store.baseParams={tipo_interfaz:this.nombreVista};
-	    this.load({params:{start:0, limit:this.tam_pag}});
-	    
-	    //Creación de ventana para workflow
-		this.crearVentanaWF();
+    	Phx.vista.ActivoFijoValoresDep.superclass.constructor.call(this,config);
+	    //this.load({params:{start:0, limit:this.tam_pag}});
 	},
 
-    south:
-          { 
-          url:'../../../sis_almacenes/vista/movimiento_af_dep/MovimientoAfDepRes.php',
-          title:'Detalle', 
-          height:'70%',
-          cls:'MovimientoAfDepRes'
+    south: { 
+        url:'../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDepRes.php',
+        title:'Detalle', 
+        height:'50%',
+        cls:'MovimientoAfDepRes'
 	}
 
 };

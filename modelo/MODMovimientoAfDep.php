@@ -144,6 +144,41 @@ class MODMovimientoAfDep extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarMovimientoAfDepRes(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion='SKA_MAFDEPRES_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_movimiento_af_dep','int4');
+		$this->captura('id_movimiento_af','int4');
+		$this->captura('id_activo_fijo_valor','int4');
+		$this->captura('fecha','date');
+		$this->captura('depreciacion_acum_ant','numeric');
+		$this->captura('depreciacion_per_ant','numeric');
+		$this->captura('monto_vigente_ant','numeric');
+		$this->captura('vida_util_ant','int4');
+		$this->captura('depreciacion_acum_actualiz','numeric');
+		$this->captura('depreciacion_per_actualiz','numeric');
+		$this->captura('monto_actualiz','numeric');
+		$this->captura('depreciacion','numeric');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('depreciacion_per','numeric');
+		$this->captura('monto_vigente','numeric');
+		$this->captura('vida_util','int4');
+		$this->captura('tipo_cambio_ini','numeric');
+		$this->captura('tipo_cambio_fin','numeric');
+		$this->captura('factor','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
