@@ -411,11 +411,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             handler : this.codificar,
             tooltip : '<b>Código</b><br/>Codificación del activo fijo'
         });
+        this.getBoton('btnCodificar').hide();
 
         //Add button for upload Photo
         this.addButton('btnPhoto', {
             text : 'Subir Foto',
-            iconCls : 'code',
+            iconCls : 'upload',
             disabled : true,
             handler : this.subirFoto,
             tooltip : '<b>Foto</b><br/>Subir foto para el activo fijo'
@@ -1722,7 +1723,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
         field: 'id_activo_fijo',
-        direction: 'ASC'
+        direction: 'DESC'
     },
     bdel: true,
     //'<img src="../../../sis_kactivos_fijos/upload/{foto}" height="100" width="150">',
@@ -1875,7 +1876,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 lazyRender: true,
                                 pageSize: 15
                             }, {
-                                fieldLabel: 'Vida útil inicial',
+                                fieldLabel: 'Vida útil inicial (meses)',
                                 name: 'vida_util_original',
                                 allowBlank: false,
                                 id: this.idContenedor+'_vida_util_original'
@@ -1902,7 +1903,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_descripcion'
                             }, {
                                 xtype: 'combo',
-                                fieldLabel: 'Estado funcional',
+                                fieldLabel: 'Estado funcional Actual',
                                 name: 'id_cat_estado_fun',
                                 //hiddenName: 'id_cat_estado_fun',
                                 allowBlank: false,
@@ -2135,7 +2136,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 }]
                             }, {
                                 xtype: 'combo',
-                                fieldLabel: 'Estado del Activo',
+                                fieldLabel: 'Estado Activo Compra',
                                 name: 'id_cat_estado_compra',
                                 allowBlank: false,
                                 id: this.idContenedor+'_id_cat_estado_compra',
@@ -2298,8 +2299,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 Ext.getCmp(this.idContenedor+'_id_deposito').modificado=true;
                 Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams.id_depto=rec.data.id_depto;
 
-                console.log('BBB',Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams);
-                
+               
             },this);
             //Deposito
             Ext.getCmp(this.idContenedor+'_id_deposito').on('select',function(cmp,rec,index){
@@ -2474,10 +2474,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var tb = Phx.vista.ActivoFijo.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
 
-        this.getBoton('btnCodificar').disable();
+        this.getBoton('btnCodificar').hide();
         this.getBoton('btnPhoto').enable();
         if(data.estado=='registrado') {
-            this.getBoton('btnCodificar').enable();
+            //this.getBoton('btnCodificar').enable();
         }
         return tb;
     },

@@ -124,7 +124,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{
 			config: {
 				name: 'id_cat_movimiento',
-				fieldLabel: 'Tipo',
+				fieldLabel: 'Proceso',
 				anchor: '95%',
 				tinit: false,
 				allowBlank: false,

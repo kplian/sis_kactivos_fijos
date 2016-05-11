@@ -55,8 +55,9 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'fecha',
 				fieldLabel: 'Fecha',
-				gwidth: 130,
-				maxLength:10
+				gwidth: 70,
+				maxLength:10,
+				renderer: function (value,p,record){return value?value.dateFormat('m/Y'):''}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.fecha',type:'string'},
@@ -69,7 +70,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_acum_ant',
 				fieldLabel: 'Dep.Acum.Ant',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum_ant',type:'string'},
@@ -82,7 +84,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_per_ant',
 				fieldLabel: 'Dep.Periodo Ant.',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per_ant',type:'string'},
@@ -95,7 +98,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'monto_vigente_ant',
 				fieldLabel: 'Monto Vigente Ant.',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_vigente_ant',type:'string'},
@@ -107,7 +111,7 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'vida_util_ant',
 				fieldLabel: 'Vida Util Ant.',
-				gwidth: 130,
+				gwidth: 85,
 				maxLength:10
 			},
 			type:'TextField',
@@ -121,7 +125,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_acum_actualiz',
 				fieldLabel: 'Dep.Acum.Actualiz.',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum_actualiz',type:'string'},
@@ -134,7 +139,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_per_actualiz',
 				fieldLabel: 'Dep.Per.Actualiz',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per_actualiz',type:'string'},
@@ -147,7 +153,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'monto_actualiz',
 				fieldLabel: 'Monto Vigente Actualiz.',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_actualiz',type:'string'},
@@ -160,7 +167,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion',
 				fieldLabel: 'Dep.Mes',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion',type:'string'},
@@ -173,7 +181,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_acum',
 				fieldLabel: 'Dep.Acum.',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum',type:'string'},
@@ -186,7 +195,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'depreciacion_per',
 				fieldLabel: 'Dep.Periodo',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per',type:'string'},
@@ -199,7 +209,8 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 				name: 'monto_vigente',
 				fieldLabel: 'Monto Vigente',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_vigente',type:'string'},
@@ -211,7 +222,7 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'vida_util',
 				fieldLabel: 'Vida Util',
-				gwidth: 130,
+				gwidth: 70,
 				maxLength:10
 			},
 			type:'TextField',
@@ -224,8 +235,9 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'tipo_cambio_ini',
 				fieldLabel: 'T/C Ini.',
-				gwidth: 130,
-				maxLength:10
+				gwidth: 80,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_ini',type:'string'},
@@ -237,8 +249,9 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'tipo_cambio_fin',
 				fieldLabel: 'T/C Fin',
-				gwidth: 130,
-				maxLength:10
+				gwidth: 80,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_fin',type:'string'},
@@ -250,8 +263,9 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'factor',
 				fieldLabel: 'Factor',
-				gwidth: 130,
-				maxLength:10
+				gwidth: 70,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.000000');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.factor',type:'string'},
@@ -269,7 +283,7 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_movimiento_af_dep', type: 'numeric'},
 		{name:'id_movimiento_af', type: 'numeric'},
 		{name:'id_activo_fijo_valor', type: 'numeric'},
-		{name:'fecha', type: 'date',dateFormat:'Y-m'},
+		{name:'fecha', type: 'date',dateFormat:'Y-m-d'},
 		{name:'depreciacion_acum_ant', type: 'numeric'},
 		{name:'depreciacion_per_ant', type: 'numeric'},
 		{name:'monto_vigente_ant', type: 'numeric'},
@@ -297,7 +311,7 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 
 	onReloadPage : function(m) {
 		this.maestro = m;
-		console.log(this.maestro);
+		console.log('TRES',this.maestro);
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento_af;
 		this.Atributos[2].valorInicial = this.maestro.id_activo_fijo_valor;
 
@@ -307,7 +321,7 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 		};
 		this.load({
 			params : {
-				start : 0,
+				start : 0, 
 				limit : 50
 			}
 		});

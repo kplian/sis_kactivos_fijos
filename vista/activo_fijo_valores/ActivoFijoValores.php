@@ -13,14 +13,10 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config;
-		console.log('maestro',config);
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag, id_activo_fijo:this.maestro.id_activo_fijo}});
-		this.Cmp.id_activo_fijo.setValue(this.maestro.id_activo_fijo);
-		this.Cmp.id_movimiento_af.setValue(this.maestro.id_movimiento_af);
-		console.log('DOS: ',this.maestro);
 	},
 			
 	Atributos:[
@@ -56,6 +52,121 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'codigo',
+				fieldLabel: 'Codigo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 200,
+				maxLength:50
+			},
+				type:'TextField',
+				filters:{pfiltro:'actval.depreciacion_per',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config: {
+				name: 'tipo',
+				fieldLabel: 'Tipo',
+				anchor: '95%',
+				tinit: false,
+				allowBlank: false,
+				origen: 'CATALOGO',
+				gdisplayField: 'tipo',
+				hiddenName: 'tipo',
+				gwidth: 95,
+				baseParams:{
+						cod_subsistema:'KAF',
+						catalogo_tipo:'tactivo_fijo_valores__tipo'
+				},
+				valueField: 'codigo'
+			},
+			type: 'ComboRec',
+			id_grupo: 1,
+			filters:{pfiltro:'actval.tipo',type:'string'},
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'monto_vigente_orig',
+				fieldLabel: 'Monto vigente Orig.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:-5
+			},
+				type:'NumberField',
+				filters:{pfiltro:'actval.monto_vigente_orig',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'vida_util_orig',
+				fieldLabel: 'Vida util Original',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+				type:'NumberField',
+				filters:{pfiltro:'actval.vida_util_orig',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'fecha_ini_dep',
+				fieldLabel: 'Fecha Ini. Dep.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y', 
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'actval.fecha_ini_dep',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'fecha_ult_dep',
+				fieldLabel: 'Fecha Ult. Dep.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y', 
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'actval.fecha_ult_dep',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'monto_rescate',
+				fieldLabel: 'Valor Rescate',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:-5
+			},
+				type:'NumberField',
+				filters:{pfiltro:'actval.monto_rescate',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
 				name: 'depreciacion_per',
 				fieldLabel: 'Dep. Periodo',
 				allowBlank: true,
@@ -64,7 +175,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				maxLength:-5
 			},
 				type:'NumberField',
-				filters:{pfiltro:'actval.depreciacion_per',type:'numeric'},
+				filters:{pfiltro:'actval.depreciacion_per',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:true
@@ -116,21 +227,6 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'monto_rescate',
-				fieldLabel: 'Valor Rescate',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'actval.monto_rescate',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
 				name: 'tipo_cambio_ini',
 				fieldLabel: 'T.C. Inicial',
 				allowBlank: true,
@@ -158,21 +254,6 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		},
-		{
-			config:{
-				name: 'tipo',
-				fieldLabel: 'Tipo',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:15
-			},
-				type:'TextField',
-				filters:{pfiltro:'actval.tipo',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
 		},
 		{
 			config:{
@@ -206,53 +287,6 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'fecha_ult_dep',
-				fieldLabel: 'Fecha Ult. Dep.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
-			},
-				type:'DateField',
-				filters:{pfiltro:'actval.fecha_ult_dep',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'fecha_ini_dep',
-				fieldLabel: 'Fecha Ini. Dep.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
-			},
-				type:'DateField',
-				filters:{pfiltro:'actval.fecha_ini_dep',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'monto_vigente_orig',
-				fieldLabel: 'Monto vigente Orig.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'actval.monto_vigente_orig',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
 				name: 'vida_util',
 				fieldLabel: 'Vida util',
 				allowBlank: true,
@@ -266,21 +300,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-				name: 'vida_util_orig',
-				fieldLabel: 'Vida util Original',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
-			},
-				type:'NumberField',
-				filters:{pfiltro:'actval.vida_util_orig',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+		
 		{
 			config:{
 				name: 'tipo_cambio_fin',
@@ -423,6 +443,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'codigo', type: 'string'}
 		
 	],
 	sortInfo:{
@@ -431,8 +452,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true
-	}
-)
+})
 </script>
 		
 		

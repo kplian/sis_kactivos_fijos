@@ -377,3 +377,8 @@ create table kaf.tactivo_fijo_caract (
 	constraint pk_tactivo_fijo_caract__id_activo_fijo_caract primary key (id_activo_fijo_caract)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-1-20/04/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-07/05/2015****************************************/
+alter table kaf.tactivo_fijo_valores
+add column codigo varchar(50);
+/***********************************F-SCP-RCM-KAF-1-07/05/2015****************************************/

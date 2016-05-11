@@ -179,6 +179,42 @@ class MODMovimientoAfDep extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarMovimientoAfDepResCab(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion='SKA_RESCAB_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo_valor','int4');
+		$this->captura('id_activo_fijo','int4');
+		$this->captura('depreciacion_per','numeric');
+		$this->captura('estado','varchar');
+		$this->captura('principal','varchar');
+		$this->captura('monto_vigente','numeric');
+		$this->captura('monto_rescate','numeric');
+		$this->captura('tipo_cambio_ini','numeric');
+		$this->captura('estado_reg','varchar');
+		$this->captura('tipo','varchar');
+		$this->captura('depreciacion_mes','numeric');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('fecha_ult_dep','date');
+		$this->captura('fecha_ini_dep','date');
+		$this->captura('monto_vigente_orig','numeric');
+		$this->captura('vida_util','int4');
+		$this->captura('vida_util_orig','int4');
+		$this->captura('id_movimiento_af','int4');
+		$this->captura('tipo_cambio_fin','numeric');
+		$this->captura('codigo','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

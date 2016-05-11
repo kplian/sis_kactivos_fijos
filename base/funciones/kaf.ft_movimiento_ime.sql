@@ -462,23 +462,6 @@ BEGIN
             if v_movimiento.cod_movimiento = 'alta' then
 
                 if v_codigo_estado_siguiente = 'finalizado' then
-                    --Crea el registro de importes
-                    insert into kaf.tactivo_fijo_valores(
-                    id_usuario_reg, fecha_reg,estado_reg,
-                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
-                    depreciacion_mes,depreciacion_per,depreciacion_acum,
-                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
-                    )
-                    select
-                    p_id_usuario,now(),'activo',
-                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
-                    0,0,0,
-                    af.monto_compra,af.vida_util_original,'activo','si',af.monto_rescate,movaf.id_movimiento_af
-                    from kaf.tmovimiento_af movaf
-                    inner join kaf.tactivo_fijo af
-                    on af.id_activo_fijo = movaf.id_activo_fijo
-                    where movaf.id_movimiento = v_movimiento.id_movimiento;
-
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     estado = 'alta',
@@ -486,6 +469,26 @@ BEGIN
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                    --Crea el registro de importes
+                    insert into kaf.tactivo_fijo_valores(
+                    id_usuario_reg, fecha_reg,estado_reg,
+                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
+                    depreciacion_mes,depreciacion_per,depreciacion_acum,
+                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af,
+                    tipo, codigo
+                    )
+                    select
+                    p_id_usuario,now(),'activo',
+                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
+                    0,0,0,
+                    af.monto_compra,af.vida_util_original,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
+                    'alta',af.codigo
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tactivo_fijo af
+                    on af.id_activo_fijo = movaf.id_activo_fijo
+                    where movaf.id_movimiento = v_movimiento.id_movimiento;
+                    
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'baja' then
@@ -534,23 +537,6 @@ BEGIN
 
             elsif v_movimiento.cod_movimiento = 'reval' then
                 if v_codigo_estado_siguiente = 'finalizado' then
-                    --Crea el registro de importes
-                    insert into kaf.tactivo_fijo_valores(
-                    id_usuario_reg, fecha_reg,estado_reg,
-                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
-                    depreciacion_mes,depreciacion_per,depreciacion_acum,
-                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
-                    )
-                    select
-                    p_id_usuario,now(),'activo',
-                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
-                    0,0,0,
-                    moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af
-                    from kaf.tmovimiento_af movaf
-                    inner join kaf.tactivo_fijo af
-                    on af.id_activo_fijo = movaf.id_activo_fijo
-                    where movaf.id_movimiento = v_movimiento.id_movimiento;
-
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     cantidad_revaloriz = cantidad_revaloriz + 1,
@@ -559,6 +545,26 @@ BEGIN
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                    --Crea el registro de importes
+                    insert into kaf.tactivo_fijo_valores(
+                    id_usuario_reg, fecha_reg,estado_reg,
+                    id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
+                    depreciacion_mes,depreciacion_per,depreciacion_acum,
+                    monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af,
+                    tipo, codigo
+                    )
+                    select
+                    p_id_usuario,now(),'activo',
+                    af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
+                    0,0,0,
+                    moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
+                    'reval', af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tactivo_fijo af
+                    on af.id_activo_fijo = movaf.id_activo_fijo
+                    where movaf.id_movimiento = v_movimiento.id_movimiento;
+
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'deprec' then

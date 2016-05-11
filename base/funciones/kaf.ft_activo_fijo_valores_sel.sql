@@ -67,7 +67,8 @@ BEGIN
 						actval.fecha_mod,
 						actval.id_usuario_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						actval.codigo
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod

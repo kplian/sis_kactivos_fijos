@@ -19,22 +19,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.grid.getTopToolbar().disable();
 		this.grid.getBottomToolbar().disable();
 
-		//Add report button
-        this.addButton('btnDet',{
-            text :'Detalle',
-            iconCls : 'bpdf32',
-            disabled: true,
-            handler : this.onButtonDet,
-            tooltip : '<b>Detalle</b><br/><b>Detalle del calculo de la depreciacion</b>'
-       	}); 
-
        	//Add report button
-        this.addButton('btnDetDep`',{
-            text :'Calculo',
+        this.addButton('btnDetDep',{
+            text :'Depreciacion',
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonDetDep,
-            tooltip : '<b>Calculo Depreciacion</b><br/><b>Detalle del calculo de depreciacion</b>'
+            tooltip : '<b>Depreciacion</b><br/>Detalle del calculo de depreciacion'
        	});
 	},
 	filter:{},
@@ -412,6 +403,12 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario: this.maestro.id_funcionario});
 		}
 
+		//Hide/show button
+		this.getBoton('btnDetDep').hide();
+		if(this.maestro.cod_movimiento=='deprec'){
+			this.getBoton('btnDetDep').show();
+		}
+
 		this.store.baseParams = {
 			id_movimiento : this.maestro.id_movimiento
 		};
@@ -423,32 +420,29 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		});
 	},
 
-	onButtonDet: function(){
-	    var rec=this.sm.getSelected();
-        Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDep.php',
-            'Detalle del calculo de depreciacion',
-            {
-                width:'90%',
-                height:500
-            },
-            rec.data,
-            this.idContenedor,
-            'MovimientoAfDep'
-    	)
-	},
-
 	onButtonDetDep: function(){
 	    var rec=this.sm.getSelected();
 	    console.log('UNO: ',rec.data);
 		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDep.php',
 			'Detalle', {
-				width:900,
-				height:400
+				width:'90%',
+				height:'90%'
 		    },
 		    rec.data,
 		    this.idContenedor,
 		    'ActivoFijoValoresDep'
 		);
+	},
+	preparaMenu : function(n) {
+		var tb = Phx.vista.MovimientoAf.superclass.preparaMenu.call(this);
+		var data = this.getSelectedData();
+		this.getBoton('btnDetDep').enable();
+		return tb;
+	},
+	liberaMenu : function() {
+		var tb = Phx.vista.MovimientoAf.superclass.liberaMenu.call(this);
+		this.getBoton('btnDetDep').disable();
+		return tb;
 	}
 
 })

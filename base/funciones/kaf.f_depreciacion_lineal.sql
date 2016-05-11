@@ -36,7 +36,7 @@ DECLARE
 BEGIN
     
     v_nombre_funcion = 'kaf.f_depreciacion_lineal';
-    v_id_moneda = 2;
+    v_id_moneda = 3;
     
     for v_rec_ant in (select
                       id_activo_fijo_valor,

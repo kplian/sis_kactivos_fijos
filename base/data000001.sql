@@ -221,3 +221,9 @@ select pxp.f_insert_tgui ('Tipos de Cuentas', 'Tipos de Cuentas', 'KAFMOVTIPCUE'
 select pxp.f_insert_testructura_gui ('KAFTIPBIE', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMOVTIPCUE', 'KAF');
 /***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-07/05/2016****************************************/
+select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Alta','alta','');
+select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Revalorizacion','reval','');
+select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Otros','otro','');
+/***********************************I-DAT-RCM-KAF-1-07/05/2016****************************************/

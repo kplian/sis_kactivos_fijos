@@ -25,10 +25,12 @@ Phx.vista.ActivoFijoValoresDep = {
 	    //this.load({params:{start:0, limit:this.tam_pag}});
 	},
 
+	ActList:'../../sis_kactivos_fijos/control/MovimientoAfDep/listarMovimientoAfDepResCab',
+
     south: { 
         url:'../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDepRes.php',
         title:'Detalle', 
-        height:'50%',
+        height:'60%',
         cls:'MovimientoAfDepRes'
 	}
 

@@ -158,6 +158,77 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_MAFDEPRESCAB_SEL'
+ 	#DESCRIPCION:	Consulta de datos
+ 	#AUTOR:			RCM
+ 	#FECHA:			07/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_RESCAB_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						distinct actval.id_activo_fijo_valor,
+						actval.id_activo_fijo,
+						actval.depreciacion_per,
+						actval.estado,
+						actval.principal,
+						actval.monto_vigente,
+						actval.monto_rescate,
+						actval.tipo_cambio_ini,
+						actval.estado_reg,
+						actval.tipo,
+						actval.depreciacion_mes,
+						actval.depreciacion_acum,
+						actval.fecha_ult_dep,
+						actval.fecha_ini_dep,
+						actval.monto_vigente_orig,
+						actval.vida_util,
+						actval.vida_util_orig,
+						mafdep.id_movimiento_af,
+						actval.tipo_cambio_fin,
+						actval.codigo
+						from kaf.tmovimiento_af_dep mafdep
+						inner join kaf.tactivo_fijo_valores actval
+						on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_MAFDEPRESCAB_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:			RCM
+ 	#FECHA:			07/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_RESCAB_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(mafdep.id_activo_fijo_valor)
+					    from kaf.tmovimiento_af_dep mafdep
+						inner join kaf.tactivo_fijo_valores actval
+						on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+					    where ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 					
 	else
 					     

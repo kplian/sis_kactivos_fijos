@@ -46,7 +46,7 @@ class CustomReport extends TCPDF {
 
         $dataSource = $this->getDataSource();
 
-        $this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 19, 9, 36);
+        $this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 28, 8, 17);
 
         $this->SetFontSize(12);
         $this->SetFont('', 'B');
@@ -278,7 +278,7 @@ class CustomReport extends TCPDF {
             $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 90, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
 
-            //$this->Ln();    
+            $this->Ln();    
         }
         $this->posY = $this->GetY();
 
@@ -452,7 +452,7 @@ class RMovimiento extends Report {
         $this->pdf->AddPage();
 
         $this->pdf->SetFontSize(7.5);
-        $this->pdf->SetFont('', 'B');
+        //$this->pdf->SetFont('', 'B');
         
 
         //DETALLE REPORTE
