@@ -853,7 +853,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 id: 'id_',
                 root: 'datos',
                 sortInfo: {
-                    field: 'nombre',
+                    field: 'codigo',
                     direction: 'ASC'
                 },
                 totalProperty: 'total',
@@ -1916,7 +1916,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     fields: ['id_catalogo','codigo','descripcion'],
                                     totalProperty: 'total',
                                     sortInfo: {
-                                        field: 'descripcion',
+                                        field: 'codigo',
                                         direction: 'ASC'
                                     },
                                     baseParams:{
@@ -1936,7 +1936,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                tpl : '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
                             }, {
                                 xtype: 'textfield',
                                 fieldLabel: 'Codigo Ant.',
