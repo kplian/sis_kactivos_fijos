@@ -227,3 +227,7 @@ select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Alta','alta','');
 select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Revalorizacion','reval','');
 select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Otros','otro','');
 /***********************************I-DAT-RCM-KAF-1-07/05/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-24/05/2016****************************************/
+insert into variable_global(variable,valor,descripcion) values('kaf_clasif_replicar','true','Replicar clasificacion caso Comibol');
+/***********************************F-DAT-RCM-KAF-1-24/05/2016****************************************/

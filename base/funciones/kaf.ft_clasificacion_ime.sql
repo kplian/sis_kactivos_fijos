@@ -29,6 +29,8 @@ DECLARE
 	v_id_clasificacion		integer;
 	v_codigo				varchar;
 	v_sep					varchar;
+	v_nivel					integer;
+	v_rec 					record;
 			    
 BEGIN
 
@@ -100,6 +102,59 @@ BEGIN
 			null,
 			v_parametros.descripcion
 			)RETURNING id_clasificacion into v_id_clasificacion;
+
+			--Excepcion CBOL, replica de la clasificacion
+			if pxp.f_get_variable_global('kaf_clasif_replicar') = 'true' then
+				v_nivel = length(regexp_replace(v_codigo, '[^\.]', '', 'g'))+1;
+				if v_nivel = 3 or v_nivel = 4 then
+					for v_rec in (select * from kaf.tclasificacion 
+								where length(regexp_replace(codigo, '[^\.]', '', 'g'))+1 = v_nivel-1) loop
+						if not exists(select 1 from kaf.tclasificacion where codigo = v_rec.codigo||'.'||v_parametros.codigo) then
+							insert into kaf.tclasificacion(
+							id_clasificacion_fk,
+							id_cat_metodo_dep,
+							id_concepto_ingas,
+							codigo,
+							nombre,
+							vida_util,
+							correlativo_act,
+							monto_residual,
+							tipo,
+							final,
+							icono,
+							id_usuario_reg,
+							id_usuario_mod,
+							fecha_reg,
+							fecha_mod,
+							estado_reg,
+							id_usuario_ai,
+							usuario_ai,
+							descripcion
+				          	) values(
+				          	v_rec.id_clasificacion,
+							v_parametros.id_cat_metodo_dep,
+							v_parametros.id_concepto_ingas,
+							v_rec.codigo||'.'||v_parametros.codigo,
+							v_parametros.nombre,
+							v_parametros.vida_util,
+							0,
+							v_parametros.monto_residual,
+							v_parametros.tipo,
+							v_parametros.final,
+							v_parametros.icono,
+							p_id_usuario,
+							null,
+							now(),
+							null,
+							'activo',
+							null,
+							null,
+							v_parametros.descripcion
+							);
+						end if;
+					end loop;
+				end if;
+			end if;
 			
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Clasificación almacenado(a) con exito (id_clasificacion'||v_id_clasificacion||')'); 
