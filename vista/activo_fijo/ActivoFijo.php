@@ -470,42 +470,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         bottom_filter:true
     }, {
         config: {
-            name: 'nro_serie',
-            fieldLabel: '# Serie',
-            allowBlank: true,
-            anchor: '80%',
-            gwidth: 130,
-            maxLength: 50
-        },
-        type: 'TextField',
-        filters: {
-            pfiltro: 'afij.nro_serie',
-            type: 'string'
-        },
-        id_grupo: 1,
-        grid: true,
-        form: true,
-        bottom_filter:true
-    }, {
-        config: {
-            name: 'marca',
-            fieldLabel: 'Marca',
-            allowBlank: true,
-            anchor: '80%',
-            gwidth: 150,
-            maxLength: 50
-        },
-        type: 'TextField',
-        filters: {
-            pfiltro: 'afij.marca',
-            type: 'string'
-        },
-        id_grupo: 1,
-        grid: true,
-        form: true,
-        bottom_filter:true
-    }, {
-        config: {
             name: 'estado',
             fieldLabel: 'Estado',
             allowBlank: true,
@@ -524,7 +488,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'en_deposito',
-            fieldLabel: 'En Deposito',
+            fieldLabel: 'En Deposito?',
             allowBlank: true,
             anchor: '80%',
             gwidth: 75,
@@ -615,6 +579,42 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         type: 'TextField',
         filters: {
             pfiltro: 'afij.denominacion',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    },{
+        config: {
+            name: 'nro_serie',
+            fieldLabel: '# Serie',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 130,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.nro_serie',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
+            name: 'marca',
+            fieldLabel: 'Marca',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 150,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.marca',
             type: 'string'
         },
         id_grupo: 1,
@@ -713,18 +713,21 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         config: {
             name: 'id_funcionario',
             fieldLabel: 'Responsable',
+            gwidth: 250,
+            gdisplayField: 'funcionario',
             renderer: function(value, p, record) {
                 return String.format('{0}', record.data['funcionario']);
             }
         },
-        type: 'Field',
+        type: 'ComboBox',
         filters: {
-            pfiltro: 'per.nombre_completo2',
-            type: 'numeric'
+            pfiltro: 'fun.desc_funcionario2',
+            type: 'string'
         },
         id_grupo: 1,
         grid: true,
-        form: true
+        form: true,
+        bottom_filter:true
     }, {
         config: {
             name: 'id_persona',

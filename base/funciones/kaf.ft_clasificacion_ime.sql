@@ -3,6 +3,8 @@ CREATE OR REPLACE FUNCTION "kaf"."ft_clasificacion_ime" (
 RETURNS character varying AS
 $BODY$
 
+
+
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos - K
  FUNCION: 		kaf.ft_clasificacion_ime
@@ -29,6 +31,10 @@ DECLARE
 	v_id_clasificacion		integer;
 	v_codigo				varchar;
 	v_sep					varchar;
+	v_nivel					integer;
+	v_rec 					record;
+	v_cod_fin_padre			varchar;
+	v_ins 					boolean;
 			    
 BEGIN
 
@@ -48,7 +54,8 @@ BEGIN
         begin
 
         	--Obtiene el código del padre
-        	select codigo into v_codigo
+        	select codigo, substring(codigo from length(codigo)-3 for 4)
+        	into v_codigo, v_cod_fin_padre
         	from kaf.tclasificacion
         	where id_clasificacion = v_parametros.id_clasificacion_fk;
 
@@ -100,6 +107,73 @@ BEGIN
 			null,
 			v_parametros.descripcion
 			)RETURNING id_clasificacion into v_id_clasificacion;
+
+			--Excepcion CBOL, replica de la clasificacion
+			v_ins=true;
+			if pxp.f_get_variable_global('kaf_clasif_replicar') = 'true' then
+				v_nivel = length(regexp_replace(v_codigo, '[^\.]', '', 'g'))+1;
+				if v_nivel = 3 or v_nivel = 4 then
+					for v_rec in (select * from kaf.tclasificacion 
+								where length(regexp_replace(codigo, '[^\.]', '', 'g'))+1 = v_nivel-1) loop
+						if not exists(select 1 from kaf.tclasificacion where codigo = v_rec.codigo||'.'||v_parametros.codigo) then
+
+							--Verifica el nivel para hacer la insercion
+							if v_nivel = 4 then
+								if substring(v_rec.codigo from length(v_rec.codigo)-3 for 4) != v_cod_fin_padre then
+									v_ins = false;
+								end if;
+							end if;
+
+
+							if v_ins then
+								insert into kaf.tclasificacion(
+								id_clasificacion_fk,
+								id_cat_metodo_dep,
+								id_concepto_ingas,
+								codigo,
+								nombre,
+								vida_util,
+								correlativo_act,
+								monto_residual,
+								tipo,
+								final,
+								icono,
+								id_usuario_reg,
+								id_usuario_mod,
+								fecha_reg,
+								fecha_mod,
+								estado_reg,
+								id_usuario_ai,
+								usuario_ai,
+								descripcion
+					          	) values(
+					          	v_rec.id_clasificacion,
+								v_parametros.id_cat_metodo_dep,
+								v_parametros.id_concepto_ingas,
+								v_rec.codigo||'.'||v_parametros.codigo,
+								v_parametros.nombre,
+								v_parametros.vida_util,
+								0,
+								v_parametros.monto_residual,
+								v_parametros.tipo,
+								v_parametros.final,
+								v_parametros.icono,
+								p_id_usuario,
+								null,
+								now(),
+								null,
+								'activo',
+								null,
+								null,
+								v_parametros.descripcion
+								);
+							end if;
+							v_ins = true;
+							
+						end if;
+					end loop;
+				end if;
+			end if;
 			
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Clasificación almacenado(a) con exito (id_clasificacion'||v_id_clasificacion||')'); 
@@ -189,6 +263,8 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
+
+
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE
 COST 100;
