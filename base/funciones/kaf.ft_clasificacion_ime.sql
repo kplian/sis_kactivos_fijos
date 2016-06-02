@@ -3,8 +3,6 @@ CREATE OR REPLACE FUNCTION "kaf"."ft_clasificacion_ime" (
 RETURNS character varying AS
 $BODY$
 
-
-
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos - K
  FUNCION: 		kaf.ft_clasificacion_ime
@@ -30,7 +28,7 @@ DECLARE
 	v_mensaje_error         text;
 	v_id_clasificacion		integer;
 	v_codigo				varchar;
-	v_sep					varchar;
+	v_sep					varchar;   
 	v_nivel					integer;
 	v_rec 					record;
 	v_cod_fin_padre			varchar;
@@ -263,7 +261,6 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-
 
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE
