@@ -111,20 +111,26 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		{
 			config: {
 				name: 'id_cat_estado_fun',
-				fieldLabel: 'Estado funcional',
+				fieldLabel: 'Detalle',
 				anchor: '95%',
 				tinit: false,
 				allowBlank: true,
 				origen: 'CATALOGO',
 				gdisplayField: 'estado_fun',
 				hiddenName: 'id_cat_estado_fun',
-				gwidth: 95,
+				gwidth: 180,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tactivo_fijo__id_cat_estado_fun'
 				},
 				renderer: function (value,p,record) {
-					return String.format('{0}',record.data.estado_fun);
+					var resp;
+					if(this.maestro=='reval'||this.maestro=='incdec'){
+						resp='<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> '+record.data['estado_fun']+'</p><p><b>Nuevo Importe: </b> <font color="blue">'+record.data['importe']+'</font></p><p><b>Nueva Vida util: </b>'+record.data['vida_util']+'</p></div></tpl>';
+					} else {
+						resp='<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> '+record.data['estado_fun']+'</p></div></tpl>';
+					}
+					return resp;
 				},
 				valueField: 'id_catalogo'
 			},
@@ -169,7 +175,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				minChars: 2,
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['motivo']);
-				}
+				},hidden:true
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
@@ -382,26 +388,47 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	onReloadPage : function(m) {
 		this.maestro = m;
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento;
-
+		
 		//Define the filter to apply for activos fijod drop down
 		this.Cmp.id_activo_fijo.store.baseParams = {
 		"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"afij.denominacion#afij.codigo#afij.descripcion"
 		};
-		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_depto: this.maestro.id_depto});
+		//este Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{codMov:this.maestro.cod_movimiento});
 		this.Cmp.id_activo_fijo.modificado=true;
-		if(this.maestro.cod_movimiento=='alta'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'registrado'});
-		} else if(this.maestro.cod_movimiento=='baja'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
-		} else if(this.maestro.cod_movimiento=='reval'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
-		} else if(this.maestro.cod_movimiento=='deprec'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado:'alta'});
-		} else if(this.maestro.cod_movimiento=='asig'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{en_deposito:'si'});
-		} else if(this.maestro.cod_movimiento=='devol'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario: this.maestro.id_funcionario});
+		
+		//Setea parametros de filtro para el combo de motivos
+		this.Cmp.id_movimiento_motivo.store.baseParams = {
+			"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"mmot.motivo","id_cat_movimiento":this.maestro.id_cat_movimiento
 		}
+		this.Cmp.id_movimiento_motivo.modificado=true;
+
+		//Cambio del titulo de la ventana
+		this.window.setTitle('Detalle del(a) '+this.maestro.movimiento);
+
+		//Filtros por tipo de movimiento
+		if(this.maestro.cod_movimiento=='alta'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'registrado',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='baja'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='reval'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='deprec'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='asig'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{en_deposito_mov:'si',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='devol'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario});
+		} else if(this.maestro.cod_movimiento=='transf'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario});
+		} else if(this.maestro.cod_movimiento=='desuso'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario,id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='incdec'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario,id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='tranfdep'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		}
+
+		this.habilitarCampos();
 
 		//Hide/show button
 		this.getBoton('btnDetDep').hide();
@@ -418,6 +445,51 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				limit : 50
 			}
 		});
+	},
+
+	habilitarCampos: function(){
+		//Mostrar/ocultar componentes
+		var swEstadoFun=false, swMotivo=false, swImporte=false, swVidaUtil=false,h=130,w=400;
+		if(this.maestro.cod_movimiento=='alta'){
+			
+		} else if(this.maestro.cod_movimiento=='baja'){
+			swMotivo=true;
+			h=163;
+		} else if(this.maestro.cod_movimiento=='reval'){
+			swMotivo=true;
+			swImporte=true;
+			swVidaUtil=true;
+			h=205;
+		} else if(this.maestro.cod_movimiento=='deprec'){
+			
+		} else if(this.maestro.cod_movimiento=='asig'){
+			
+		} else if(this.maestro.cod_movimiento=='devol'){
+			
+		} else if(this.maestro.cod_movimiento=='transf'){
+			
+		} else if(this.maestro.cod_movimiento=='desuso'){
+			swMotivo=true;
+			h=163;
+		} else if(this.maestro.cod_movimiento=='incdec'){
+			swMotivo=true;
+			swImporte=true;
+			swVidaUtil=true;
+			h=205;
+		} else if(this.maestro.cod_movimiento=='tranfdep'){
+			
+		}
+
+		this.Cmp.id_cat_estado_fun.setVisible(swEstadoFun);
+		this.Cmp.importe.setVisible(swImporte);
+		this.Cmp.vida_util.setVisible(swVidaUtil);
+
+		this.Cmp.id_cat_estado_fun.allowBlank=!swEstadoFun;
+		this.Cmp.importe.allowBlank=!swImporte;
+		this.Cmp.vida_util.allowBlank=!swVidaUtil;
+
+		//Resize window
+    	this.window.setSize(w,h);
 	},
 
 	onButtonDetDep: function(){
@@ -443,7 +515,11 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		var tb = Phx.vista.MovimientoAf.superclass.liberaMenu.call(this);
 		this.getBoton('btnDetDep').disable();
 		return tb;
-	}
+	},
+	onButtonEdit: function() {
+    	Phx.vista.MovimientoAf.superclass.onButtonEdit.call(this);
+    	this.habilitarCampos();
+    }
 
 })
 </script>

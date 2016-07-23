@@ -60,6 +60,22 @@ class ACTActivoFijo extends ACTbase{
 			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
 		}
 
+		//Filtro por movimientos
+		//Transferencia, Devolucion
+		if($this->objParam->getParametro('codMov')=='transf'||$this->objParam->getParametro('codMov')=='devol'){
+			$this->objParam->addFiltro("afij.id_funcionario = ".$this->objParam->getParametro('id_funcionario_mov'));	
+		}
+		//Alta
+		if($this->objParam->getParametro('codMov')=='alta'||$this->objParam->getParametro('codMov')=='baja'||$this->objParam->getParametro('codMov')=='reval'||$this->objParam->getParametro('codMov')=='deprec'||$this->objParam->getParametro('codMov')=='desuso'||$this->objParam->getParametro('codMov')=='incdec'||$this->objParam->getParametro('codMov')=='tranfdep'){
+			$this->objParam->addFiltro("afij.id_depto = ".$this->objParam->getParametro('id_depto_mov'));
+			$this->objParam->addFiltro("afij.estado = "."''".$this->objParam->getParametro('estado_mov')."''");
+		}
+		if($this->objParam->getParametro('codMov')=='asig'){
+			$this->objParam->addFiltro("afij.en_deposito = ''".$this->objParam->getParametro('en_deposito_mov')."''");
+			$this->objParam->addFiltro("afij.id_depto = ".$this->objParam->getParametro('id_depto_mov'));
+		}
+
+
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

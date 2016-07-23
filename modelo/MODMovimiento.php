@@ -54,6 +54,18 @@ class MODMovimiento extends MODbase{
 		$this->captura('responsable_depto','text');
 		$this->captura('custodio','text');
 		$this->captura('icono_estado','varchar');
+
+		$this->captura('codigo','varchar');
+		$this->captura('id_deposito','int4');
+		$this->captura('id_depto_dest','int4');
+		$this->captura('id_deposito_dest','int4');
+		$this->captura('id_funcionario_dest','int4');
+		$this->captura('id_movimiento_motivo','int4');
+		$this->captura('deposito','varchar');
+		$this->captura('depto_dest','varchar');
+		$this->captura('deposito_dest','varchar');
+		$this->captura('funcionario_dest','text');
+		$this->captura('motivo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -85,6 +97,13 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('num_tramite','num_tramite','varchar');
 		$this->setParametro('id_persona','id_persona','int4');
 
+		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('id_deposito','id_deposito','int4');
+		$this->setParametro('id_depto_dest','id_depto_dest','int4');
+		$this->setParametro('id_deposito_dest','id_deposito_dest','int4');
+		$this->setParametro('id_funcionario_dest','id_funcionario_dest','int4');
+		$this->setParametro('id_movimiento_motivo','id_movimiento_motivo','int4');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -115,6 +134,13 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('num_tramite','num_tramite','varchar');
 		$this->setParametro('id_persona','id_persona','int4');
+
+		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('id_deposito','id_deposito','int4');
+		$this->setParametro('id_depto_dest','id_depto_dest','int4');
+		$this->setParametro('id_deposito_dest','id_deposito_dest','int4');
+		$this->setParametro('id_funcionario_dest','id_funcionario_dest','int4');
+		$this->setParametro('id_movimiento_motivo','id_movimiento_motivo','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -192,6 +218,11 @@ class MODMovimiento extends MODbase{
 		$this->captura('vida_util','int4');
 		$this->captura('importe','numeric');
 		$this->captura('motivo','varchar');
+		$this->captura('marca','varchar');
+		$this->captura('nro_serie','varchar');
+		$this->captura('fecha_compra','date');
+		$this->captura('monto_compra','numeric');
+		$this->captura('tipo_activo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

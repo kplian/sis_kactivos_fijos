@@ -382,3 +382,26 @@ create table kaf.tactivo_fijo_caract (
 alter table kaf.tactivo_fijo_valores
 add column codigo varchar(50);
 /***********************************F-SCP-RCM-KAF-1-07/05/2015****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-07/05/2015****************************************/
+ALTER TABLE "kaf"."tmovimiento"
+ALTER COLUMN "estado" DROP DEFAULT,
+ADD COLUMN "id_deposito" int4,
+ADD COLUMN "id_depto_dest" int4,
+ADD COLUMN "id_deposito_dest" int4,
+ADD COLUMN "id_funcionario_dest" int4;
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."glosa" IS 'Para todos los movimientos';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."estado" IS 'Estado de aprobacion del Movimiento';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."id_depto" IS 'Depto. de Activos Fijos al que pertenece el activo';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."id_deposito" IS 'Deposito al que pertenece el activo fijo. Aplicable a todos.';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."id_depto_dest" IS 'Depto. Activos Fijos destino. Para Transferencia Deposito';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."id_deposito_dest" IS 'Deposito  Activos Fijos destino. Para Transferencia Deposito';
+
+COMMENT ON COLUMN "kaf"."tmovimiento"."id_funcionario_dest" IS 'Funcionario destino. Solo para transferencias';
+/***********************************F-SCP-RCM-KAF-1-07/05/2015****************************************/

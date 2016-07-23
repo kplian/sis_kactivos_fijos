@@ -74,7 +74,18 @@ BEGIN
 						mov.id_persona,
 						usu.desc_persona as responsable_depto,
 						per.nombre_completo2 as custodio,
-						tew.icono as icono_estado
+						tew.icono as icono_estado,
+						mov.codigo,
+			            mov.id_deposito,
+			            mov.id_depto_dest,
+			            mov.id_deposito_dest,
+			            mov.id_funcionario_dest,
+			            mov.id_movimiento_motivo,
+			            depo.nombre as deposito,
+			            depdest.nombre as depto_dest,
+			            depodest.nombre as deposito_dest,
+			            fundest.desc_funcionario2,
+			            movmot.motivo
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -86,6 +97,11 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = mov.id_persona
 						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
 						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
+						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
+						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
+						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
+						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -120,6 +136,11 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = mov.id_persona
 						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
 						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
+						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
+						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
+						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
+						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
 					    where ';
 			
 			--Definicion de la respuesta		    
@@ -166,7 +187,12 @@ BEGIN
 						cat2.descripcion as estado_fun,
 						maf.vida_util,
 						maf.importe,
-						mmot.motivo
+						mmot.motivo,
+						af.marca,
+						af.nro_serie,
+						af.fecha_compra,
+						af.monto_compra,
+						kaf.f_get_tipo_activo(af.id_activo_fijo) as tipo_activo
 						from kaf.tmovimiento mov
 						inner join param.tcatalogo cat
 						on cat.id_catalogo = mov.id_cat_movimiento

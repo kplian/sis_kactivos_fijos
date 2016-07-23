@@ -90,7 +90,7 @@ class CustomReport extends TCPDF {
         $this->SetFont('', '');
         $this->Cell($width1-4, $height, 'PAGINA:', "B", 0, '', false, '', 0, false, 'T', 'C');
         $this->SetFont('', 'B');
-       $this->Cell($w = $width2, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+        $this->Cell($w = $width2, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         $this->setCellPaddings(2);
 
         /*
@@ -211,8 +211,8 @@ class CustomReport extends TCPDF {
             //Estado
             $this->Ln();
             $this->SetFont('', 'B');
-            $this->Cell($width2+8, $height,'Estado:', "", 0, 'L', false, '', 0, false, 'T', 'C');
-            $this->Ln();
+            $this->Cell($width2+18, $height,'Estado:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+            //$this->Ln();
             $this->SetFont('', '');
             $this->MultiCell($w = 0, $h = $hLong, $txt = $this->dataMaster[0]['estado'], $border = 0, $align = 'L', $fill = false, $ln = 1, $x = '', $y = '', $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = $hMedium, $valign = 'M', $fitcell = false);
 
@@ -236,7 +236,9 @@ class CustomReport extends TCPDF {
             $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 70, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 50, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 90, $h = $hGlobal, $txt = 'Motivo', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
 
         } else if($tipo=='reval'){
@@ -245,7 +247,9 @@ class CustomReport extends TCPDF {
             $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 70, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 50, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 20, $h = $hGlobal, $txt = 'Inc.Vida Util', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 20, $h = $hGlobal, $txt = 'Inc.Valor', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 50, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
@@ -256,7 +260,9 @@ class CustomReport extends TCPDF {
             $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 70, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 50, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 90, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
 
         } else if($tipo=='asig'||$tipo=='devol'){
@@ -265,18 +271,24 @@ class CustomReport extends TCPDF {
             $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 70, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 50, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->Cell($w = 90, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             
         } else {
             //Alta
             $this->SetFontSize(7);
             $this->SetFont('', 'B');
-            $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 90, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 8,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 31, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 84.5, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 34, $h = $hGlobal, $txt = 'Tipo de Activo', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 32.5, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 26.5, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 18, $h = $hGlobal, $txt = 'Fecha Compra', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = 20.5, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            
 
             $this->Ln();    
         }
@@ -348,9 +360,7 @@ class CustomReport extends TCPDF {
             $this->Ln();
             $fila++;
         }
-        
-        
-        
+
     }
 
 }
@@ -371,13 +381,17 @@ class RMovimiento extends Report {
                 $auxArray[$i][]=$i+1;
                 $auxArray[$i][]=$datarow['codigo'];
                 $auxArray[$i][]=$datarow['descripcion'];
-                $auxArray[$i][]=$datarow['estado'];
+                $auxArray[$i][]=$datarow['marca'];
+                $auxArray[$i][]=$datarow['nro_serie'];
+                $auxArray[$i][]=$datarow['estado_fun'];
                 $auxArray[$i][]=$datarow['motivo'];
             } else if($tipo=='reval'){
                 $auxArray[$i][]=$i+1;
                 $auxArray[$i][]=$datarow['codigo'];
                 $auxArray[$i][]=$datarow['descripcion'];
-                $auxArray[$i][]=$datarow['estado'];
+                $auxArray[$i][]=$datarow['marca'];
+                $auxArray[$i][]=$datarow['nro_serie'];
+                $auxArray[$i][]=$datarow['estado_fun'];
                 $auxArray[$i][]=$datarow['vida_util'];
                 $auxArray[$i][]=$datarow['importe'];
                 $auxArray[$i][]=' ';
@@ -386,22 +400,31 @@ class RMovimiento extends Report {
                 $auxArray[$i][]=$i+1;
                 $auxArray[$i][]=$datarow['codigo'];
                 $auxArray[$i][]=$datarow['descripcion'];
-                $auxArray[$i][]=$datarow['estado'];
+                $auxArray[$i][]=$datarow['marca'];
+                $auxArray[$i][]=$datarow['nro_serie'];
+                $auxArray[$i][]=$datarow['estado_fun'];
                 $auxArray[$i][]=' ';
 
             } else if($tipo=='asig'||$tipo=='devol'){
                 $auxArray[$i][]=$i+1;
                 $auxArray[$i][]=$datarow['codigo'];
                 $auxArray[$i][]=$datarow['descripcion'];
-                $auxArray[$i][]=$datarow['estado'];
+                $auxArray[$i][]=$datarow['marca'];
+                $auxArray[$i][]=$datarow['nro_serie'];
+                $auxArray[$i][]=$datarow['estado_fun'];
                 $auxArray[$i][]=' ';
             } else {
                 //Alta
-                $auxArray[$i][]=$i+1;
-                $auxArray[$i][]=$datarow['codigo'];
-                $auxArray[$i][]=$datarow['descripcion'];
-                $auxArray[$i][]=$datarow['estado'];
-                $auxArray[$i][]=' ';
+                $num=$i+1;
+                $auxArray[$i][]='  '.$num;
+                $auxArray[$i][]='  '.$datarow['codigo'];
+                $auxArray[$i][]='  '.$datarow['descripcion'];
+                $auxArray[$i][]='  '.$datarow['tipo_activo'];
+                $auxArray[$i][]='  '.$datarow['marca'];
+                $auxArray[$i][]='  '.$datarow['nro_serie'];
+                $auxArray[$i][]='  '.$datarow['fecha_compra'];
+                //$auxArray[$i][]='  '.$datarow['monto_compra'];
+                $auxArray[$i][]='  '.$datarow['estado_fun'];
             }
             $i++;
         }
@@ -409,25 +432,25 @@ class RMovimiento extends Report {
         $this->dd=$auxArray;
 
         if($tipo=='baja'){
-            $this->anchors= array(35,125,355,70,318);
+            $this->anchors= array(35,125,35,70,50,70,318);
             $this->aligns= array('L','L','L','L');
 
         } else if($tipo=='reval'){
-            $this->anchors= array(35,125,355,70,70,70,178);
+            $this->anchors= array(35,125,355,70,50,70,70,70,178);
             $this->aligns= array('L','L','L','C','R','L');
 
         } else if($tipo=='deprec'){
-            $this->anchors= array(35,125,355,70,318);
+            $this->anchors= array(35,125,355,70,50,70,318);
             $this->aligns= array('L','L','L','L');
 
         } else if($tipo=='asig'||$tipo=='devol'){
-            $this->anchors= array(35,125,355,70,318);
+            $this->anchors= array(35,125,355,70,50,70,318);
             $this->aligns= array('L','L','L','L');
         } else {
             //Alta
             //$this->anchors= array(10,35,100,20,90);
-            $this->anchors= array(35,125,355,70,318);
-            $this->aligns= array('L','L','L','L');
+            $this->anchors= array(28,110,300,120,115,95,62,73);
+            $this->aligns= array('L','L','C','L');
         }
        
     }

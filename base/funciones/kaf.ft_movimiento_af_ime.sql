@@ -26,7 +26,8 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_movimiento_af	integer;
+	v_id_movimiento_af		integer;
+	v_id_cat_estado_fun		integer;
 			    
 BEGIN
 
@@ -43,6 +44,15 @@ BEGIN
 	if(p_transaccion='SKA_MOVAF_INS')then
 					
         begin
+
+        	--Obtiene estado funcional del activo fijo
+        	select
+        	id_cat_estado_fun
+        	into
+        	v_id_cat_estado_fun
+        	from kaf.tactivo_fijo
+        	where id_activo_fijo = v_parametros.id_activo_fijo;
+
         	--Sentencia de la insercion
         	insert into kaf.tmovimiento_af(
 			id_movimiento,
@@ -61,7 +71,7 @@ BEGIN
           	) values(
 			v_parametros.id_movimiento,
 			v_parametros.id_activo_fijo,
-			v_parametros.id_cat_estado_fun,
+			v_id_cat_estado_fun,
 			v_parametros.id_movimiento_motivo,
 			'activo',
 			v_parametros.importe,
@@ -72,9 +82,6 @@ BEGIN
 			v_parametros._id_usuario_ai,
 			null,
 			null
-							
-			
-			
 			)RETURNING id_movimiento_af into v_id_movimiento_af;
 			
 			--Definicion de la respuesta
@@ -96,11 +103,19 @@ BEGIN
 	elsif(p_transaccion='SKA_MOVAF_MOD')then
 
 		begin
+			--Obtiene estado funcional del activo fijo
+        	select
+        	id_cat_estado_fun
+        	into
+        	v_id_cat_estado_fun
+        	from kaf.tactivo_fijo
+        	where id_activo_fijo = v_parametros.id_activo_fijo;
+
 			--Sentencia de la modificacion
 			update kaf.tmovimiento_af set
 			id_movimiento = v_parametros.id_movimiento,
 			id_activo_fijo = v_parametros.id_activo_fijo,
-			id_cat_estado_fun = v_parametros.id_cat_estado_fun,
+			id_cat_estado_fun = v_id_cat_estado_fun,
 			id_movimiento_motivo = v_parametros.id_movimiento_motivo,
 			importe = v_parametros.importe,
 			vida_util = v_parametros.vida_util,

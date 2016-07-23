@@ -16,10 +16,11 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoMotivo.superclass.constructor.call(this,config);
+		console.log('llega aqui',config);
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}})
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -41,14 +42,14 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'movimiento',
 				hiddenName: 'id_cat_movimiento',
-				gwidth: 45,
+				gwidth: 120,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tmovimiento__id_cat_movimiento'
 				},
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['movimiento']);
-				}
+				},
 				valueField: 'id_catalogo'
 			},
 			type: 'ComboRec',
@@ -180,6 +181,8 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
+			
+	
 	tam_pag:50,	
 	title:'Motivo',
 	ActSave:'../../sis_kactivos_fijos/control/MovimientoMotivo/insertarMovimientoMotivo',
@@ -199,6 +202,7 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'movimiento', type: 'string'},
 		
 	],
 	sortInfo:{
@@ -207,8 +211,7 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true
-	}
-)
+});
 </script>
 		
 		

@@ -231,3 +231,20 @@ select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Otros','otro','');
 /***********************************I-DAT-RCM-KAF-1-24/05/2016****************************************/
 insert into variable_global(variable,valor,descripcion) values('kaf_clasif_replicar','true','Replicar clasificacion caso Comibol');
 /***********************************F-DAT-RCM-KAF-1-24/05/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-07/06/2016****************************************/
+select pxp.f_add_catalog('KAF','tactivo_fijo__codigo','texto');
+select pxp.f_add_catalog('KAF','tactivo_fijo__codigo','barras');
+select pxp.f_add_catalog('KAF','tactivo_fijo__codigo','qr');
+/***********************************F-DAT-RCM-KAF-1-07/06/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-30/06/2016****************************************/
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Transferencia','transf','ball_blue.png');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Incrementos/Decrementos','incdec','ball_blue.png');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Desuso temporal','desuso','ball_blue.png');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Transferencia Deposito','tranfdep','ball_blue.png');
+/***********************************F-DAT-RCM-KAF-1-30/06/2016****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-25/07/2016****************************************/
+insert into variable_global(variable,valor,descripcion) values('kaf_nivel_tipo_activo','3','Nivel de la clasificacion que se refiere al Tipo de Activo');
+/***********************************F-DAT-RCM-KAF-1-25/07/2016****************************************/

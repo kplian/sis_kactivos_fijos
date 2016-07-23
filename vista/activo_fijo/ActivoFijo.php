@@ -2281,6 +2281,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 Ext.getCmp(this.idContenedor+'_vida_util').setValue(rec.data.vida_util);
                 Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
             },this);
+            //Vida util
+            Ext.getCmp(this.idContenedor+'_vida_util_original').on('blur',function(cmp,rec,index){
+                Ext.getCmp(this.idContenedor+'_vida_util').setValue(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue());
+            },this)
             //Denominación
             Ext.getCmp(this.idContenedor+'_denominacion').on('blur',function(cmp){
                 if(Ext.getCmp(this.idContenedor+'_descripcion').getValue()==''){
