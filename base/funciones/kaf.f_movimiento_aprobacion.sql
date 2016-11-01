@@ -65,7 +65,7 @@ BEGIN
 			estado = 'baja',
 			fecha_baja = mov.fecha_mov
 			from kaf.tmovimiento_af movaf
-			inner kaf.tmovimiento mov
+			inner join kaf.tmovimiento mov
 			on mov.id_movimiento = movaf.id_movimiento
 			where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
 			and movaf.id_movimiento = v_movimiento.id_movimiento;

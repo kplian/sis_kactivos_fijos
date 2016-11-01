@@ -30,149 +30,10 @@ ALTER SEQUENCE kaf.tmovimiento_af_dep_id_movimiento_af_dep_seq INCREMENT 1 MINVA
 ALTER SEQUENCE kaf.tmovimiento_id_movimiento_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 RESTART 1 CACHE 1 NO CYCLE;
 ALTER SEQUENCE kaf.tmovimiento_af_id_movimiento_af_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 RESTART 1 CACHE 1 NO CYCLE;
 ALTER SEQUENCE kaf.tactivo_fijo_id_activo_fijo_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 RESTART 1 CACHE 1 NO CYCLE;
-DELETE FROM kaf.tmovimiento_af_dep;
-DELETE FROM kaf.tmovimiento_af;
-DELETE FROM kaf.tmovimiento;
-DELETE FROM kaf.tactivo_fijo_valores;
-DELETE FROM kaf.tactivo_fijo;
 
-INSERT INTO kaf.tactivo_fijo (
-  id_usuario_reg ,id_usuario_mod  ,fecha_reg      ,fecha_mod   ,estado_reg ,id_usuario_ai ,usuario_ai     ,id_clasificacion  ,id_moneda             ,id_moneda_orig        ,id_cat_estado_fun,
-  id_depto       ,id_centro_costo ,id_funcionario ,id_persona  ,codigo     ,denominacion  ,descripcion    ,vida_util_original         ,vida_util    ,monto_compra_mon_orig ,
-  monto_compra   ,monto_vigente   ,monto_actualiz ,foto        ,estado     ,documento     ,fecha_ini_dep  ,depreciacion_acum ,depreciacion_per 		,observaciones,
-  fecha_ult_dep, depreciacion_mes
-) VALUES (
-  1, null, now(), null, 'activo', null, null, 300, 1, 1, 79,
-  7, null, null, null, null, 'RACK', 'RACK  - CDR700 DESKTOP RPTR HOUSING, MARCA MOTOROLA, MODELO HKLN4056A.', 120, 120, 2888.4,
-  2888.4, 2888.4, 2888.4, null, 'alta', null, '01/10/2014', 0, null, 0, null, 0
-);
 
 /***********************************F-DAT-RCM-KAF-1-11/09/2015****************************************/
 
-/***********************************I-DAT-RCM-KAF-1-22/09/2015****************************************/
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 101, null, null, 'Depreciación hasta tal fecha', '31/12/2019',
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 104, null, null, 'Alta de activos Fijos', null,
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 105, null, null, 'Baja de activo fijo X', null,
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 106, null, null, 'Revalorización activo fijo', null,
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 108, null, null, 'Asignación del activo fijo', null,
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-INSERT INTO  kaf.tmovimiento (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_cat_movimiento, id_estado_wf, id_proceso_wf, glosa, fecha_hasta, estado, fecha_mov, id_depto
-) 
-VALUES (
-1, null, now(), null, 'activo', null, null, 109, null, null, 'Devolución de activo fijo x', null,
-'borrador', now(), 7
-);
-
-INSERT INTO kaf.tmovimiento_af (
-id_usuario_reg, id_usuario_mod, fecha_reg, fecha_mod, estado_reg, id_usuario_ai, usuario_ai,
-id_movimiento, id_activo_fijo, id_cat_estado_fun, id_depto, id_funcionario,
-id_persona, vida_util, monto_vigente, id_cat_estado_fun_nuevo, id_depto_nuevo,
-id_funcionario_nuevo, vida_util_nuevo, monto_vigente_nuevo
-)  VALUES (
-1,null,now(),null,'activo',null,null,
-1, 1, null, null, null, null, null, null, null, null, null, null, null 
-);
-/***********************************F-DAT-RCM-KAF-1-22/09/2015****************************************/
-
-/***********************************I-DAT-RCM-KAF-1-06/10/2015****************************************/
-INSERT INTO kaf.tactivo_fijo_valores (
-  id_usuario_reg,id_usuario_mod,fecha_reg,fecha_mod,estado_reg,id_usuario_ai,usuario_ai,
-  id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,depreciacion_mes,
-  depreciacion_per,depreciacion_acum,monto_vigente,vida_util,fecha_ult_dep,tipo_cambio_ini,
-  tipo_cambio_fin,tipo,estado,principal, monto_rescate
-) VALUES (
-  1, null, now(), now(), 'activo', null, null,
-  1, 2888.4, 120,'01/10/2014',0,0,0,2888.4,120,null,
-  null,null,'compra','activo','si',1
-);
-/***********************************F-DAT-RCM-KAF-1-06/10/2015****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-25/10/2015****************************************/
 select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Alta','alta','ball_blue.png');
@@ -195,7 +56,7 @@ select pxp.f_insert_testructura_gui ('KAFMMOT', 'KAF');
 select pxp.f_insert_tgui ('Tipo Movimiento', 'Tipo Movimiento', 'KAFMOVT', 'si', 5, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipo.php', 2, '', 'MovimientoTipo', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMOVT', 'KAF');
 /***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/
-
+ 
 /***********************************I-DAT-RCM-KAF-1-25/03/2016****************************************/
 select wf.f_import_tproceso_macro ('insert','KAF-MOV-AF', 'KAF', 'Procesos de Activos Fijos','si');
 select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
@@ -226,10 +87,10 @@ select pxp.f_insert_testructura_gui ('KAFMOVTIPCUE', 'KAF');
 select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Alta','alta','');
 select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Revalorizacion','reval','');
 select pxp.f_add_catalog('KAF','tactivo_fijo_valores__tipo','Otros','otro','');
-/***********************************I-DAT-RCM-KAF-1-07/05/2016****************************************/
+/***********************************F-DAT-RCM-KAF-1-07/05/2016****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-24/05/2016****************************************/
-insert into variable_global(variable,valor,descripcion) values('kaf_clasif_replicar','true','Replicar clasificacion caso Comibol');
+insert into pxp.variable_global(variable,valor,descripcion) values('kaf_clasif_replicar','true','Replicar clasificacion caso Comibol');
 /***********************************F-DAT-RCM-KAF-1-24/05/2016****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-07/06/2016****************************************/
@@ -246,5 +107,5 @@ select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Transferencia D
 /***********************************F-DAT-RCM-KAF-1-30/06/2016****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-25/07/2016****************************************/
-insert into variable_global(variable,valor,descripcion) values('kaf_nivel_tipo_activo','3','Nivel de la clasificacion que se refiere al Tipo de Activo');
+insert into pxp.variable_global(variable,valor,descripcion) values('kaf_nivel_tipo_activo','3','Nivel de la clasificacion que se refiere al Tipo de Activo');
 /***********************************F-DAT-RCM-KAF-1-25/07/2016****************************************/

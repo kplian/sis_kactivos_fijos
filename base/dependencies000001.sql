@@ -6,8 +6,7 @@ add constraint fk_tclasificacion__id_concepto_ingas foreign key (id_concepto_ing
 alter table kaf.tclasificacion
 add constraint fk_tclasificacion__id_cat_metodo_dep foreign key (id_cat_metodo_dep) references param.tcatalogo (id_catalogo);
 
-alter table kaf.tactivo_fijo
-add constraint fk_tactivo_fijo__id_clasificacion foreign key (id_clasificacion) references kaf.tclasificacion (id_clasificacion);
+
 alter table kaf.tactivo_fijo
 add constraint fk_tactivo_fijo__id_moneda foreign key (id_moneda) references param.tmoneda (id_moneda);
 alter table kaf.tactivo_fijo
@@ -81,12 +80,7 @@ ALTER TABLE kaf.tmovimiento_af
 /***********************************F-DEP-RCM-KAF-1-18/03/2016****************************************/    
 
 /***********************************I-DEP-RCM-KAF-1-28/03/2016****************************************/
-ALTER TABLE kaf.tactivo_fijo
-  ADD CONSTRAINT fk_tactivo_fijo__id_clasificacion FOREIGN KEY (id_clasificacion)
-    REFERENCES kaf.tclasificacion(id_clasificacion)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    NOT DEFERRABLE;
+
 ALTER TABLE kaf.tactivo_fijo
   ADD CONSTRAINT fk_tactivo_fijo__id_moneda_orig FOREIGN KEY (id_moneda_orig)
     REFERENCES param.tmoneda(id_moneda)
