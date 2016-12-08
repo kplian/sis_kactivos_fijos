@@ -405,3 +405,22 @@ COMMENT ON COLUMN "kaf"."tmovimiento"."id_deposito_dest" IS 'Deposito  Activos F
 
 COMMENT ON COLUMN "kaf"."tmovimiento"."id_funcionario_dest" IS 'Funcionario destino. Solo para transferencias';
 /***********************************F-SCP-RCM-KAF-1-07/05/2015****************************************/
+
+
+
+/***********************************I-SCP-RCM-KAF-1-27/11/2016****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN extension VARCHAR(20);
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_caract
+  ADD COLUMN id_activo_fijo INTEGER;
+
+/***********************************F-SCP-RCM-KAF-1-27/11/2016****************************************/
+
+

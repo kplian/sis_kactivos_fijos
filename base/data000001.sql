@@ -109,3 +109,81 @@ select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Transferencia D
 /***********************************I-DAT-RCM-KAF-1-25/07/2016****************************************/
 insert into pxp.variable_global(variable,valor,descripcion) values('kaf_nivel_tipo_activo','3','Nivel de la clasificacion que se refiere al Tipo de Activo');
 /***********************************F-DAT-RCM-KAF-1-25/07/2016****************************************/
+
+
+
+
+/***********************************I-DAT-RAC-KAF-1-25/07/2016****************************************/
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__id_cat_estado_fun','KAF','tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','Malo en Uso','3','tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','Malo en Desuso','4','tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','Bueno','1','tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','Regular','2','tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','bueno',NULL,'tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','regular',NULL,'tactivo_fijo__id_cat_estado_fun');
+select param.f_import_tcatalogo ('insert','KAF','malo',NULL,'tactivo_fijo__id_cat_estado_fun');
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tclasificacion__id_cat_metodo_dep','KAF','tclasificacion__id_cat_metodo_dep');
+select param.f_import_tcatalogo ('insert','KAF','lineal',NULL,'tclasificacion__id_cat_metodo_dep');
+select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion__id_cat_metodo_dep');
+select param.f_import_tcatalogo ('insert','KAF','lineal',NULL,'tclasificacion__id_cat_metodo_dep');
+select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion__id_cat_metodo_dep');
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__id_cat_estado_compra','KAF','tactivo_fijo__id_cat_estado_compra');
+select param.f_import_tcatalogo ('insert','KAF','Nuevo','nuevo','tactivo_fijo__id_cat_estado_compra');
+select param.f_import_tcatalogo ('insert','KAF','Usado','usado','tactivo_fijo__id_cat_estado_compra');
+
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tmovimiento__id_cat_movimiento','KAF','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Alta','alta','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Baja','baja','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Mejora/Revalorización','reval','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Depreciación/Actualización','deprec','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Asignación','asig','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Devolución','devol','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Transferencia','transf','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Incrementos/Decrementos','incdec','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Desuso temporal','desuso','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Transferencia Deposito','tranfdep','tmovimiento__id_cat_movimiento');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo_valores__tipo','KAF','tactivo_fijo_valores__tipo');
+select param.f_import_tcatalogo ('insert','KAF','Alta','alta','tactivo_fijo_valores__tipo');
+select param.f_import_tcatalogo ('insert','KAF','Revalorizacion','reval','tactivo_fijo_valores__tipo');
+select param.f_import_tcatalogo ('insert','KAF','Otros','otro','tactivo_fijo_valores__tipo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE  
+---------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__codigo','KAF','tactivo_fijo__codigo');
+select param.f_import_tcatalogo ('insert','KAF','texto',NULL,'tactivo_fijo__codigo');
+select param.f_import_tcatalogo ('insert','KAF','barras',NULL,'tactivo_fijo__codigo');
+select param.f_import_tcatalogo ('insert','KAF','qr',NULL,'tactivo_fijo__codigo');
+
+/***********************************F-DAT-RAC-KAF-1-25/07/2016****************************************/
+
