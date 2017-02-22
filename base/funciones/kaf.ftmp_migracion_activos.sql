@@ -103,7 +103,7 @@ CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_activos"()
 	id_clasificacion, max(cast(substring(codigo,15,10) as int4)) as correl
 	from kaf.tactivo_fijo
 	group by id_clasificacion) a
-	where a.id_clasificacion = kaf.tclasificacion.id_clasificacion<
+	where a.id_clasificacion = kaf.tclasificacion.id_clasificacion;
 
 
 	return 'done';
