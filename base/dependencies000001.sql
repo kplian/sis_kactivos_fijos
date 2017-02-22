@@ -10,10 +10,6 @@ add constraint fk_tclasificacion__id_cat_metodo_dep foreign key (id_cat_metodo_d
 alter table kaf.tactivo_fijo
 add constraint fk_tactivo_fijo__id_moneda foreign key (id_moneda) references param.tmoneda (id_moneda);
 alter table kaf.tactivo_fijo
-add constraint fk_tactivo_fijo__id_moneda_orig foreign key (id_moneda_orig) references param.tmoneda (id_moneda);
-alter table kaf.tactivo_fijo
-add constraint fk_tactivo_fijo__id_cat_estado_fun foreign key (id_cat_estado_fun) references param.tcatalogo (id_catalogo);
-alter table kaf.tactivo_fijo
 add constraint fk_tactivo_fijo__id_depto foreign key (id_depto) references param.tdepto (id_depto);
 alter table kaf.tactivo_fijo
 add constraint fk_tactivo_fijo__id_centro_costo foreign key (id_centro_costo) references param.tcentro_costo (id_centro_costo);
@@ -33,8 +29,6 @@ alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_movimiento foreign key (id_movimiento) references kaf.tmovimiento (id_movimiento);
 alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_activo_fijo foreign key (id_activo_fijo) references kaf.tactivo_fijo (id_activo_fijo);
-alter table kaf.tmovimiento_af
-add constraint fk_tmovimiento_af__id_cat_estado_fun foreign key (id_cat_estado_fun) references param.tcatalogo (id_catalogo);
 alter table kaf.tmovimiento_af
 add constraint fk_tmovimiento_af__id_funcionario foreign key (id_funcionario) references orga.tfuncionario (id_funcionario);
 alter table kaf.tmovimiento_af
@@ -65,7 +59,7 @@ ALTER TABLE kaf.tmovimiento_af
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-ALTER TABLE kaf.tmovimiento_tipo_motivo
+ALTER TABLE kaf.tmovimiento_tipo
   ADD CONSTRAINT fk_tmovimiento_tipo_motivo__id_cat_movimiento FOREIGN KEY (id_cat_movimiento)
     REFERENCES param.tcatalogo(id_catalogo)
     ON DELETE NO ACTION

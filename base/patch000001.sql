@@ -114,15 +114,7 @@ create table kaf.tmovimiento_af_dep (
 alter table kaf.tclasificacion
 drop column porcentaje_dep;
 
-create function months_of(interval)
- returns int strict immutable language sql as $$
-  select extract(years from $1)::int * 12 + extract(month from $1)::int
-$$;
 
-create function months_between(date, date)
- returns int strict immutable language sql as $$
-   select abs(months_of(age($1, $2)))
-$$;
 /***********************************F-SCP-RCM-KAF-1-11/09/2015****************************************/
 
 /***********************************I-SCP-RCM-KAF-1-06/10/2015****************************************/
@@ -423,4 +415,35 @@ ALTER TABLE kaf.tactivo_fijo_caract
 
 /***********************************F-SCP-RCM-KAF-1-27/11/2016****************************************/
 
+
+
+/***********************************I-SCP-RAC-KAF-1-10/02/2017****************************************/
+
+--estas columnas daban error al listar movimientos
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_deposito INTEGER;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_depto_dest INTEGER;
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_deposito_dest INTEGER;
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_funcionario_dest INTEGER;
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_movimiento_motivo INTEGER;
+
+/***********************************F-SCP-RAC-KAF-1-10/02/2017****************************************/
 
