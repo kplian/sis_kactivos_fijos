@@ -1058,8 +1058,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('ant_estado').disable();
         }
         if(data.estado=='finalizado'||data.estado=='cancelado'){
-        	this.getBoton('ant_estado').disable();
-        	this.getBoton('sig_estado').disable();
+        	//this.getBoton('ant_estado').disable();
+        	//this.getBoton('sig_estado').disable();
         }
         
 

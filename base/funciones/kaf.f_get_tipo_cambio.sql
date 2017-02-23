@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.f_get_tipo_cambio (
   p_id_moneda integer,
   p_fecha_mes date,
@@ -29,7 +31,7 @@ declare
 begin
 
 	--Nombre de la función
-	v_nombre_funcion = 'kaf.f_depreciacion_lineal';
+	v_nombre_funcion = 'kaf.f_get_tipo_cambio';
     
     --Obtención de las fechas de inicio y fin de mes
     v_fecha_ini = ('01/'||to_char(p_fecha_mes,'mm')||'/'||to_char(p_fecha_mes,'yyyy'))::date;
