@@ -393,7 +393,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.Cmp.id_activo_fijo.store.baseParams = {
 		"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"afij.denominacion#afij.codigo#afij.descripcion"
 		};
-		//este Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{codMov:this.maestro.cod_movimiento});
+		//este 
+		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{codMov:this.maestro.cod_movimiento});
 		this.Cmp.id_activo_fijo.modificado=true;
 		
 		//Setea parametros de filtro para el combo de motivos

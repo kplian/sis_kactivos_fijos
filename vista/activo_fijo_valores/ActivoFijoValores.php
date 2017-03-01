@@ -16,7 +16,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag, id_activo_fijo:this.maestro.id_activo_fijo}});
+		this.load({params:{start:0, limit:this.tam_pag, id_movimiento_af:this.maestro.id_movimiento_af}});
 	},
 			
 	Atributos:[

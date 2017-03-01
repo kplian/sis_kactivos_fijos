@@ -66,7 +66,7 @@ class ACTActivoFijo extends ACTbase{
 			$this->objParam->addFiltro("afij.id_funcionario = ".$this->objParam->getParametro('id_funcionario_mov'));	
 		}
 		//Alta
-		if($this->objParam->getParametro('codMov')=='alta'||$this->objParam->getParametro('codMov')=='baja'||$this->objParam->getParametro('codMov')=='reval'||$this->objParam->getParametro('codMov')=='deprec'||$this->objParam->getParametro('codMov')=='desuso'||$this->objParam->getParametro('codMov')=='incdec'||$this->objParam->getParametro('codMov')=='tranfdep'){
+		if($this->objParam->getParametro('codMov')=='alta'|| $this->objParam->getParametro('codMov')=='baja'|| $this->objParam->getParametro('codMov')=='reval'|| $this->objParam->getParametro('codMov')=='deprec'|| $this->objParam->getParametro('codMov')=='desuso'||$this->objParam->getParametro('codMov')=='incdec'||$this->objParam->getParametro('codMov')=='tranfdep'){
 			$this->objParam->addFiltro("afij.id_depto = ".$this->objParam->getParametro('id_depto_mov'));
 			$this->objParam->addFiltro("afij.estado = "."''".$this->objParam->getParametro('estado_mov')."''");
 		}

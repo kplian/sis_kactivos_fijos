@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_ime (
   p_administrador integer,
   p_id_usuario integer,

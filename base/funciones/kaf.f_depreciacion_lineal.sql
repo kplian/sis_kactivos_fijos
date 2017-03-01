@@ -43,12 +43,17 @@ BEGIN
     for v_rec_ant in (select
                         id_activo_fijo_valor,
                         case 
-                            when fecha_ult_dep is null then fecha_ini_dep
-                            else fecha_ult_dep + interval '1' month
+                            when fecha_ult_dep is null then 
+                                fecha_ini_dep
+                            else 
+                               fecha_ult_dep + interval '1' month
                         end as fecha_inicio,
                         fecha_ult_dep,
                         fecha_ini_dep,
-                        depreciacion_acum, depreciacion_per, monto_vigente, vida_util,
+                        depreciacion_acum, 
+                        depreciacion_per, 
+                        monto_vigente, 
+                        vida_util,
                         monto_rescate
                       from kaf.tactivo_fijo_valores
                       where id_activo_fijo = p_id_activo_fijo
