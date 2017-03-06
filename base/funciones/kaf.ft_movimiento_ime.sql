@@ -561,6 +561,9 @@ BEGIN
 
             --raise exception '%: % -> %',v_movimiento.cod_movimiento,v_movimiento.estado,v_codigo_estado_siguiente;
             
+            
+            
+            --raise exception '%',v_movimiento.cod_movimiento;
             --------------------------------------------
             --Acciones por Tipo de Movimiento y Estado
             --------------------------------------------
@@ -605,24 +608,33 @@ BEGIN
                         now(),
                         'activo',
                     	af.id_activo_fijo,
-                        af.monto_compra,
-                        af.vida_util_original,
-                        af.fecha_ini_dep,
+                        af.monto_compra,            --  considerar en modificacion
+                        af.vida_util_original,      --  considerar en modificacion
+                        af.fecha_ini_dep,           --  considerar en modificacion
                     	0,
                         0,
                         0,
-                    	af.monto_compra,
-                        af.vida_util_original,
+                    	af.monto_compra,            --  considerar en modificacion
+                        af.vida_util_original,      --  considerar en modificacion
                         'activo',
                         'si',
-                        af.monto_rescate,
+                        af.monto_rescate,           --  considerar en modificacion
                         movaf.id_movimiento_af,
                     	'alta',
-                        af.codigo
+                        af.codigo                   --  considerar en modificacion
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tactivo_fijo af
                     on af.id_activo_fijo = movaf.id_activo_fijo
                     where movaf.id_movimiento = v_movimiento.id_movimiento;
+                    
+                    --  TODO
+                    --  RAC 03/03/2017
+                    --  Si lo valroes originales son modificados en la tabla activo_fijo
+                    --  no se estan acutlizando los valores ......
+                    --  pienso que conviene ahcerlo con un triguer para evitar inconsistencias 
+                    --  si alguien decide cambiar directo en base de datos
+                    
+                    
                     
                 end if;
                 
@@ -656,7 +668,32 @@ BEGIN
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
                 
                 end if;
+                
+                
+                
 
+            -- RAC 03/03/2017
+            -- aumento un if para considerar el caso de transferencias finalizadas
+            -- y actulizar el responsable del activo
+            -- TODO (Validaolo rodrigo)
+            -- TODO que pasa cuando tranfieres de un departamento a otro ....????
+            
+            elsif v_movimiento.cod_movimiento = 'transf' then
+                
+                if v_codigo_estado_siguiente = 'finalizado' then
+                    --Actualiza estado de activo fijo
+                    update kaf.tactivo_fijo set
+                    	en_deposito = 'no',
+                    	id_funcionario = mov.id_funcionario_dest,
+                    	id_persona = mov.id_persona
+                     from kaf.tmovimiento_af movaf
+                     inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                
+                end if;
+            
+            
             elsif v_movimiento.cod_movimiento = 'devol' then
                 if v_codigo_estado_siguiente = 'finalizado' then
                     --Actualiza estado de activo fijo
@@ -697,7 +734,7 @@ BEGIN
                       p_id_usuario,now(),'activo',
                       af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
                       0,0,0,
-                      moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
+                      movaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
                       'reval', af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tactivo_fijo af
@@ -709,6 +746,8 @@ BEGIN
             elsif v_movimiento.cod_movimiento = 'deprec' then
 
                 if v_codigo_estado_siguiente = 'generado' then
+                
+                   
 
                     --Generacion de la depreciacion
                     for v_rec in (select id_movimiento_af, id_activo_fijo
