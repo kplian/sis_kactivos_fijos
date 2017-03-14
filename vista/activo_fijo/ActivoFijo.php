@@ -1738,14 +1738,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     borderForm: true,
     frameForm: false, 
     paddingForm: '5 5 5 5',
-    onButtonNew: function() {
-        this.crearVentana();
-        this.abrirVentana('new');
-    },
-    onButtonEdit: function() {
-        this.crearVentana();
-        this.abrirVentana('edit');
-    },
+    
     crearVentana: function() {
         if(this.afWindow){
             this.form.destroy();
@@ -2276,6 +2269,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             //Events
             //Clasificación
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('exception',this.conexionFailure,this);
+            
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
                 Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
                 Ext.getCmp(this.idContenedor+'_vida_util').setValue(rec.data.vida_util);
@@ -2291,6 +2285,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     Ext.getCmp(this.idContenedor+'_descripcion').setValue(Ext.getCmp(this.idContenedor+'_denominacion').getValue());
                 }
             },this);
+            
+             
+            
             //Depto
             Ext.getCmp(this.idContenedor+'_id_depto').on('select',function(cmp,rec,index){
                 var obj = {
@@ -2496,6 +2493,32 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.getBoton('btnPhoto').disable();
         return tb;
     },
+    
+    onButtonNew: function() {
+        this.crearVentana();
+        this.abrirVentana('new');
+        Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
+    },
+    onButtonEdit: function() {
+        this.crearVentana();
+        this.abrirVentana('edit');        
+        var data = this.getSelectedData();
+        this.getBoton('btnCodificar').hide();
+        this.getBoton('btnPhoto').enable();
+        if(data.estado!='registrado') {
+        	Ext.getCmp(this.idContenedor+'_fecha_ini_dep').disable();
+        	Ext.getCmp(this.idContenedor+'_id_moneda_orig').disable()
+        	Ext.getCmp(this.idContenedor+'_monto_compra').disable()
+        	
+        }
+        else{
+          Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
+          Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable()
+          Ext.getCmp(this.idContenedor+'_monto_compra').enable()
+        }
+        
+        
+    },
 
     obtenerCadenaIDs: function(){
         var rec = this.sm.getSelected();
@@ -2550,12 +2573,20 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
     },
 
-    east: {
-        url: '../../../sis_kactivos_fijos/vista/activo_fijo_caract/ActivoFijoCaract.php',
-        title: 'Caracteristicas',
-        width: '20%',
-        cls: 'ActivoFijoCaract'
-    }
+    tabeast: [{
+		        url: '../../../sis_kactivos_fijos/vista/activo_fijo_caract/ActivoFijoCaract.php',
+		        title: 'Caracteristicas',
+		        width: '35%',
+		        cls: 'ActivoFijoCaract'
+		    },
+		    {
+		        url: '../../../sis_kactivos_fijos/vista/movimiento/MovimientoPorActivo.php',
+		        title: 'Movimientos',
+		        cls: 'MovimientoPorActivo'
+		    }
+    
+    
+    ]
 
 })
 </script>

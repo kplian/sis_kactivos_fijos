@@ -27,6 +27,11 @@ class ACTMovimiento extends ACTbase{
 				$this->objParam->addFiltro("cat.codigo in ".$filter);
 			}
 		}
+		
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			
+			$this->objParam->addFiltro("id_movimiento  in (select id_movimiento from kaf.tmovimiento_af  maf where maf.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo').")");
+		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

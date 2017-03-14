@@ -156,3 +156,15 @@ select param.f_import_tcatalogo ('insert','KAF','Transferencia Deposito','tranfd
 
 /***********************************F-DAT-RAC-KAF-1-25/07/2016****************************************/
 
+
+
+/***********************************I-DAT-RAC-KAF-1-14/03/2017****************************************/
+
+
+select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php', 2, '', 'MovimientoPrincipal', 'KAF');
+
+
+/***********************************F-DAT-RAC-KAF-1-14/03/2017****************************************/
+
+
+
