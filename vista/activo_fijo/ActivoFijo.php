@@ -403,24 +403,25 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
         this.detailsTemplate.compile();
 
-        //Add button for codification
-        this.addButton('btnCodificar', {
-            text : 'Codificar',
-            iconCls : 'code',
-            disabled : true,
-            handler : this.codificar,
-            tooltip : '<b>Código</b><br/>Codificación del activo fijo'
-        });
-        this.getBoton('btnCodificar').hide();
-
+        
         //Add button for upload Photo
         this.addButton('btnPhoto', {
             text : 'Subir Foto',
-            iconCls : 'upload',
+            iconCls : 'bupload',
             disabled : true,
             handler : this.subirFoto,
             tooltip : '<b>Foto</b><br/>Subir foto para el activo fijo'
         });
+        
+        //Add button for codification
+        this.addButton('btnImpCodigo', {
+            text : 'Imp Código',
+            iconCls : 'bprintcheck',
+            disabled : true,
+            handler : this.impCodigo,
+            tooltip : '<b>Código</b><br/>Imprimir el código del activo fijo'
+        });
+        
 
         //Add context menu
         this.grid.on('rowcontextmenu', function(grid, rowIndex, e) {
@@ -2454,42 +2455,37 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         alert('fasss');
     },
 
-    codificar: function(){
+    impCodigo: function(){
         var rec = this.sm.getSelected();
-        Ext.Msg.confirm('Confirmación', '¿Está seguro de Codificar el activo fijo seleccionado?', function(btn) {
-            if (btn == "yes") {
-                Phx.CP.loadingShow();
-                Ext.Ajax.request({
-                    url: '../../sis_kactivos_fijos/control/ActivoFijo/codificarActivoFijo',
-                    params: {
-                        'id_activo_fijo' : rec.data.id_activo_fijo
-                    },
-                    success: this.successSave,
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+                    url: '../../sis_kactivos_fijos/control/ActivoFijo/impCodigoActivoFijo',
+                    params: { 'id_activo_fijo' : rec.data.id_activo_fijo},
+                    success : this.successExport,
                     failure: this.conexionFailure,
                     timeout: this.timeout,
                     scope: this
                 });
-            }
-        },this);
-
-        
+            
+       
     },
 
     preparaMenu : function(n) {
         var tb = Phx.vista.ActivoFijo.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
-
-        this.getBoton('btnCodificar').hide();
         this.getBoton('btnPhoto').enable();
-        if(data.estado=='registrado') {
-            //this.getBoton('btnCodificar').enable();
+        if(data.estado=='alta') {
+        	 this.getBoton('btnImpCodigo').enable(); 
+        }
+        else{
+        	 this.getBoton('btnImpCodigo').disable();        	
         }
         return tb;
     },
 
     liberaMenu : function() {
         var tb = Phx.vista.ActivoFijo.superclass.liberaMenu.call(this);
-        this.getBoton('btnCodificar').disable();
+         this.getBoton('btnImpCodigo').disable();      
         this.getBoton('btnPhoto').disable();
         return tb;
     },
@@ -2503,7 +2499,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.crearVentana();
         this.abrirVentana('edit');        
         var data = this.getSelectedData();
-        this.getBoton('btnCodificar').hide();
         this.getBoton('btnPhoto').enable();
         if(data.estado!='registrado') {
         	Ext.getCmp(this.idContenedor+'_fecha_ini_dep').disable();

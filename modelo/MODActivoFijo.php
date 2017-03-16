@@ -248,6 +248,27 @@ class MODActivoFijo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	
+	
+	
+	function recuperarCodigoQR(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_activo_fijo_ime';
+		$this->transaccion='SKA_GETQR_MOD';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
 
 	function subirFoto(){ 
                     

@@ -6,6 +6,7 @@
 *@date 29-10-2015 03:18:45
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
+require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
 
 class ACTActivoFijo extends ACTbase{    
 			
@@ -148,6 +149,67 @@ class ACTActivoFijo extends ACTbase{
         $this->res=$this->objFunc->SubirFoto();
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    
+    function recuperarCodigoQR(){    	
+		$this->objFunc = $this->create('MODActivoFijo');
+		$cbteHeader = $this->objFunc->recuperarCodigoQR($this->objParam);
+		if($cbteHeader->getTipo() == 'EXITO'){				
+			return $cbteHeader;
+		}
+        else{
+		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+			exit;
+		}              
+		
+    }
+    
+    
+    
+    function impCodigoActivoFijo(){
+		
+			    $nombreArchivo = 'CodigoAF'.uniqid(md5(session_id())).'.pdf'; 				
+				$dataSource = $this->recuperarCodigoQR();
+				
+				
+				
+				//parametros basicos
+				
+				$orientacion = 'L';
+				$titulo = 'Código';				
+				
+				//$width = 40;  
+		        //$height = 20;
+		        
+		        $width = 160;  
+		        $height = 80;
+		
+		
+		
+				$this->objParam->addParametro('orientacion',$orientacion);
+				$this->objParam->addParametro('tamano',array($width, $height));		
+				$this->objParam->addParametro('titulo_archivo',$titulo);        
+				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+				//var_dump($dataSource->getDatos());
+				//exit;
+				$clsRep = $dataSource->getDatos();
+				
+				//$reporte = new RCodigoQRAF($this->objParam);
+				
+				eval('$reporte = new '.$clsRep['v_clase_reporte'].'($this->objParam);');
+				
+				
+				
+				$reporte->datosHeader( $dataSource->getDatos());
+				$reporte->generarReporte();
+				$reporte->output($reporte->url_archivo,'F');  
+				
+		         
+				$this->mensajeExito=new Mensaje();
+				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		
+	}
 			
 }
 

@@ -36,6 +36,7 @@ DECLARE
     v_cant_clon				integer;
     v_rec_af         		record;
     v_ids_clon				varchar;
+    v_clase_reporte			varchar;
     
 			    
 BEGIN
@@ -298,6 +299,55 @@ BEGIN
             return v_resp;
         
         end;
+        
+        
+     
+    /*********************************    
+ 	#TRANSACCION:  'SKA_GETQR_MOD'
+ 	#DESCRIPCION:	Recupera codigo QR segun configuracion de variable global
+ 	#AUTOR:			RAC
+ 	#FECHA:			15/03/2017
+	***********************************/
+
+	elsif(p_transaccion='SKA_GETQR_MOD')then
+
+		begin
+
+			select 
+              kaf.id_activo_fijo,
+              kaf.codigo,
+              kaf.codigo_ant,
+              kaf.denominacion,
+              COALESCE(dep.nombre_corto, '') as nombre_depto,
+              COALESCE(ent.nombre, '') as nombre_entidad
+             into
+               v_rec_af
+            from kaf.tactivo_fijo  kaf
+            inner join param.tdepto dep on dep.id_depto = kaf.id_depto 
+            left join param.tentidad ent on ent.id_entidad = dep.id_entidad
+			where id_activo_fijo = v_parametros.id_activo_fijo;
+            
+            --recuperar configuracion del reporte de codigo de barrar por defecto de variable global
+             v_clase_reporte = pxp.f_get_variable_global('kaf_clase_reporte_codigo');
+            
+            
+			
+            
+            --Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Foto subida correctamente'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_rec_af.codigo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo_ant',v_rec_af.codigo_ant::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'denominacion',v_rec_af.denominacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'nombre_depto',v_rec_af.nombre_depto::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'nombre_entidad',v_rec_af.nombre_entidad::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
+            
+
+            --Devuelve la respuesta
+            return v_resp;
+        
+        end; 
 
     /*********************************    
  	#TRANSACCION:  'SKA_AFCLO_INS'
