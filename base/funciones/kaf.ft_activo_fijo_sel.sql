@@ -1,7 +1,13 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_activo_fijo_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos
  FUNCION: 		kaf.ft_activo_fijo_sel
@@ -23,6 +29,9 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+    v_lista_af			varchar;
+    v_criterio_filtro	varchar;
+    v_clase_reporte		varchar;
 			    
 BEGIN
 
@@ -197,7 +206,92 @@ BEGIN
 			return v_consulta;
         
         end;
-					
+	
+    /*********************************    
+ 	#TRANSACCION:  'SKA_GEVARTQR_SEL'
+ 	#DESCRIPCION:	listado de activos segun criterio de formulario para generacion del reporte de codigos QR
+ 	#AUTOR:			RAC
+ 	#FECHA:			17/03/2017
+	***********************************/
+
+	elsif(p_transaccion='SKA_GEVARTQR_SEL')then
+
+		begin
+        	
+            v_criterio_filtro = '  0=0 ';
+           -- raise exception 'sss';
+            
+            IF  pxp.f_existe_parametro(p_tabla, 'id_clasificacion') THEN   
+            
+              IF v_parametros.id_clasificacion is not null THEN     
+        
+                  WITH RECURSIVE clasificacion_rec(id_clasificacion, codigo, id_clasificacion_fk) AS (
+                  select 
+                    c.id_clasificacion,
+                    c.codigo,
+                    c.id_clasificacion_fk
+                  from kaf.tclasificacion c  
+                  where c.estado_reg = 'activo' and c.id_clasificacion = v_parametros.id_clasificacion
+
+                  UNION
+
+                  select 
+                    c2.id_clasificacion,
+                    c2.codigo,
+                    c2.id_clasificacion_fk
+                  from kaf.tclasificacion  c2, clasificacion_rec pc
+                  WHERE c2.id_clasificacion_fk = pc.id_clasificacion  and c2.estado_reg = 'activo'
+                  )
+                  
+                  
+                  SELECT pxp.list(id_clasificacion::varchar) 
+                     into 
+                        v_lista_af 
+                  FROM clasificacion_rec; 
+                  v_criterio_filtro = '  id_clasificacion in ('|| COALESCE(v_lista_af,'0')||')';
+                  
+                  
+              END IF;
+            
+            END IF;
+            
+            
+            IF  pxp.f_existe_parametro(p_tabla, 'desde') THEN  
+               IF v_parametros.desde is not null   THEN     
+                    v_criterio_filtro = v_criterio_filtro||'  and kaf.fecha_compra >= '''||v_parametros.desde||'''::date  ';
+               END IF;
+            END IF;
+            
+             IF  pxp.f_existe_parametro(p_tabla, 'hasta') THEN  
+                IF v_parametros.hasta is not null   THEN     
+                     v_criterio_filtro = v_criterio_filtro||'  and kaf.fecha_compra <= '''||v_parametros.hasta||'''::date  ';
+                END IF;
+            END IF;
+            
+            --Sentencia de la consulta
+			v_consulta:='select 
+                            kaf.id_activo_fijo,
+                            kaf.codigo::varchar,
+                            kaf.codigo_ant::varchar,
+                            kaf.denominacion::varchar,
+                            COALESCE(dep.nombre_corto, '''')::varchar as nombre_depto,
+                            COALESCE(ent.nombre, '''')::varchar as nombre_entidad
+                          from kaf.tactivo_fijo  kaf
+                          inner join param.tdepto dep on dep.id_depto = kaf.id_depto 
+                          left join param.tentidad ent on ent.id_entidad = dep.id_entidad
+                          where kaf.estado = ''alta'' and  '||v_criterio_filtro;
+			
+			
+			
+            
+            raise notice '%',v_consulta;
+
+			--Devuelve la respuesta
+			return v_consulta;
+        
+        end;
+    
+    				
 	else
 					     
 		raise exception 'Transaccion inexistente';
@@ -213,7 +307,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "kaf"."ft_activo_fijo_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

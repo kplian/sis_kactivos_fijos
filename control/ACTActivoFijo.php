@@ -150,6 +150,15 @@ class ACTActivoFijo extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
     
+    /*
+	 * 
+	 * Autor: RAC
+	 * Fecha: 16/03/2017
+	 * Descrip:  Imprime codigo de activo fijos de  uno en uno
+	 * 
+	 * 
+	 * */
+    
     function recuperarCodigoQR(){    	
 		$this->objFunc = $this->create('MODActivoFijo');
 		$cbteHeader = $this->objFunc->recuperarCodigoQR($this->objParam);
@@ -199,7 +208,7 @@ class ACTActivoFijo extends ACTbase{
 				
 				
 				
-				$reporte->datosHeader( $dataSource->getDatos());
+				$reporte->datosHeader( 'unico', $dataSource->getDatos());
 				$reporte->generarReporte();
 				$reporte->output($reporte->url_archivo,'F');  
 				
@@ -210,6 +219,94 @@ class ACTActivoFijo extends ACTbase{
 				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 		
 	}
+
+    /*
+	 * 
+	 * Autor: RAC
+	 * Fecha: 16/03/2017
+	 * Descrip:  Imprime codigos de activo fijos dsegun elc riterio de filtro, varios a la vez
+	 * 
+	 * 
+	 * */
+
+     function recuperarListadoCodigosQR(){    	
+		$this->objFunc = $this->create('MODActivoFijo');
+		$cbteHeader = $this->objFunc->recuperarListadoCodigosQR($this->objParam);
+		if($cbteHeader->getTipo() == 'EXITO'){				
+			return $cbteHeader;
+		}
+        else{
+		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+			exit;
+		}              
+		
+    }
+	 
+	 function obtenerClaseReporteCodigoQRAF(){		
+		//crea el objetoFunSeguridad que contiene todos los metodos del sistema de seguridad
+		
+		$this->objParam->addParametro('codigo','kaf_clase_reporte_codigo');
+		$this->objFunSeguridad=$this->create('sis_seguridad/MODSubsistema');
+			
+		
+		
+		$cbteHeader=$this->objFunSeguridad->obtenerVariableGlobal($this->objParam);
+		
+		if($cbteHeader->getTipo() == 'EXITO'){				
+			return $cbteHeader;
+		}
+        else{
+		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+			exit;
+		} 
+		
+	}
+	 
+	
+    function impVariosCodigoActivoFijo(){
+		
+			    $nombreArchivo = 'CodigoAF'.uniqid(md5(session_id())).'.pdf'; 				
+				$dataSource = $this->recuperarListadoCodigosQR();
+				
+				//recuperar variable global kaf_clase_reporte_codigo
+				$clsQr = $this->obtenerClaseReporteCodigoQRAF();
+				//parametros basicos
+				
+				$orientacion = 'L';
+				$titulo = 'Código';				
+				
+				//$width = 40;  
+		        //$height = 20;
+		        
+		        $width = 160;  
+		        $height = 80;
+		
+				$this->objParam->addParametro('orientacion',$orientacion);
+				$this->objParam->addParametro('tamano',array($width, $height));		
+				$this->objParam->addParametro('titulo_archivo',$titulo);        
+				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+				//var_dump($dataSource->getDatos());
+				//exit;
+				$cls = $clsQr->getDatos();
+				
+				//$reporte = new RCodigoQRAF($this->objParam);
+				
+				eval('$reporte = new '.$cls['valor'].'($this->objParam);');
+				
+				
+				
+				$reporte->datosHeader( 'varios', $dataSource->getDatos());
+				$reporte->generarReporte();
+				$reporte->output($reporte->url_archivo,'F');  
+				
+		         
+				$this->mensajeExito=new Mensaje();
+				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		
+	}
+
 			
 }
 

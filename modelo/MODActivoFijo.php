@@ -268,6 +268,37 @@ class MODActivoFijo extends MODbase{
 		return $this->respuesta;
 	}
 	
+	function recuperarListadoCodigosQR(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this -> procedimiento='kaf.ft_activo_fijo_sel';
+		$this -> transaccion='SKA_GEVARTQR_SEL';
+		$this -> tipo_procedimiento='SEL';
+		$this -> setCount(false);
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_clasificacion','id_clasificacion','int4');
+		$this->setParametro('desde','desde','date');
+		$this->setParametro('hasta','hasta','date');
+		
+		$this->captura('id_activo_fijo','int4');
+	    $this->captura('codigo','varchar');
+	    $this->captura('codigo_ant','varchar');
+	    $this->captura('denominacion','varchar');
+	    $this->captura('nombre_depto','varchar');
+	    $this->captura('nombre_entidad','varchar');
+                            
+							
+							
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
 	
 
 	function subirFoto(){ 
