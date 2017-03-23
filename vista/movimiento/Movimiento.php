@@ -16,6 +16,14 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.Movimiento.superclass.constructor.call(this,config);
+		//Add report button
+        this.addButton('btnReporte',{
+            text :'Reporte',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.onButtonReport,
+            tooltip : '<b>Reporte Ingreso/Salida</b><br/><b>Solicitud del ingreso o salida</b>'
+        });
 		
 		
 	},
@@ -743,6 +751,17 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 	sortInfo:{
 		field: 'id_movimiento',
 		direction: 'DESC'
+	},
+	onButtonReport:function(){
+	    var rec=this.sm.getSelected();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimiento',
+            params:{'id_movimiento':rec.data.id_movimiento},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });  
 	}
 	
 	

@@ -509,11 +509,19 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	preparaMenu : function(n) {
 		var tb = Phx.vista.MovimientoAf.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
+		if(this.maestro.estado != 'borrador'){
+			this.getBoton('new').disable();
+	        this.getBoton('edit').disable();
+		    this.getBoton('del').disable();
+		}
 		this.getBoton('btnDetDep').enable();
 		return tb;
 	},
 	liberaMenu : function() {
 		var tb = Phx.vista.MovimientoAf.superclass.liberaMenu.call(this);
+		if(this.maestro.estado != 'borrador'){
+			this.getBoton('new').disable();						
+		}
 		this.getBoton('btnDetDep').disable();
 		return tb;
 	},

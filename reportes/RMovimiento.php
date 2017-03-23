@@ -10,18 +10,24 @@ class CustomReport extends TCPDF {
     public $tipoMov='';
     public $posY;
 
-    public function setDataSource(DataSource $dataSource) {
+    public function setDataDetalle($dataSource) {
         $this->dataSource = $dataSource;
     }
-
+	
+	public function setDataMaster($maestro){
+         $this->dataMaster = $maestro;
+    }
+	
     public function getDataSource() {
         return $this->dataSource;
     }
 
+
     public function getDataMaster(){
         return $this->dataMaster;
     }
-
+	
+	
     public function getTipoMov(){
         return $this->tipoMov;
     }
@@ -51,7 +57,7 @@ class CustomReport extends TCPDF {
         $this->SetFontSize(12);
         $this->SetFont('', 'B');
         $this->Cell(44, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->dataMaster = $dataSource->getDataset();
+       
         $this->Cell(168, $midHeight, 'FORMULARIO DE '.strtoupper($this->dataMaster[0]['movimiento']).' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->tipoMov = $this->dataMaster[0]['cod_movimiento']; 
 
@@ -129,17 +135,38 @@ class CustomReport extends TCPDF {
             $_firma110='RESPONSABLE ACTIVOS FIJOS';
             $_firma111='ENTREGUÉ CONFORME';
             
-            $_firma200=$this->dataMaster[0]['responsable'];
-            $_firma210=$this->dataMaster[0]['nombre_cargo'];
+            $_firma200=strtoupper($this->dataMaster[0]['responsable']);
+            $_firma210=strtoupper($this->dataMaster[0]['nombre_cargo']);
             $_firma211='RECIBÍ CONFORME';
 
             if($this->dataMaster[0]['custodio']!=''){
-                $_firma300=$this->dataMaster[0]['custodio'];
-                $_firma310='CI. '.$this->dataMaster[0]['ci_custodio'];
+                $_firma300=strtoupper($this->dataMaster[0]['custodio']);
+                $_firma310='CI. '.strtoupper($this->dataMaster[0]['ci_custodio']);
                 $_firma311='CUSTODIO';    
             }
 
         }
+		
+		
+		
+		
+		 if($this->tipoMov=='transf'){
+            $_firma100=$this->dataMaster[0]['responsable_depto'];
+            $_firma110='RESPONSABLE ACTIVOS FIJOS';
+            $_firma111='SUPERVISOR';
+            
+            $_firma200=strtoupper($this->dataMaster[0]['responsable']);
+            $_firma210=strtoupper($this->dataMaster[0]['nombre_cargo']);
+            $_firma211='ENTREGUE CONFORME';
+
+            
+            $_firma300=strtoupper($this->dataMaster[0]['responsable_dest']);
+            $_firma310=strtoupper($this->dataMaster[0]['nombre_cargo_dest']);
+            $_firma311='RECIBÍ CONFORME';    
+            
+
+        }
+
 
         $this->Cell(63, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
@@ -268,16 +295,21 @@ class CustomReport extends TCPDF {
         } else if($tipo=='asig'||$tipo=='devol'){
             $this->SetFontSize(7);
             $this->SetFont('', 'B');
-            $this->Cell($w = 10,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 35, $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 100, $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 70, $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 50, $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 20, $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-            $this->Cell($w = 90, $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(35),$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(100), $h = $hGlobal, $txt = 'Código', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(300), $h = $hGlobal, $txt = 'Descripcion', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(70), $h = $hGlobal, $txt = 'Marca', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(50), $h = $hGlobal, $txt = 'Nro. Serie', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(70), $h = $hGlobal, $txt = 'Estado Fun.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->Cell($w = $this->RD3(300), $h = $hGlobal, $txt = 'Observaciones', $border = 1, $ln = 1, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+			
+			
+			// $this->anchors= array(35,100,300,70,50,70,300);
+      
+           // $this->anchors= array(28,110,300,120,115,95,62,73);
             
         } else {
-            //Alta
+            //Alta, transf
             $this->SetFontSize(7);
             $this->SetFont('', 'B');
             $this->Cell($w = 8,$h = $hGlobal, $txt = 'Nro.', $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
@@ -294,6 +326,22 @@ class CustomReport extends TCPDF {
         }
         $this->posY = $this->GetY();
 
+    }
+
+    function RD3($width){
+    	
+		// 35 - 10
+		//125   35
+		//355   100
+		// x ---$widt
+		
+		
+		/*   
+		 *   34   -> 120
+		 *  X       -> width 
+		 *   
+		 * */
+    	return   round(($width*34)/120, 0); 
     }
 
     public function array_unshift_assoc(&$arr, $key, $val)
@@ -376,7 +424,7 @@ class RMovimiento extends Report {
         $auxArray=array();
         $i=0;
 
-        foreach ($this->pdf->getDataMaster() as $datarow) {
+        foreach ($this->pdf->getDataSource() as $datarow) {
             if($tipo=='baja'){
                 $auxArray[$i][]=$i+1;
                 $auxArray[$i][]=$datarow['codigo'];
@@ -443,8 +491,9 @@ class RMovimiento extends Report {
             $this->anchors= array(35,125,355,70,50,70,318);
             $this->aligns= array('L','L','L','L');
 
-        } else if($tipo=='asig'||$tipo=='devol'){
-            $this->anchors= array(35,125,355,70,50,70,318);
+        } else if($tipo=='asig'||$tipo=='devol'){           
+			
+			$this->anchors= array(35,100,300,70,50,70,300);
             $this->aligns= array('L','L','L','L');
         } else {
             //Alta
@@ -457,7 +506,10 @@ class RMovimiento extends Report {
 
     function write($fileName){
         $this->pdf = new CustomReport('landscape', PDF_UNIT, "LETTER", true, 'UTF-8', false);
-        $this->pdf->setDataSource($this->getDataSource());
+        
+        $this->pdf->setDataDetalle($this->getDataSource());
+		$this->pdf->setDataMaster($this->getDataMaster());
+        
         $dataSource = $this->getDataSource();
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);

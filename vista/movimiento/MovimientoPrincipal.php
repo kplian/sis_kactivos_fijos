@@ -75,14 +75,7 @@ Phx.vista.MovimientoPrincipal = {
             this.Cmp.id_movimiento_motivo.modificado=true;
             this.Cmp.id_movimiento_motivo.store.baseParams.id_cat_movimiento=rec.data.id_catalogo;
         }, this);
-        //Add report button
-        this.addButton('btnReporte',{
-            text :'Reporte',
-            iconCls : 'bpdf32',
-            disabled: true,
-            handler : this.onButtonReport,
-            tooltip : '<b>Reporte Ingreso/Salida</b><br/><b>Solicitud del ingreso o salida</b>'
-        });
+        
         //Add handler to id_cat_movimiento field
         this.Cmp.id_depto_dest.on('select', function(cmp,rec,el){
         	this.Cmp.id_deposito_dest.reset();
@@ -293,17 +286,7 @@ Phx.vista.MovimientoPrincipal = {
 		height: '50%',
 		cls: 'MovimientoAf'
 	},
-	onButtonReport:function(){
-	    var rec=this.sm.getSelected();
-        Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimiento',
-            params:{'id_movimiento':rec.data.id_movimiento},
-            success: this.successExport,
-            failure: this.conexionFailure,
-            timeout:this.timeout,
-            scope:this
-        });  
-	},
+	
 	liberaMenu:function(){
         var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
         if(tb){

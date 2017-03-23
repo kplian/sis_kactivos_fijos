@@ -184,12 +184,16 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	
 
-	function listarReporteMovimiento(){
+
+
+   function listarReporteMovimientoMaestro(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_movimiento_sel';
 		$this->transaccion='SKA_MOV_REP';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
 
 		$this->setParametro('id_movimiento','id_movimiento','int4');
 				
@@ -211,6 +215,30 @@ class MODMovimiento extends MODbase{
 		$this->captura('responsable_depto','text');
 		$this->captura('custodio','text');
 		$this->captura('ci_custodio','varchar');
+		$this->captura('responsable_dest','text');
+		$this->captura('nombre_cargo_dest','varchar');
+		$this->captura('ci_dest','varchar');
+			
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+
+	function listarReporteMovimientoDetalle(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_sel';
+		$this->transaccion='SKA_MOVDET_REP';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+				
+		//Definicion de la lista del resultado del query		
 		$this->captura('codigo','varchar');
 		$this->captura('denominacion','varchar');
 		$this->captura('descripcion','varchar');
