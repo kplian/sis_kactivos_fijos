@@ -307,12 +307,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                         field: 'codigo',
                         direction: 'ASC'
                     },
-                    baseParams:{
-                        start: 0,
-                        limit: 10,
-                        sort: 'codigo',
-                        dir: 'ASC'
-                    }
+                    baseParams:{par_filtro:'ofi.codigo#ofi.nombre'}
                 }),
 				valueField: 'id_oficina',
 				displayField: 'nombre',
@@ -385,12 +380,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                         field: 'codigo',
                         direction: 'ASC'
                     },
-                    baseParams:{
-                        start: 0,
-                        limit: 10,
-                        sort: 'codigo',
-                        dir: 'ASC'
-                    }
+                    baseParams:{par_filtro:'dep.codigo#dep.nombre'}
+                    
                 }),
 				valueField: 'id_deposito',
 				displayField: 'nombre',

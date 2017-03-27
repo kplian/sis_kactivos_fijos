@@ -34,6 +34,7 @@ DECLARE
 	v_id_movimiento_af		integer;
 	v_id_cat_estado_fun		integer;
     v_registros				record;
+    v_registros_mov			record;
 			    
 BEGIN
 
@@ -51,13 +52,20 @@ BEGIN
 					
         begin
         
-            select
-              mov.estado,
-              mov.codigo
-             INTO 
-              v_registros
+            select 
+                mov.estado,
+                mov.codigo,
+                cat.codigo as codigo_movimiento
+               INTO 
+                v_registros
             from kaf.tmovimiento mov
-            where mov.id_movimiento = v_parametros.id_movimiento;
+            inner join  param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
+            where mov.id_movimiento =  v_parametros.id_movimiento;
+        
+            
+            IF not kaf.f_validar_ins_mov_af(v_parametros.id_movimiento,v_parametros.id_activo_fijo) THEN
+               raise exception 'ERROR al validar activos';
+            END IF;
             
             IF v_registros.estado != 'borrador' THEN
                raise exception 'Solo puede insertar acctivos en movimientos en borrador';
