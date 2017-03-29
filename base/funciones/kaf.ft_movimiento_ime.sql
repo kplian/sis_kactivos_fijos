@@ -59,6 +59,7 @@ DECLARE
     v_id_estado_wf_ant      integer;
     v_cod_movimiento        varchar;
     v_codigo_estado_anterior    varchar;
+    v_registros_mov				record;
 			    
 BEGIN
 
@@ -209,59 +210,89 @@ BEGIN
             from param.tcatalogo cat
             where cat.id_catalogo = v_parametros.id_cat_movimiento;
 
+            
             if v_cod_movimiento = 'deprec' then
-
+                  
                   --Registra todos los activos del departamento que les corresponda depreciar en el periodo solicitado
-                  insert into kaf.tmovimiento_af(
-                      id_movimiento,
-                      id_activo_fijo,
-                      id_cat_estado_fun,
-                      estado_reg,
-                      fecha_reg,
-                      id_usuario_reg,
-                      fecha_mod
-                  )
-                  select 
-                    v_id_movimiento,
-                    afij.id_activo_fijo,
-                    afij.id_cat_estado_fun,
-                    'activo',
-                    now(),
-                    p_id_usuario,
-                    null
-                  from kaf.tactivo_fijo afij
-                  where afij.estado = 'alta'
-                  and   afij.id_depto = v_parametros.id_depto
-                  and (
-                           (afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) 
-                       or 
-                           (afij.fecha_ult_dep < v_parametros.fecha_hasta));
+                  FOR v_registros_mov in ( select 
+                                               afij.id_activo_fijo,
+                                              afij.id_cat_estado_fun
+                                            from kaf.tactivo_fijo afij
+                                            where afij.estado = 'alta'
+                                            and   afij.id_depto = v_parametros.id_depto
+                                            and (
+                                                     (afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) 
+                                                 or 
+                                                     (afij.fecha_ult_dep < v_parametros.fecha_hasta))) LOOP
+                           
+                           --RAC, 29/03/2017 , realiza validaciones sobre los activos que peuden relacionarce ...
+                           IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN                          
+                                   
+                                    insert into kaf.tmovimiento_af(
+                                        id_movimiento,
+                                        id_activo_fijo,
+                                        id_cat_estado_fun,
+                                        estado_reg,
+                                        fecha_reg,
+                                        id_usuario_reg,
+                                        fecha_mod
+                                   	) values(
+                                      v_id_movimiento,
+                                      v_registros_mov.id_activo_fijo,
+                                      v_registros_mov.id_cat_estado_fun,
+                                      'activo',
+                                      now(),
+                                      p_id_usuario,
+                                      null
+                                    );
+                           END IF;
+                  
+                  END LOOP;
 
+                
+            
             elsif v_cod_movimiento = 'transf' then
                 
-                --Registra todos los activos del funcionario origen
-                insert into kaf.tmovimiento_af(
-                    id_movimiento,
-                    id_activo_fijo,
-                    id_cat_estado_fun,
-                    estado_reg,
-                    fecha_reg,
-                    id_usuario_reg,
-                    fecha_mod
-                )
-                select
-                    v_id_movimiento,
-                    afij.id_activo_fijo,
-                    afij.id_cat_estado_fun,
-                    'activo',
-                    now(),
-                    p_id_usuario,
-                    null
-                    from kaf.tactivo_fijo afij
-                    where 
-                         afij.id_funcionario = v_parametros.id_funcionario
-                    and  afij.estado = 'alta'
-                    and  afij.en_deposito = 'no';
+                 FOR v_registros_mov in (
+                                         select
+                                                  afij.id_activo_fijo,
+                                                  afij.id_cat_estado_fun
+                                                  from kaf.tactivo_fijo afij
+                                                  where 
+                                                       afij.id_funcionario = v_parametros.id_funcionario
+                                                  and  afij.estado = 'alta'
+                                                  and  afij.en_deposito = 'no'
+                 						) LOOP
+                                        
+                       
+                       IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN    
+                                                
+                             --Registra todos los activos del funcionario origen
+                            insert into kaf.tmovimiento_af(
+                                id_movimiento,
+                                id_activo_fijo,
+                                id_cat_estado_fun,
+                                estado_reg,
+                                fecha_reg,
+                                id_usuario_reg,
+                                fecha_mod
+                            )
+                            values(
+                                v_id_movimiento,
+                                v_registros_mov.id_activo_fijo,
+                                v_registros_mov.id_cat_estado_fun,
+                                'activo',
+                                now(),
+                                p_id_usuario,
+                                null
+                              );
+                              
+                      END IF;        
+                      
+                 END LOOP;
+                 
+                 
+                
             end if;
 			
 			--Definicion de la respuesta
@@ -712,31 +743,47 @@ BEGIN
             elsif v_movimiento.cod_movimiento = 'reval' then
                 
                 if v_codigo_estado_siguiente = 'finalizado' then
+                
+                   --------------------------------------------------------------------------------------------------------
+                   --  La vida util de un activo es la maxima de activo_fijo_valor
+                   --  el precio de activo fijo es la suma se los monto_vigentes, entre depreciacion y revalorizaciones
+                   --  para evitar problema de incoherencias estos datos ya NO se actulizaran en la tabla de activo fijo
+                   ---------------------------------------------------------------------------------------------------------------------
+                   
+                   update kaf.tactivo_fijo set
+                    	cantidad_revaloriz = cantidad_revaloriz + 1
+                    from kaf.tmovimiento_af movaf
+                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                          and movaf.id_movimiento = v_movimiento.id_movimiento;
                     
                     --Actualiza estado de activo fijo
-                    update kaf.tactivo_fijo set
+                    --RAC 29/03/2017, comentado temporalmente para ver donde vamos almacenes estos datos o si se van a calcular
+                     /*update kaf.tactivo_fijo set
                     	cantidad_revaloriz = cantidad_revaloriz + 1,
                    		monto_vigente = movaf.importe,
                     	vida_util = movaf.vida_util
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
-                    and movaf.id_movimiento = v_movimiento.id_movimiento;
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;*/
+                    
+                    --RAC, en mejorar la fecha de inicio de depreciacion es la fecha del movimiento 
 
                     --Crea el registro de importes
                     insert into kaf.tactivo_fijo_valores(
-                      id_usuario_reg, fecha_reg,estado_reg,
-                      id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
-                      depreciacion_mes,depreciacion_per,depreciacion_acum,
-                      monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af,
-                      tipo, codigo
+                      id_usuario_reg,   fecha_reg,             estado_reg,
+                      id_activo_fijo,   monto_vigente_orig,    vida_util_orig,           fecha_ini_dep,
+                      depreciacion_mes, depreciacion_per,      depreciacion_acum,
+                      monto_vigente,    vida_util,             estado,                   principal,
+                      monto_rescate,    id_movimiento_af,      tipo,                     codigo
                     )
                     select
-                      p_id_usuario,now(),'activo',
-                      af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
-                      0,0,0,
-                      movaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
-                      'reval', af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
+                      p_id_usuario,      now(),                   'activo',
+                      af.id_activo_fijo, af.monto_compra,          af.vida_util_original,   mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
+                      0,                 0,                        0,
+                      movaf.importe,      movaf.vida_util,         'activo',                 'si',
+                      af.monto_rescate,   movaf.id_movimiento_af,  'reval',               af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
                     from kaf.tmovimiento_af movaf
+                    inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
                     inner join kaf.tactivo_fijo af
                     on af.id_activo_fijo = movaf.id_activo_fijo
                     where movaf.id_movimiento = v_movimiento.id_movimiento;

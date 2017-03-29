@@ -55,7 +55,8 @@ BEGIN
             select 
                 mov.estado,
                 mov.codigo,
-                cat.codigo as codigo_movimiento
+                cat.codigo as codigo_movimiento,
+                mov.id_depto
                INTO 
                 v_registros
             from kaf.tmovimiento mov
@@ -172,6 +173,10 @@ BEGIN
                            and maf.estado_reg = 'activo'  and maf.id_movimiento_af != v_parametros.id_movimiento_af) THEN
                  raise exception 'El activo ya se encuentre registro para este movimiento';
             END IF; 
+            
+            IF not kaf.f_validar_ins_mov_af(v_parametros.id_movimiento,v_parametros.id_activo_fijo) THEN
+               raise exception 'ERROR al validar activos';
+            END IF;
 
 			--Sentencia de la modificacion
 			update kaf.tmovimiento_af set

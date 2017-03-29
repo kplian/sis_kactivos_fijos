@@ -173,3 +173,80 @@ add constraint fk_tactivo_fijo_valores__id_movimiento_af foreign key (id_movimie
 
 
 /***********************************F-DEP-RCM-KAF-1-06/05/2016****************************************/
+
+
+/***********************************I-DEP-RAC-KAF-1-29/03/2017****************************************/
+CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep
+AS
+  SELECT distinct on  (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
+         afd.monto_vigente ,
+         afd.vida_util ,
+         afd.fecha ,
+         afd.depreciacion_acum ,
+         afd.depreciacion_per ,
+         afd.depreciacion_acum_ant 
+  FROM kaf.tmovimiento_af_dep afd
+  order by afd.id_activo_fijo_valor, fecha desc;
+  
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor
+AS
+  SELECT afv.id_usuario_reg,
+         afv.id_usuario_mod,
+         afv.fecha_reg,
+         afv.fecha_mod,
+         afv.estado_reg,
+         afv.id_usuario_ai,
+         afv.usuario_ai,
+         afv.id_activo_fijo_valor,
+         afv.id_activo_fijo,
+         afv.monto_vigente_orig,
+         afv.vida_util_orig,
+         afv.fecha_ini_dep,
+         afv.depreciacion_mes,
+         afv.depreciacion_per,
+         afv.depreciacion_acum,
+         afv.monto_vigente,
+         afv.vida_util,
+         afv.fecha_ult_dep,
+         afv.tipo_cambio_ini,
+         afv.tipo_cambio_fin,
+         afv.tipo,
+         afv.estado,
+         afv.principal,
+         afv.monto_rescate,
+         afv.id_movimiento_af,
+         afv.codigo,
+         COALESCE(min.monto_vigente, afv.monto_vigente_orig) AS
+           monto_vigente_real,
+         COALESCE(min.vida_util, afv.vida_util_orig) AS vida_util_real,
+         COALESCE(min.fecha, afv.fecha_ini_dep) AS fecha_ult_dep_real,
+         COALESCE(min.depreciacion_acum,0) as depreciacion_acum_real, 
+         COALESCE(min.depreciacion_per,0) as depreciacion_per_real, 
+         COALESCE(min.depreciacion_acum_ant,0) as depreciacion_acum_ant_real
+  FROM kaf.tactivo_fijo_valores afv
+       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor =
+         afv.id_activo_fijo_valor;  
+
+
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente
+AS
+  SELECT afd.id_activo_fijo,
+         sum(afd.monto_vigente_real) AS monto_vigente_real_af,
+         max(afd.vida_util_real) AS vida_util_real_af,
+         max(afd.fecha_ult_dep_real) AS fecha_ult_dep_real_af
+  FROM kaf.vactivo_fijo_valor afd
+  GROUP BY afd.id_activo_fijo;
+
+/***********************************F-DEP-RAC-KAF-1-29/03/2017****************************************/
+
+
+
+
+
+
+
+
+
+
+
+

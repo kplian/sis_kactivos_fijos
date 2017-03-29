@@ -3,13 +3,13 @@
 CREATE OR REPLACE FUNCTION kaf.f_validar_ins_mov_af (
   p_id_movimiento integer,
   p_id_activo_fijo integer,
-  p_lazar_error boolean = true
+  p_lanzar_error boolean = true
 )
 RETURNS boolean AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos
- FUNCION: 		kaf.ft_movimiento_ime
+ FUNCION: 		kaf.f_validar_ins_mov_af
  DESCRIPCION:   funcion  que centraliza las validaciones sobre lso activos fijos relacionado con movimiento, se usa al insertar editar movimiento_af, y en la isneración automatica de movimiento
  AUTOR: 		 (RAC)
  FECHA:	        27(03/2017
@@ -40,7 +40,9 @@ BEGIN
           mov.estado,
           mov.codigo,
           cat.codigo as codigo_movimiento,
-          mov.id_cat_movimiento
+          mov.id_cat_movimiento,
+          mov.id_funcionario,
+          mov.id_depto
          INTO 
           v_registros
       from kaf.tmovimiento mov
@@ -51,7 +53,10 @@ BEGIN
          af.id_activo_fijo,
          af.denominacion,
          af.codigo,
-         af.estado
+         af.estado,
+         af.id_funcionario,
+         af.id_depto,
+         af.en_deposito
         into
           v_reg_af
       from kaf.tactivo_fijo af 
@@ -74,16 +79,33 @@ BEGIN
                                     and mov.estado_reg = 'activo'
                                     and mov.estado  not in ('finalizado')) LOOP
       
-      v_error = v_error ||'<BR> '||v_registros_mov.num_tramite;
+     		 v_error = v_error ||'<BR> '||v_registros_mov.num_tramite;
+      
+      
       END LOOP;
       
+      IF v_reg_af.id_depto != v_registros.id_depto THEN
+           
+           IF p_lanzar_error THEN
+               raise exception 'El departamento del activo no es igual al departamento del movimiento';         
+           ELSE
+                RETURN FALSE;
+           END IF;
+         
+      END IF;
+      
+      
+      
       IF v_error != '' THEN
-           IF p_lazar_error THEN
+           IF p_lanzar_error THEN
                raise exception 'El activo ID =%, %  (%) se encuentra en los movimientos:  % <br> que no es tan finalizados', p_id_activo_fijo,v_reg_af.denominacion,COALESCE(v_reg_af.codigo,'s/c'),v_error ;         
            ELSE
               RETURN FALSE;
            END IF;
       END IF;
+      
+      
+      
           
       --------------------------------------------      
       --validaciones segun el tipo de movimiento
@@ -92,24 +114,52 @@ BEGIN
         IF v_registros.codigo_movimiento = 'deprec' THEN
             --  validar que el activo este dado de alta
             IF v_reg_af.estado != 'alta' THEN
-                 IF p_lazar_error THEN
+                 IF p_lanzar_error THEN
                    raise exception 'solo puede depreciar activos que esten dados de alta (%)',COALESCE(v_reg_af.denominacion,'s/d'); 
                  ELSE
                     RETURN FALSE;
                  END IF;
-                         
+                     
+                 
+                     
             END IF;
             
+            
+        
+        ELSIF v_registros.codigo_movimiento = 'reval' THEN
+            --  validar que el activo este dado de alta
+            IF v_reg_af.estado != 'alta' THEN
+                 IF p_lanzar_error THEN
+                   raise exception 'solo puede revalorizar activos que esten dados de alta (%)',COALESCE(v_reg_af.denominacion,'s/d'); 
+                 ELSE
+                    RETURN FALSE;
+                 END IF;
+                     
+                 
+                     
+            END IF;    
         ELSIF v_registros.codigo_movimiento = 'transf' THEN
         
            -- validar que el activo es asignado con el funcionario origen
+           IF v_registros.id_funcionario != v_reg_af.id_funcionario   or  v_reg_af!='alta' or v_reg_af.en_deposito = 'si'   THEN
+           
+                IF p_lanzar_error THEN
+                   raise exception 'el activo no elegible  para una transferencia (%) (revise el funcionario origen, que este de alta y no en deposito)',COALESCE(v_reg_af.codigo,'s/c'); 
+                ELSE
+                    RETURN FALSE;
+                END IF; 
+           
+           END IF;
+           
+               
+                    
           
             
         ELSIF v_registros.codigo_movimiento = 'baja' THEN
              --solo podemso dar de baja activos que estan dados de alta
             IF v_reg_af.estado != 'alta' THEN
                
-                IF p_lazar_error THEN
+                IF p_lanzar_error THEN
                    raise exception 'solo puede dar de baja  activos que esten dados de alta (%)',COALESCE(v_reg_af.codigo,'s/c'); 
                 ELSE
                     RETURN FALSE;
@@ -119,14 +169,38 @@ BEGIN
         ELSIF v_registros.codigo_movimiento = 'asig' THEN
         
            --validar que el activo fijo este en deposito para ser asignado
-           IF v_reg_af.estado != 'alta' THEN
+           IF v_reg_af.en_deposito = 'no' THEN
               
-                IF p_lazar_error THEN
+                IF p_lanzar_error THEN
+                 raise exception 'solo puede asginar activos que esten swpoairo (%)',COALESCE(v_reg_af.codigo,'s/c');
+                ELSE
+                  RETURN FALSE;
+                END IF;            
+           END IF;
+           
+           
+           --validar que ela ctivo este dado de alta
+           IF v_reg_af.estado != 'alta' THEN              
+                IF p_lanzar_error THEN
                  raise exception 'solo puede asginar activos que esten dados de alta (%)',COALESCE(v_reg_af.codigo,'s/c');
                 ELSE
                   RETURN FALSE;
                 END IF;            
            END IF;
+           
+           
+             
+         ELSIF v_registros.codigo_movimiento = 'alta' THEN
+        
+           --validar que el activo fijo este en deposito para ser asignado
+           IF v_reg_af.estado != 'registrado' THEN
+              
+                IF p_lanzar_error THEN
+                  raise exception 'Solo puede dar de alta activos registrados (%)',COALESCE(v_reg_af.codigo,'s/c');
+                ELSE
+                  RETURN FALSE;
+                END IF;            
+           END IF;    
           
        
         END IF;

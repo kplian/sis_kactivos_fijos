@@ -45,42 +45,54 @@ BEGIN
     --  TODO validar que no se valores dos veces dentro el mismo omvimeinto
     -- talvez  eliminar la depreciacion del movimiento antes de empesar ...
     
-    delete from  
+     delete from  
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af = p_id_movimiento_af;
     
     ---FIN RAC
+    --lista los activos fijos y sus revalorizaciones a partir de la ultima depreciacion ....
+    -- cuando se da de alta una activo se llena un registro en tactivo_fijo_valores con los valores de compra
+    -- esto permite depreciacar por separado el valor original y las mejoras
     
-    for v_rec_ant in (select
-                        id_activo_fijo_valor,
+    --RAC, 29/03/2017, debemos considerar que habran mejoras que no incrementaran la vida util del activo fijo ....
+    for v_rec_ant in (
+                       select
+                        afv.id_activo_fijo_valor,
                         case 
-                            when fecha_ult_dep is null then 
-                                fecha_ini_dep
+                            when afv.fecha_ult_dep is null then 
+                                afv.fecha_ini_dep
                             else 
-                               fecha_ult_dep + interval '1' month
+                               afv.fecha_ult_dep + interval '1' month
                         end as fecha_inicio,
-                        fecha_ult_dep,
-                        fecha_ini_dep,
-                        depreciacion_acum, 
-                        depreciacion_per, 
-                        monto_vigente, 
-                        vida_util,
-                        monto_rescate
-                      from kaf.tactivo_fijo_valores
+                        afv.fecha_ult_dep,
+                        afv.fecha_ini_dep,
+                        afv.depreciacion_acum, 
+                        afv.depreciacion_per, 
+                        afv.monto_vigente, 
+                        afv.vida_util,
+                        afv.monto_rescate,
+                        afv.vida_util_real,
+                        afv.monto_vigente_real,
+                        afv.fecha_ult_dep_real,
+                        afv.depreciacion_acum_real,
+                        afv.depreciacion_per_real,
+                        afv.depreciacion_acum_ant_real
+                      from kaf.vactivo_fijo_valor afv
                       where id_activo_fijo = p_id_activo_fijo
                       and estado = 'activo'
-                      and vida_util > 0
-                      and estado = 'activo') loop
+                      and vida_util_real > 0) loop
 
                 --Inicialización mes inicio de depreciación
-                v_mes_dep = v_rec_ant.fecha_inicio;
+               -- v_mes_dep = v_rec_ant.fecha_inicio;
+               
+                 v_mes_dep = v_rec_ant.fecha_ult_dep_real;
                 
                 --Inicialización datos última depreciación
                 --raise exception 'lll : %  %   %   %',v_rec_ant.depreciacion_acum,v_rec_ant.depreciacion_per,v_rec_ant.monto_vigente,v_rec_ant.vida_util;
-                v_ant_dep_acum      = v_rec_ant.depreciacion_acum;
-                v_ant_dep_per       = v_rec_ant.depreciacion_per;
-                v_ant_monto_vigente = v_rec_ant.monto_vigente;
-                v_ant_vida_util     = v_rec_ant.vida_util;
+                v_ant_dep_acum      = v_rec_ant.depreciacion_acum_real;
+                v_ant_dep_per       = v_rec_ant.depreciacion_per_real;
+                v_ant_monto_vigente = v_rec_ant.monto_vigente_real;
+                v_ant_vida_util     = v_rec_ant.vida_util_real;
                 
                 --Determinar la cantidad de meses a depreciar
                 v_meses_dep =  months_between(v_rec_ant.fecha_inicio::date, p_hasta);
@@ -105,7 +117,7 @@ BEGIN
                         --RAC 03/03/2017
                         --  agrega validacion de division por cero
                         IF  v_ant_vida_util = 0 THEN
-                           v_nuevo_dep_mes       = 0;
+                           EXIT; --v_nuevo_dep_mes       = 0;
                         ELSE
                            v_nuevo_dep_mes       = (v_monto_actualiz - v_rec_ant.monto_rescate) / v_ant_vida_util;
                         END IF;
