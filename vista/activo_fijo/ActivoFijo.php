@@ -2578,6 +2578,11 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 		        url: '../../../sis_kactivos_fijos/vista/movimiento/MovimientoPorActivo.php',
 		        title: 'Movimientos',
 		        cls: 'MovimientoPorActivo'
+		    },
+		    {
+		        url: '../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDepPrin.php',
+		        title: 'Depreciaciones/Actualizaciones',
+		        cls: 'ActivoFijoValoresDepPrin'
 		    }
     
     

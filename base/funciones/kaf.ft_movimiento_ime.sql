@@ -769,6 +769,7 @@ BEGIN
                     --RAC, en mejorar la fecha de inicio de depreciacion es la fecha del movimiento 
 
                     --Crea el registro de importes
+                    -- en revalorizzciones y mejoras el monto de rescate siemrpe cera CERO 
                     insert into kaf.tactivo_fijo_valores(
                       id_usuario_reg,   fecha_reg,             estado_reg,
                       id_activo_fijo,   monto_vigente_orig,    vida_util_orig,           fecha_ini_dep,
@@ -781,7 +782,7 @@ BEGIN
                       af.id_activo_fijo, af.monto_compra,          af.vida_util_original,   mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
                       0,                 0,                        0,
                       movaf.importe,      movaf.vida_util,         'activo',                 'si',
-                      af.monto_rescate,   movaf.id_movimiento_af,  'reval',               af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
+                      0,   movaf.id_movimiento_af,  'reval',               af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
                     inner join kaf.tactivo_fijo af

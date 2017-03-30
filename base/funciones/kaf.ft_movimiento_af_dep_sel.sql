@@ -1,7 +1,13 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_movimiento_af_dep_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_af_dep_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos
  FUNCION: 		kaf.ft_movimiento_af_dep_sel
@@ -160,7 +166,7 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'SKA_MAFDEPRESCAB_SEL'
+ 	#TRANSACCION:  'SKA_RESCAB_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:			RCM
  	#FECHA:			07/05/2016
@@ -170,31 +176,36 @@ BEGIN
      				
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select
-						distinct actval.id_activo_fijo_valor,
-						actval.id_activo_fijo,
-						actval.depreciacion_per,
-						actval.estado,
-						actval.principal,
-						actval.monto_vigente,
-						actval.monto_rescate,
-						actval.tipo_cambio_ini,
-						actval.estado_reg,
-						actval.tipo,
-						actval.depreciacion_mes,
-						actval.depreciacion_acum,
-						actval.fecha_ult_dep,
-						actval.fecha_ini_dep,
-						actval.monto_vigente_orig,
-						actval.vida_util,
-						actval.vida_util_orig,
-						mafdep.id_movimiento_af,
-						actval.tipo_cambio_fin,
-						actval.codigo
+			v_consulta:='  select
+						  distinct actval.id_activo_fijo_valor,
+                          actval.id_activo_fijo,
+                          actval.depreciacion_per,
+                          actval.estado,
+                          actval.principal,
+                          actval.monto_vigente,
+                          actval.monto_rescate,
+                          actval.tipo_cambio_ini,
+                          actval.estado_reg,
+                          actval.tipo,
+                          actval.depreciacion_mes,
+                          actval.depreciacion_acum,
+                          actval.fecha_ult_dep,
+                          actval.fecha_ini_dep,
+                          actval.monto_vigente_orig,
+                          actval.vida_util,
+                          actval.vida_util_orig,
+                          mafdep.id_movimiento_af,
+                          actval.tipo_cambio_fin,
+                          actval.codigo,
+                          afv.monto_vigente_real,
+                          afv.vida_util_real,
+                          afv.depreciacion_acum_ant_real,
+                          afv.depreciacion_acum_real,
+                          afv.depreciacion_per_real
 						from kaf.tmovimiento_af_dep mafdep
-						inner join kaf.tactivo_fijo_valores actval
-						on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
-				        where  ';
+						inner join kaf.tactivo_fijo_valores actval on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        WHERE  ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -206,7 +217,7 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'SKA_MAFDEPRESCAB_CONT'
+ 	#TRANSACCION:  'SKA_RESCAB_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:			RCM
  	#FECHA:			07/05/2016
@@ -216,11 +227,12 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(mafdep.id_activo_fijo_valor)
-					    from kaf.tmovimiento_af_dep mafdep
-						inner join kaf.tactivo_fijo_valores actval
-						on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
-					    where ';
+			v_consulta:='select
+						  count(actval.id_activo_fijo_valor)
+						from kaf.tmovimiento_af_dep mafdep
+						inner join kaf.tactivo_fijo_valores actval on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        WHERE ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -229,7 +241,87 @@ BEGIN
 			return v_consulta;
 
 		end;
-					
+	
+    /*********************************    
+ 	#TRANSACCION:  'SKA_RESCABPR_SEL'
+ 	#DESCRIPCION:	Consulta de datos de depreciacon par ainterface principal
+ 	#AUTOR:			RAC
+ 	#FECHA:			07/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_RESCABPR_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='  select
+						  distinct actval.id_activo_fijo_valor,
+                          actval.id_activo_fijo,
+                          actval.depreciacion_per,
+                          actval.estado,
+                          actval.principal,
+                          actval.monto_vigente,
+                          actval.monto_rescate,
+                          actval.tipo_cambio_ini,
+                          actval.estado_reg,
+                          actval.tipo,
+                          actval.depreciacion_mes,
+                          actval.depreciacion_acum,
+                          actval.fecha_ult_dep,
+                          actval.fecha_ini_dep,
+                          actval.monto_vigente_orig,
+                          actval.vida_util,
+                          actval.vida_util_orig,
+                          actval.tipo_cambio_fin,
+                          actval.codigo,
+                          afv.monto_vigente_real,
+                          afv.vida_util_real,
+                          afv.depreciacion_acum_ant_real,
+                          afv.depreciacion_acum_real,
+                          afv.depreciacion_per_real
+						from  kaf.tactivo_fijo_valores actval 
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        WHERE  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            
+            raise notice 'consulta %',v_consulta;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+
+	/*********************************    
+ 	#TRANSACCION:  'SKA_RESCABPR_CONT'
+ 	#DESCRIPCION:	Conteo de registros de depreciacion para interface principal
+ 	#AUTOR:			RAC
+ 	#FECHA:			07/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_RESCABPR_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select
+						  count(actval.id_activo_fijo_valor),
+                          sum(afv.monto_vigente_real),
+                          max(afv.vida_util_real)
+						from  kaf.tactivo_fijo_valores actval 
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        WHERE ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+    
+    
+    				
 	else
 					     
 		raise exception 'Transaccion inexistente';
@@ -245,7 +337,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "kaf"."ft_movimiento_af_dep_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

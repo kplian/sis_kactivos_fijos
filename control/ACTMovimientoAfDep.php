@@ -16,6 +16,11 @@ class ACTMovimientoAfDep extends ACTbase{
 		if($this->objParam->getParametro('id_movimiento_af')!=''){
 			$this->objParam->addFiltro("mafdep.id_movimiento_af = ".$this->objParam->getParametro('id_movimiento_af'));
 		}
+		
+		
+		
+		
+		
 
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
@@ -49,9 +54,17 @@ class ACTMovimientoAfDep extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_movimiento_af_dep');
 		$this->objParam->defecto('dir_ordenacion','asc');
 
-		if($this->objParam->getParametro('id_movimiento_af')!=''&&$this->objParam->getParametro('id_activo_fijo_valor')!=''){
-			$this->objParam->addFiltro("mafdep.id_movimiento_af = ".$this->objParam->getParametro('id_movimiento_af')." and mafdep.id_activo_fijo_valor = ".$this->objParam->getParametro('id_activo_fijo_valor'));
+		if($this->objParam->getParametro('id_movimiento_af')!=''){
+			$this->objParam->addFiltro("mafdep.id_movimiento_af = ".$this->objParam->getParametro('id_movimiento_af'));
 		}
+		
+		if($this->objParam->getParametro('id_activo_fijo_valor')!=''){
+			$this->objParam->addFiltro("mafdep.id_activo_fijo_valor = ".$this->objParam->getParametro('id_activo_fijo_valor'));
+		}
+		
+		
+
+
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
@@ -71,6 +84,10 @@ class ACTMovimientoAfDep extends ACTbase{
 		if($this->objParam->getParametro('id_movimiento_af')!=''){
 			$this->objParam->addFiltro("mafdep.id_movimiento_af = ".$this->objParam->getParametro('id_movimiento_af'));
 		}
+		
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("actval.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo'));
+		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
@@ -80,8 +97,51 @@ class ACTMovimientoAfDep extends ACTbase{
 			
 			$this->res=$this->objFunc->listarMovimientoAfDepResCab($this->objParam);
 		}
+		
+		$temp = Array();
+		$temp['monto_vigente_real'] = $this->res->extraData['total_monto_vigente_real'];
+		$temp['vida_util_real'] = $this->res->extraData['max_vida_util_real'];
+		$temp['tipo_reg'] = 'summary';
+		$temp['id_activo_fijo_valor'] = 0;
+		$this->res->total++;
+		$this->res->addLastRecDatos($temp);
+		
+		
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+     function listarMovimientoAfDepResCabPr(){
+		$this->objParam->defecto('ordenacion','id_movimiento_af_dep');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("actval.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo'));
+		}
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODMovimientoAfDep','listarMovimientoAfDepResCabPr');
+		} else{
+			$this->objFunc=$this->create('MODMovimientoAfDep');
+			
+			$this->res=$this->objFunc->listarMovimientoAfDepResCabPr($this->objParam);
+		}
+		
+		$temp = Array();
+		$temp['monto_vigente_real'] = $this->res->extraData['total_monto_vigente_real'];
+		$temp['vida_util_real'] = $this->res->extraData['max_vida_util_real'];
+		$temp['tipo_reg'] = 'summary';
+		$temp['id_activo_fijo_valor'] = 0;
+		$this->res->total++;
+		$this->res->addLastRecDatos($temp);
+		
+		
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+
+
+
 			
 }
 

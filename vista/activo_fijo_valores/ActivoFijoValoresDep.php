@@ -22,7 +22,7 @@ Phx.vista.ActivoFijoValoresDep = {
 	constructor: function(config) {  
 	    this.maestro=config.maestro;
     	Phx.vista.ActivoFijoValoresDep.superclass.constructor.call(this,config);
-	    //this.load({params:{start:0, limit:this.tam_pag}});
+	    this.load({params:{start:0, limit:this.tam_pag, id_movimiento_af:this.maestro.id_movimiento_af}});
 	},
 
 	ActList:'../../sis_kactivos_fijos/control/MovimientoAfDep/listarMovimientoAfDepResCab',

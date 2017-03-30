@@ -12,14 +12,13 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 
-	constructor:function(config){
+	constructor:function(config){		
 		this.maestro=config;
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAfDep.superclass.constructor.call(this,config);
 		this.init();
 		
-		this.Cmp.id_movimiento_af = this.maestro.id_movimiento_af;
-		this.load({params:{start:0, limit:this.tam_pag, id_movimiento_af: this.maestro.id_movimiento_af}});
+		
 	},
 			
 	Atributos:[
@@ -44,423 +43,238 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
+			//configuracion del componente
 			config:{
-				name: 'vida_util',
-				fieldLabel: 'vida_util',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_activo_fijo_valor'
 			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.vida_util',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'Field',
+			form:true 
 		},
 		{
 			config:{
-				name: 'tipo_cambio_ini',
-				fieldLabel: 'tipo_cambio_ini',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
+				name: 'fecha',
+				fieldLabel: 'Fecha',
+				gwidth: 70,
+				maxLength:10,
+				renderer: function (value,p,record){return value?value.dateFormat('m/Y'):''}
 			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.tipo_cambio_ini',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'depreciacion_per_actualiz',
-				fieldLabel: 'depreciacion_per_actualiz',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_per_actualiz',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'vida_util_ant',
-				fieldLabel: 'vida_util_ant',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.vida_util_ant',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'estado_reg',
-				fieldLabel: 'Estado Reg.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:10
-			},
-				type:'TextField',
-				filters:{pfiltro:'mafdep.estado_reg',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
-		},
-		{
-			config:{
-				name: 'monto_vigente',
-				fieldLabel: 'monto_vigente',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.monto_vigente',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'monto_vigente_ant',
-				fieldLabel: 'monto_vigente_ant',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.monto_vigente_ant',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'depreciacion_acum_actualiz',
-				fieldLabel: 'depreciacion_acum_actualiz',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_acum_actualiz',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'tipo_cambio_fin',
-				fieldLabel: 'tipo_cambio_fin',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.tipo_cambio_fin',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'depreciacion_acum',
-				fieldLabel: 'depreciacion_acum',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_acum',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config: {
-				name: 'id_activo_fijo_valor',
-				fieldLabel: 'id_activo_fijo_valor',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_activo_fijo_valor',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config:{
-				name: 'factor',
-				fieldLabel: 'factor',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.factor',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'depreciacion_per',
-				fieldLabel: 'depreciacion_per',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_per',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'depreciacion',
-				fieldLabel: 'depreciacion',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config: {
-				name: 'id_moneda',
-				fieldLabel: 'id_moneda',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_moneda',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config:{
-				name: 'depreciacion_per_ant',
-				fieldLabel: 'depreciacion_per_ant',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_per_ant',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'monto_actualiz',
-				fieldLabel: 'monto_actualiz',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
-			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.monto_actualiz',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextField',
+			filters:{pfiltro:'res.fecha',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
 				name: 'depreciacion_acum_ant',
-				fieldLabel: 'depreciacion_acum_ant',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:-5
+				fieldLabel: 'Dep.Acum.Ant',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'NumberField',
-				filters:{pfiltro:'mafdep.depreciacion_acum_ant',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'usr_reg',
-				fieldLabel: 'Creado por',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
+				name: 'depreciacion_per_ant',
+				fieldLabel: 'Dep.Periodo Ant.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'Field',
-				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'usuario_ai',
-				fieldLabel: 'Funcionaro AI',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:300
+				name: 'monto_vigente_ant',
+				fieldLabel: 'Monto Vigente Ant.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'TextField',
-				filters:{pfiltro:'mafdep.usuario_ai',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.monto_vigente_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'fecha_reg',
-				fieldLabel: 'Fecha creación',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				name: 'vida_util_ant',
+				fieldLabel: 'Vida Util Ant.',
+				gwidth: 85,
+				maxLength:10
 			},
-				type:'DateField',
-				filters:{pfiltro:'mafdep.fecha_reg',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.vida_util_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'id_usuario_ai',
-				fieldLabel: 'Fecha creación',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
+				name: 'depreciacion_acum_actualiz',
+				fieldLabel: 'Dep.Acum.Actualiz.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'Field',
-				filters:{pfiltro:'mafdep.id_usuario_ai',type:'numeric'},
-				id_grupo:1,
-				grid:false,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'fecha_mod',
-				fieldLabel: 'Fecha Modif.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				name: 'depreciacion_per_actualiz',
+				fieldLabel: 'Dep.Per.Actualiz',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'DateField',
-				filters:{pfiltro:'mafdep.fecha_mod',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
-				name: 'usr_mod',
-				fieldLabel: 'Modificado por',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
+				name: 'monto_actualiz',
+				fieldLabel: 'Monto Vigente Actualiz.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
-				type:'Field',
-				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'res.monto_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion',
+				fieldLabel: 'Dep.Mes',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_acum',
+				fieldLabel: 'Dep.Acum.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_per',
+				fieldLabel: 'Dep.Periodo',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'monto_vigente',
+				fieldLabel: 'Monto Vigente',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.monto_vigente',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'vida_util',
+				fieldLabel: 'Vida Util',
+				gwidth: 70,
+				maxLength:10
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.vida_util',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'tipo_cambio_ini',
+				fieldLabel: 'T/C Ini.',
+				gwidth: 80,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.tipo_cambio_ini',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'tipo_cambio_fin',
+				fieldLabel: 'T/C Fin',
+				gwidth: 80,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.tipo_cambio_fin',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'factor',
+				fieldLabel: 'Factor',
+				gwidth: 70,
+				maxLength:10,
+				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.000000');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.factor',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		}
+
 	],
 	tam_pag:50,	
 	title:'Detalle de Depreciacion',
@@ -470,35 +284,29 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 	id_store:'id_movimiento_af_dep',
 	fields: [
 		{name:'id_movimiento_af_dep', type: 'numeric'},
+		{name:'id_movimiento_af', type: 'numeric'},
+		{name:'id_activo_fijo_valor', type: 'numeric'},
+		{name:'fecha', type: 'date',dateFormat:'Y-m-d'},
+		{name:'depreciacion_acum_ant', type: 'numeric'},
+		{name:'depreciacion_per_ant', type: 'numeric'},
+		{name:'monto_vigente_ant', type: 'numeric'},
+		{name:'vida_util_ant', type: 'numeric'},
+		{name:'depreciacion_acum_actualiz', type: 'numeric'},
+		{name:'depreciacion_per_actualiz', type: 'numeric'},
+		{name:'monto_actualiz', type: 'numeric'},
+		{name:'depreciacion', type: 'numeric'},
+		{name:'depreciacion_acum', type: 'numeric'},
+		{name:'depreciacion_per', type: 'numeric'},
+		{name:'monto_vigente', type: 'numeric'},
 		{name:'vida_util', type: 'numeric'},
 		{name:'tipo_cambio_ini', type: 'numeric'},
-		{name:'depreciacion_per_actualiz', type: 'numeric'},
-		{name:'id_movimiento_af', type: 'numeric'},
-		{name:'vida_util_ant', type: 'numeric'},
-		{name:'estado_reg', type: 'string'},
-		{name:'monto_vigente', type: 'numeric'},
-		{name:'monto_vigente_ant', type: 'numeric'},
-		{name:'depreciacion_acum_actualiz', type: 'numeric'},
 		{name:'tipo_cambio_fin', type: 'numeric'},
-		{name:'depreciacion_acum', type: 'numeric'},
-		{name:'id_activo_fijo_valor', type: 'numeric'},
-		{name:'factor', type: 'numeric'},
-		{name:'depreciacion_per', type: 'numeric'},
-		{name:'depreciacion', type: 'numeric'},
-		{name:'id_moneda', type: 'numeric'},
-		{name:'depreciacion_per_ant', type: 'numeric'},
-		{name:'monto_actualiz', type: 'numeric'},
-		{name:'depreciacion_acum_ant', type: 'numeric'},
-		{name:'id_usuario_reg', type: 'numeric'},
-		{name:'usuario_ai', type: 'string'},
-		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-		{name:'id_usuario_ai', type: 'numeric'},
-		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-		{name:'id_usuario_mod', type: 'numeric'},
-		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},
-		
+		{name:'factor', type: 'numeric'}
 	],
+	sortInfo:{
+		field: 'id_movimiento_af_dep',
+		direction: 'ASC'
+	},
 	sortInfo:{
 		field: 'id_movimiento_af_dep',
 		direction: 'ASC'
