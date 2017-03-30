@@ -84,8 +84,13 @@ BEGIN
 
                 --Inicialización mes inicio de depreciación
                -- v_mes_dep = v_rec_ant.fecha_inicio;
-               
-                 v_mes_dep = v_rec_ant.fecha_ult_dep_real;
+                 IF v_rec_ant.fecha_ult_dep_real > v_rec_ant.fecha_ini_dep THEN
+                     v_mes_dep = v_rec_ant.fecha_ult_dep_real + interval '1' month;
+                 ELSE
+                     v_mes_dep = v_rec_ant.fecha_ult_dep_real;
+                 END IF;
+                 
+                 
                 
                 --Inicialización datos última depreciación
                 --raise exception 'lll : %  %   %   %',v_rec_ant.depreciacion_acum,v_rec_ant.depreciacion_per,v_rec_ant.monto_vigente,v_rec_ant.vida_util;
@@ -95,7 +100,8 @@ BEGIN
                 v_ant_vida_util     = v_rec_ant.vida_util_real;
                 
                 --Determinar la cantidad de meses a depreciar
-                v_meses_dep =  months_between(v_rec_ant.fecha_inicio::date, p_hasta);
+                v_meses_dep =  months_between(v_mes_dep, p_hasta);
+                --raise exception '%, % , %, meses = %',v_rec_ant.fecha_inicio, v_mes_dep, p_hasta, v_meses_dep;
                 
                 for i in 1..v_meses_dep loop
                 
