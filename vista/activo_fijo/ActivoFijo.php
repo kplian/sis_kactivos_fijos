@@ -389,13 +389,13 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     '<br><b>Monto compra: </b>',
                     '<span>{monto_compra}</span>',
                     '<br><b>Monto Vigente: </b>',
-                    '<span>{monto_vigente}</span>',
+                    '<span>{monto_vigente_real_af}</span>',
                     '<br><b>Depreciación Acum.: </b>',
-                    '<span>{depreciacion_acum}</span>',
+                    '<span>{depreciacion_acum_real_af}</span>',
                     '<br><b>Depreciación Periodo: </b>',
-                    '<span>{depreciacion_per}</span>',
+                    '<span>{depreciacion_per_real_af}</span>',
                     '<br><b>Vida útil: </b>',
-                    '<span>{vida_util}</span>',
+                    '<span>{vida_util_real_af}</span>',
                     '</div>',
                 '</tpl>',
             '</div>'
@@ -624,7 +624,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         bottom_filter:true
     }, {
         config: {
-            name: 'vida_util',
+            name: 'vida_util_real_af',
             fieldLabel: 'Vida Útil',
             allowBlank: true,
             anchor: '80%',
@@ -633,7 +633,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         type: 'NumberField',
         filters: {
-            pfiltro: 'afij.vida_util',
+            pfiltro: 'afvi.vida_util_real_af',
             type: 'numeric'
         },
         id_grupo: 1,
@@ -675,7 +675,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
-            name: 'monto_vigente',
+            name: 'monto_vigente_real_af',
             fieldLabel: 'Monto Vigente',
             allowBlank: true,
             anchor: '80%',
@@ -684,7 +684,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         type: 'NumberField',
         filters: {
-            pfiltro: 'afij.monto_vigente',
+            pfiltro: 'afvi.monto_vigente_real_af',
             type: 'numeric'
         },
         id_grupo: 1,
@@ -1532,198 +1532,57 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     ActDel: '../../sis_kactivos_fijos/control/ActivoFijo/eliminarActivoFijo',
     ActList: '../../sis_kactivos_fijos/control/ActivoFijo/listarActivoFijo',
     id_store: 'id_activo_fijo',
-    fields: [{
-        name: 'id_activo_fijo',
-        type: 'numeric'
-    }, {
-        name: 'id_persona',
-        type: 'numeric'
-    }, {
-        name: 'cantidad_revaloriz',
-        type: 'numeric'
-    }, {
-        name: 'foto',
-        type: 'string'
-    }, {
-        name: 'id_proveedor',
-        type: 'numeric'
-    }, {
-        name: 'estado_reg',
-        type: 'string'
-    }, {
-        name: 'fecha_compra',
-        type: 'date',
-        dateFormat: 'Y-m-d'
-    }, {
-        name: 'monto_vigente',
-        type: 'numeric'
-    }, {
-        name: 'id_cat_estado_fun',
-        type: 'numeric'
-    }, {
-        name: 'ubicacion',
-        type: 'string'
-    }, {
-        name: 'vida_util',
-        type: 'numeric'
-    }, {
-        name: 'documento',
-        type: 'string'
-    }, {
-        name: 'observaciones',
-        type: 'string'
-    }, {
-        name: 'fecha_ult_dep',
-        type: 'date',
-        dateFormat: 'Y-m-d'
-    }, {
-        name: 'monto_rescate',
-        type: 'numeric'
-    }, {
-        name: 'denominacion',
-        type: 'string'
-    }, {
-        name: 'id_funcionario',
-        type: 'numeric'
-    }, {
-        name: 'id_deposito',
-        type: 'numeric'
-    }, {
-        name: 'monto_compra',
-        type: 'numeric'
-    }, {
-        name: 'id_moneda',
-        type: 'numeric'
-    }, {
-        name: 'depreciacion_mes',
-        type: 'numeric'
-    }, {
-        name: 'codigo',
-        type: 'string'
-    }, {
-        name: 'descripcion',
-        type: 'string'
-    }, {
-        name: 'id_moneda_orig',
-        type: 'numeric'
-    }, {
-        name: 'fecha_ini_dep',
-        type: 'date',
-        dateFormat: 'Y-m-d'
-    }, {
-        name: 'id_cat_estado_compra',
-        type: 'numeric'
-    }, {
-        name: 'depreciacion_per',
-        type: 'numeric'
-    }, {
-        name: 'vida_util_original',
-        type: 'numeric'
-    }, {
-        name: 'depreciacion_acum',
-        type: 'numeric'
-    }, {
-        name: 'estado',
-        type: 'string'
-    }, {
-        name: 'id_clasificacion',
-        type: 'numeric'
-    }, {
-        name: 'id_centro_costo',
-        type: 'numeric'
-    }, {
-        name: 'id_oficina',
-        type: 'numeric'
-    }, {
-        name: 'id_depto',
-        type: 'numeric'
-    }, {
-        name: 'id_usuario_reg',
-        type: 'numeric'
-    }, {
-        name: 'fecha_reg',
-        type: 'date',
-        dateFormat: 'Y-m-d H:i:s.u'
-    }, {
-        name: 'usuario_ai',
-        type: 'string'
-    }, {
-        name: 'id_usuario_ai',
-        type: 'numeric'
-    }, {
-        name: 'id_usuario_mod',
-        type: 'numeric'
-    }, {
-        name: 'fecha_mod',
-        type: 'date',
-        dateFormat: 'Y-m-d H:i:s.u'
-    }, {
-        name: 'usr_reg',
-        type: 'string'
-    }, {
-        name: 'usr_mod',
-        type: 'string'
-    }, {
-        name: 'persona',
-        type: 'string'
-    }, {
-        name: 'desc_proveedor',
-        type: 'string'
-    }, {
-        name: 'estado_fun',
-        type: 'string'
-    }, {
-        name: 'estado_compra',
-        type: 'string'
-    }, {
-        name: 'clasificacion',
-        type: 'string'
-    }, {
-        name: 'centro_costo',
-        type: 'string'
-    }, {
-        name: 'oficina',
-        type: 'string'
-    }, {
-        name: 'depto',
-        type: 'string'
-    }, {
-        name: 'funcionario',
-        type: 'string'
-    }, {
-        name: 'deposito',
-        type: 'string'
-    }, {
-        name: 'deposito_cod',
-        type: 'string'
-    }, {
-        name: 'desc_moneda_orig',
-        type: 'string'
-    },
-    {
-        name: 'en_deposito',
-        type: 'string'
-    },
-    {
-        name: 'extension',
-        type: 'string'
-    },
-    {
-        name: 'codigo_ant',
-        type: 'string'
-    },
-    {
-        name: 'marca',
-        type: 'string'
-    },
-    {
-        name: 'nro_serie',
-        type: 'string'
-    },
-    {
-        name: 'caracteristicas',
-        type: 'string'
-    }],
+    fields: [{name: 'id_activo_fijo',type: 'numeric'}, 
+             {name: 'id_persona',type: 'numeric'}, 
+             {name: 'cantidad_revaloriz',type: 'numeric'}, 
+             {name: 'foto',type: 'string'}, 
+             {name: 'id_proveedor',type: 'numeric'}, 
+             {name: 'estado_reg',type: 'string'}, 
+             {name: 'fecha_compra',type: 'date',dateFormat: 'Y-m-d'}, 
+             {name: 'monto_vigente',type: 'numeric'}, 
+             {name: 'id_cat_estado_fun',type: 'numeric'}, 
+             {name: 'ubicacion',type: 'string'}, 
+             {name: 'vida_util',type: 'numeric'}, 
+             {name: 'documento',type: 'string'}, 
+             {name: 'observaciones',type: 'string'}, 
+             {name: 'fecha_ult_dep',type: 'date',dateFormat: 'Y-m-d'}, 
+             {name: 'monto_rescate',type: 'numeric'}, 
+             {name: 'denominacion',type: 'string'}, 
+             {name: 'id_funcionario',type: 'numeric'}, 
+             {name: 'id_deposito',type: 'numeric'},
+             {name: 'monto_compra',type: 'numeric'}, 
+             {name: 'id_moneda',type: 'numeric'}, 
+             {name: 'depreciacion_mes',type: 'numeric'}, 
+             {name: 'codigo',type: 'string'}, 
+             {name: 'descripcion',type: 'string'}, 
+             {name: 'id_moneda_orig',type: 'numeric'}, 
+             {name: 'fecha_ini_dep',type: 'date',dateFormat: 'Y-m-d'}, 
+             {name: 'id_cat_estado_compra',type: 'numeric'}, 
+             {name: 'depreciacion_per',type: 'numeric'}, 
+             {name: 'vida_util_original',type: 'numeric'}, 
+             {name: 'depreciacion_acum',type: 'numeric'}, 
+             {name: 'estado',type: 'string'}, 
+             {name: 'id_clasificacion',type: 'numeric'}, 
+             {name: 'id_centro_costo',type: 'numeric'}, 
+             {name: 'id_oficina',type: 'numeric'}, 
+             {name: 'id_depto',type: 'numeric'}, 
+             {name: 'id_usuario_reg',type: 'numeric'}, 
+             {name: 'fecha_reg',type: 'date',dateFormat: 'Y-m-d H:i:s.u'}, {name: 'usuario_ai',type: 'string'}, 
+             {name: 'id_usuario_ai',type: 'numeric'}, {name: 'id_usuario_mod',type: 'numeric'}, {name: 'fecha_mod',type: 'date',dateFormat: 'Y-m-d H:i:s.u'}, {name: 'usr_reg',type: 'string'}, 
+             {name: 'usr_mod',type: 'string'}, {name: 'persona',type: 'string'}, 
+             {name: 'desc_proveedor',type: 'string'}, 
+             {name: 'estado_fun',type: 'string'}, 
+             {name: 'estado_compra',type: 'string'}, {name: 'clasificacion',type: 'string'}, 
+             {name: 'centro_costo',type: 'string'}, 
+             {name: 'oficina',type: 'string'}, 
+             {name: 'depto',type: 'string'}, 
+             {name: 'funcionario',type: 'string'}, 
+             {name: 'deposito',type: 'string'}, {name: 'deposito_cod',type: 'string'}, 
+             {name: 'desc_moneda_orig',type: 'string'},
+             {name: 'en_deposito',type: 'string'},{name: 'extension',type: 'string'},
+             {name: 'codigo_ant',type: 'string'},{name: 'marca',type: 'string'},
+             {name: 'nro_serie',type: 'string'},
+             {name: 'caracteristicas',type: 'string'},'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af'],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
         field: 'id_activo_fijo',
@@ -2182,19 +2041,19 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_fecha_ini_dep'
                             }, {
                                 fieldLabel: 'Monto Vigente',
-                                name: 'monto_vigente',
+                                name: 'monto_vigente_real_af',
                                 disabled: true,
-                                id: this.idContenedor+'_monto_vigente'
+                                id: this.idContenedor+'_monto_vigente_real_af'
                             }, {
                                 fieldLabel: 'Depreciación Acumulada',
-                                name: 'depreciacion_acum',
+                                name: 'depreciacion_acum_real_af',
                                 disabled: true,
-                                id: this.idContenedor+'_depreciacion_acum'
+                                id: this.idContenedor+'_depreciacion_acum_real_af'
                             }, {
                                 fieldLabel: 'Depreciación Periodo',
-                                name: 'depreciacion_per',
+                                name: 'depreciacion_per_real_af',
                                 disabled: true,
-                                id: this.idContenedor+'_depreciacion_per'
+                                id: this.idContenedor+'_depreciacion_per_real_af'
                             }, {
                                 fieldLabel: 'Depreciación Mes',
                                 name: 'depreciacion_mes',
@@ -2203,14 +2062,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha última Depreciación',
-                                name: 'fecha_ult_dep',
+                                name: 'fecha_ult_dep_real_af',
                                 disabled: true,
-                                id: this.idContenedor+'_fecha_ult_dep'
+                                id: this.idContenedor+'_fecha_ult_dep_real_af'
                             }, {
                                 fieldLabel: 'Vida Útil restante',
-                                name: 'vida_util',
+                                name: 'vida_util_real_af',
                                 disabled: true,
-                                id: this.idContenedor+'_vida_util'
+                                id: this.idContenedor+'_vida_util_real_af'
                             }, {
                                 fieldLabel: 'Monto de rescate',
                                 name: 'monto_rescate',
@@ -2273,12 +2132,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
                 Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
-                Ext.getCmp(this.idContenedor+'_vida_util').setValue(rec.data.vida_util);
+                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
                 Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
             },this);
             //Vida util
             Ext.getCmp(this.idContenedor+'_vida_util_original').on('blur',function(cmp,rec,index){
-                Ext.getCmp(this.idContenedor+'_vida_util').setValue(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue());
+                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue());
             },this)
             //Denominación
             Ext.getCmp(this.idContenedor+'_denominacion').on('blur',function(cmp){
@@ -2326,9 +2185,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             },this);
             //Monto Compra
             Ext.getCmp(this.idContenedor+'_monto_compra').on('blur', function(a,b,c){
-                Ext.getCmp(this.idContenedor+'_monto_vigente').setValue(Ext.getCmp(this.idContenedor+'_monto_compra').getValue());
-                Ext.getCmp(this.idContenedor+'_depreciacion_acum').setValue('0.00');
-                Ext.getCmp(this.idContenedor+'_depreciacion_per').setValue('0.00');
+                Ext.getCmp(this.idContenedor+'_monto_vigente_real_af').setValue(Ext.getCmp(this.idContenedor+'_monto_compra').getValue());
+                Ext.getCmp(this.idContenedor+'_depreciacion_acum_real_af').setValue('0.00');
+                Ext.getCmp(this.idContenedor+'_depreciacion_per_real_af').setValue('0.00');
                 Ext.getCmp(this.idContenedor+'_depreciacion').setValue('0.00');
             },this);
 
@@ -2564,7 +2423,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 modal:true,
                 width:450,
                 height:150
-            },rec.data,this.idContenedor,'SubirFoto');
+            }, rec.data, this.idContenedor, 'SubirFoto');
 
     },
 

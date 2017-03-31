@@ -80,6 +80,11 @@ class MODActivoFijo extends MODbase{
 		$this->captura('marca','varchar');
 		$this->captura('nro_serie','varchar');
 		$this->captura('caracteristicas','text');
+		$this->captura('monto_vigente_real_af','numeric');
+		$this->captura('vida_util_real_af','int4');		
+		$this->captura('fecha_ult_dep_real_af','date');
+        $this->captura('depreciacion_acum_real_af','numeric');
+        $this->captura('depreciacion_per_real_af','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

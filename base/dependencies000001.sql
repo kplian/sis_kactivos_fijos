@@ -228,12 +228,20 @@ AS
          afv.id_activo_fijo_valor;  
 
 
-CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente(
+    id_activo_fijo,
+    monto_vigente_real_af,
+    vida_util_real_af,
+    fecha_ult_dep_real_af,
+    depreciacion_acum_real_af,
+    depreciacion_per_real_af)
 AS
   SELECT afd.id_activo_fijo,
          sum(afd.monto_vigente_real) AS monto_vigente_real_af,
          max(afd.vida_util_real) AS vida_util_real_af,
-         max(afd.fecha_ult_dep_real) AS fecha_ult_dep_real_af
+         max(afd.fecha_ult_dep_real) AS fecha_ult_dep_real_af,
+         sum(afd.depreciacion_acum_real) AS depreciacion_acum_real_af,
+         sum(afd.depreciacion_per_real) AS depreciacion_per_real_af
   FROM kaf.vactivo_fijo_valor afd
   GROUP BY afd.id_activo_fijo;
 

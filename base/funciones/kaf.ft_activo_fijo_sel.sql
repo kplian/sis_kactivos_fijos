@@ -50,80 +50,86 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						afij.id_activo_fijo,
-						afij.id_persona,
-						afij.cantidad_revaloriz,
-						coalesce(afij.foto,''./../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg'') as foto,
-						afij.id_proveedor,
-						afij.estado_reg,
-						afij.fecha_compra,
-						afij.monto_vigente,
-						afij.id_cat_estado_fun,
-						afij.ubicacion,
-						afij.vida_util,
-						afij.documento,
-						afij.observaciones,
-						afij.fecha_ult_dep,
-						afij.monto_rescate,
-						afij.denominacion,
-						afij.id_funcionario,
-						afij.id_deposito,
-						afij.monto_compra,
-						afij.id_moneda,
-						afij.depreciacion_mes,
-						afij.codigo,
-						afij.descripcion,
-						afij.id_moneda_orig,
-						afij.fecha_ini_dep,
-						afij.id_cat_estado_compra,
-						afij.depreciacion_per,
-						afij.vida_util_original,
-						afij.depreciacion_acum,
-						afij.estado,
-						afij.id_clasificacion,
-						afij.id_centro_costo,
-						afij.id_oficina,
-						afij.id_depto,
-						afij.id_usuario_reg,
-						afij.fecha_reg,
-						afij.usuario_ai,
-						afij.id_usuario_ai,
-						afij.id_usuario_mod,
-						afij.fecha_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-						per.nombre_completo2 as persona,
-						pro.desc_proveedor,
-						cat1.descripcion as estado_fun,
-						cat2.descripcion as estado_compra,
-						cla.codigo || '' '' || cla.nombre as clasificacion,
-						cc.codigo_cc as centro_costo,
-						ofi.codigo || '' '' || ofi.nombre as oficina,
-						dpto.codigo || '' '' || dpto.nombre as depto,
-						fun.desc_funcionario2 as funcionario,
-						depaf.nombre as deposito,
-						depaf.codigo as deposito_cod,
-						mon.codigo as desc_moneda_orig,
-						afij.en_deposito,
-						coalesce(afij.extension,''jpg'') as extension,
-						afij.codigo_ant,
-						afij.marca,
-						afij.nro_serie,
-						afij.caracteristicas
-						from kaf.tactivo_fijo afij
-						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+                            afij.id_activo_fijo,
+                            afij.id_persona,
+                            afij.cantidad_revaloriz,
+                            coalesce(afij.foto,''./../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg'') as foto,
+                            afij.id_proveedor,
+                            afij.estado_reg,
+                            afij.fecha_compra,
+                            afij.monto_vigente,
+                            afij.id_cat_estado_fun,
+                            afij.ubicacion,
+                            afij.vida_util,
+                            afij.documento,
+                            afij.observaciones,
+                            afij.fecha_ult_dep,
+                            afij.monto_rescate,
+                            afij.denominacion,
+                            afij.id_funcionario,
+                            afij.id_deposito,
+                            afij.monto_compra,
+                            afij.id_moneda,
+                            afij.depreciacion_mes,
+                            afij.codigo,
+                            afij.descripcion,
+                            afij.id_moneda_orig,
+                            afij.fecha_ini_dep,
+                            afij.id_cat_estado_compra,
+                            afij.depreciacion_per,
+                            afij.vida_util_original,
+                            afij.depreciacion_acum,
+                            afij.estado,
+                            afij.id_clasificacion,
+                            afij.id_centro_costo,
+                            afij.id_oficina,
+                            afij.id_depto,
+                            afij.id_usuario_reg,
+                            afij.fecha_reg,
+                            afij.usuario_ai,
+                            afij.id_usuario_ai,
+                            afij.id_usuario_mod,
+                            afij.fecha_mod,
+                            usu1.cuenta as usr_reg,
+                            usu2.cuenta as usr_mod,
+                            per.nombre_completo2 as persona,
+                            pro.desc_proveedor,
+                            cat1.descripcion as estado_fun,
+                            cat2.descripcion as estado_compra,
+                            cla.codigo || '' '' || cla.nombre as clasificacion,
+                            cc.codigo_cc as centro_costo,
+                            ofi.codigo || '' '' || ofi.nombre as oficina,
+                            dpto.codigo || '' '' || dpto.nombre as depto,
+                            fun.desc_funcionario2 as funcionario,
+                            depaf.nombre as deposito,
+                            depaf.codigo as deposito_cod,
+                            mon.codigo as desc_moneda_orig,
+                            afij.en_deposito,
+                            coalesce(afij.extension,''jpg'') as extension,
+                            afij.codigo_ant,
+                            afij.marca,
+                            afij.nro_serie,
+                            afij.caracteristicas,
+                            COALESCE(round(afvi.monto_vigente_real_af,2), afij.monto_compra),
+                            COALESCE(afvi.vida_util_real_af,afij.vida_util_original),                            
+                            afvi.fecha_ult_dep_real_af,
+                            COALESCE(round(afvi.depreciacion_acum_real_af,2),0),
+                            COALESCE(round( afvi.depreciacion_per_real_af,2),0)
+						from kaf.tactivo_fijo afij                       
+						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
 						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+                        inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+                        left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo
+                        left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+                        left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod						
 						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
 						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
-						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
-						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -132,6 +138,7 @@ BEGIN
 
 			--Devuelve la respuesta
 			return v_consulta;
+            
 						
 		end;
 
@@ -146,22 +153,23 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_activo_fijo)
-					    from kaf.tactivo_fijo afij
-						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+			v_consulta:='select count(afij.id_activo_fijo)
+					    from kaf.tactivo_fijo afij                       
+						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
 						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+                        inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+                        left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo
+                        left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+                        left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod						
 						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
 						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
-						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
-						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
-					    where ';
+				        where  ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;

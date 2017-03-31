@@ -201,13 +201,6 @@ BEGIN
                     
                 end loop;
         
-        --  TODO
-        --  RAC 03/03/2017
-        --  falta actulizar en algun lugar los valores de ultima depreciacion
-        --  para que cuando se haga otro movimeitno de depreciacion no se vuelva a repetir el proceso
-        --  para los meses ya procesados anteriormente
-        --  piesno que talve eso debe ser en la tabla kaf.tactivo_fijo_valores
-        
         
         
     end loop;

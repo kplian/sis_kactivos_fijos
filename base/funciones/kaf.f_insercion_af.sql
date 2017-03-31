@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.f_insercion_af (
   p_id_usuario integer,
   p_parametros public.hstore
@@ -11,9 +13,13 @@ Descripción: Función para insertar un activo fijo (Se la independiza para pode
 */
 DECLARE
 
-	v_id_activo_fijo integer;
+	v_id_activo_fijo 		integer;
+    v_nombre_funcion		varchar;
+    v_resp					varchar;
 
 BEGIN
+
+     v_nombre_funcion = 'kaf.f_insercion_af';
 
 	--Se hace el registro del activo fijo
 	insert into kaf.tactivo_fijo(
@@ -23,13 +29,13 @@ BEGIN
 		id_proveedor,
 		estado_reg,
 		fecha_compra,
-		monto_vigente,
+		--monto_vigente,
 		id_cat_estado_fun,
 		ubicacion,
-		vida_util,
+		--vida_util,
 		documento,
 		observaciones,
-		fecha_ult_dep,
+		--fecha_ult_dep,
 		monto_rescate,
 		denominacion,
         id_funcionario,
@@ -68,13 +74,13 @@ BEGIN
         (p_parametros->'id_proveedor')::integer,
         'activo',
         (p_parametros->'fecha_compra')::date,
-        (p_parametros->'monto_vigente')::numeric,
+        --(p_parametros->'monto_vigente')::numeric,
         (p_parametros->'id_cat_estado_fun')::integer,
         (p_parametros->'ubicacion')::varchar,
-        (p_parametros->'vida_util')::integer,
+       -- (p_parametros->'vida_util')::integer,
         (p_parametros->'documento')::varchar,
         (p_parametros->'observaciones')::varchar,
-        (p_parametros->'fecha_ult_dep')::date,
+       -- (p_parametros->'fecha_ult_dep')::date,
         (p_parametros->'monto_rescate')::numeric,
         (p_parametros->'denominacion')::varchar,
         (p_parametros->'id_funcionario')::integer,
@@ -111,6 +117,15 @@ BEGIN
 
 	--Respuesta
     return v_id_activo_fijo;
+
+EXCEPTION
+  WHEN OTHERS THEN
+      v_resp='';
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+      v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+      v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+      raise exception '%',v_resp;
+
 
 END;
 $body$
