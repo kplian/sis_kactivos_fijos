@@ -37,7 +37,7 @@ Phx.vista.MovimientoPrincipal = {
     	} else if(indice==4){
     		this.filterMov='asig,devol,transf,tranfdep';
     	} else if(indice==5){
-    		this.filterMov='deprec';
+    		this.filterMov='deprec,actua';
     	}
     	this.store.baseParams.cod_movimiento = this.filterMov;
     	//this.getBoton('btnReporte').show();
@@ -246,7 +246,18 @@ Phx.vista.MovimientoPrincipal = {
     		swFuncionarioDest=false;
     		swCatMovMotivo=false;
     		h=355;
-    	} 
+    	} else if(mov=='actua'){
+    		swDireccion=false;
+    		swFechaHasta=true;
+    		swFuncionario=false;
+    		swOficina=false;
+    		swPersona=false;
+    		swDeptoDest=false;
+    		swDepositoDest=false;
+    		swFuncionarioDest=false;
+    		swCatMovMotivo=false;
+    		h=280;
+    	}
 
     	//Enable/disable user controls based on mov type
     	this.Cmp.direccion.setVisible(swDireccion);

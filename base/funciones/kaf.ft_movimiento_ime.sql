@@ -211,13 +211,14 @@ BEGIN
             where cat.id_catalogo = v_parametros.id_cat_movimiento;
 
             
-            if v_cod_movimiento = 'deprec' then
+            if v_cod_movimiento in ('deprec','actua') then
                   
                   --Registra todos los activos del departamento que les corresponda depreciar en el periodo solicitado
                   FOR v_registros_mov in ( select 
                                                afij.id_activo_fijo,
-                                              afij.id_cat_estado_fun
+                                               afij.id_cat_estado_fun
                                             from kaf.tactivo_fijo afij
+                                            inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
                                             where afij.estado = 'alta'
                                             and   afij.id_depto = v_parametros.id_depto
                                             and (
@@ -809,37 +810,56 @@ BEGIN
                 elsif v_codigo_estado_siguiente = 'finalizado' then
 
                 end if;
+           
+           --RAC 04/04/2017 nuevo tipo de movimeinto
+           -- los activos no depreciable solo pueden actulizar AITB  
+              
+           elsif v_movimiento.cod_movimiento = 'actua' then
 
-            end if;
+                if v_codigo_estado_siguiente = 'generado' then
+
+                    --Generacion de la depreciacion
+                    for v_rec in (select id_movimiento_af, id_activo_fijo
+                                from kaf.tmovimiento_af
+                                where id_movimiento = v_movimiento.id_movimiento) loop
+
+                        v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af,'NO'); --el ultimo parametro indi
+
+                    end loop;
+
+                elsif v_codigo_estado_siguiente = 'finalizado' then
+
+                end if;
+
+           end if;
 
 
-            if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
+           if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
                 v_id_depto = v_parametros.id_depto_wf;
-            end if;
+           end if;
                     
-            if pxp.f_existe_parametro(p_tabla,'obs') THEN
+           if pxp.f_existe_parametro(p_tabla,'obs') THEN
                 v_obs=v_parametros.obs;
-            else
+           else
                 v_obs='---';
-            end if;
+           end if;
                    
             --Configurar acceso directo para la alarma   
-            v_acceso_directo = '';
-            v_clase = '';
-            v_parametros_ad = '';
-            v_tipo_noti = 'notificacion';
-            v_titulo  = 'Visto Bueno';
-
+           v_acceso_directo = '';
+           v_clase = '';
+           v_parametros_ad = '';
+           v_tipo_noti = 'notificacion';
+           v_titulo  = 'Visto Bueno';
                 
-            if v_codigo_estado_siguiente not in ('finalizado') then
+           if v_codigo_estado_siguiente not in ('finalizado') then
                 v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
                 v_clase = 'Movimiento';
                 v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
                 v_tipo_noti = 'notificacion';
                 v_titulo  = 'Notificacion';             
-            end if;
+           end if;
                  
-            v_id_estado_actual =  wf.f_registra_estado_wf(
+           v_id_estado_actual =  wf.f_registra_estado_wf(
                 v_parametros.id_tipo_estado, 
                 v_parametros.id_funcionario_wf, 
                 v_parametros.id_estado_wf_act, 
@@ -857,26 +877,27 @@ BEGIN
             );
               
             --Actualiza el estado actual
-            select 
+           select 
             codigo
-            into v_codigo_estado_siguiente
-            from wf.ttipo_estado tes
-            inner join wf.testado_wf ew
-            on ew.id_tipo_estado = tes.id_tipo_estado
-            where ew.id_estado_wf = v_id_estado_actual;
+           into 
+              v_codigo_estado_siguiente
+           from wf.ttipo_estado tes
+           inner join wf.testado_wf ew
+           on ew.id_tipo_estado = tes.id_tipo_estado
+           where ew.id_estado_wf = v_id_estado_actual;
 
-            update kaf.tmovimiento set
+           update kaf.tmovimiento set
             id_estado_wf = v_id_estado_actual,
             estado = v_codigo_estado_siguiente
-            where id_movimiento = v_movimiento.id_movimiento;
+           where id_movimiento = v_movimiento.id_movimiento;
 
             -- si hay mas de un estado disponible  preguntamos al usuario
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
+           v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
               
               
             -- Devuelve la respuesta
-            return v_resp;
+           return v_resp;
             
          end;     
 

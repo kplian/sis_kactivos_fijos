@@ -84,7 +84,9 @@ class MODActivoFijo extends MODbase{
 		$this->captura('vida_util_real_af','int4');		
 		$this->captura('fecha_ult_dep_real_af','date');
         $this->captura('depreciacion_acum_real_af','numeric');
-        $this->captura('depreciacion_per_real_af','numeric');
+        $this->captura('depreciacion_per_real_af','numeric');		
+		$this->captura('tipo_activo','varchar');
+        $this->captura('depreciable','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

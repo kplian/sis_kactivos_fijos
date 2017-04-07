@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.ft_clasificacion_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -45,32 +47,34 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						claf.id_clasificacion,
-						claf.codigo,
-						claf.nombre,
-						claf.final,
-						claf.estado_reg,
-						claf.id_cat_metodo_dep,
-						claf.tipo,
-						claf.id_concepto_ingas,
-						claf.monto_residual,
-						claf.icono,
-						claf.id_clasificacion_fk,
-						claf.vida_util,
-						claf.correlativo_act,
-						claf.usuario_ai,
-						claf.fecha_reg,
-						claf.id_usuario_reg,
-						claf.id_usuario_ai,
-						claf.id_usuario_mod,
-						claf.fecha_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-						cat.codigo as codigo_met_dep,
-						cat.descripcion as met_dep,
-						cig.desc_ingas,
-						claf.codigo||'' - ''||claf.nombre as clasificacion,
-						claf.descripcion
+                            claf.id_clasificacion,
+                            claf.codigo,
+                            claf.nombre,
+                            claf.final,
+                            claf.estado_reg,
+                            claf.id_cat_metodo_dep,
+                            claf.tipo,
+                            claf.id_concepto_ingas,
+                            claf.monto_residual,
+                            claf.icono,
+                            claf.id_clasificacion_fk,
+                            claf.vida_util,
+                            claf.correlativo_act,
+                            claf.usuario_ai,
+                            claf.fecha_reg,
+                            claf.id_usuario_reg,
+                            claf.id_usuario_ai,
+                            claf.id_usuario_mod,
+                            claf.fecha_mod,
+                            usu1.cuenta as usr_reg,
+                            usu2.cuenta as usr_mod,
+                            cat.codigo as codigo_met_dep,
+                            cat.descripcion as met_dep,
+                            cig.desc_ingas,
+                            claf.codigo||'' - ''||claf.nombre as clasificacion,
+                            claf.descripcion,
+                            claf.tipo_activo,
+                            claf.depreciable
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
@@ -126,38 +130,40 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						claf.id_clasificacion,
-						claf.codigo,
-						claf.nombre,
-						claf.final,
-						claf.estado_reg,
-						claf.id_cat_metodo_dep,
-						claf.tipo,
-						claf.id_concepto_ingas,
-						claf.monto_residual,
-						claf.icono,
-						claf.id_clasificacion_fk,
-						claf.vida_util,
-						claf.correlativo_act,
-						claf.usuario_ai,
-						claf.fecha_reg,
-						claf.id_usuario_reg,
-						claf.id_usuario_ai,
-						claf.id_usuario_mod,
-						claf.fecha_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-						cat.codigo as codigo_met_dep,
-						cat.descripcion as met_dep,
-						cig.desc_ingas,
-						case
-                        when (claf.id_clasificacion_fk is null) then
-                        	''raiz''::varchar
-                        else
-                            ''hijo''::varchar
-                    	end as tipo_nodo,
-                    	''false''::varchar as checked,
-                    	claf.descripcion
+                            claf.id_clasificacion,
+                            claf.codigo,
+                            claf.nombre,
+                            claf.final,
+                            claf.estado_reg,
+                            claf.id_cat_metodo_dep,
+                            claf.tipo,
+                            claf.id_concepto_ingas,
+                            claf.monto_residual,
+                            claf.icono,
+                            claf.id_clasificacion_fk,
+                            claf.vida_util,
+                            claf.correlativo_act,
+                            claf.usuario_ai,
+                            claf.fecha_reg,
+                            claf.id_usuario_reg,
+                            claf.id_usuario_ai,
+                            claf.id_usuario_mod,
+                            claf.fecha_mod,
+                            usu1.cuenta as usr_reg,
+                            usu2.cuenta as usr_mod,
+                            cat.codigo as codigo_met_dep,
+                            cat.descripcion as met_dep,
+                            cig.desc_ingas,
+                            case
+                            when (claf.id_clasificacion_fk is null) then
+                                ''raiz''::varchar
+                            else
+                                ''hijo''::varchar
+                            end as tipo_nodo,
+                            ''false''::varchar as checked,
+                            claf.descripcion,
+                            claf.tipo_activo,
+                            claf.depreciable
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod

@@ -32,7 +32,8 @@ header("content-type: text/javascript; charset=UTF-8");
 			},
 			type : 'Field',
 			form : true
-		}, {
+		},
+		{
 			config : {
 				name : 'codigo',
 				fieldLabel : 'Codigo',
@@ -82,10 +83,57 @@ header("content-type: text/javascript; charset=UTF-8");
 			id_grupo : 1,
 			grid : true,
 			form : true
-		}, {
+		}, 
+		{
+			config:{
+				name: 'tipo_activo',
+				fieldLabel: 'Tipo?',
+				qtip:'Activo tangible o intagible, los intangibles no entran a deposito',
+				allowBlank: false,
+       			typeAhead: true,
+       		    triggerAction: 'all',
+       		    lazyRender:true,
+       		    mode: 'local',
+       		    valueField: 'inicio',       
+       		    store:['tangible','intangible']
+			},
+			type:'ComboBox',
+			id_grupo:1,
+			filters:{	type: 'list',
+	       				pfiltro:'claf.tipo_activo',
+	       				options: ['tangible','intangible'],	
+	       		 	},
+			form:true
+		}, 
+		{
+			config:{
+				name: 'depreciable',
+				fieldLabel: 'Deprecia?',
+				qtip:'Indica si el activo se deprecia o no',
+				allowBlank: false,
+				emptyText:'si/no...',       			
+       			typeAhead: true,
+       		    triggerAction: 'all',
+       		    lazyRender:true,
+       		    mode: 'local',
+       		    valueField: 'inicio',       	
+       		    store:['si','no']
+			},
+			type:'ComboBox',
+			id_grupo:1,
+			filters:{	type: 'list',
+	       				pfiltro:'claf.depreciable',
+	       				options: ['si','no'],	
+	       		 	},
+			form:true
+		},
+		
+		
+		
+		{
 			config : {
 				name : 'vida_util',
-				fieldLabel : 'Vida Útil',
+				fieldLabel : 'Vida Útil (meses)',
 				allowBlank : true,
 				anchor : '100%',
 				gwidth : 100,
@@ -375,7 +423,9 @@ header("content-type: text/javascript; charset=UTF-8");
 		{
 			name: 'desc_ingas',
 			type : 'string'
-		}],
+		}, 'depreciable','tipo_activo'
+		
+		],
 		sortInfo : {
 			field : 'id_clasificacion',
 			direction : 'ASC'

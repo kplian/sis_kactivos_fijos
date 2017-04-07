@@ -1,8 +1,13 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_clasificacion_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+--------------- SQL ---------------
 
+CREATE OR REPLACE FUNCTION kaf.ft_clasificacion_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos - K
  FUNCION: 		kaf.ft_clasificacion_ime
@@ -65,45 +70,50 @@ BEGIN
 
         	--Sentencia de la insercion
         	insert into kaf.tclasificacion(
-			id_clasificacion_fk,
-			id_cat_metodo_dep,
-			id_concepto_ingas,
-			codigo,
-			nombre,
-			vida_util,
-			correlativo_act,
-			monto_residual,
-			tipo,
-			final,
-			icono,
-			id_usuario_reg,
-			id_usuario_mod,
-			fecha_reg,
-			fecha_mod,
-			estado_reg,
-			id_usuario_ai,
-			usuario_ai,
-			descripcion
+                id_clasificacion_fk,
+                id_cat_metodo_dep,
+                id_concepto_ingas,
+                codigo,
+                nombre,
+                vida_util,
+                correlativo_act,
+                monto_residual,
+                tipo,
+                final,
+                icono,
+                id_usuario_reg,
+                id_usuario_mod,
+                fecha_reg,
+                fecha_mod,
+                estado_reg,
+                id_usuario_ai,
+                usuario_ai,
+                descripcion,
+                tipo_activo,
+                depreciable
           	) values(
-          	v_parametros.id_clasificacion_fk,
-			v_parametros.id_cat_metodo_dep,
-			v_parametros.id_concepto_ingas,
-			v_codigo,
-			v_parametros.nombre,
-			v_parametros.vida_util,
-			0,
-			v_parametros.monto_residual,
-			v_parametros.tipo,
-			v_parametros.final,
-			v_parametros.icono,
-			p_id_usuario,
-			null,
-			now(),
-			null,
-			'activo',
-			null,
-			null,
-			v_parametros.descripcion
+                v_parametros.id_clasificacion_fk,
+                v_parametros.id_cat_metodo_dep,
+                v_parametros.id_concepto_ingas,
+                upper(v_codigo),
+                upper(v_parametros.nombre),
+                v_parametros.vida_util,
+                0,
+                v_parametros.monto_residual,
+                v_parametros.tipo,
+                v_parametros.final,
+                v_parametros.icono,
+                p_id_usuario,
+                null,
+                now(),
+                null,
+                'activo',
+                null,
+                null,
+                upper(v_parametros.descripcion),
+                v_parametros.tipo_activo,
+                v_parametros.depreciable
+
 			)RETURNING id_clasificacion into v_id_clasificacion;
 
 			--Excepcion CBOL, replica de la clasificacion
@@ -125,45 +135,49 @@ BEGIN
 
 							if v_ins then
 								insert into kaf.tclasificacion(
-								id_clasificacion_fk,
-								id_cat_metodo_dep,
-								id_concepto_ingas,
-								codigo,
-								nombre,
-								vida_util,
-								correlativo_act,
-								monto_residual,
-								tipo,
-								final,
-								icono,
-								id_usuario_reg,
-								id_usuario_mod,
-								fecha_reg,
-								fecha_mod,
-								estado_reg,
-								id_usuario_ai,
-								usuario_ai,
-								descripcion
+                                    id_clasificacion_fk,
+                                    id_cat_metodo_dep,
+                                    id_concepto_ingas,
+                                    codigo,
+                                    nombre,
+                                    vida_util,
+                                    correlativo_act,
+                                    monto_residual,
+                                    tipo,
+                                    final,
+                                    icono,
+                                    id_usuario_reg,
+                                    id_usuario_mod,
+                                    fecha_reg,
+                                    fecha_mod,
+                                    estado_reg,
+                                    id_usuario_ai,
+                                    usuario_ai,
+                                    descripcion,
+                                    tipo_activo,
+                                    depreciable
 					          	) values(
-					          	v_rec.id_clasificacion,
-								v_parametros.id_cat_metodo_dep,
-								v_parametros.id_concepto_ingas,
-								v_rec.codigo||'.'||v_parametros.codigo,
-								v_parametros.nombre,
-								v_parametros.vida_util,
-								0,
-								v_parametros.monto_residual,
-								v_parametros.tipo,
-								v_parametros.final,
-								v_parametros.icono,
-								p_id_usuario,
-								null,
-								now(),
-								null,
-								'activo',
-								null,
-								null,
-								v_parametros.descripcion
+                                    v_rec.id_clasificacion,
+                                    v_parametros.id_cat_metodo_dep,
+                                    v_parametros.id_concepto_ingas,
+                                    upper(v_rec.codigo||'.'||v_parametros.codigo),
+                                    upper(v_parametros.nombre),
+                                    v_parametros.vida_util,
+                                    0,
+                                    v_parametros.monto_residual,
+                                    v_parametros.tipo,
+                                    v_parametros.final,
+                                    v_parametros.icono,
+                                    p_id_usuario,
+                                    null,
+                                    now(),
+                                    null,
+                                    'activo',
+                                    null,
+                                    null,
+                                    upper(v_parametros.descripcion),
+                                    v_parametros.tipo_activo,
+                                    v_parametros.depreciable
 								);
 							end if;
 							v_ins = true;
@@ -194,23 +208,25 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update kaf.tclasificacion set
-			id_clasificacion_fk = v_parametros.id_clasificacion_fk,
-			id_cat_metodo_dep = v_parametros.id_cat_metodo_dep,
-			id_concepto_ingas = v_parametros.id_concepto_ingas,
-			codigo  = v_parametros.codigo,
-			nombre = v_parametros.nombre,
-			vida_util = v_parametros.vida_util,
-			correlativo_act = v_parametros.correlativo_act,
-			monto_residual = v_parametros.monto_residual,
-			tipo = v_parametros.tipo,
-			final = v_parametros.final,
-			icono = v_parametros.icono,
-			id_usuario_mod = p_id_usuario,
-			fecha_mod = now(),
-			estado_reg = 'activo',
-			--id_usuario_ai = v_parametros.id_usuario_ai,
-			--usuario_ai = v_parametros.usuario_ai,
-			descripcion = v_parametros.descripcion
+                id_clasificacion_fk = v_parametros.id_clasificacion_fk,
+                id_cat_metodo_dep = v_parametros.id_cat_metodo_dep,
+                id_concepto_ingas = v_parametros.id_concepto_ingas,
+                codigo  = upper(v_parametros.codigo),
+                nombre = upper(v_parametros.nombre),
+                vida_util = v_parametros.vida_util,
+                correlativo_act = v_parametros.correlativo_act,
+                monto_residual = v_parametros.monto_residual,
+                tipo = v_parametros.tipo,
+                final = v_parametros.final,
+                icono = v_parametros.icono,
+                id_usuario_mod = p_id_usuario,
+                fecha_mod = now(),
+                estado_reg = 'activo',
+                --id_usuario_ai = v_parametros.id_usuario_ai,
+                --usuario_ai = v_parametros.usuario_ai,
+                descripcion = upper(v_parametros.descripcion),
+                tipo_activo = v_parametros.tipo_activo,
+                depreciable = v_parametros.depreciable
 			where id_clasificacion=v_parametros.id_clasificacion;
                
 			--Definicion de la respuesta
@@ -261,8 +277,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "kaf"."ft_clasificacion_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

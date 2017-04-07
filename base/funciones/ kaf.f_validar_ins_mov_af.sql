@@ -56,10 +56,13 @@ BEGIN
          af.estado,
          af.id_funcionario,
          af.id_depto,
-         af.en_deposito
+         af.en_deposito,
+         cla.tipo_activo,
+         cla.depreciable
         into
           v_reg_af
       from kaf.tactivo_fijo af 
+      inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
       where af.id_activo_fijo = p_id_activo_fijo;   
       
       -----------------------------
@@ -114,17 +117,42 @@ BEGIN
         IF v_registros.codigo_movimiento = 'deprec' THEN
             --  validar que el activo este dado de alta
             IF v_reg_af.estado != 'alta' THEN
+                 
                  IF p_lanzar_error THEN
                    raise exception 'solo puede depreciar activos que esten dados de alta (%)',COALESCE(v_reg_af.denominacion,'s/d'); 
                  ELSE
                     RETURN FALSE;
                  END IF;
-                     
-                 
-                     
+            END IF;
+            
+            IF v_reg_af.depreciable != 'si' THEN                 
+                 IF p_lanzar_error THEN
+                   raise exception 'Según clasificación el activo no es depreciable (%)',COALESCE(v_reg_af.denominacion,'s/d'); 
+                 ELSE
+                    RETURN FALSE;
+                 END IF;
             END IF;
             
             
+            
+            
+         ELSEIF v_registros.codigo_movimiento = 'actua' THEN
+            --  validar que el activo este dado de alta
+            IF v_reg_af.estado != 'alta' THEN
+                 IF p_lanzar_error THEN
+                   raise exception 'solo puede actulizar activos que esten dados de alta (%)',COALESCE(v_reg_af.denominacion,'s/d'); 
+                 ELSE
+                    RETURN FALSE;
+                 END IF;
+            END IF; 
+            
+            IF v_reg_af.depreciable != 'no' THEN                 
+                 IF p_lanzar_error THEN
+                   raise exception 'Solo puede actulziar activos no depreciables. Según clasificación el activo (%) es depreciable ',COALESCE(v_reg_af.denominacion,'s/d'); 
+                 ELSE
+                    RETURN FALSE;
+                 END IF;
+            END IF;  
         
         ELSIF v_registros.codigo_movimiento = 'reval' THEN
             --  validar que el activo este dado de alta

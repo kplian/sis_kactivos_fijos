@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION kaf.f_depreciacion_lineal (
   p_id_usuario integer,
   p_id_activo_fijo integer,
   p_hasta date,
-  p_id_movimiento_af integer
+  p_id_movimiento_af integer,
+  p_depreciar varchar = 'SI'::character varying
 )
 RETURNS varchar AS
 $body$
@@ -45,7 +46,7 @@ BEGIN
     --  TODO validar que no se valores dos veces dentro el mismo omvimeinto
     -- talvez  eliminar la depreciacion del movimiento antes de empesar ...
     
-     delete from  
+    delete from  
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af = p_id_movimiento_af;
     
@@ -76,11 +77,20 @@ BEGIN
                         afv.fecha_ult_dep_real,
                         afv.depreciacion_acum_real,
                         afv.depreciacion_per_real,
-                        afv.depreciacion_acum_ant_real
+                        afv.depreciacion_acum_ant_real,
+                        cla.depreciable
                       from kaf.vactivo_fijo_valor afv
-                      where id_activo_fijo = p_id_activo_fijo
-                      and estado = 'activo'
-                      and vida_util_real > 0) loop
+                      inner join kaf.tactivo_fijo af on af.id_activo_fijo = afv.id_activo_fijo
+                      inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
+                      where afv.id_activo_fijo = p_id_activo_fijo
+                      and afv.estado = 'activo'
+                      and (
+                            CASE WHEN p_depreciar = 'SI'  THEN vida_util_real > 0
+                                ELSE
+                                   0 = 0
+                                END)
+                      
+                      ) loop   --TODO where agregar case para activos no deprecialbes
 
                 --Inicialización mes inicio de depreciación
                -- v_mes_dep = v_rec_ant.fecha_inicio;
@@ -94,10 +104,19 @@ BEGIN
                 
                 --Inicialización datos última depreciación
                 --raise exception 'lll : %  %   %   %',v_rec_ant.depreciacion_acum,v_rec_ant.depreciacion_per,v_rec_ant.monto_vigente,v_rec_ant.vida_util;
-                v_ant_dep_acum      = v_rec_ant.depreciacion_acum_real;
-                v_ant_dep_per       = v_rec_ant.depreciacion_per_real;
-                v_ant_monto_vigente = v_rec_ant.monto_vigente_real;
-                v_ant_vida_util     = v_rec_ant.vida_util_real;
+                
+                 IF p_depreciar = 'SI' THEN
+                    v_ant_dep_acum      = v_rec_ant.depreciacion_acum_real;
+                    v_ant_dep_per       = v_rec_ant.depreciacion_per_real;
+                    v_ant_monto_vigente = v_rec_ant.monto_vigente_real;
+                    v_ant_vida_util     = v_rec_ant.vida_util_real;
+                ELSE
+                    v_ant_dep_acum      = 0;
+                    v_ant_dep_per       = 0;
+                    v_ant_monto_vigente = v_rec_ant.monto_vigente_real;
+                    v_ant_vida_util     = 0;
+                END IF;
+                
                 
                 --Determinar la cantidad de meses a depreciar
                 v_meses_dep =  months_between(v_mes_dep, p_hasta);
@@ -111,27 +130,47 @@ BEGIN
                         into v_rec_tc
                         from kaf.f_get_tipo_cambio(v_id_moneda,v_mes_dep);
                         
-                        --Actualización de importes
-                        v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
-                        v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
-                        v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
+                        IF p_depreciar = 'SI' THEN
                         
+                              --Actualización de importes
+                              v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
+                              v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
+                              v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
+                              
+                                --Cálculo nuevos valores por depreciación
+                              
+                              --RAC 03/03/2017
+                              --  agrega validacion de division por cero
+                              IF  v_ant_vida_util = 0 and v_rec_ant.depreciable = 'si' THEN
+                                 EXIT; --v_nuevo_dep_mes       = 0;
+                              ELSE
+                                 v_nuevo_dep_mes       = (v_monto_actualiz - v_rec_ant.monto_rescate) / v_ant_vida_util;
+                              END IF;
+                              
+                              v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
+                              v_nuevo_dep_per       = v_dep_per_actualiz + v_nuevo_dep_mes;
+                              v_nuevo_monto_vigente = v_monto_actualiz - v_nuevo_dep_mes;
+                              v_nuevo_vida_util     = v_ant_vida_util - 1;
+                              
+                        ELSE
+                        
+                              --Actualización de importes
+                              v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
+                              v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
+                              v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
+                              
+                              v_nuevo_dep_acum      = 0;
+                              v_nuevo_dep_per       = 0;
+                              v_nuevo_monto_vigente = v_monto_actualiz;
+                              v_nuevo_vida_util     = v_ant_vida_util ;
+                          
+                          
+                          
+                          
+                        END IF;
                        
                         
-                        --Cálculo nuevos valores por depreciación
                         
-                        --RAC 03/03/2017
-                        --  agrega validacion de division por cero
-                        IF  v_ant_vida_util = 0 THEN
-                           EXIT; --v_nuevo_dep_mes       = 0;
-                        ELSE
-                           v_nuevo_dep_mes       = (v_monto_actualiz - v_rec_ant.monto_rescate) / v_ant_vida_util;
-                        END IF;
-                        
-                        v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
-                        v_nuevo_dep_per       = v_dep_per_actualiz + v_nuevo_dep_mes;
-                        v_nuevo_monto_vigente = v_monto_actualiz - v_nuevo_dep_mes;
-                        v_nuevo_vida_util     = v_ant_vida_util - 1;
                         
                         --Inserción en base de datos
                         INSERT INTO kaf.tmovimiento_af_dep (

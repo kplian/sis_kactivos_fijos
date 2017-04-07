@@ -447,3 +447,31 @@ ALTER TABLE kaf.tmovimiento
 
 /***********************************F-SCP-RAC-KAF-1-10/02/2017****************************************/
 
+
+
+
+/***********************************I-SCP-RAC-KAF-1-04/04/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN tipo_activo VARCHAR(30) DEFAULT 'tangible' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.tipo_activo
+IS 'tangible o intangible';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN depreciable VARCHAR(4) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.depreciable
+IS 'si se aplicaqn o no depreciaciones';
+
+
+
+/***********************************F-SCP-RAC-KAF-1-04/04/2017****************************************/
+
+
+

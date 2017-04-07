@@ -174,3 +174,15 @@ VALUES
 
 
 
+
+
+/***********************************I-DAT-RAC-KAF-1-10/04/2017****************************************/
+
+
+select param.f_import_tcatalogo ('insert','KAF','Actualización','actua','tmovimiento__id_cat_movimiento');
+
+
+
+/***********************************F-DAT-RAC-KAF-1-10/04/2017****************************************/
+
+

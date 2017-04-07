@@ -1582,7 +1582,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name: 'en_deposito',type: 'string'},{name: 'extension',type: 'string'},
              {name: 'codigo_ant',type: 'string'},{name: 'marca',type: 'string'},
              {name: 'nro_serie',type: 'string'},
-             {name: 'caracteristicas',type: 'string'},'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af'],
+             {name: 'caracteristicas',type: 'string'},
+             'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af','tipo_activo','depreciable'],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
         field: 'id_activo_fijo',
@@ -1710,7 +1711,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     url: '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacion',
                                     id: 'id_clasificacion',
                                     root: 'datos',
-                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual','clasificacion'],
+                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual','clasificacion', 'depreciable','tipo_activo'],
                                     totalProperty: 'total',
                                     sortInfo: {
                                         field: 'codigo',
@@ -1929,7 +1930,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15,
-                                valueNotFoundText: 'Proveedor no encontrado',
+                                //valueNotFoundText: 'Proveedor no encontrado',
                                 pageSize: 15
                             }, {
                                 xtype: 'datefield',
@@ -2035,7 +2036,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             defaultType: 'textfield',
                             items: [{
                                 xtype: 'datefield',
-                                fieldLabel: 'Fecha inicio Depreciación',
+                                fieldLabel: 'Fecha inicio Dep/Act',
+                                qtip:'FEcha de iniciaio de depreaciación o de actualización',
                                 name: 'fecha_ini_dep',
                                 allowBlank: false,
                                 id: this.idContenedor+'_fecha_ini_dep'
@@ -2131,9 +2133,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('exception',this.conexionFailure,this);
             
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
-                Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
-                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
-                Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
+            	if(rec.data.depreciable == 'si'){
+            		
+            		Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
+	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
+	                Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
+            	}
+            	
+            	this.actulizarSegunClasificacion(rec.data.tipo_activo, rec.data.depreciable);
+            	
             },this);
             //Vida util
             Ext.getCmp(this.idContenedor+'_vida_util_original').on('blur',function(cmp,rec,index){
@@ -2371,6 +2379,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
           Ext.getCmp(this.idContenedor+'_monto_compra').enable()
         }
         
+        //diapra eventos de clasificaciones selecionada
+        this.actulizarSegunClasificacion(data.tipo_activo, data.depreciable);
+            	
+       
         
     },
 
@@ -2414,6 +2426,52 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         scope: this
     }),
     btriguerreturn:false,
+    
+    actulizarSegunClasificacion: function(tipo_activo, depreciable){
+    	if(tipo_activo == 'tangible'){
+            	    Ext.getCmp(this.idContenedor+'_id_deposito').enable();
+            	    Ext.getCmp(this.idContenedor+'_id_deposito').show();
+            	    
+            	    Ext.getCmp(this.idContenedor+'_nro_serie').enable();
+            	    Ext.getCmp(this.idContenedor+'_nro_serie').show();
+            	    Ext.getCmp(this.idContenedor+'_marca').enable();
+            	    Ext.getCmp(this.idContenedor+'_marca').show();
+            	}
+            	else{
+            	    Ext.getCmp(this.idContenedor+'_id_deposito').disable();
+            	    Ext.getCmp(this.idContenedor+'_id_deposito').hide();
+            	    
+            	    //escondemos los campos marca y serie
+            	    Ext.getCmp(this.idContenedor+'_nro_serie').disable();
+            	    Ext.getCmp(this.idContenedor+'_nro_serie').hide();
+            	    Ext.getCmp(this.idContenedor+'_marca').disable();
+            	    Ext.getCmp(this.idContenedor+'_marca').hide();
+            	    
+            	    
+            	}
+            	
+            	if(depreciable == 'si'){            		
+            		Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
+	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').enable();
+	                Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
+	                Ext.getCmp(this.idContenedor+'_vida_util_original').show();
+	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').show();
+	                Ext.getCmp(this.idContenedor+'_monto_rescate').show();
+	                
+            	}
+            	else{
+            		
+            		Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
+	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
+	                Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
+	                Ext.getCmp(this.idContenedor+'_vida_util_original').hide();
+	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').hide();
+	                Ext.getCmp(this.idContenedor+'_monto_rescate').hide();
+            		 
+            	
+            	}
+    },
+    
 
     subirFoto: function(){
         var rec = this.sm.getSelected();

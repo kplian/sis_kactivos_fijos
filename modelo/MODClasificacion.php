@@ -46,6 +46,8 @@ class MODClasificacion extends MODbase{
 		$this->captura('desc_ingas','varchar');
 		$this->captura('clasificacion','text');
 		$this->captura('descripcion','varchar');
+		$this->captura('tipo_activo','varchar');
+		$this->captura('depreciable','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -74,6 +76,8 @@ class MODClasificacion extends MODbase{
 		$this->setParametro('final','final','varchar');
 		$this->setParametro('icono','icono','varchar');
 		$this->setParametro('descripcion','descripcion','varchar');
+		$this->setParametro('tipo_activo','tipo_activo','varchar');
+		$this->setParametro('depreciable','depreciable','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -102,7 +106,9 @@ class MODClasificacion extends MODbase{
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('final','final','varchar');
 		$this->setParametro('icono','icono','varchar');
-		$this->setParametro('descripcion','descripcion','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');		
+		$this->setParametro('tipo_activo','tipo_activo','varchar');
+		$this->setParametro('depreciable','depreciable','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -164,6 +170,8 @@ class MODClasificacion extends MODbase{
 		$this->captura('tipo_nodo','varchar');
 		$this->captura('checked','varchar');
 		$this->captura('descripcion','varchar');
+		$this->captura('tipo_activo','varchar');
+		$this->captura('depreciable','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

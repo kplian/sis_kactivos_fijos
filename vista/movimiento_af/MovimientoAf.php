@@ -414,7 +414,9 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		} else if(this.maestro.cod_movimiento=='reval'){
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='deprec'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{depreciable:'si',estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento=='actua'){
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{depreciable:'no',estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='asig'){
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{en_deposito_mov:'si',id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='devol'){
@@ -433,7 +435,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 		//Hide/show button
 		this.getBoton('btnDetDep').hide();
-		if(this.maestro.cod_movimiento=='deprec'){
+		if(this.maestro.cod_movimiento=='deprec' || this.maestro.cod_movimiento=='actua'){
 			this.getBoton('btnDetDep').show();
 		}
 
