@@ -475,3 +475,28 @@ IS 'si se aplicaqn o no depreciaciones';
 
 
 
+
+/***********************************I-SCP-RAC-KAF-1-10/04/2017****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN tipo_cambio_ini TYPE NUMERIC;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN tipo_cambio_ini TYPE NUMERIC;
+  
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN monto_actualiz_ant NUMERIC DEFAULT 0 NOT NULL;
+ 
+/***********************************F-SCP-RAC-KAF-1-10/04/2017****************************************/
+ 
+  
+  

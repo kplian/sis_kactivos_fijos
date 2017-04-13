@@ -176,19 +176,71 @@ add constraint fk_tactivo_fijo_valores__id_movimiento_af foreign key (id_movimie
 
 
 /***********************************I-DEP-RAC-KAF-1-29/03/2017****************************************/
-CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep
+--------------- SQL ---------------
+
+CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep(
+    id_activo_fijo_valor,
+    monto_vigente,
+    vida_util,
+    fecha,
+    depreciacion_acum,
+    depreciacion_per,
+    depreciacion_acum_ant,
+    monto_actualiz,
+    depreciacion_acum_actualiz,
+    depreciacion_per_actualiz)
 AS
-  SELECT distinct on  (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
-         afd.monto_vigente ,
-         afd.vida_util ,
-         afd.fecha ,
-         afd.depreciacion_acum ,
-         afd.depreciacion_per ,
-         afd.depreciacion_acum_ant 
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
+         afd.monto_vigente,
+         afd.vida_util,
+         afd.fecha,
+         afd.depreciacion_acum,
+         afd.depreciacion_per,
+         afd.depreciacion_acum_ant,
+         afd.monto_actualiz,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per_actualiz
   FROM kaf.tmovimiento_af_dep afd
-  order by afd.id_activo_fijo_valor, fecha desc;
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.fecha DESC;
   
-CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor
+--------------- SQL ---------------
+--------------- SQL ---------------
+
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor(
+    id_usuario_reg,
+    id_usuario_mod,
+    fecha_reg,
+    fecha_mod,
+    estado_reg,
+    id_usuario_ai,
+    usuario_ai,
+    id_activo_fijo_valor,
+    id_activo_fijo,
+    monto_vigente_orig,
+    vida_util_orig,
+    fecha_ini_dep,
+    depreciacion_mes,
+    depreciacion_per,
+    depreciacion_acum,
+    monto_vigente,
+    vida_util,
+    fecha_ult_dep,
+    tipo_cambio_ini,
+    tipo_cambio_fin,
+    tipo,
+    estado,
+    principal,
+    monto_rescate,
+    id_movimiento_af,
+    codigo,
+    monto_vigente_real,
+    vida_util_real,
+    fecha_ult_dep_real,
+    depreciacion_acum_real,
+    depreciacion_per_real,
+    depreciacion_acum_ant_real,
+    monto_actualiz_real)
 AS
   SELECT afv.id_usuario_reg,
          afv.id_usuario_mod,
@@ -220,13 +272,15 @@ AS
            monto_vigente_real,
          COALESCE(min.vida_util, afv.vida_util_orig) AS vida_util_real,
          COALESCE(min.fecha, afv.fecha_ini_dep) AS fecha_ult_dep_real,
-         COALESCE(min.depreciacion_acum,0) as depreciacion_acum_real, 
-         COALESCE(min.depreciacion_per,0) as depreciacion_per_real, 
-         COALESCE(min.depreciacion_acum_ant,0) as depreciacion_acum_ant_real
+         COALESCE(min.depreciacion_acum, 0::numeric) AS depreciacion_acum_real,
+         COALESCE(min.depreciacion_per, 0::numeric) AS depreciacion_per_real,
+         COALESCE(min.depreciacion_acum_ant, 0::numeric) AS
+           depreciacion_acum_ant_real,
+         COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS
+           monto_actualiz_real
   FROM kaf.tactivo_fijo_valores afv
        LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor =
-         afv.id_activo_fijo_valor;  
-
+         afv.id_activo_fijo_valor;
 
 CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente(
     id_activo_fijo,
@@ -244,6 +298,144 @@ AS
          sum(afd.depreciacion_per_real) AS depreciacion_per_real_af
   FROM kaf.vactivo_fijo_valor afd
   GROUP BY afd.id_activo_fijo;
+  
+  
+ CREATE OR REPLACE VIEW kaf.vultimo_movimiento_af_dep_gestion(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part
+    ('year'::text, afd.fecha))) date_part('year'::text, afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini
+  FROM kaf.tmovimiento_af_dep afd
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           (date_part('year'::text, afd.fecha)),
+           afd.fecha DESC;
+           
+ 
+ 
+CREATE OR REPLACE VIEW kaf.vprimero_movimiento_af_dep_gestion(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part
+    ('year'::text, afd.fecha))) date_part('year'::text, afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini
+  FROM kaf.tmovimiento_af_dep afd
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           (date_part('year'::text, afd.fecha)),
+           afd.fecha;   
+           
+           
+           
+ --------------- SQL ---------------
+
+CREATE VIEW kaf.vdetalle_depreciacion_activo 
+AS 
+   select
+          af.id_activo_fijo,
+          afv.id_activo_fijo_valor,
+          maf.id_movimiento_af,
+          maf.id_movimiento,
+          ud.gestion as gestion_inicial,
+          ud.gestion as gestion_final,
+          afv.tipo,
+          af.fecha_compra,
+          af.fecha_ini_dep,         
+          af.codigo,
+          af.descripcion,
+          afv.monto_vigente_orig,
+          pd.monto_vigente_ant as monto_vigente_inicial,
+          ud.monto_vigente as monto_vigente_final,          
+          pd.monto_actualiz_ant as monto_actualiz_inicial,
+          ud.monto_actualiz as monto_actualiz_final,          
+          ud.monto_actualiz - pd.monto_actualiz_ant  as aitb_activo,
+          afv.vida_util_orig,
+          pd.vida_util_ant as vida_util_inicial,
+          ud.vida_util as vida_util_final,
+          pd.depreciacion_per_ant as depreciacion_per_inicial, 
+          ud.depreciacion_per as depreciacion_per_final, 
+          pd.depreciacion_per_actualiz  as depreciacion_per_actualiz_inicial,
+          ud.depreciacion_per_actualiz as depreciacion_per_actualiz_final,
+          pd.depreciacion_acum_ant as depreciacion_acum_inicial,
+          ud.depreciacion_acum as depreciacion_acum_final,
+          ud.depreciacion_acum -  pd.depreciacion_acum_ant -  ud.depreciacion_per as aitb_depreciacion_acumulada,
+          ud.depreciacion_acum_actualiz as depreciacion_acum_actualiz_final,
+          pd.tipo_cambio_ini as tipo_cabio_inicial,
+          ud.tipo_cambio_fin as tipo_cabio_final,
+          ud.tipo_cambio_fin - pd.tipo_cambio_ini  as factor
+
+      from kaf.tactivo_fijo_valores afv
+      inner join kaf.tactivo_fijo af on af.id_activo_fijo = afv.id_activo_fijo
+      inner join kaf.vprimero_movimiento_af_dep_gestion pd on pd.id_activo_fijo_valor  = afv.id_activo_fijo_valor
+      inner join kaf.vultimo_movimiento_af_dep_gestion ud on ud.id_activo_fijo_valor = afv.id_activo_fijo_valor and ud.gestion = pd.gestion
+      inner join kaf.tmovimiento_af maf on maf.id_movimiento_af = pd.id_movimiento_af and maf.id_movimiento_af = ud.id_movimiento_af;               
 
 /***********************************F-DEP-RAC-KAF-1-29/03/2017****************************************/
 

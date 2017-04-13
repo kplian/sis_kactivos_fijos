@@ -35,6 +35,8 @@ DECLARE
     v_nuevo_monto_vigente   numeric;
     v_nuevo_vida_util       integer;
     v_mes_dep               date;
+    v_gestion_previa		integer;
+    v_gestion_dep		integer;
 
 BEGIN
     
@@ -147,10 +149,12 @@ BEGIN
                                  v_nuevo_dep_mes       = (v_monto_actualiz - v_rec_ant.monto_rescate) / v_ant_vida_util;
                               END IF;
                               
-                              v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
-                              v_nuevo_dep_per       = v_dep_per_actualiz + v_nuevo_dep_mes;
+                              v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;                              
                               v_nuevo_monto_vigente = v_monto_actualiz - v_nuevo_dep_mes;
                               v_nuevo_vida_util     = v_ant_vida_util - 1;
+                              v_nuevo_dep_per       = v_dep_per_actualiz + v_nuevo_dep_mes;
+                              
+                             
                               
                         ELSE
                         
@@ -229,12 +233,23 @@ BEGIN
                             v_mes_dep
                         );
                         
+                        v_gestion_previa =   EXTRACT(YEAR FROM v_mes_dep::date);
                         --Incrementa en uno el mes
                         v_mes_dep = v_mes_dep + interval '1' month;
                         
+                        v_gestion_dep =   EXTRACT(YEAR FROM v_mes_dep::date);
+                        
+                        
+                         --si detectamos que cambio la gestion reseteamos la depreciacion acumulado del periodo (gestion..)
+                        IF v_gestion_previa != v_gestion_dep THEN
+                           v_ant_dep_per = 0.00;
+                        ELSE
+                            v_ant_dep_per = v_nuevo_dep_per;
+                        END IF;
+                        
                         --Reinicialización de valores depreciación para siguiente iteración
                         v_ant_dep_acum = v_nuevo_dep_acum;
-                        v_ant_dep_per = v_nuevo_dep_per;
+                       
                         v_ant_monto_vigente = v_nuevo_monto_vigente;
                         v_ant_vida_util = v_nuevo_vida_util;
                     
