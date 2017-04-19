@@ -22,8 +22,18 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonReport,
-            tooltip : '<b>Reporte Ingreso/Salida</b><br/><b>Solicitud del ingreso o salida</b>'
+            tooltip : '<b>Reporte de Movimiennto</b><br/><b>Reporte de Movimiennto efectuado y su detalle</b>'
         });
+        
+         this.addButton('btnReporteDep',{
+            text :'Det. Dep',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.onButtonReportDepreciacion,
+            tooltip : '<b>Reporte Depresiación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
+        });
+        
+        
 		
 		
 	},
@@ -753,10 +763,19 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             timeout:this.timeout,
             scope:this
         });  
+	},
+	
+	onButtonReportDepreciacion:function(){
+	    var rec=this.sm.getSelected();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacion',
+            params:{'id_movimiento':rec.data.id_movimiento},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });  
 	}
-	
-	
-   
 
 })
 </script>

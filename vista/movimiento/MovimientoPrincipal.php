@@ -302,6 +302,7 @@ Phx.vista.MovimientoPrincipal = {
         var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
         if(tb){
             this.getBoton('btnReporte').disable();
+            this.getBoton('btnReporteDep').disable();
             this.getBoton('ant_estado').disable();
 	        this.getBoton('sig_estado').disable();
 	        this.getBoton('btnChequeoDocumentosWf').disable();
@@ -315,6 +316,7 @@ Phx.vista.MovimientoPrincipal = {
       	var tb = this.tbar;
 
         this.getBoton('btnReporte').enable(); 
+        this.getBoton('btnReporteDep').enable();
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
 

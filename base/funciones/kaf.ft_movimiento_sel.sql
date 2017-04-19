@@ -245,7 +245,67 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;    
+		end; 
+        
+        
+    /*********************************    
+ 	#TRANSACCION:  'SKA_REPDETDE_REP'
+ 	#DESCRIPCION:	Reporte detalle de depreciacion para contabilizacion
+ 	#AUTOR:			RAC
+ 	#FECHA:			17/04/2017
+	***********************************/
+
+	elsif(p_transaccion='SKA_REPDETDE_REP')then
+
+		begin
+
+			--Consulta
+			v_consulta:=' SELECT 
+                              daf.gestion_final::INTEGER,
+                              daf.tipo,
+                              cr.nombre_raiz,
+                              daf.fecha_ini_dep, 
+                              daf.id_movimiento,
+                              daf.id_movimiento_af,
+                              daf.id_activo_fijo_valor,
+                              daf.id_activo_fijo,
+                              daf.codigo,
+                              daf.id_clasificacion,  
+                              daf.descripcion,  
+                              daf.monto_vigente_orig,
+                              daf.monto_vigente_inicial,
+                              daf.monto_vigente_final,  
+                              daf.monto_actualiz_inicial,
+                              daf.monto_actualiz_final,
+                              daf.depreciacion_acum_inicial,
+                              daf.depreciacion_acum_final,  
+                              daf.aitb_activo,
+                              daf.aitb_depreciacion_acumulada,
+                              daf.vida_util_orig,
+                              daf.vida_util_inicial,
+                              daf.vida_util_final,
+                              daf.vida_util_orig - daf.vida_util_final as vida_util_trans,  
+                              cr.codigo_raiz,
+                              cr.id_claificacion_raiz,                              
+                              daf.depreciacion_per_final,
+                              daf.depreciacion_per_actualiz_final
+                            
+                          FROM kaf.vdetalle_depreciacion_activo daf
+                          INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
+                          WHERE daf.id_movimiento = '||v_parametros.id_movimiento||'
+                          ORDER BY    
+                              daf.gestion_final, 
+                              daf.tipo,   
+                              cr.id_clasificacion, 
+                              id_activo_fijo_valor ,                                
+                              daf.fecha_ini_dep';
+                          
+			
+             raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;         
 					
 	else
 					     
