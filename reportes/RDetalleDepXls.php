@@ -157,7 +157,7 @@ class RDetalleDepXls
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$fila,$value['tipo']);	
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$fila,$value['nombre_raiz']);	
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$this->cont_detalle);	
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$value['fecha_ini_dep']);
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,date("d/m/Y", strtotime( $value['fecha_ini_dep'])));
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['codigo']);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,$value['descripcion']);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$value['vida_util_orig']);	
@@ -545,7 +545,7 @@ class RDetalleDepXls
    
    function imprimeTitulo($sheet){
 		$titulo = "CUADRO DE ACTUALIZACION Y DEPRECIACION DEL ACTIVO FIJO";
-		$fechas = 'Practicado al  '.$this->objParam->getParametro('fecha_c31');
+		$fechas = 'Practicado al  '.date("d/m/Y", strtotime( $this->objParam->getParametro('fecha_hasta')));
 		
 		
 		

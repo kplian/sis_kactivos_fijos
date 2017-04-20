@@ -315,8 +315,7 @@ Phx.vista.MovimientoPrincipal = {
       	var data = this.getSelectedData();
       	var tb = this.tbar;
 
-        this.getBoton('btnReporte').enable(); 
-        this.getBoton('btnReporteDep').enable();
+        this.getBoton('btnReporte').enable();        
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
 
@@ -330,7 +329,14 @@ Phx.vista.MovimientoPrincipal = {
         	//this.getBoton('ant_estado').disable();
         	//this.getBoton('sig_estado').disable();
         }
+        if(data.cod_movimiento=='deprec'  || data.cod_movimiento=='actua'){
+        	this.getBoton('btnReporteDep').enable();
+        }
+        else{
+        	this.getBoton('btnReporteDep').disable();
+        }
         
+     
 
         return tb;
     },
