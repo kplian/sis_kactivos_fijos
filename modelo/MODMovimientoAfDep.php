@@ -20,7 +20,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
 		//Definicion de la lista del resultado del query
-		$this->captura('id_movimiento_af_dep','int4');
+		$this->captura('id_movimiento_af_dep','bigint');
 		$this->captura('vida_util','int4');
 		$this->captura('tipo_cambio_ini','numeric');
 		$this->captura('depreciacion_per_actualiz','numeric');
@@ -99,7 +99,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','int4');
+		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','bigint');
 		$this->setParametro('vida_util','vida_util','int4');
 		$this->setParametro('tipo_cambio_ini','tipo_cambio_ini','numeric');
 		$this->setParametro('depreciacion_per_actualiz','depreciacion_per_actualiz','numeric');
@@ -135,7 +135,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','int4');
+		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','bigint');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -152,7 +152,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
 		//Definicion de la lista del resultado del query
-		$this->captura('id_movimiento_af_dep','int4');
+		$this->captura('id_movimiento_af_dep','bigint');
 		$this->captura('id_movimiento_af','int4');
 		$this->captura('id_activo_fijo_valor','int4');
 		$this->captura('fecha','date');

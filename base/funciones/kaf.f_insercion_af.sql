@@ -16,10 +16,26 @@ DECLARE
 	v_id_activo_fijo 		integer;
     v_nombre_funcion		varchar;
     v_resp					varchar;
+    v_monto_compra			numeric;
 
 BEGIN
 
      v_nombre_funcion = 'kaf.f_insercion_af';
+     
+     --conversion de monedas
+     
+     
+      v_monto_compra = param.f_convertir_moneda(
+                           (p_parametros->'id_moneda_orig')::integer, 
+                           NULL,   --por defecto moenda base
+                           (p_parametros->'monto_compra_mt')::numeric, 
+                           (p_parametros->'fecha_compra')::date, 
+                           'O',-- tipo oficial, venta, compra 
+                           NULL);--defecto dos decimales
+            
+     
+     
+     
 
 	--Se hace el registro del activo fijo
 	insert into kaf.tactivo_fijo(
@@ -40,6 +56,7 @@ BEGIN
 		denominacion,
         id_funcionario,
         id_deposito,
+        monto_compra_mt,
         monto_compra,
         id_moneda,
         depreciacion_mes,
@@ -85,7 +102,8 @@ BEGIN
         (p_parametros->'denominacion')::varchar,
         (p_parametros->'id_funcionario')::integer,
         (p_parametros->'id_deposito')::integer,
-        (p_parametros->'monto_compra')::numeric,
+        (p_parametros->'monto_compra_mt')::numeric,
+         v_monto_compra,
         (p_parametros->'id_moneda_orig')::integer,
         0,
         null,

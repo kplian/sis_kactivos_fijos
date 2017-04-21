@@ -500,3 +500,102 @@ ALTER TABLE kaf.tmovimiento_af_dep
  
   
   
+  
+  
+/***********************************I-SCP-RAC-KAF-1-20/04/2017****************************************/
+ 
+ 
+  
+  --------------- SQL ---------------
+
+CREATE TABLE kaf.tmoneda_dep (
+  id_moneda_dep SERIAL,
+  id_moneda INTEGER,
+  id_moneda_act INTEGER,
+  contabilizar VARCHAR(5) DEFAULT 'no' NOT NULL,
+  actualizar VARCHAR(5) DEFAULT 'no' NOT NULL,
+  PRIMARY KEY(id_moneda_dep)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN kaf.tmoneda_dep.id_moneda_act
+IS 'indica que moenda se utiliza para actulizar';
+
+COMMENT ON COLUMN kaf.tmoneda_dep.contabilizar
+IS 'solo una de la monedas puede contabilizar , esa sera considerada la principal';
+
+COMMENT ON COLUMN kaf.tmoneda_dep.actulizar
+IS 'indica si esta moneda actuliza en tal casola moneda de actulizacion tiene que estar configurada';
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_moneda_dep INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_moneda_dep
+IS 'indica la configuracion utilizada para la depreciacion / actualizacion';
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep DROP DEFAULT;
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep TYPE BIGINT;
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep SET DEFAULT nextval('kaf.tmovimiento_af_dep_id_movimiento_af_dep_seq'::regclass);
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN monto_compra_mt NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra_mt
+IS 'monto de la compra en moneda de la trasaccion, indicada por el id_moneda';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra
+IS 'monto de la compra en moneda base';
+
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_rescate
+IS 'monto de rescate en moneda base';
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_vigente
+IS 'este campo esta obsoleto no utilizar, el monto vigente real se obtiene de la vista de base de datos vactivo_fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_moneda
+IS 'moneda en que estan regitrado los montos';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN id_moneda_dep INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.id_moneda_dep
+IS 'configuracion de moneda con que se realizo el registro de depreicacion';
+  
+/***********************************F-SCP-RAC-KAF-1-20/04/2017****************************************/
+ 
+ 

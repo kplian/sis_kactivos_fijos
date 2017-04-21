@@ -60,6 +60,11 @@ DECLARE
     v_cod_movimiento        varchar;
     v_codigo_estado_anterior    varchar;
     v_registros_mov				record;
+    v_id_moneda_base			integer;
+    v_registros_af_mov			record;
+    v_registros_mod				record;
+    v_monto_rescate				numeric;
+    v_monto_compra				numeric;
 			    
 BEGIN
 
@@ -569,6 +574,8 @@ BEGIN
             inner join param.tcatalogo cat
             on cat.id_catalogo = mov.id_cat_movimiento    
             where id_proceso_wf = v_parametros.id_proceso_wf_act;
+            
+            v_id_moneda_base  = param.f_get_moneda_base();
 
             --Obtiene los datos del Estado Actual
             select 
@@ -607,65 +614,107 @@ BEGIN
                 
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
-                    estado = 'alta',
-                    codigo = kaf.f_genera_codigo (movaf.id_activo_fijo)
+                        estado = 'alta',
+                        codigo = kaf.f_genera_codigo (movaf.id_activo_fijo)
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
-                    
                    
+                
+                
+                --lsitados de activos fijso dentro del movimeinto
+                FOR v_registros_af_mov in ( select
+                                                 af.id_activo_fijo,
+                                                  af.monto_compra,          
+                                                  af.vida_util_original,      
+                                                  af.fecha_ini_dep,          
+                                                  af.monto_compra,            
+                                                  af.vida_util_original,     
+                                                  af.monto_rescate,           
+                                                  movaf.id_movimiento_af,
+                                                  af.codigo ,
+                                                  af.fecha_compra                  
+                                              from kaf.tmovimiento_af movaf
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = movaf.id_activo_fijo
+                                              where movaf.id_movimiento = v_movimiento.id_movimiento  )LOOP
+                
+               
+                        
+                            -- por cada moneda configurada es necesario insertar un valor correpondiente 
+                            FOR v_registros_mod in (select 
+                                                          mod.id_moneda_dep,
+                                                          mod.id_moneda,                      
+                                                          mod.id_moneda_act
+                                                      from kaf.tmoneda_dep mod                                               
+                                                      where mod.estado_reg = 'activo') LOOP
+                                                      
+                                                      
+                                      v_monto_compra = param.f_convertir_moneda(
+                                                                                 v_id_moneda_base, --moneda origen para conversion
+                                                                                 v_registros_mod.id_moneda,   --moneda a la que sera convertido
+                                                                                 v_registros_af_mov.monto_compra, --este monto siemrpe estara en moenda base
+                                                                                 v_registros_af_mov.fecha_compra, 
+                                                                                 'O',-- tipo oficial, venta, compra 
+                                                                                 NULL);--defecto dos decimales   
+                                                                                 
+                                      v_monto_rescate = param.f_convertir_moneda(
+                                                                                 v_id_moneda_base, --moneda origen para conversion
+                                                                                 v_registros_mod.id_moneda,   --moneda a la que sera convertido
+                                                                                 v_registros_af_mov.monto_rescate, --este monto siemrpe estara en moenda base
+                                                                                 v_registros_af_mov.fecha_compra, 
+                                                                                 'O',-- tipo oficial, venta, compra 
+                                                                                 NULL);--defecto dos decimales                                                        
+                                                      
+                                     --Crea el registro de importes
+                                      insert into kaf.tactivo_fijo_valores(
+                                          id_usuario_reg, 
+                                          fecha_reg,
+                                          estado_reg,
+                                          id_activo_fijo,
+                                          monto_vigente_orig,
+                                          vida_util_orig,
+                                          fecha_ini_dep,
+                                          depreciacion_mes,
+                                          depreciacion_per,
+                                          depreciacion_acum,
+                                          monto_vigente,
+                                          vida_util,
+                                          estado,
+                                          principal,
+                                          monto_rescate,
+                                          id_movimiento_af,
+                                          tipo, 
+                                          codigo,
+                                          id_moneda_dep,
+                                          id_moneda
+                                      )
+                                      values
+                                       (
+                                          p_id_usuario,
+                                          now(),
+                                          'activo',
+                                          v_registros_af_mov.id_activo_fijo,
+                                          v_monto_compra,            --  monto_vigente_orig
+                                          v_registros_af_mov.vida_util_original,      --  vida_util_orig
+                                          v_registros_af_mov.fecha_ini_dep,           --  fecha_ini_dep
+                                          0,
+                                          0,
+                                          0,
+                                          v_monto_compra,            --  monto_vigente
+                                          v_registros_af_mov.vida_util_original,      --  vida_util
+                                          'activo',
+                                          'si',
+                                          v_monto_rescate,           --  monto_rescate
+                                          v_registros_af_mov.id_movimiento_af,
+                                          'alta',
+                                          v_registros_af_mov.codigo,
+                                          v_registros_mod.id_moneda_dep,
+                                          v_registros_mod.id_moneda);
+                            
+                           END LOOP; -- fin loop moneda
 
-                    --Crea el registro de importes
-                    insert into kaf.tactivo_fijo_valores(
-                       	id_usuario_reg, 
-                       	fecha_reg,estado_reg,
-                        id_activo_fijo,
-                        monto_vigente_orig,
-                        vida_util_orig,
-                        fecha_ini_dep,
-                        depreciacion_mes,
-                        depreciacion_per,
-                        depreciacion_acum,
-                        monto_vigente,
-                        vida_util,
-                        estado,
-                        principal,
-                        monto_rescate,
-                        id_movimiento_af,
-                        tipo, 
-                        codigo
-                    )
-                    select
-                    	p_id_usuario,
-                        now(),
-                        'activo',
-                    	af.id_activo_fijo,
-                        af.monto_compra,            --  considerar en modificacion
-                        af.vida_util_original,      --  considerar en modificacion
-                        af.fecha_ini_dep,           --  considerar en modificacion
-                    	0,
-                        0,
-                        0,
-                    	af.monto_compra,            --  considerar en modificacion
-                        af.vida_util_original,      --  considerar en modificacion
-                        'activo',
-                        'si',
-                        af.monto_rescate,           --  considerar en modificacion
-                        movaf.id_movimiento_af,
-                    	'alta',
-                        af.codigo                   --  considerar en modificacion
-                    from kaf.tmovimiento_af movaf
-                    inner join kaf.tactivo_fijo af
-                    on af.id_activo_fijo = movaf.id_activo_fijo
-                    where movaf.id_movimiento = v_movimiento.id_movimiento;
-                    
-                    --  TODO
-                    --  RAC 03/03/2017
-                    --  Si lo valroes originales son modificados en la tabla activo_fijo
-                    --  no se estan acutlizando los valores ......
-                    --  pienso que conviene ahcerlo con un triguer para evitar inconsistencias 
-                    --  si alguien decide cambiar directo en base de datos
-                    
+                     END LOOP; -- fin loop movimeinto
                     
                     
                 end if;

@@ -116,7 +116,8 @@ BEGIN
                             COALESCE(round(afvi.depreciacion_acum_real_af,2),0),
                             COALESCE(round( afvi.depreciacion_per_real_af,2),0),
                             cla.tipo_activo,
-                            cla.depreciable
+                            cla.depreciable,
+                            afij.monto_compra_mt
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun

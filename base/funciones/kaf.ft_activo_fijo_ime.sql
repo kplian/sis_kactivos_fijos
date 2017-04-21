@@ -37,6 +37,7 @@ DECLARE
     v_rec_af         		record;
     v_ids_clon				varchar;
     v_clase_reporte			varchar;
+    v_monto_compra			numeric;
     
 			    
 BEGIN
@@ -70,7 +71,7 @@ BEGIN
 			v_parametros.denominacion,
 			v_parametros.id_funcionario,
 			v_parametros.id_deposito,
-			v_parametros.monto_compra,
+			v_parametros.monto_compra_mt,
 			v_parametros.id_moneda_orig,
 			v_parametros.codigo,
 			v_parametros.descripcion,
@@ -87,6 +88,7 @@ BEGIN
 			v_parametros.codigo_ant,
 			v_parametros.marca,
 			v_parametros.nro_serie,
+            
 			NULL
 	        into v_rec_af;
 
@@ -126,7 +128,16 @@ BEGIN
                IF v_rec_af.monto_compra != v_parametros.monto_compra or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
                  raise exception 'no puede editar datos de compras cuando el activo ya esta de alta, regitre una revalorizacion para hacer cualquier ajuste';
                END IF;
-              END IF;   
+              END IF;  
+              
+              v_monto_compra = param.f_convertir_moneda(
+                                                         v_parametros.id_moneda_orig, 
+                                                         NULL,   --por defecto moenda base
+                                                         v_parametros.monto_compra_mt, 
+                                                         v_parametros.fecha_compra, 
+                                                         'O',-- tipo oficial, venta, compra 
+                                                         NULL);--defecto dos decimales
+             
         
       
 			--Sentencia de la modificacion
@@ -147,7 +158,8 @@ BEGIN
                 denominacion = v_parametros.denominacion,
                 id_funcionario = v_parametros.id_funcionario,
                 id_deposito = v_parametros.id_deposito,
-                monto_compra = v_parametros.monto_compra,
+                monto_compra_mt = v_parametros.monto_compra_mt,
+                monto_compra = v_monto_compra,
                 id_moneda = v_parametros.id_moneda_orig,
                 codigo = v_parametros.codigo,
                 descripcion = v_parametros.descripcion,

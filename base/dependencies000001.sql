@@ -176,19 +176,8 @@ add constraint fk_tactivo_fijo_valores__id_movimiento_af foreign key (id_movimie
 
 
 /***********************************I-DEP-RAC-KAF-1-29/03/2017****************************************/
---------------- SQL ---------------
 
-CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep(
-    id_activo_fijo_valor,
-    monto_vigente,
-    vida_util,
-    fecha,
-    depreciacion_acum,
-    depreciacion_per,
-    depreciacion_acum_ant,
-    monto_actualiz,
-    depreciacion_acum_actualiz,
-    depreciacion_per_actualiz)
+CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep
 AS
   SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
          afd.monto_vigente,
@@ -199,48 +188,17 @@ AS
          afd.depreciacion_acum_ant,
          afd.monto_actualiz,
          afd.depreciacion_acum_actualiz,
-         afd.depreciacion_per_actualiz
+         afd.depreciacion_per_actualiz,
+         afd.id_moneda,
+         afd.id_moneda_dep
   FROM kaf.tmovimiento_af_dep afd
   ORDER BY afd.id_activo_fijo_valor,
            afd.fecha DESC;
-  
---------------- SQL ---------------
---------------- SQL ---------------
 
-CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor(
-    id_usuario_reg,
-    id_usuario_mod,
-    fecha_reg,
-    fecha_mod,
-    estado_reg,
-    id_usuario_ai,
-    usuario_ai,
-    id_activo_fijo_valor,
-    id_activo_fijo,
-    monto_vigente_orig,
-    vida_util_orig,
-    fecha_ini_dep,
-    depreciacion_mes,
-    depreciacion_per,
-    depreciacion_acum,
-    monto_vigente,
-    vida_util,
-    fecha_ult_dep,
-    tipo_cambio_ini,
-    tipo_cambio_fin,
-    tipo,
-    estado,
-    principal,
-    monto_rescate,
-    id_movimiento_af,
-    codigo,
-    monto_vigente_real,
-    vida_util_real,
-    fecha_ult_dep_real,
-    depreciacion_acum_real,
-    depreciacion_per_real,
-    depreciacion_acum_ant_real,
-    monto_actualiz_real)
+
+
+
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor
 AS
   SELECT afv.id_usuario_reg,
          afv.id_usuario_mod,
@@ -277,27 +235,31 @@ AS
          COALESCE(min.depreciacion_acum_ant, 0::numeric) AS
            depreciacion_acum_ant_real,
          COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS
-           monto_actualiz_real
+           monto_actualiz_real,
+         afv.id_moneda,
+         afv.id_moneda_dep
   FROM kaf.tactivo_fijo_valores afv
-       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor =
-         afv.id_activo_fijo_valor;
-
-CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente(
-    id_activo_fijo,
-    monto_vigente_real_af,
-    vida_util_real_af,
-    fecha_ult_dep_real_af,
-    depreciacion_acum_real_af,
-    depreciacion_per_real_af)
+       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor = afv.id_activo_fijo_valor and afv.id_moneda_dep = min.id_moneda_dep;
+       
+       
+       
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente
 AS
   SELECT afd.id_activo_fijo,
          sum(afd.monto_vigente_real) AS monto_vigente_real_af,
          max(afd.vida_util_real) AS vida_util_real_af,
          max(afd.fecha_ult_dep_real) AS fecha_ult_dep_real_af,
          sum(afd.depreciacion_acum_real) AS depreciacion_acum_real_af,
-         sum(afd.depreciacion_per_real) AS depreciacion_per_real_af
+         sum(afd.depreciacion_per_real) AS depreciacion_per_real_af,
+         afd.id_moneda,
+         afd.id_moneda_dep
   FROM kaf.vactivo_fijo_valor afd
-  GROUP BY afd.id_activo_fijo;
+  GROUP BY afd.id_activo_fijo,
+           afd.id_moneda,
+           afd.id_moneda_dep;       
+       
+
+--vistas para reportes y contabilizacion
   
   CREATE OR REPLACE VIEW kaf.vultimo_movimiento_af_dep_gestion(
     gestion,
@@ -533,6 +495,29 @@ WITH RECURSIVE clasificacion(
 
 
 /***********************************F-DEP-RAC-KAF-1-17/04/2017****************************************/
+
+
+
+
+/***********************************F-DEP-RAC-KAF-1-20/04/2017****************************************/
+
+select pxp.f_insert_testructura_gui ('CONFAF', 'KAF');
+select pxp.f_insert_testructura_gui ('MONDEP', 'CONFAF');
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD CONSTRAINT tactivo_fijo_valores__id_moneda_dep_fk FOREIGN KEY (id_moneda_dep)
+    REFERENCES kaf.tmoneda_dep(id_moneda_dep)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+/***********************************F-DEP-RAC-KAF-1-20/04/2017****************************************/
+
+
+
 
 
 

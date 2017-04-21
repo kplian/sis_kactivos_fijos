@@ -1,6 +1,7 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION kaf.f_get_tipo_cambio (
+  p_id_moneda_act integer,
   p_id_moneda integer,
   p_fecha_mes date,
   out o_tc_inicial numeric,
@@ -37,9 +38,9 @@ begin
     v_fecha_ini = ('01/'||to_char(p_fecha_mes,'mm')||'/'||to_char(p_fecha_mes,'yyyy'))::date;
     v_fecha_fin = ('01/'||to_char(p_fecha_mes + interval '1' month,'mm')||'/'||to_char(p_fecha_mes + interval '1' month,'yyyy'))::date - interval '1' day;
         
-    --Obtención de los tipos de cambio
-    v_tc_inicial = param.f_get_tipo_cambio(p_id_moneda,v_fecha_ini,'O');
-    v_tc_final = param.f_get_tipo_cambio(p_id_moneda,v_fecha_fin,'O');
+    --Obtención de los tipos de cambio    
+    v_tc_inicial =  param.f_get_tipo_cambio_v2(p_id_moneda_act, p_id_moneda, v_fecha_ini, 'O');
+    v_tc_final =  param.f_get_tipo_cambio_v2(p_id_moneda_act, p_id_moneda, v_fecha_fin, 'O');
     
     --Cálculo del factor de actualización
     v_factor = v_tc_final / v_tc_inicial;

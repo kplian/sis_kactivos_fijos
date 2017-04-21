@@ -186,3 +186,27 @@ select param.f_import_tcatalogo ('insert','KAF','Actualización','actua','tmovim
 /***********************************F-DAT-RAC-KAF-1-10/04/2017****************************************/
 
 
+
+/***********************************I-DAT-RAC-KAF-1-20/04/2017****************************************/
+
+
+----------------------------------
+--COPY LINES TO data.sql FILE  
+---------------------------------
+
+select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php', 2, '', 'MovimientoPrincipal', 'KAF');
+select pxp.f_insert_tgui ('Configuración', 'Configuración', 'CONFAF', 'si', 1, '', 2, '', '', 'KAF');
+select pxp.f_insert_tgui ('Monedas Dep', 'Moneda para depreciación', 'MONDEP', 'si', 1, 'sis_kactivos_fijos/vista/moneda_dep/MonedaDep.php', 3, '', 'MonedaDep', 'KAF');
+
+
+/***********************************F-DAT-RAC-KAF-1-20/04/2017****************************************/
+
+
+
+
+
+
+
+
+
+
