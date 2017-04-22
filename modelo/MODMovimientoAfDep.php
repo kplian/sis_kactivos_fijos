@@ -186,6 +186,10 @@ class MODMovimientoAfDep extends MODbase{
 		$this->transaccion='SKA_RESCAB_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
+		$this->capturaCount('total_monto_actualiz_real','numeric');
+		$this->capturaCount('total_depreciacion_acum_real','numeric');
+		$this->capturaCount('total_monto_vigente_real','numeric');
+		
 	
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
@@ -215,6 +219,11 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('depreciacion_acum_real','numeric');
 		$this->captura('depreciacion_per_real','numeric');
 		
+		$this->captura('monto_actualiz_real','numeric');
+		$this->captura('id_moneda','int4');
+		$this->captura('id_moneda_dep','int4');
+		$this->captura('desc_moneda','varchar');
+		
 	
 
 		//Ejecuta la instruccion
@@ -231,6 +240,9 @@ class MODMovimientoAfDep extends MODbase{
 		$this->transaccion='SKA_RESCABPR_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
+		
+		$this->capturaCount('total_monto_actualiz_real','numeric');
+		$this->capturaCount('total_depreciacion_acum_real','numeric');
 		$this->capturaCount('total_monto_vigente_real','numeric');
 		$this->capturaCount('max_vida_util_real','integer');
 
@@ -259,6 +271,13 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('depreciacion_acum_ant_real','numeric');
 		$this->captura('depreciacion_acum_real','numeric');
 		$this->captura('depreciacion_per_real','numeric');
+		
+		$this->captura('monto_actualiz_real','numeric');
+		$this->captura('id_moneda','int4');
+		$this->captura('id_moneda_dep','int4');
+		$this->captura('desc_moneda','varchar');
+		
+		
 		
 	
 

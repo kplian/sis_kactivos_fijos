@@ -197,7 +197,6 @@ AS
 
 
 
-
 CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor
 AS
   SELECT afv.id_usuario_reg,
@@ -232,14 +231,14 @@ AS
          COALESCE(min.fecha, afv.fecha_ini_dep) AS fecha_ult_dep_real,
          COALESCE(min.depreciacion_acum, 0::numeric) AS depreciacion_acum_real,
          COALESCE(min.depreciacion_per, 0::numeric) AS depreciacion_per_real,
-         COALESCE(min.depreciacion_acum_ant, 0::numeric) AS
-           depreciacion_acum_ant_real,
-         COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS
-           monto_actualiz_real,
+         COALESCE(min.depreciacion_acum_ant, 0::numeric) AS  depreciacion_acum_ant_real,
+         COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS  monto_actualiz_real,
          afv.id_moneda,
          afv.id_moneda_dep
   FROM kaf.tactivo_fijo_valores afv
-       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor = afv.id_activo_fijo_valor and afv.id_moneda_dep = min.id_moneda_dep;
+       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor = afv.id_activo_fijo_valor AND afv.id_moneda_dep = min.id_moneda_dep;
+       
+       
        
        
        

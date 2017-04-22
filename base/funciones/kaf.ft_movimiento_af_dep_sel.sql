@@ -177,34 +177,39 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='  select
-						  distinct actval.id_activo_fijo_valor,
-                          actval.id_activo_fijo,
-                          actval.depreciacion_per,
-                          actval.estado,
-                          actval.principal,
-                          actval.monto_vigente,
-                          actval.monto_rescate,
-                          actval.tipo_cambio_ini,
-                          actval.estado_reg,
-                          actval.tipo,
-                          actval.depreciacion_mes,
-                          actval.depreciacion_acum,
-                          actval.fecha_ult_dep,
-                          actval.fecha_ini_dep,
-                          actval.monto_vigente_orig,
-                          actval.vida_util,
-                          actval.vida_util_orig,
-                          mafdep.id_movimiento_af,
-                          actval.tipo_cambio_fin,
-                          actval.codigo,
-                          afv.monto_vigente_real,
-                          afv.vida_util_real,
-                          afv.depreciacion_acum_ant_real,
-                          afv.depreciacion_acum_real,
-                          afv.depreciacion_per_real
-						from kaf.tmovimiento_af_dep mafdep
-						inner join kaf.tactivo_fijo_valores actval on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+                              actval.id_activo_fijo_valor,
+                              actval.id_activo_fijo,
+                              actval.depreciacion_per,
+                              actval.estado,
+                              actval.principal,
+                              actval.monto_vigente,
+                              actval.monto_rescate,
+                              actval.tipo_cambio_ini,
+                              actval.estado_reg,
+                              actval.tipo,
+                              actval.depreciacion_mes,
+                              actval.depreciacion_acum,
+                              actval.fecha_ult_dep,
+                              actval.fecha_ini_dep,
+                              actval.monto_vigente_orig,
+                              actval.vida_util,
+                              actval.vida_util_orig,
+                              movaf.id_movimiento_af,
+                              actval.tipo_cambio_fin,
+                              actval.codigo,
+                              afv.monto_vigente_real,
+                              afv.vida_util_real,
+                              afv.depreciacion_acum_ant_real,
+                              afv.depreciacion_acum_real,
+                              afv.depreciacion_per_real,
+                              afv.monto_actualiz_real,
+                              afv.id_moneda,
+                              afv.id_moneda_dep,
+                              mon.codigo as desc_moneda
+						from  kaf.tactivo_fijo_valores actval
+						inner join kaf.tmovimiento_af movaf  on actval.id_activo_fijo = movaf.id_activo_fijo
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE  ';
 			
 			--Definicion de la respuesta
@@ -228,11 +233,15 @@ BEGIN
 		begin
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
-						  count(actval.id_activo_fijo_valor)
-						from kaf.tmovimiento_af_dep mafdep
-						inner join kaf.tactivo_fijo_valores actval on actval.id_activo_fijo_valor = mafdep.id_activo_fijo_valor
+						  count(actval.id_activo_fijo_valor),
+                          sum(afv.monto_actualiz_real),
+                          sum(afv.depreciacion_acum_real),
+                          sum(afv.monto_vigente_real)
+						from  kaf.tactivo_fijo_valores actval
+						inner join kaf.tmovimiento_af movaf  on actval.id_activo_fijo = movaf.id_activo_fijo
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
-                        WHERE ';
+                        inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
+                        WHERE  ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -277,9 +286,14 @@ BEGIN
                           afv.vida_util_real,
                           afv.depreciacion_acum_ant_real,
                           afv.depreciacion_acum_real,
-                          afv.depreciacion_per_real
+                          afv.depreciacion_per_real,
+                          afv.monto_actualiz_real,
+                          afv.id_moneda,
+                          afv.id_moneda_dep,
+                          mon.codigo as desc_moneda
 						from  kaf.tactivo_fijo_valores actval 
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE  ';
 			
 			--Definicion de la respuesta
@@ -306,10 +320,13 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
 						  count(actval.id_activo_fijo_valor),
+                          sum(afv.monto_actualiz_real),
+                          sum(afv.depreciacion_acum_real),
                           sum(afv.monto_vigente_real),
                           max(afv.vida_util_real)
 						from  kaf.tactivo_fijo_valores actval 
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE ';
 			
 			--Definicion de la respuesta		    

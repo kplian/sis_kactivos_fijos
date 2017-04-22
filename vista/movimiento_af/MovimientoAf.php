@@ -13,6 +13,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+		
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAf.superclass.constructor.call(this,config);
 		this.init();
@@ -27,7 +28,17 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             handler : this.onButtonDetDep,
             tooltip : '<b>Depreciacion</b><br/>Detalle del calculo de depreciacion'
        	});
+       	
+       	
+       	
+       	
+       	
+       	
 	},
+	
+
+	
+	
 	filter:{},
 			
 	Atributos:[

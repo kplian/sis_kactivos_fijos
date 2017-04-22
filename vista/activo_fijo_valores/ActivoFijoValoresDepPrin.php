@@ -37,7 +37,7 @@ Phx.vista.ActivoFijoValoresDepPrin = {
 	 onReloadPage:function(m){
 	 	
 		this.maestro=m;
-		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo};	
+		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo, id_moneda_dep: this.cmbMonedaDep.getValue()};		
 		console.log('datos maestro', m, this.store.baseParams)	
 		this.load({params:{start:0, limit:50}})
 		
@@ -48,6 +48,8 @@ Phx.vista.ActivoFijoValoresDepPrin = {
 		Phx.vista.ActivoFijoValoresDepPrin.superclass.loadValoresIniciales.call(this);
 			
 	}, 
+	
+	
 
 
 	ActList:'../../sis_kactivos_fijos/control/MovimientoAfDep/listarMovimientoAfDepResCabPr',

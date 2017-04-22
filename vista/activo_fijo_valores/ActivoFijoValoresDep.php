@@ -22,7 +22,16 @@ Phx.vista.ActivoFijoValoresDep = {
 	constructor: function(config) {  
 	    this.maestro=config.maestro;
     	Phx.vista.ActivoFijoValoresDep.superclass.constructor.call(this,config);
-	    this.load({params:{start:0, limit:this.tam_pag, id_movimiento_af:this.maestro.id_movimiento_af}});
+	    this.load({ params: {start:0, limit:this.tam_pag, id_movimiento:  this.maestro.id_movimiento }});
+	},
+	
+	capturaFiltros : function(combo, record, index) {
+		
+			this.desbloquearOrdenamientoGrid();
+			this.store.baseParams.id_moneda_dep = this.cmbMonedaDep.getValue();	
+			this.store.baseParams.id_movimiento = this.maestro.id_movimiento;			
+			this.load();
+			
 	},
 
 	ActList:'../../sis_kactivos_fijos/control/MovimientoAfDep/listarMovimientoAfDepResCab',
