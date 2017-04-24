@@ -81,7 +81,7 @@ class RDetalleDepXls
 	
 	function ImprimeCabera($inicio_filas){
 		
-		$styleTitulos = array(
+		$this->styleTitulos = array(
 							      'font'  => array(
 							          'bold'  => true,
 							          'size'  => 8,
@@ -101,9 +101,11 @@ class RDetalleDepXls
 								         )
 								     ));
 									 
-									 
-       
-        $this->docexcel->getActiveSheet()->getStyle('A7:P7')->applyFromArray($styleTitulos);
+									   
+		
+		
+		$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila).":P".($this->fila))->applyFromArray($this->styleTitulos);
+					
 		
 		//*************************************Cabecera*****************************************//
 		
@@ -364,6 +366,8 @@ class RDetalleDepXls
 					
 					$this->fila++;
 			        $this->contador++;
+			     
+			        //$this->contador++;
 					//reiniciamos agrupadores de celda
 					$this->fila_fin_cg = $this->fila;
 					$this->fila_ini_cg = $this->fila;
@@ -387,6 +391,25 @@ class RDetalleDepXls
    	
 	
      }
+
+    function insertarMoneda($desc_moneda){
+    	
+		$this->fila++;
+		$this->fila++;
+    	
+		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$this->fila,$desc_moneda);
+		$this->fila++;
+		$this->ImprimeCabera($this->fila);
+		
+		
+		$this->docexcel->setActiveSheetIndex(0)->mergeCells("B".($this->fila).":D".($this->fila));
+		$this->docexcel->setActiveSheetIndex(0)->getStyle("B".($this->fila).":A".($this->fila))->applyFromArray($this->styleArrayMoneda);
+					
+		$this->fila++;
+					
+		
+    }
 	  		
 	function imprimeDatos(){
 		
@@ -394,21 +417,15 @@ class RDetalleDepXls
 		$config = $this->objParam->getParametro('config');
 		$columnas = 0;
 		$inicio_filas = 7;	
-		$this->ImprimeCabera($inicio_filas);
+		
+		//$this->ImprimeCabera($inicio_filas);
 		
 		
-		$this->fila = $inicio_filas+1;
+		$this->fila = $inicio_filas;
 		$this->contador = 1;
 		
 		
-		$this->fila_ini = $this->fila;
-		$this->fila_fin = $this->fila;
 		
-		$this->fila_ini_par = $this->fila;
-		$this->fila_fin_par = $this->fila;
-		
-		$this->fila_ini_cg = $this->fila;
-		$this->fila_fin_cg = $this->fila;
 		
 		
 		
@@ -463,7 +480,17 @@ class RDetalleDepXls
 							    'fill' => array('type' => PHPExcel_Style_Fill::FILL_SOLID,
 											    'color' => array('rgb' => 'FFFF99')),
 								 'borders' => array('allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
-								);								
+								);	
+								
+								
+		//Estilos para MONEDA					
+		$this->styleArrayMoneda = array(
+							     'font'  => array('bold'  => true),
+							     'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+												       'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER),
+								 'borders' => array('allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
+								 );						
+															
 		
 		/////////////////////***********************************Detalle***********************************************
 		
@@ -479,6 +506,17 @@ class RDetalleDepXls
 			//validamos agrupadores
 			if($sw){
 				$sw = false;
+				$this->insertarMoneda($value['desc_moneda']);
+				
+				
+				
+				
+				$this->fila_ini = $this->fila;
+				$this->fila_fin = $this->fila;				
+				$this->fila_ini_par = $this->fila;
+				$this->fila_fin_par = $this->fila;				
+				$this->fila_ini_cg = $this->fila;
+				$this->fila_fin_cg = $this->fila;
 			}
 			else{
 				
@@ -505,6 +543,29 @@ class RDetalleDepXls
 				
 				if($tmp_rec['gestion_final'] != $value['gestion_final']){
 					$this->cerrarTipo($tmp_rec);
+				}
+				
+				
+				if($tmp_rec['id_moneda_dep'] != $value['id_moneda_dep']){
+						
+					//$this->fila = $this->fila + 5;
+					
+					
+					
+					$this->insertarMoneda($value['desc_moneda']);
+					//reiniciamos agrupadores de celda
+					$this->fila_fin_cg = $this->fila;
+					$this->fila_ini_cg = $this->fila;
+					
+					
+					//SI cerramos un categoria iniciamos tambien las partida
+					//reiniciamos agrupadores de celda
+					$this->fila_fin_par = $this->fila;
+					$this->fila_ini_par = $this->fila;
+					
+					//reiniciamos las categorias porgramticas
+					$this->fila_fin_ = $this->fila;
+					$this->fila_ini = $this->fila;
 				}
                 
 

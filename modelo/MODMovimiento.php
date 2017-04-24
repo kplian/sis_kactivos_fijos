@@ -316,7 +316,9 @@ class MODMovimiento extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
 		
-		$this->setParametro('id_movimiento','id_movimiento','int4');		
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+		$this->captura('id_moneda_dep','INTEGER');
+		$this->captura('desc_moneda','VARCHAR');		
 		$this->captura('gestion_final','INTEGER');
         $this->captura('tipo','varchar');
         $this->captura('nombre_raiz','varchar');

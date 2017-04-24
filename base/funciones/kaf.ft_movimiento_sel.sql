@@ -261,6 +261,8 @@ BEGIN
 
 			--Consulta
 			v_consulta:=' SELECT 
+                              daf.id_moneda_dep,
+                              mod.descripcion as desc_moneda,
                               daf.gestion_final::INTEGER,
                               daf.tipo,
                               cr.nombre_raiz,
@@ -292,8 +294,10 @@ BEGIN
                             
                           FROM kaf.vdetalle_depreciacion_activo daf
                           INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
+                          INNER JOIN kaf.tmoneda_dep mod on mod.id_moneda_dep = daf.id_moneda_dep
                           WHERE daf.id_movimiento = '||v_parametros.id_movimiento||'
-                          ORDER BY    
+                          ORDER BY 
+                              daf.id_moneda_dep,   
                               daf.gestion_final, 
                               daf.tipo,   
                               cr.id_clasificacion, 

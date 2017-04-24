@@ -385,7 +385,9 @@ AS
     depreciacion_acum_actualiz_final,
     tipo_cabio_inicial,
     tipo_cabio_final,
-    factor)
+    factor,
+    id_moneda,
+    id_moneda_dep)
 AS
   SELECT af.id_activo_fijo,
          af.id_clasificacion,
@@ -419,7 +421,9 @@ AS
          ud.depreciacion_acum_actualiz AS depreciacion_acum_actualiz_final,
          pd.tipo_cambio_ini AS tipo_cabio_inicial,
          ud.tipo_cambio_fin AS tipo_cabio_final,
-         ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor
+         ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor,
+         afv.id_moneda,
+         afv.id_moneda_dep
   FROM kaf.tactivo_fijo_valores afv
        JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
        JOIN kaf.vprimero_movimiento_af_dep_gestion pd ON pd.id_activo_fijo_valor
@@ -427,7 +431,7 @@ AS
        JOIN kaf.vultimo_movimiento_af_dep_gestion ud ON ud.id_activo_fijo_valor
          = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion
        JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pd.id_movimiento_af
-         AND maf.id_movimiento_af = ud.id_movimiento_af;  
+         AND maf.id_movimiento_af = ud.id_movimiento_af;
                     
 
 /***********************************F-DEP-RAC-KAF-1-29/03/2017****************************************/
