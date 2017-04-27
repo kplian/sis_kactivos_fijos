@@ -18,13 +18,17 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		
 		
+		
+		
+		
 		this.cmbMonedaDep.on('select', function(){
 			    if( this.validarFiltros() ){
 	                  this.capturaFiltros();
 	             }
 		     },this);
-			
-			
+		     
+		     
+		
 			
 			
 		this.init();
@@ -354,7 +358,7 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				maxLength:15
 			},
 				type:'TextField',
-				filters:{pfiltro:'mon.desc_moneda',type:'string'},
+				filters:{pfiltro:'mon.codigo',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:false

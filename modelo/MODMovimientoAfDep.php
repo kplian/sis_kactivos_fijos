@@ -240,11 +240,16 @@ class MODMovimientoAfDep extends MODbase{
 		$this->transaccion='SKA_RESCABPR_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
+		$this->setParametro('fecha_hasta','fecha_hasta','date');
+		
 		
 		$this->capturaCount('total_monto_actualiz_real','numeric');
 		$this->capturaCount('total_depreciacion_acum_real','numeric');
 		$this->capturaCount('total_monto_vigente_real','numeric');
 		$this->capturaCount('max_vida_util_real','integer');
+		
+		
+		
 
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
@@ -267,15 +272,20 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('tipo_cambio_fin','numeric');
 		$this->captura('codigo','varchar');		
 		$this->captura('monto_vigente_real','numeric');
-		$this->captura('vida_util_real','integer');
-		$this->captura('depreciacion_acum_ant_real','numeric');
+		$this->captura('vida_util_real','integer');		
 		$this->captura('depreciacion_acum_real','numeric');
 		$this->captura('depreciacion_per_real','numeric');
-		
+		$this->captura('depreciacion_acum_ant_real','numeric');		
 		$this->captura('monto_actualiz_real','numeric');
 		$this->captura('id_moneda','int4');
 		$this->captura('id_moneda_dep','int4');
 		$this->captura('desc_moneda','varchar');
+		
+		 
+                         
+                         
+                     
+                  
 		
 		
 		

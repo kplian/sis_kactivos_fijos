@@ -687,7 +687,8 @@ BEGIN
                                           tipo, 
                                           codigo,
                                           id_moneda_dep,
-                                          id_moneda
+                                          id_moneda,
+                                          fecha_inicio
                                       )
                                       values
                                        (
@@ -710,7 +711,10 @@ BEGIN
                                           'alta',
                                           v_registros_af_mov.codigo,
                                           v_registros_mod.id_moneda_dep,
-                                          v_registros_mod.id_moneda);
+                                          v_registros_mod.id_moneda,
+                                          v_registros_af_mov.fecha_ini_dep           --  fecha_ini  desde cuando se considera el activo valor
+                                          
+                                     );
                             
                            END LOOP; -- fin loop moneda
 
@@ -805,40 +809,102 @@ BEGIN
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                           and movaf.id_movimiento = v_movimiento.id_movimiento;
+                          
+                   
                     
-                    --Actualiza estado de activo fijo
-                    --RAC 29/03/2017, comentado temporalmente para ver donde vamos almacenes estos datos o si se van a calcular
-                     /*update kaf.tactivo_fijo set
-                    	cantidad_revaloriz = cantidad_revaloriz + 1,
-                   		monto_vigente = movaf.importe,
-                    	vida_util = movaf.vida_util
-                    from kaf.tmovimiento_af movaf
-                    where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
-                    and movaf.id_movimiento = v_movimiento.id_movimiento;*/
-                    
-                    --RAC, en mejorar la fecha de inicio de depreciacion es la fecha del movimiento 
+                    --lsitados de activos fijso dentro del movimeinto
+                    FOR v_registros_af_mov in (  select
+                                                            af.id_activo_fijo, 
+                                                            af.monto_compra,          
+                                                            af.vida_util_original,   
+                                                            mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
+                                                            movaf.importe,      
+                                                            movaf.vida_util,         
+                                                            movaf.id_movimiento_af,
+                                                            af.codigo,
+                                                            af.cantidad_revaloriz
+                                                        from kaf.tmovimiento_af movaf
+                                                        inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
+                                                        inner join kaf.tactivo_fijo af on af.id_activo_fijo = movaf.id_activo_fijo  
+                                                        where movaf.id_movimiento = v_movimiento.id_movimiento)LOOP 
+                  
+                
+                                  -- TODO, considerar multiples monedas al revalorizar el activo fijo 
+                                  -- por cada moneda configurada es necesario insertar un valor correpondiente 
+                                  FOR v_registros_mod in (select 
+                                                                mod.id_moneda_dep,
+                                                                mod.id_moneda,                      
+                                                                mod.id_moneda_act
+                                                            from kaf.tmoneda_dep mod                                               
+                                                            where mod.estado_reg = 'activo') LOOP
+                                                                    
+                                                         
+                                                         ------------------------------------------------------------------------------------
+                                                         --asumimos que las revalorizaciones y emjoras siemroe se registran en moenda base  
+                                                         ------------------------------------------------------------------------------------                      
+                                                      
+                                                          v_monto_compra = param.f_convertir_moneda(
+                                                                                                     v_id_moneda_base, --moneda origen para conversion
+                                                                                                     v_registros_mod.id_moneda,   --moneda a la que sera convertido
+                                                                                                     v_registros_af_mov.importe, --este monto siemrpe estara en moenda base
+                                                                                                     v_registros_af_mov.fecha_mov, 
+                                                                                                     'O',-- tipo oficial, venta, compra 
+                                                                                                     NULL);--defecto dos decimales   
+                                                                                               
+                                             
+                                                                                       
+                                   
+                                   
+                                                        --RAC, en mejorar la fecha de inicio de depreciacion es la fecha del movimiento 
 
-                    --Crea el registro de importes
-                    -- en revalorizzciones y mejoras el monto de rescate siemrpe cera CERO 
-                    insert into kaf.tactivo_fijo_valores(
-                      id_usuario_reg,   fecha_reg,             estado_reg,
-                      id_activo_fijo,   monto_vigente_orig,    vida_util_orig,           fecha_ini_dep,
-                      depreciacion_mes, depreciacion_per,      depreciacion_acum,
-                      monto_vigente,    vida_util,             estado,                   principal,
-                      monto_rescate,    id_movimiento_af,      tipo,                     codigo
-                    )
-                    select
-                      p_id_usuario,      now(),                   'activo',
-                      af.id_activo_fijo, af.monto_compra,          af.vida_util_original,   mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
-                      0,                 0,                        0,
-                      movaf.importe,      movaf.vida_util,         'activo',                 'si',
-                      0,   movaf.id_movimiento_af,  'reval',               af.codigo||'-R'||cast(af.cantidad_revaloriz as varchar)
-                    from kaf.tmovimiento_af movaf
-                    inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
-                    inner join kaf.tactivo_fijo af
-                    on af.id_activo_fijo = movaf.id_activo_fijo
-                    where movaf.id_movimiento = v_movimiento.id_movimiento;
-
+                                                        -- Crea el registro de importes
+                                                        -- en revalorizzciones y mejoras el monto de rescate siemrpe cera CERO 
+                                                        insert into kaf.tactivo_fijo_valores(
+                                                          id_usuario_reg,   
+                                                          fecha_reg,             
+                                                          estado_reg,
+                                                          id_activo_fijo,   
+                                                          monto_vigente_orig,    
+                                                          vida_util_orig,           
+                                                          fecha_ini_dep,
+                                                          depreciacion_mes, 
+                                                          depreciacion_per,      
+                                                          depreciacion_acum,  --10
+                                                          monto_vigente,    vida_util,             estado,                   principal,
+                                                          monto_rescate,    id_movimiento_af,      tipo,                     codigo,
+                                                          fecha_inicio,		id_moneda_dep,         id_moneda
+                                                          
+                                                        )
+                                                        values
+                                                        ( p_id_usuario,      
+                                                          now(),                   
+                                                          'activo',
+                                                          v_registros_af_mov.id_activo_fijo,
+                                                          v_monto_compra,          
+                                                          v_registros_af_mov.vida_util,   
+                                                          v_registros_af_mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
+                                                          0,                 
+                                                          0,                        
+                                                          0,  --10
+                                                          v_registros_af_mov.importe,      
+                                                          v_registros_af_mov.vida_util,         
+                                                          'activo',                
+                                                          'si',
+                                                          0,   
+                                                          v_registros_af_mov.id_movimiento_af,  
+                                                          'reval',               
+                                                          v_registros_af_mov.codigo||'-R'||cast(v_registros_af_mov.cantidad_revaloriz as varchar),
+                                                          v_registros_af_mov.fecha_mov,
+                                                          v_registros_mod.id_moneda_dep,
+                                                          v_registros_mod.id_moneda);
+                                   
+                                   
+                                   
+                                   
+                                   END LOOP; 
+                       
+                       END LOOP;     
+                   
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'deprec' then

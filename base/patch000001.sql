@@ -597,5 +597,69 @@ COMMENT ON COLUMN kaf.tmovimiento_af_dep.id_moneda_dep
 IS 'configuracion de moneda con que se realizo el registro de depreicacion';
   
 /***********************************F-SCP-RAC-KAF-1-20/04/2017****************************************/
+
+
+/***********************************I-SCP-RAC-KAF-1-25/04/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN tipo_reg VARCHAR(100) DEFAULT 'manual' NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.tipo_reg
+IS 'manual, preingreso, division, identifica la forma en que fue creado el activo fijo';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN num_div INTEGER DEFAULT 0 NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.num_div
+IS 'controla el numero de divisiones del activo fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN fecha_inicio DATE;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_inicio
+IS 'fecha desde que considerar este regitro de valor para el activo fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN fecha_fin DATE;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_fin
+IS 'fecha hasta al cual se considera el valor de este activo fijo';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN deducible VARCHAR(6) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.deducible
+IS 'no o  si,  si es decubile el gasto peude reducirce del impuesto a las utilidades';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_activo_fijo_valor_original INTEGER;
+  
+  
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_activo_fijo_valor_original
+IS 'indetifica el valor origen para el caso de activos que se dividen';  
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tmovimiento_af.importe
+IS 'es importe siemre estara en moneda base';
+
+
+/***********************************F-SCP-RAC-KAF-1-25/04/2017****************************************/
+
  
  

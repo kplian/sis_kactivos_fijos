@@ -21,8 +21,28 @@ Phx.vista.ActivoFijoValoresDepPrin = {
 	
 	constructor: function(config) {  
 	    this.maestro=config.maestro;
+	   
     	Phx.vista.ActivoFijoValoresDepPrin.superclass.constructor.call(this,config);
+    	
+    	
+    	this.campo_fecha = new Ext.form.DateField({
+	            name: 'fecha_reg',
+	           fieldLabel: 'Fecha',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				format: 'd/m/Y'
+	    });
+	    
+		this.tbar.addField(this.campo_fecha);
+		this.campo_fecha.setValue(new Date());
+    	 
+    	 
+    	 
     	 var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+    	 
+    	
+    	 
         if(dataPadre){
             this.onEnablePanel(this, dataPadre);
         }
@@ -30,14 +50,55 @@ Phx.vista.ActivoFijoValoresDepPrin = {
         {
            this.bloquearMenus();
         }
+        
+        
+        this.campo_fecha.on('select',function(value){
+    		if( this.validarFiltros() ){
+	                  this.capturaFiltros();
+	       }
+    	},this);	
+			
        
 	   
+	},
+	
+	capturaFiltros : function(combo, record, index) {
+		
+			this.desbloquearOrdenamientoGrid();
+			this.store.baseParams.id_moneda_dep = this.cmbMonedaDep.getValue();	
+			this.store.baseParams.fecha_hasta = this.campo_fecha.getValue().dateFormat('d/m/Y');		
+			this.load();
+			
+	},
+
+	validarFiltros : function() {
+		
+		if ( this.cmbMonedaDep.validate()  && this.campo_fecha.validate()) {
+			
+			return true;
+		} else {
+			return false;
+		}
+		
+	},
+	onButtonAct : function() {
+		
+			if (!this.validarFiltros()) {
+				alert('Especifique los filtros antes')
+			}
+			else{
+				 this.capturaFiltros();
+			}
+			
 	},
 	
 	 onReloadPage:function(m){
 	 	
 		this.maestro=m;
-		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo, id_moneda_dep: this.cmbMonedaDep.getValue()};		
+		this.store.baseParams={'id_activo_fijo':this.maestro.id_activo_fijo, 
+		                       'id_moneda_dep': this.cmbMonedaDep.getValue(), 
+		                       'fecha_hasta' : this.campo_fecha.getValue().dateFormat('d/m/Y')};
+		                       		
 		console.log('datos maestro', m, this.store.baseParams)	
 		this.load({params:{start:0, limit:50}})
 		

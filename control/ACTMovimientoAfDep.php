@@ -61,6 +61,11 @@ class ACTMovimientoAfDep extends ACTbase{
 		if($this->objParam->getParametro('id_activo_fijo_valor')!=''){
 			$this->objParam->addFiltro("mafdep.id_activo_fijo_valor = ".$this->objParam->getParametro('id_activo_fijo_valor'));
 		}
+
+        if($this->objParam->getParametro('fecha_hasta')!=''){
+			$this->objParam->addFiltro("mafdep.fecha  <= ''".$this->objParam->getParametro('fecha_hasta')."''::date");
+		}
+		
 		
 		
 

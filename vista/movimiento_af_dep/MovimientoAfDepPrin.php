@@ -34,6 +34,18 @@ Phx.vista.MovimientoAfDepPrin = {
 		this.store.baseParams = {			
 			id_activo_fijo_valor: this.maestro.id_activo_fijo_valor
 		};
+		
+		//si el padre tiene limite de fecha
+		var campo_fecha = Phx.CP.getPagina(this.idContenedorPadre).campo_fecha		
+		if(campo_fecha){		    
+		   Ext.apply(this.store.baseParams, { fecha_hasta: campo_fecha.getValue().dateFormat('d/m/Y')})
+		
+		}
+		
+		
+	
+		console.log('........datos...',this.store.baseParams, campo_fecha )
+		
 		this.load({
 			params : {
 				start : 0, 

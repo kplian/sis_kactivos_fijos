@@ -252,15 +252,20 @@ BEGIN
 		end;
 	
     /*********************************    
- 	#TRANSACCION:  'SKA_RESCABPR_SEL'
+ 	#TRANSACCION:  'SKA_RESCABPRBK_SEL'
  	#DESCRIPCION:	Consulta de datos de depreciacon par ainterface principal
  	#AUTOR:			RAC
  	#FECHA:			07/05/2016
 	***********************************/
 
-	elsif(p_transaccion='SKA_RESCABPR_SEL')then
+	elsif(p_transaccion='SKA_RESCABPRBK_SEL')then
      				
     	begin
+           
+        
+            
+        
+        
     		--Sentencia de la consulta
 			v_consulta:='  select
 						  distinct actval.id_activo_fijo_valor,
@@ -292,9 +297,9 @@ BEGIN
                           afv.id_moneda_dep,
                           mon.codigo as desc_moneda
 						from  kaf.tactivo_fijo_valores actval 
-                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor and 
                         inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
-                        WHERE  ';
+                        WHERE  (kaf.fecha_fin is null or afv.fecha_fin <= '''||fecha_hasta||'''::date)  ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -306,6 +311,82 @@ BEGIN
 			return v_consulta;
 						
 		end;
+        
+    /*********************************    
+ 	#TRANSACCION:  'SKA_RESCABPR_SEL'
+ 	#DESCRIPCION:	Consulta de datos de depreciacon par ainterface principal
+ 	#AUTOR:			RAC
+ 	#FECHA:			07/05/2016
+	***********************************/
+
+	elsif(p_transaccion='SKA_RESCABPR_SEL')then
+     				
+    	begin
+           
+        
+    		--Sentencia de la consulta
+			v_consulta:='select
+						  distinct actval.id_activo_fijo_valor,
+                          actval.id_activo_fijo,
+                          actval.depreciacion_per,
+                          actval.estado,
+                          actval.principal,
+                          actval.monto_vigente,
+                          actval.monto_rescate,
+                          actval.tipo_cambio_ini,
+                          actval.estado_reg,
+                          actval.tipo,
+                          actval.depreciacion_mes,
+                          actval.depreciacion_acum,
+                          actval.fecha_ult_dep,
+                          actval.fecha_ini_dep,
+                          actval.monto_vigente_orig,
+                          actval.vida_util,
+                          actval.vida_util_orig,
+                          actval.tipo_cambio_fin,
+                          actval.codigo,
+                          COALESCE(min.monto_vigente, actval.monto_vigente_orig) AS monto_vigente_real,
+                          COALESCE(min.vida_util, actval.vida_util_orig) AS vida_util_real,
+                          COALESCE(min.depreciacion_acum, 0::numeric) AS depreciacion_acum_real,
+                          COALESCE(min.depreciacion_per, 0::numeric) AS depreciacion_per_real,
+                          COALESCE(min.depreciacion_acum_ant, 0::numeric) AS depreciacion_acum_ant_real,
+                          COALESCE(min.monto_actualiz, actval.monto_vigente_orig) AS monto_actualiz_real,
+                          actval.id_moneda,
+                          actval.id_moneda_dep,
+                          mon.codigo as desc_moneda
+						from  kaf.tactivo_fijo_valores actval 
+                        LEFT JOIN ( SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
+                                 afd.monto_vigente,
+                                 afd.vida_util,
+                                 afd.fecha,
+                                 afd.depreciacion_acum,
+                                 afd.depreciacion_per,
+                                 afd.depreciacion_acum_ant,
+                                 afd.monto_actualiz,
+                                 afd.depreciacion_acum_actualiz,
+                                 afd.depreciacion_per_actualiz,
+                                 afd.id_moneda,
+                                 afd.id_moneda_dep
+                          FROM kaf.tmovimiento_af_dep afd
+                          WHERE  afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
+                          ORDER BY afd.id_activo_fijo_valor,
+                                   afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
+                        inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin <= '''||v_parametros.fecha_hasta||'''::date)  
+                               and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
+                               and ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            
+            raise notice 'consulta %',v_consulta;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;     
+        
 
 	/*********************************    
  	#TRANSACCION:  'SKA_RESCABPR_CONT'
@@ -317,17 +398,35 @@ BEGIN
 	elsif(p_transaccion='SKA_RESCABPR_CONT')then
 
 		begin
+        
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
 						  count(actval.id_activo_fijo_valor),
-                          sum(afv.monto_actualiz_real),
-                          sum(afv.depreciacion_acum_real),
-                          sum(afv.monto_vigente_real),
-                          max(afv.vida_util_real)
+                          sum(COALESCE(min.monto_actualiz, actval.monto_vigente_orig)),
+                          sum(COALESCE(min.depreciacion_acum, 0::numeric)),
+                          sum( COALESCE(min.monto_vigente, actval.monto_vigente_orig)),
+                          max(COALESCE(min.vida_util, actval.vida_util_orig))
 						from  kaf.tactivo_fijo_valores actval 
-                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
-                        inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
-                        WHERE ';
+                        LEFT JOIN ( SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
+                                 afd.monto_vigente,
+                                 afd.vida_util,
+                                 afd.fecha,
+                                 afd.depreciacion_acum,
+                                 afd.depreciacion_per,
+                                 afd.depreciacion_acum_ant,
+                                 afd.monto_actualiz,
+                                 afd.depreciacion_acum_actualiz,
+                                 afd.depreciacion_per_actualiz,
+                                 afd.id_moneda,
+                                 afd.id_moneda_dep
+                          FROM kaf.tmovimiento_af_dep afd
+                          WHERE  afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
+                          ORDER BY afd.id_activo_fijo_valor,
+                                   afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
+                        inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin <= '''||v_parametros.fecha_hasta||'''::date) 
+                               and actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
+                               and ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;

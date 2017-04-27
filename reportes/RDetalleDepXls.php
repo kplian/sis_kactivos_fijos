@@ -103,8 +103,11 @@ class RDetalleDepXls
 									 
 									   
 		
+		//$this->FORMAT_ACCOUNTING = '_(#,##0.00_);_( \(#,##0.00\);_( “-“??_);_(@_)';
+		$this->FORMAT_ACCOUNTING = '_(""* #,##0.00_);_(""* \(#,##0.00\);_(""* 0.00_);_(@_)';
 		
 		$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila).":P".($this->fila))->applyFromArray($this->styleTitulos);
+		$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila).":P".($this->fila))->getAlignment()->setWrapText(true);
 					
 		
 		//*************************************Cabecera*****************************************//
@@ -126,21 +129,35 @@ class RDetalleDepXls
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[7])->setWidth(10);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$inicio_filas,'Vida Util');		
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[8])->setWidth(10);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$inicio_filas,'Vida Restante');		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$inicio_filas,'Vida Restante');	
+			
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[9])->setWidth(15);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$inicio_filas,'Valor Historico');		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$inicio_filas,'Valor Historico');	
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[9])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);
+			
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[10])->setWidth(15);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10,$inicio_filas,'Valor Actulizado');		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10,$inicio_filas,'Valor Actulizado');
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[10])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);	
+			
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[11])->setWidth(15);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11,$inicio_filas,'Depreciación Acumulada Actulizada');		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11,$inicio_filas,'Depreciación Acumulada Actulizada');
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[11])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);	
+			
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[12])->setWidth(15);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(12,$inicio_filas,'Depreciación Anual');
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[12])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);
+		
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[13])->setWidth(15);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(13,$inicio_filas,'Valor Vigente');	
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[13])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);
+		
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[14])->setWidth(15);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(14,$inicio_filas,'Ajuste del Valor del Activo');	
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(14,$inicio_filas,'Ajuste del Valor del Activo');
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[14])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);
+			
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[15])->setWidth(15);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15,$inicio_filas,'Ajuste de Depreciación');			
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15,$inicio_filas,'Ajuste de Depreciación');	
+		$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[15])->getNumberFormat()->setFormatCode($this->FORMAT_ACCOUNTING);		
 		
 		//*************************************Fin Cabecera*****************************************//
 		
@@ -171,6 +188,8 @@ class RDetalleDepXls
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(13,$fila,$value['monto_vigente_final']);	
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(14,$fila,$value['aitb_activo']);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15,$fila,$value['aitb_depreciacion_acumulada']);
+		
+		
 		
 		
 		
@@ -245,12 +264,7 @@ class RDetalleDepXls
 					$this->fila_fin = $this->fila;	
 					array_push($this->array_clasificacion, $this->fila);
 									
-					//agrupamos celdas inicial y final					
-					$this->docexcel->setActiveSheetIndex(0)->mergeCells("B".($this->fila_ini).":B".($this->fila_fin));
-					//Dar formato a las celdas tolizadoras
-					$this->docexcel->setActiveSheetIndex(0)->getStyle("B".($this->fila_ini).":B".($this->fila_fin))->applyFromArray($this->styleArrayGroup);
-					$this->docexcel->setActiveSheetIndex(0)->getStyle("C".($this->fila_fin).":P".($this->fila_fin))->applyFromArray($this->styleArrayTotal);
-					//definir agrupador de filas
+					
 					
 					
 					
@@ -294,6 +308,17 @@ class RDetalleDepXls
 					
 					$this->fila++;
 			        $this->contador++;
+					
+					//agrupamos celdas inicial y final					
+					$this->docexcel->setActiveSheetIndex(0)->mergeCells("B".($this->fila_ini).":B".($this->fila_fin));
+					//Dar formato a las celdas tolizadoras
+					$this->docexcel->setActiveSheetIndex(0)->getStyle("B".($this->fila_ini).":B".($this->fila_fin))->applyFromArray($this->styleArrayGroup);
+					$this->docexcel->setActiveSheetIndex(0)->getStyle("B".($this->fila_fin).":P".($this->fila_fin))->applyFromArray($this->styleArrayTotal);
+					$this->docexcel->setActiveSheetIndex(0)->getStyle("B".($this->fila_fin).":B".($this->fila_fin))->getAlignment()->setWrapText(true);
+					//definir agrupador de filas
+					
+					
+					
 					//reiniciamos agrupadores de celda
 					$this->fila_fin = $this->fila;
 					$this->fila_ini = $this->fila;
@@ -321,11 +346,7 @@ class RDetalleDepXls
 					
 					
 					$this->fila_fin_cg = $this->fila;					
-					//agrupamos celdas inicial y final					
-					$this->docexcel->setActiveSheetIndex(0)->mergeCells("A".($this->fila_ini_cg).":A".($this->fila_fin_cg));
-					//Dar formato a las celdas tolizadoras
-					$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila_ini_cg).":A".($this->fila_fin_cg))->applyFromArray($this->styleArrayGroupCg);
-					$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila_fin_cg).":P".($this->fila_fin_cg))->applyFromArray($this->styleArrayTotalCg);
+					
 					
 					
 					$formulaJ = '';
@@ -366,6 +387,12 @@ class RDetalleDepXls
 					
 					$this->fila++;
 			        $this->contador++;
+					
+					//agrupamos celdas inicial y final					
+					$this->docexcel->setActiveSheetIndex(0)->mergeCells("A".($this->fila_ini_cg).":A".($this->fila_fin_cg));
+					//Dar formato a las celdas tolizadoras
+					$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila_ini_cg).":A".($this->fila_fin_cg))->applyFromArray($this->styleArrayGroupCg);
+					$this->docexcel->setActiveSheetIndex(0)->getStyle("A".($this->fila_fin_cg).":P".($this->fila_fin_cg))->applyFromArray($this->styleArrayTotalCg);
 			     
 			        //$this->contador++;
 					//reiniciamos agrupadores de celda
@@ -446,9 +473,8 @@ class RDetalleDepXls
 						   
 		$this->styleArrayTotal = array(
 							    'font'  => array('bold'  => true),
-							    'fill' => array('type' => PHPExcel_Style_Fill::FILL_SOLID,
-											    'color' => array('rgb' => 'FFCCFF')),
-								 'borders' => array('allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
+							    'fill' => array('type' => PHPExcel_Style_Fill::FILL_SOLID,'color' => array('rgb' => 'FFCCFF')),
+								'borders' => array('allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
 								);	
 								
 		//Estilos para partidas						
@@ -486,11 +512,11 @@ class RDetalleDepXls
 		//Estilos para MONEDA					
 		$this->styleArrayMoneda = array(
 							     'font'  => array('bold'  => true),
-							     'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+							     'alignment' => array( 'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 												       'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER),
-								 'borders' => array('allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
+								 'borders' => array(   'allborders' => array('style' => PHPExcel_Style_Border::BORDER_THIN))
 								 );						
-															
+														
 		
 		/////////////////////***********************************Detalle***********************************************
 		
@@ -524,7 +550,7 @@ class RDetalleDepXls
 				 // FIN DE GRUPO PRO CLASFICACION
 				 //////////////////////////////////////				 
 				 
-                if($tmp_rec['id_clasificacion_raiz'] != $value['id_clasificacion_raiz']  ||  $tmp_rec['tipo'] != $value['tipo'] ||$tmp_rec['gestion_final'] != $value['gestion_final']){
+                if($tmp_rec['id_clasificacion_raiz'] != $value['id_clasificacion_raiz']  ||  $tmp_rec['tipo'] != $value['tipo'] ||$tmp_rec['gestion_final'] != $value['gestion_final'] || $tmp_rec['id_moneda_dep'] != $value['id_moneda_dep']) {
 					//si la categoria es distinta insertamos fila agrupadora					
 				   $this->cerrarDetalle($tmp_rec);
 				}
@@ -533,7 +559,7 @@ class RDetalleDepXls
 				//  FIN DEL GRUPO TIPO
 				////////////////////////////////
 				
-				if($tmp_rec['tipo'] != $value['tipo']||$tmp_rec['gestion_final'] != $value['gestion_final']){					
+				if($tmp_rec['tipo'] != $value['tipo']||$tmp_rec['gestion_final'] != $value['gestion_final'] || $tmp_rec['id_moneda_dep'] != $value['id_moneda_dep']){					
 					 $this->cerrarClasificacion($tmp_rec);
 				}
       
@@ -541,7 +567,7 @@ class RDetalleDepXls
 				//  FIN DEL GRUPO GESTION
 				///////////////////////////////				
 				
-				if($tmp_rec['gestion_final'] != $value['gestion_final']){
+				if($tmp_rec['gestion_final'] != $value['gestion_final'] ||  $tmp_rec['id_moneda_dep'] != $value['id_moneda_dep']){
 					$this->cerrarTipo($tmp_rec);
 				}
 				
@@ -600,6 +626,9 @@ class RDetalleDepXls
 		
 		//ajustar testo en beneficiario y glosa
 		$this->docexcel->setActiveSheetIndex(0)->getStyle("G".($inicio_filas).":H".($fila+1))->getAlignment()->setWrapText(true);
+		
+		
+		
 
 	}
 
@@ -666,6 +695,15 @@ class RDetalleDepXls
 		
 		
 	}	
+	
+	 function currencyFormat($currency) {
+	    if($currency == 'THB'):
+	      $currencyFormat = "#,#0.## \à¸¿;[Red]-#,#0.## \à¸¿";
+	    else:
+	      $currencyFormat = "#,#0.## \$;[Red]-#,#0.## \$";
+	    endif;
+	    return $currencyFormat;
+    }
 	
 
 }
