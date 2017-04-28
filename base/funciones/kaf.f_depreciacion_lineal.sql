@@ -41,6 +41,8 @@ DECLARE
     v_gestion_aux			integer;
     v_mes_aux				integer;
     v_registros_mod			record;
+    v_contador 				integer;
+    v_tipo_cambio_anterior	numeric;
 
 BEGIN
     
@@ -78,6 +80,8 @@ BEGIN
               -- cuando se da de alta una activo se llena un registro en tactivo_fijo_valores con los valores de compra
               -- esto permite depreciacar por separado el valor original y las mejoras
     
+              v_contador = 0;
+              
               --RAC, 29/03/2017, debemos considerar que habran mejoras que no incrementaran la vida util del activo fijo ....
               for v_rec_ant in (
                                  select
@@ -103,7 +107,8 @@ BEGIN
                                   afv.depreciacion_acum_ant_real,
                                   afv.monto_actualiz_real,
                                   cla.depreciable,
-                                  afv.vida_util_orig
+                                  afv.vida_util_orig,
+                                  tipo_cambio_anterior
                                 from kaf.vactivo_fijo_valor afv
                                 inner join kaf.tactivo_fijo af on af.id_activo_fijo = afv.id_activo_fijo
                                 inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
@@ -112,27 +117,34 @@ BEGIN
                                 and afv.estado = 'activo'
                                 and afv.id_moneda_dep =  v_registros_mod.id_moneda_dep    --   para depreciar en diferentes monedas
                                 and (
-                                      CASE WHEN p_depreciar = 'SI'  THEN vida_util_real > 0
-                                          ELSE
-                                             0 = 0
-                                          END)
+                                      CASE WHEN p_depreciar = 'SI'  THEN -- case para activos no depreciables
+                                               vida_util_real > 0   
+                                           ELSE
+                                               0 = 0
+                                           END)
                                 
-                                ) loop   -- TODO where agregar case para activos no deprecialbes
-
+                                ) loop   
+                                
+                           v_contador = v_contador + 1;
+                           
                            -- Inicialización mes inicio de depreciación
                            -- v_mes_dep = v_rec_ant.fecha_inicio;
                            IF v_rec_ant.fecha_ult_dep_real > v_rec_ant.fecha_ini_dep THEN
+                               
                                v_mes_dep = v_rec_ant.fecha_ult_dep_real + interval '1' month;
+                               
+                               --ajusta las fechas 
+                               v_gestion_aux = date_part('year'::text, v_mes_dep);
+                               v_mes_aux = date_part('month'::text, v_mes_dep);                 
+                               v_mes_dep = ('01/'||v_mes_aux::varchar||'/'||v_gestion_aux::varchar)::Date;
+                               
+                             
+                          
                            ELSE
+                               
                                v_mes_dep = v_rec_ant.fecha_ult_dep_real;
+                           
                            END IF;
-                           
-                           --ajusta las fechas 
-                           
-                           v_gestion_aux = date_part('year'::text, v_mes_dep);
-                           v_mes_aux = date_part('month'::text, v_mes_dep);                 
-                           v_mes_dep = ('01/'||v_mes_aux::varchar||'/'||v_gestion_aux::varchar)::Date;
-                           
                            
                           
                            -- Inicialización datos última depreciación
@@ -154,7 +166,7 @@ BEGIN
                           
                          
                           --Determinar la cantidad de meses a depreciar
-                          v_meses_dep =  months_between(v_mes_dep, p_hasta);
+                          v_meses_dep =  kaf.f_months_between(v_mes_dep, p_hasta);
                           
                           --si las gestion anterior y ultima son diferentes resetear la depreciacion de la gestion                
                           v_gestion_previa =   EXTRACT(YEAR FROM v_rec_ant.fecha_ult_dep_real::date);
@@ -165,7 +177,7 @@ BEGIN
                           END IF;
                           
                           
-                          
+                          v_tipo_cambio_anterior = v_rec_ant.tipo_cambio_anterior;
                           --raise exception '%, % , %, meses = %',v_rec_ant.fecha_inicio, v_mes_dep, p_hasta, v_meses_dep;
                           
                           for i in 1..v_meses_dep loop
@@ -177,7 +189,7 @@ BEGIN
                                       select
                                          o_tc_inicial, o_tc_final, o_tc_factor, o_fecha_ini, o_fecha_fin
                                       into v_rec_tc
-                                      from kaf.f_get_tipo_cambio(v_id_moneda_act, v_registros_mod.id_moneda,  v_mes_dep);
+                                      from kaf.f_get_tipo_cambio(v_id_moneda_act, v_registros_mod.id_moneda, v_tipo_cambio_anterior, v_mes_dep);
                                    
                                    
                                    ELSE
@@ -185,7 +197,7 @@ BEGIN
                                       select
                                          o_tc_inicial, o_tc_final, o_tc_factor, o_fecha_ini, o_fecha_fin
                                       into v_rec_tc
-                                      from kaf.f_get_tipo_cambio(v_registros_mod.id_moneda, v_registros_mod.id_moneda,  v_mes_dep);
+                                      from kaf.f_get_tipo_cambio(v_registros_mod.id_moneda, v_registros_mod.id_moneda, v_tipo_cambio_anterior,  v_mes_dep);
                                    
                                    END IF;
                                   
@@ -291,8 +303,23 @@ BEGIN
                                   );
                                   
                                   v_gestion_previa =   EXTRACT(YEAR FROM v_mes_dep::date);
+                                  
+                                  v_tipo_cambio_anterior = v_rec_tc.o_tc_final;
+                                  
                                   --Incrementa en uno el mes
-                                  v_mes_dep = v_mes_dep + interval '1' month;                        
+                                  v_mes_dep = v_mes_dep + interval '1' month; 
+                                  
+                                  
+                                       
+                                 --ajusta las fechas 
+                                  v_gestion_aux = date_part('year'::text, v_mes_dep);
+                                  v_mes_aux = date_part('month'::text, v_mes_dep);                 
+                                  v_mes_dep = ('01/'||v_mes_aux::varchar||'/'||v_gestion_aux::varchar)::Date;
+                                                        
+                                  
+                                  
+                                  
+                                  
                                   v_gestion_dep =   EXTRACT(YEAR FROM v_mes_dep::date);
                                   
                                    --si detectamos que cambio la gestion reseteamos la depreciacion acumulado del periodo (gestion..)

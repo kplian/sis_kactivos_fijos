@@ -654,7 +654,7 @@ BEGIN
                                                                                  v_id_moneda_base, --moneda origen para conversion
                                                                                  v_registros_mod.id_moneda,   --moneda a la que sera convertido
                                                                                  v_registros_af_mov.monto_compra, --este monto siemrpe estara en moenda base
-                                                                                 v_registros_af_mov.fecha_compra, 
+                                                                                 v_registros_af_mov.fecha_ini_dep, 
                                                                                  'O',-- tipo oficial, venta, compra 
                                                                                  NULL);--defecto dos decimales   
                                                                                  
@@ -662,7 +662,7 @@ BEGIN
                                                                                  v_id_moneda_base, --moneda origen para conversion
                                                                                  v_registros_mod.id_moneda,   --moneda a la que sera convertido
                                                                                  v_registros_af_mov.monto_rescate, --este monto siemrpe estara en moenda base
-                                                                                 v_registros_af_mov.fecha_compra, 
+                                                                                 v_registros_af_mov.fecha_ini_dep, 
                                                                                  'O',-- tipo oficial, venta, compra 
                                                                                  NULL);--defecto dos decimales                                                        
                                                       

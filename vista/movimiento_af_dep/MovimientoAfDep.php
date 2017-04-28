@@ -238,7 +238,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'T/C Ini.',
 				gwidth: 80,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_ini',type:'string'},
@@ -252,7 +252,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'T/C Fin',
 				gwidth: 80,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_fin',type:'string'},

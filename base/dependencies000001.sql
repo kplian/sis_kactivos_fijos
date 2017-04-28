@@ -177,6 +177,8 @@ add constraint fk_tactivo_fijo_valores__id_movimiento_af foreign key (id_movimie
 
 /***********************************I-DEP-RAC-KAF-1-29/03/2017****************************************/
 
+          
+           
 CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep
 AS
   SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
@@ -190,14 +192,51 @@ AS
          afd.depreciacion_acum_actualiz,
          afd.depreciacion_per_actualiz,
          afd.id_moneda,
-         afd.id_moneda_dep
+         afd.id_moneda_dep,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini
   FROM kaf.tmovimiento_af_dep afd
   ORDER BY afd.id_activo_fijo_valor,
            afd.fecha DESC;
 
+--------------- SQL ---------------
 
-
-CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor
+CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor(
+    id_usuario_reg,
+    id_usuario_mod,
+    fecha_reg,
+    fecha_mod,
+    estado_reg,
+    id_usuario_ai,
+    usuario_ai,
+    id_activo_fijo_valor,
+    id_activo_fijo,
+    monto_vigente_orig,
+    vida_util_orig,
+    fecha_ini_dep,
+    depreciacion_mes,
+    depreciacion_per,
+    depreciacion_acum,
+    monto_vigente,
+    vida_util,
+    fecha_ult_dep,
+    tipo_cambio_ini,
+    tipo_cambio_fin,
+    tipo,
+    estado,
+    principal,
+    monto_rescate,
+    id_movimiento_af,
+    codigo,
+    monto_vigente_real,
+    vida_util_real,
+    fecha_ult_dep_real,
+    depreciacion_acum_real,
+    depreciacion_per_real,
+    depreciacion_acum_ant_real,
+    monto_actualiz_real,
+    id_moneda,
+    id_moneda_dep)
 AS
   SELECT afv.id_usuario_reg,
          afv.id_usuario_mod,
@@ -231,12 +270,16 @@ AS
          COALESCE(min.fecha, afv.fecha_ini_dep) AS fecha_ult_dep_real,
          COALESCE(min.depreciacion_acum, 0::numeric) AS depreciacion_acum_real,
          COALESCE(min.depreciacion_per, 0::numeric) AS depreciacion_per_real,
-         COALESCE(min.depreciacion_acum_ant, 0::numeric) AS  depreciacion_acum_ant_real,
-         COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS  monto_actualiz_real,
+         COALESCE(min.depreciacion_acum_ant, 0::numeric) AS
+           depreciacion_acum_ant_real,
+         COALESCE(min.monto_actualiz, afv.monto_vigente_orig) AS
+           monto_actualiz_real,
          afv.id_moneda,
-         afv.id_moneda_dep
+         afv.id_moneda_dep,
+         COALESCE(min.tipo_cambio_fin , null) AS tipo_cambio_anterior
   FROM kaf.tactivo_fijo_valores afv
-       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor = afv.id_activo_fijo_valor AND afv.id_moneda_dep = min.id_moneda_dep;
+       LEFT JOIN kaf.vminimo_movimiento_af_dep min ON min.id_activo_fijo_valor =
+         afv.id_activo_fijo_valor AND afv.id_moneda_dep = min.id_moneda_dep;
        
        
        
