@@ -204,8 +204,34 @@ select pxp.f_insert_tgui ('Monedas Dep', 'Moneda para depreciación', 'MONDEP', 
 
 
 
+/***********************************I-DAT-RAC-KAF-1-02/05/2017****************************************/
 
 
+
+
+----------------------------------
+--COPY LINES TO data.sql FILE  
+---------------------------------
+
+select pxp.f_insert_tgui ('Configuración Prorrateo', 'Configuración Prorrateo', 'TIPRO', 'si', 2, 'sis_kactivos_fijos/vista/tipo_prorrateo/ProyectoKaf.php', 3, '', 'ProyectoKaf', 'KAF');
+select pxp.f_insert_tgui ('Clasificación Relación Contable', 'Clasificación Relación Contable', 'LAFRC', 'si', 3, 'sis_kactivos_fijos/vista/cta_clasificacion/CtaClasificacion.php', 3, '', 'CtaClasificacion', 'KAF');
+----------------------------------
+--COPY LINES TO dependencies.sql FILE  
+---------------------------------
+
+select pxp.f_insert_testructura_gui ('TIPRO', 'CONFAF');
+select pxp.f_insert_testructura_gui ('LAFRC', 'CONFAF');
+
+
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_cbte_depreciacion', E'DEPAF', E'codigo de la plantilla de cbte de depreciacion');
+
+
+
+/***********************************F-DAT-RAC-KAF-1-02/05/2017****************************************/
 
 
 
