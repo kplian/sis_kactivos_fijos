@@ -65,6 +65,10 @@ DECLARE
     v_registros_mod				record;
     v_monto_rescate				numeric;
     v_monto_compra				numeric;
+    v_id_int_comprobante		integer;
+    v_kaf_cbte_depreciacion		varchar;
+    v_kaf_cbte_depreciacion_aitb		varchar;	
+    v_id_int_comprobante_aitb			integer;
 			    
 BEGIN
 
@@ -568,8 +572,11 @@ BEGIN
     elseif(p_transaccion='KAF_SIGEMOV_IME')then   
         begin
             --Obtiene los datos del movimiento       
-            select mov.*, cat.codigo as cod_movimiento
-            into v_movimiento
+            select 
+                mov.*, 
+                cat.codigo as cod_movimiento
+            into 
+                v_movimiento
             from kaf.tmovimiento mov
             inner join param.tcatalogo cat
             on cat.id_catalogo = mov.id_cat_movimiento    
@@ -579,26 +586,77 @@ BEGIN
 
             --Obtiene los datos del Estado Actual
             select 
-            ew.id_tipo_estado,
-            te.pedir_obs,
-            ew.id_estado_wf
+              ew.id_tipo_estado,
+              te.pedir_obs,
+              ew.id_estado_wf
             into 
-            v_id_tipo_estado,
-            v_pedir_obs,
-            v_id_estado_wf
+              v_id_tipo_estado,
+              v_pedir_obs,
+              v_id_estado_wf
             from wf.testado_wf ew
             inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
             where ew.id_estado_wf = v_parametros.id_estado_wf_act;
               
-            --Obtener datos tipo estado
-            select
-            te.codigo
-            into
-            v_codigo_estado_siguiente
-            from wf.ttipo_estado te
-            where te.id_tipo_estado = v_parametros.id_tipo_estado;
+          
 
-            --raise exception '%: % -> %',v_movimiento.cod_movimiento,v_movimiento.estado,v_codigo_estado_siguiente;
+          
+            
+            if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
+                v_id_depto = v_parametros.id_depto_wf;
+           end if;
+                    
+           if pxp.f_existe_parametro(p_tabla,'obs') THEN
+                v_obs=v_parametros.obs;
+           else
+                v_obs='---';
+           end if;
+                   
+            --Configurar acceso directo para la alarma   
+           v_acceso_directo = '';
+           v_clase = '';
+           v_parametros_ad = '';
+           v_tipo_noti = 'notificacion';
+           v_titulo  = 'Visto Bueno';
+           
+           select 
+               codigo
+            into 
+              v_codigo_estado_siguiente
+           from wf.ttipo_estado tes
+           where tes.id_tipo_estado =  v_parametros.id_tipo_estado;
+                
+           if v_codigo_estado_siguiente not in ('finalizado') then
+                v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
+                v_clase = 'Movimiento';
+                v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                v_tipo_noti = 'notificacion';
+                v_titulo  = 'Notificacion';             
+           end if;
+                 
+           v_id_estado_actual =  wf.f_registra_estado_wf(
+                v_parametros.id_tipo_estado, 
+                v_parametros.id_funcionario_wf, 
+                v_parametros.id_estado_wf_act, 
+                v_parametros.id_proceso_wf_act,
+                p_id_usuario,
+                v_parametros._id_usuario_ai,
+                v_parametros._nombre_usuario_ai,
+                v_id_depto,
+                coalesce(v_movimiento.codigo,'--')||' Obs:'||v_obs,
+                v_acceso_directo ,
+                v_clase,
+                v_parametros_ad,
+                v_tipo_noti,
+                v_titulo
+            );
+              
+            --Actualiza el estado actual
+          
+
+           update kaf.tmovimiento set
+            id_estado_wf = v_id_estado_actual,
+            estado = v_codigo_estado_siguiente
+           where id_movimiento = v_movimiento.id_movimiento;
             
             
             
@@ -908,8 +966,8 @@ BEGIN
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'deprec' then
-
-                if v_codigo_estado_siguiente = 'generado' then
+            
+                 if v_codigo_estado_siguiente = 'generado' then
                 
                    
 
@@ -922,7 +980,46 @@ BEGIN
 
                     end loop;
 
-                elsif v_codigo_estado_siguiente = 'finalizado' then
+                elsif v_codigo_estado_siguiente = 'cbte' then
+                
+                         --  recuperar el codigo de plantilla para depreciacion
+                         v_kaf_cbte_depreciacion = pxp.f_get_variable_global('kaf_cbte_depreciacion');
+                        
+                         
+                         --  generar comprobante de depreciación
+                          v_id_int_comprobante =   conta.f_gen_comprobante ( 
+                                                       v_movimiento.id_movimiento, 
+                                                       v_kaf_cbte_depreciacion ,
+                                                       v_id_estado_actual,                                                     
+                                                       p_id_usuario,
+                                                       v_parametros._id_usuario_ai, 
+                                                       v_parametros._nombre_usuario_ai);
+            
+
+                        
+                        
+                        
+                        
+                         --  recuperar el codigo de plantilla para aitbdepreciacion
+                         v_kaf_cbte_depreciacion_aitb = pxp.f_get_variable_global('kaf_cbte_depreciacion_aitb');
+                         
+                          --  generar comprobante de depreciación
+                          v_id_int_comprobante_aitb =   conta.f_gen_comprobante ( 
+                                                       v_movimiento.id_movimiento, 
+                                                       v_kaf_cbte_depreciacion_aitb ,
+                                                       v_id_estado_actual,                                                     
+                                                       p_id_usuario,
+                                                       v_parametros._id_usuario_ai, 
+                                                       v_parametros._nombre_usuario_ai);
+            
+
+                        update  kaf.tmovimiento   m set 
+                             id_int_comprobante = v_id_int_comprobante ,
+                             id_int_comprobante_aitb = v_id_int_comprobante_aitb        
+                        where id_movimiento = v_movimiento.id_movimiento;
+
+                   
+                       --  generar comprobante de actulizacion  
 
                 end if;
            
@@ -949,62 +1046,7 @@ BEGIN
            end if;
 
 
-           if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
-                v_id_depto = v_parametros.id_depto_wf;
-           end if;
-                    
-           if pxp.f_existe_parametro(p_tabla,'obs') THEN
-                v_obs=v_parametros.obs;
-           else
-                v_obs='---';
-           end if;
-                   
-            --Configurar acceso directo para la alarma   
-           v_acceso_directo = '';
-           v_clase = '';
-           v_parametros_ad = '';
-           v_tipo_noti = 'notificacion';
-           v_titulo  = 'Visto Bueno';
-                
-           if v_codigo_estado_siguiente not in ('finalizado') then
-                v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
-                v_clase = 'Movimiento';
-                v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
-                v_tipo_noti = 'notificacion';
-                v_titulo  = 'Notificacion';             
-           end if;
-                 
-           v_id_estado_actual =  wf.f_registra_estado_wf(
-                v_parametros.id_tipo_estado, 
-                v_parametros.id_funcionario_wf, 
-                v_parametros.id_estado_wf_act, 
-                v_parametros.id_proceso_wf_act,
-                p_id_usuario,
-                v_parametros._id_usuario_ai,
-                v_parametros._nombre_usuario_ai,
-                v_id_depto,
-                coalesce(v_movimiento.codigo,'--')||' Obs:'||v_obs,
-                v_acceso_directo ,
-                v_clase,
-                v_parametros_ad,
-                v_tipo_noti,
-                v_titulo
-            );
-              
-            --Actualiza el estado actual
-           select 
-            codigo
-           into 
-              v_codigo_estado_siguiente
-           from wf.ttipo_estado tes
-           inner join wf.testado_wf ew
-           on ew.id_tipo_estado = tes.id_tipo_estado
-           where ew.id_estado_wf = v_id_estado_actual;
-
-           update kaf.tmovimiento set
-            id_estado_wf = v_id_estado_actual,
-            estado = v_codigo_estado_siguiente
-           where id_movimiento = v_movimiento.id_movimiento;
+           
 
             -- si hay mas de un estado disponible  preguntamos al usuario
            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
@@ -1038,13 +1080,13 @@ BEGIN
 
             --Obtiene los datos del Estado Actual
             select 
-            ew.id_tipo_estado,
-            te.pedir_obs,
-            ew.id_estado_wf
+                ew.id_tipo_estado,
+                te.pedir_obs,
+                ew.id_estado_wf
             into 
-            v_id_tipo_estado,
-            v_pedir_obs,
-            v_id_estado_wf
+                v_id_tipo_estado,
+                v_pedir_obs,
+                v_id_estado_wf
             from wf.testado_wf ew
             inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
             where ew.id_estado_wf = v_parametros.id_estado_wf;
@@ -1054,19 +1096,19 @@ BEGIN
             --Retrocede al estado inmediatamente anterior
             -------------------------------------------------
             SELECT  
-            ps_id_tipo_estado,
-            ps_id_funcionario,
-            ps_id_usuario_reg,
-            ps_id_depto,
-            ps_codigo_estado,
-            ps_id_estado_wf_ant
+                ps_id_tipo_estado,
+                ps_id_funcionario,
+                ps_id_usuario_reg,
+                ps_id_depto,
+                ps_codigo_estado,
+                ps_id_estado_wf_ant
             into
-            v_id_tipo_estado,
-            v_id_funcionario,
-            v_id_usuario_reg,
-            v_id_depto,
-            v_codigo_estado,
-            v_id_estado_wf_ant 
+                v_id_tipo_estado,
+                v_id_funcionario,
+                v_id_usuario_reg,
+                v_id_depto,
+                v_codigo_estado,
+                v_id_estado_wf_ant 
             FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
 
             --Obtener datos tipo estado

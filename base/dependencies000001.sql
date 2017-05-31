@@ -395,7 +395,6 @@ AS
            afd.fecha;   
            
            
-           
  CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo(
     id_activo_fijo,
     id_clasificacion,
@@ -430,7 +429,8 @@ AS
     tipo_cabio_final,
     factor,
     id_moneda,
-    id_moneda_dep)
+    id_moneda_dep,
+    id_proyecto)
 AS
   SELECT af.id_activo_fijo,
          af.id_clasificacion,
@@ -466,7 +466,8 @@ AS
          ud.tipo_cambio_fin AS tipo_cabio_final,
          ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor,
          afv.id_moneda,
-         afv.id_moneda_dep
+         afv.id_moneda_dep,
+         af.id_proyecto
   FROM kaf.tactivo_fijo_valores afv
        JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
        JOIN kaf.vprimero_movimiento_af_dep_gestion pd ON pd.id_activo_fijo_valor
@@ -475,7 +476,6 @@ AS
          = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion
        JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pd.id_movimiento_af
          AND maf.id_movimiento_af = ud.id_movimiento_af;
-                    
 
 /***********************************F-DEP-RAC-KAF-1-29/03/2017****************************************/
 
@@ -483,7 +483,6 @@ AS
 
 
 /***********************************I-DEP-RAC-KAF-1-17/04/2017****************************************/
-
 CREATE OR REPLACE VIEW kaf.vclaificacion_raiz(
     codigo_raiz,
     nombre_raiz,
@@ -510,7 +509,7 @@ WITH RECURSIVE clasificacion(
          c_1.codigo,
          c_1.descripcion
   FROM kaf.tclasificacion c_1
-  WHERE c_1.id_clasificacion_fk IS NULL AND
+  WHERE c_1.contabilizar::text = 'si'::text AND
         c_1.estado_reg::text = 'activo'::text
   UNION
   SELECT pc.ids || c2.id_clasificacion,
@@ -563,6 +562,209 @@ ALTER TABLE kaf.tactivo_fijo_valores
 /***********************************F-DEP-RAC-KAF-1-20/04/2017****************************************/
 
 
+/***********************************I-DEP-RAC-KAF-1-02/05/2017****************************************/
+
+
+
+--------------- SQL ---------------
+
+CREATE VIEW kaf.vmovimiento_cbte 
+AS 
+SELECT 
+mov.id_movimiento,
+mov.id_depto as id_depto_af,
+mov.fecha_mov,
+mov.id_cat_movimiento,
+cat.codigo as codigo_catelogo,
+cat.descripcion as desc_catalogo,
+mov.num_tramite,
+mov.fecha_hasta,
+mov.glosa,
+depc.id_depto as id_depto_conta, 
+depc.codigo as codigo_depto_conta,
+per.id_gestion,
+ges.gestion,
+md.id_moneda,
+md.descripcion
+FROM kaf.tmovimiento mov
+INNER JOIN param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
+INNER JOIN param.tdepto_depto dd on dd.id_depto_origen = mov.id_depto 
+INNER JOIN param.tdepto depc on depc.id_depto = dd.id_depto_destino 
+INNER JOIN segu.tsubsistema sis on sis.id_subsistema = depc.id_subsistema and sis.codigo = 'CONTA'
+INNER JOIN param.tperiodo per on mov.fecha_mov BETWEEN per.fecha_ini and per.fecha_fin
+INNER JOIN param.tgestion ges on ges.id_gestion = per.id_gestion
+INNER JOIN kaf.tmoneda_dep md on   md.contabilizar = 'si';
+
+CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo_cbte(
+    id_activo_fijo,
+    id_clasificacion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    id_movimiento,
+    gestion_inicial,
+    gestion_final,
+    tipo,
+    fecha_compra,
+    fecha_ini_dep,
+    codigo,
+    descripcion,
+    monto_vigente_orig,
+    monto_vigente_inicial,
+    monto_vigente_final,
+    monto_actualiz_inicial,
+    monto_actualiz_final,
+    aitb_activo,
+    vida_util_orig,
+    vida_util_inicial,
+    vida_util_final,
+    depreciacion_per_inicial,
+    depreciacion_per_final,
+    depreciacion_per_actualiz_inicial,
+    depreciacion_per_actualiz_final,
+    depreciacion_acum_inicial,
+    depreciacion_acum_final,
+    aitb_depreciacion_acumulada,
+    depreciacion_acum_actualiz_final,
+    tipo_cabio_inicial,
+    tipo_cabio_final,
+    factor,
+    id_moneda,
+    id_moneda_dep,
+    codigo_raiz,
+    id_claificacion_raiz,
+    gasto_depreciacion,
+    id_centro_costo,
+    id_ot)
+AS
+  SELECT det.id_activo_fijo,
+         det.id_clasificacion,
+         det.id_activo_fijo_valor,
+         det.id_movimiento_af,
+         det.id_movimiento,
+         det.gestion_inicial,
+         det.gestion_final,
+         det.tipo,
+         det.fecha_compra,
+         det.fecha_ini_dep,
+         det.codigo,
+         det.descripcion,
+         det.monto_vigente_orig,
+         det.monto_vigente_inicial,
+         det.monto_vigente_final,
+         det.monto_actualiz_inicial,
+         det.monto_actualiz_final,
+         det.aitb_activo,
+         det.vida_util_orig,
+         det.vida_util_inicial,
+         det.vida_util_final,
+         det.depreciacion_per_inicial,
+         det.depreciacion_per_final,
+         det.depreciacion_per_actualiz_inicial,
+         det.depreciacion_per_actualiz_final,
+         det.depreciacion_acum_inicial,
+         det.depreciacion_acum_final,
+         det.aitb_depreciacion_acumulada,
+         det.depreciacion_acum_actualiz_final,
+         det.tipo_cabio_inicial,
+         det.tipo_cabio_final,
+         det.factor,
+         det.id_moneda,
+         det.id_moneda_dep,
+         cr.codigo_raiz,
+         cr.id_claificacion_raiz,
+         tp.factor * det.depreciacion_per_final AS gasto_depreciacion,
+         tp.id_centro_costo,
+         tp.id_ot
+  FROM kaf.vdetalle_depreciacion_activo det
+       JOIN kaf.vmovimiento_cbte mov ON mov.id_movimiento = det.id_movimiento
+       JOIN kaf.ttipo_prorrateo tp ON tp.id_proyecto = det.id_proyecto
+       JOIN kaf.vclaificacion_raiz cr ON cr.id_clasificacion =
+         det.id_clasificacion
+  WHERE mov.gestion::double precision = det.gestion_final AND
+        mov.id_moneda = det.id_moneda;
+        
+ CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo_cbte_aitb(
+    id_activo_fijo,
+    id_clasificacion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    id_movimiento,
+    gestion_inicial,
+    gestion_final,
+    tipo,
+    fecha_compra,
+    fecha_ini_dep,
+    codigo,
+    descripcion,
+    monto_vigente_orig,
+    monto_vigente_inicial,
+    monto_vigente_final,
+    monto_actualiz_inicial,
+    monto_actualiz_final,
+    aitb_activo,
+    vida_util_orig,
+    vida_util_inicial,
+    vida_util_final,
+    depreciacion_per_inicial,
+    depreciacion_per_final,
+    depreciacion_per_actualiz_inicial,
+    depreciacion_per_actualiz_final,
+    depreciacion_acum_inicial,
+    depreciacion_acum_final,
+    aitb_depreciacion_acumulada,
+    depreciacion_acum_actualiz_final,
+    tipo_cabio_inicial,
+    tipo_cabio_final,
+    factor,
+    id_moneda,
+    id_moneda_dep,
+    codigo_raiz,
+    id_claificacion_raiz)
+AS
+  SELECT det.id_activo_fijo,
+         det.id_clasificacion,
+         det.id_activo_fijo_valor,
+         det.id_movimiento_af,
+         det.id_movimiento,
+         det.gestion_inicial,
+         det.gestion_final,
+         det.tipo,
+         det.fecha_compra,
+         det.fecha_ini_dep,
+         det.codigo,
+         det.descripcion,
+         det.monto_vigente_orig,
+         det.monto_vigente_inicial,
+         det.monto_vigente_final,
+         det.monto_actualiz_inicial,
+         det.monto_actualiz_final,
+         det.aitb_activo,
+         det.vida_util_orig,
+         det.vida_util_inicial,
+         det.vida_util_final,
+         det.depreciacion_per_inicial,
+         det.depreciacion_per_final,
+         det.depreciacion_per_actualiz_inicial,
+         det.depreciacion_per_actualiz_final,
+         det.depreciacion_acum_inicial,
+         det.depreciacion_acum_final,
+         det.aitb_depreciacion_acumulada,
+         det.depreciacion_acum_actualiz_final,
+         det.tipo_cabio_inicial,
+         det.tipo_cabio_final,
+         det.factor,
+         det.id_moneda,
+         det.id_moneda_dep,
+         cr.codigo_raiz,
+         cr.id_claificacion_raiz
+  FROM kaf.vdetalle_depreciacion_activo det
+       JOIN kaf.vmovimiento_cbte mov ON mov.id_movimiento = det.id_movimiento
+       JOIN kaf.vclaificacion_raiz cr ON cr.id_clasificacion =
+         det.id_clasificacion
+  WHERE mov.gestion::double precision = det.gestion_final AND
+        mov.id_moneda = det.id_moneda;       
+
+/***********************************F-DEP-RAC-KAF-1-02/05/2017****************************************/
 
 
 
