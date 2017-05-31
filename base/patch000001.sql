@@ -520,13 +520,13 @@ CREATE TABLE kaf.tmoneda_dep (
 WITH (oids = false);
 
 COMMENT ON COLUMN kaf.tmoneda_dep.id_moneda_act
-IS 'indica que moenda se utiliza para actulizar';
+IS 'indica que moenda se utiliza para actualizar';
 
 COMMENT ON COLUMN kaf.tmoneda_dep.contabilizar
 IS 'solo una de la monedas puede contabilizar , esa sera considerada la principal';
 
-COMMENT ON COLUMN kaf.tmoneda_dep.actulizar
-IS 'indica si esta moneda actuliza en tal casola moneda de actulizacion tiene que estar configurada';
+COMMENT ON COLUMN kaf.tmoneda_dep.actualizar
+IS 'indica si esta moneda actualiza en tal casola moneda de actulizacion tiene que estar configurada';
 
 
 
