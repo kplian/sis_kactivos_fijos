@@ -117,7 +117,9 @@ BEGIN
                             COALESCE(round( afvi.depreciacion_per_real_af,2),0),
                             cla.tipo_activo,
                             cla.depreciable,
-                            afij.monto_compra_mt
+                            afij.monto_compra_mt,
+                            afij.id_proyecto,
+                            proy.codigo_proyecto as desc_proyecto
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -125,6 +127,7 @@ BEGIN
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
 						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+                        left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto 
                         left  join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
                         left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
@@ -164,6 +167,7 @@ BEGIN
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto                        
 						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+                        left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto 
                         left join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
                         left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo

@@ -83,7 +83,8 @@ BEGIN
         codigo_ant,
         marca,
         nro_serie,
-        caracteristicas
+        caracteristicas,
+        id_proyecto
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -129,7 +130,9 @@ BEGIN
         (p_parametros->'codigo_ant')::varchar,
         (p_parametros->'marca')::varchar,
         (p_parametros->'nro_serie')::varchar,
-        (p_parametros->'caracteristicas')::text
+        (p_parametros->'caracteristicas')::text,
+        (p_parametros->'id_proyecto')::integer
+        
     )RETURNING id_activo_fijo into v_id_activo_fijo;
 
 

@@ -127,6 +127,28 @@ header("content-type: text/javascript; charset=UTF-8");
 	       		 	},
 			form:true
 		},
+		{
+			config:{
+				name: 'contabilizar',
+				fieldLabel: 'Contabilizar?',
+				qtip:'Indica si a este nivel se busca al relación contable para los comprobantes',
+				allowBlank: false,
+				emptyText:'si/no...',       			
+       			typeAhead: true,
+       		    triggerAction: 'all',
+       		    lazyRender:true,
+       		    mode: 'local',
+       		    valueField: 'inicio',       	
+       		    store:['si','no']
+			},
+			type:'ComboBox',
+			id_grupo:1,
+			filters:{	type: 'list',
+	       				pfiltro:'claf.contabilizar',
+	       				options: ['si','no'],	
+	       		 	},
+			form:true
+		},
 		
 		
 		
@@ -423,7 +445,7 @@ header("content-type: text/javascript; charset=UTF-8");
 		{
 			name: 'desc_ingas',
 			type : 'string'
-		}, 'depreciable','tipo_activo'
+		}, 'depreciable','tipo_activo','contabilizar'
 		
 		],
 		sortInfo : {

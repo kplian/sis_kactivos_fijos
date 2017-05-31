@@ -87,7 +87,10 @@ class MODActivoFijo extends MODbase{
         $this->captura('depreciacion_per_real_af','numeric');		
 		$this->captura('tipo_activo','varchar');
         $this->captura('depreciable','varchar');
-		$this->captura('monto_compra_mt','numeric');		
+		$this->captura('monto_compra_mt','numeric');
+		$this->captura('id_proyecto','int4');		
+		$this->captura('desc_proyecto','varchar');
+				
 		
 		
 		
@@ -145,6 +148,11 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('nro_serie','nro_serie','varchar');
 		//$this->setParametro('caracteristicas','caracteristicas','text');		
 		$this->setParametro('monto_compra_mt','monto_compra_mt','numeric');
+		
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		
+		
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -199,6 +207,8 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('nro_serie','nro_serie','varchar');
 		//$this->setParametro('caracteristicas','caracteristicas','text');
 		$this->setParametro('monto_compra_mt','monto_compra_mt','numeric');
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

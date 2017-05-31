@@ -661,5 +661,72 @@ IS 'es importe siemre estara en moneda base';
 
 /***********************************F-SCP-RAC-KAF-1-25/04/2017****************************************/
 
+
+/***********************************I-SCP-RAC-KAF-1-29/04/2017****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_proyecto INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_proyecto
+IS 'indetifica el proyecto dodne se carga las depreciaciones dela citvo fijo, peude obtener del centro de costo de la compra pero no es obligatorio esta dato peude cambiarce en cualqeuir momento';
+
  
  
+/***********************************F-SCP-RAC-KAF-1-29/04/2017****************************************/
+
+  
+/***********************************I-SCP-RAC-KAF-1-02/05/2017****************************************/
+ 
+ CREATE TABLE kaf.ttipo_prorrateo (
+  id_tipo_prorrateo SERIAL,
+  id_proyecto INTEGER,
+  id_activo_fijo INTEGER,
+  id_centro_costo INTEGER,
+  id_ot INTEGER,
+  descripcion VARCHAR,
+  factor NUMERIC DEFAULT 1 NOT NULL,
+  id_gestion INTEGER,
+  CONSTRAINT ttipo_prorrateo_pkey PRIMARY KEY(id_tipo_prorrateo)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN kaf.ttipo_prorrateo.id_activo_fijo
+IS 'opcional, primero se busca configuracion para el activo si no hay busca configuracion para el proyecto';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_int_comprobante INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante
+IS 'hace referencia al comproante contable del movimeitno, ejm si es de depreciacion el cbte sera el de depreciacion';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_int_comprobante_aitb INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_aitb
+IS 'solo para movimiento de depreciacion, este es el comprobante de actulizacion y tenencia de bienes';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN contabilizar VARCHAR(6) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.contabilizar
+IS 'incidique a que nivel de la claisficacion se buscara la relacion contable apra generar comprobantes';
+
+/***********************************F-SCP-RAC-KAF-1-02/05/2017****************************************/
+
+ 
+ 
+
+

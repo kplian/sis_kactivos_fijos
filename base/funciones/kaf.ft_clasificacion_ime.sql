@@ -90,7 +90,8 @@ BEGIN
                 usuario_ai,
                 descripcion,
                 tipo_activo,
-                depreciable
+                depreciable,
+                contabilizar
           	) values(
                 v_parametros.id_clasificacion_fk,
                 v_parametros.id_cat_metodo_dep,
@@ -112,7 +113,8 @@ BEGIN
                 null,
                 upper(v_parametros.descripcion),
                 v_parametros.tipo_activo,
-                v_parametros.depreciable
+                v_parametros.depreciable,
+                v_parametros.contabilizar
 
 			)RETURNING id_clasificacion into v_id_clasificacion;
 
@@ -155,7 +157,8 @@ BEGIN
                                     usuario_ai,
                                     descripcion,
                                     tipo_activo,
-                                    depreciable
+                                    depreciable,
+                                    contabilizar
 					          	) values(
                                     v_rec.id_clasificacion,
                                     v_parametros.id_cat_metodo_dep,
@@ -177,7 +180,8 @@ BEGIN
                                     null,
                                     upper(v_parametros.descripcion),
                                     v_parametros.tipo_activo,
-                                    v_parametros.depreciable
+                                    v_parametros.depreciable,
+                                    v_parametros.contabilizar
 								);
 							end if;
 							v_ins = true;
@@ -226,7 +230,8 @@ BEGIN
                 --usuario_ai = v_parametros.usuario_ai,
                 descripcion = upper(v_parametros.descripcion),
                 tipo_activo = v_parametros.tipo_activo,
-                depreciable = v_parametros.depreciable
+                depreciable = v_parametros.depreciable,
+                contabilizar = v_parametros.contabilizar
 			where id_clasificacion=v_parametros.id_clasificacion;
                
 			--Definicion de la respuesta

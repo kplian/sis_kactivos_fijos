@@ -74,7 +74,8 @@ BEGIN
                             claf.codigo||'' - ''||claf.nombre as clasificacion,
                             claf.descripcion,
                             claf.tipo_activo,
-                            claf.depreciable
+                            claf.depreciable,
+                            claf.contabilizar
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
@@ -163,7 +164,8 @@ BEGIN
                             ''false''::varchar as checked,
                             claf.descripcion,
                             claf.tipo_activo,
-                            claf.depreciable
+                            claf.depreciable,
+                            claf.contabilizar
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
