@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION kaf.f_gestionar_cbte_depreciacion (
+CREATE OR REPLACE FUNCTION kaf.f_gestionar_cbte_depreciacion_aitb (
   p_id_usuario integer,
   p_id_usuario_ai integer,
   p_usuario_ai varchar,
@@ -12,7 +12,7 @@ $body$
 /*
 Autor: RAC KPLIAN
 Fecha:   03/05/2017
-Descripcion  Esta funcion gestiona los cbtes de depreciacon cuando son validados          
+Descripcion  Esta funcion gestiona los cbtes de depreciacon aitb cuando son validados          
 */
 
 
@@ -57,7 +57,7 @@ DECLARE
     
 BEGIN
 
-	v_nombre_funcion = 'kaf.f_gestionar_cbte_depreciacion';
+	v_nombre_funcion = 'kaf.f_gestionar_cbte_depreciacion_aitb';
  
    -- 1) con el id_comprobante identificar el plan de pago
    
@@ -74,6 +74,7 @@ BEGIN
             mov.id_int_comprobante,
             mov.id_int_comprobante_aitb,
             ca.estado_reg as estado_aitb,
+            c.estado_reg as estado_depreciacion,
             c.id_depto as id_depto_conta
       into
             v_registros
@@ -82,7 +83,7 @@ BEGIN
       inner join conta.tint_comprobante  c on c.id_int_comprobante = mov.id_int_comprobante 
 	  inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
       inner join conta.tint_comprobante ca on ca.id_int_comprobante = mov.id_int_comprobante_aitb
-      where  mov.id_int_comprobante = p_id_int_comprobante; 
+      where  mov.id_int_comprobante_aitb = p_id_int_comprobante; 
     
     
       --2) Validar que tenga una cuenta documentada
@@ -94,7 +95,7 @@ BEGIN
      
      --solo cambiamos de estado si es que el cbte de aitb se encuentra validado
    
-     IF v_registros.estado_aitb = 'validado' THEN 
+     IF v_registros.estado_depreciacion = 'validado' THEN 
      
     --------------------------------------------------------
     ---  cambiar el estado de la cuenta dicumentada    -----
@@ -147,7 +148,7 @@ BEGIN
             
             
       ELSE
-         --si aitb no esta valiado , el estado del movimeinto cambiara al validar el cbte de aitb
+         --si depreciacon  no esta valiado , el estado del movimeinto cambiara al validar el cbte de aitb
       
       END IF;
             

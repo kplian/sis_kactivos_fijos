@@ -715,6 +715,15 @@ ALTER TABLE kaf.tmovimiento
 COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_aitb
 IS 'solo para movimiento de depreciacion, este es el comprobante de actulizacion y tenencia de bienes';
 
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN contabilizar VARCHAR(6) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.contabilizar
+IS 'incidique a que nivel de la claisficacion se buscara la relacion contable apra generar comprobantes';
+
 /***********************************F-SCP-RAC-KAF-1-02/05/2017****************************************/
 
  

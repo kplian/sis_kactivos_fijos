@@ -483,7 +483,6 @@ AS
 
 
 /***********************************I-DEP-RAC-KAF-1-17/04/2017****************************************/
-
 CREATE OR REPLACE VIEW kaf.vclaificacion_raiz(
     codigo_raiz,
     nombre_raiz,
@@ -510,7 +509,7 @@ WITH RECURSIVE clasificacion(
          c_1.codigo,
          c_1.descripcion
   FROM kaf.tclasificacion c_1
-  WHERE c_1.id_clasificacion_fk IS NULL AND
+  WHERE c_1.contabilizar::text = 'si'::text AND
         c_1.estado_reg::text = 'activo'::text
   UNION
   SELECT pc.ids || c2.id_clasificacion,

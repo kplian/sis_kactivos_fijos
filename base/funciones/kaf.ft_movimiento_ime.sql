@@ -66,7 +66,9 @@ DECLARE
     v_monto_rescate				numeric;
     v_monto_compra				numeric;
     v_id_int_comprobante		integer;
-    v_kaf_cbte_depreciacion		varchar;	
+    v_kaf_cbte_depreciacion		varchar;
+    v_kaf_cbte_depreciacion_aitb		varchar;	
+    v_id_int_comprobante_aitb			integer;
 			    
 BEGIN
 
@@ -994,8 +996,26 @@ BEGIN
                                                        v_parametros._nombre_usuario_ai);
             
 
+                        
+                        
+                        
+                        
+                         --  recuperar el codigo de plantilla para aitbdepreciacion
+                         v_kaf_cbte_depreciacion_aitb = pxp.f_get_variable_global('kaf_cbte_depreciacion_aitb');
+                         
+                          --  generar comprobante de depreciación
+                          v_id_int_comprobante_aitb =   conta.f_gen_comprobante ( 
+                                                       v_movimiento.id_movimiento, 
+                                                       v_kaf_cbte_depreciacion_aitb ,
+                                                       v_id_estado_actual,                                                     
+                                                       p_id_usuario,
+                                                       v_parametros._id_usuario_ai, 
+                                                       v_parametros._nombre_usuario_ai);
+            
+
                         update  kaf.tmovimiento   m set 
-                             id_int_comprobante = v_id_int_comprobante          
+                             id_int_comprobante = v_id_int_comprobante ,
+                             id_int_comprobante_aitb = v_id_int_comprobante_aitb        
                         where id_movimiento = v_movimiento.id_movimiento;
 
                    

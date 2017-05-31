@@ -228,6 +228,11 @@ select pxp.f_insert_testructura_gui ('LAFRC', 'CONFAF');
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES 
   (E'kaf_cbte_depreciacion', E'DEPAF', E'codigo de la plantilla de cbte de depreciacion');
+  
+  
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_cbte_depreciacion_aitb', E'AITBAF', E'cbte de AITB activos Fijos');
 
 
 
