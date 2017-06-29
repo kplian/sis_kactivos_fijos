@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -9,134 +7,155 @@ CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime (
 RETURNS varchar AS
 $body$
 /**************************************************************************
- SISTEMA:		Sistema de Activos Fijos
- FUNCION: 		kaf.ft_movimiento_ime
+ SISTEMA:   Sistema de Activos Fijos
+ FUNCION:     kaf.ft_movimiento_ime
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'kaf.tmovimiento'
- AUTOR: 		 (admin)
- FECHA:	        22-10-2015 20:42:41
- COMENTARIOS:	
+ AUTOR:      (admin)
+ FECHA:         22-10-2015 20:42:41
+ COMENTARIOS: 
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION: 
+ AUTOR:     
+ FECHA:   
 ***************************************************************************/
 
 DECLARE
 
-	v_nro_requerimiento    	integer;
-	v_parametros           	record;
-	v_id_requerimiento     	integer;
-	v_resp		            varchar;
-	v_nombre_funcion        text;
-	v_mensaje_error         text;
-	v_id_movimiento			integer;
-    v_sql					varchar;
-    v_rec					record;
-    v_id_responsable_depto	integer;
-    v_id_gestion			integer;
-    v_codigo_tipo_proceso	varchar;
-    v_id_proceso_macro		integer;
-    v_id_proceso_wf			integer;
-    v_id_estado_wf			integer;
-    v_codigo_estado			varchar;
-    v_num_tramite			varchar;
-    v_acceso_directo        varchar;
-    v_clase                 varchar;
-    v_parametros_ad         varchar;
-    v_tipo_noti             varchar;
-    v_titulo                varchar;
-    v_movimiento            record;
-    v_id_tipo_estado        integer;
-    v_pedir_obs             varchar;
-    v_codigo_estado_siguiente   varchar;
-    v_id_depto              integer;
-    v_obs                   varchar;
-    v_id_estado_actual      integer;
-    v_id_funcionario        integer;
-    v_id_usuario_reg        integer;
-    v_id_estado_wf_ant      integer;
-    v_cod_movimiento        varchar;
-    v_codigo_estado_anterior    varchar;
-    v_registros_mov				record;
-    v_id_moneda_base			integer;
-    v_registros_af_mov			record;
-    v_registros_mod				record;
-    v_monto_rescate				numeric;
-    v_monto_compra				numeric;
-    v_id_int_comprobante		integer;
-    v_kaf_cbte_depreciacion		varchar;
-    v_kaf_cbte_depreciacion_aitb		varchar;	
-    v_id_int_comprobante_aitb			integer;
-			    
+    v_nro_requerimiento           integer;
+    v_parametros                  record;
+    v_id_requerimiento            integer;
+    v_resp                        varchar;
+    v_nombre_funcion              text;
+    v_mensaje_error               text;
+    v_id_movimiento               integer;
+    v_sql                         varchar;
+    v_rec                         record;
+    v_id_responsable_depto        integer;
+    v_id_gestion                  integer;
+    v_codigo_tipo_proceso         varchar;
+    v_id_proceso_macro            integer;
+    v_id_proceso_wf               integer;
+    v_id_estado_wf                integer;
+    v_codigo_estado               varchar;
+    v_num_tramite                 varchar;
+    v_acceso_directo              varchar;
+    v_clase                       varchar;
+    v_parametros_ad               varchar;
+    v_tipo_noti                   varchar;
+    v_titulo                      varchar;
+    v_movimiento                  record;
+    v_id_tipo_estado              integer;
+    v_pedir_obs                   varchar;
+    v_codigo_estado_siguiente     varchar;
+    v_id_depto                    integer;
+    v_obs                         varchar;
+    v_id_estado_actual            integer;
+    v_id_funcionario              integer;
+    v_id_usuario_reg              integer;
+    v_id_estado_wf_ant            integer;
+    v_cod_movimiento              varchar;
+    v_codigo_estado_anterior      varchar;
+    v_registros_mov               record;
+    v_id_moneda_base              integer;
+    v_registros_af_mov            record;
+    v_registros_mod               record;
+    v_monto_rescate               numeric;
+    v_monto_compra                numeric;
+    v_id_int_comprobante          integer;
+    v_kaf_cbte_depreciacion       varchar;
+    v_kaf_cbte_depreciacion_aitb  varchar;  
+    v_id_int_comprobante_aitb     integer;
+    v_monto_inc_dec_real          numeric;
+    v_vida_util_inc_dec_real      integer;
+    v_fun                         varchar;
+    v_id_subsistema               integer;
+    v_id_periodo_subsistema       integer;
+    v_res                         varchar;
+    v_rec_af                      record;
+    v_numero                      integer;
+    v_nuevo_codigo                varchar;
+    v_rec_mov_esp                 record;
+    v_id_activo_fijo              integer;
+          
 BEGIN
 
-    v_nombre_funcion = 'kaf.ft_movimiento_ime';
-    v_parametros = pxp.f_get_record(p_tabla);
+  v_nombre_funcion = 'kaf.ft_movimiento_ime';
+  v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_INS'
- 	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		22-10-2015 20:42:41
-	***********************************/
+  --Obtención del subsistema para posterior verificación de período abierto
+  select id_subsistema into v_id_subsistema
+  from segu.tsubsistema
+  where codigo = 'KAF';
 
-	if(p_transaccion='SKA_MOV_INS')then
-					
+  /*********************************    
+  #TRANSACCION:  'SKA_MOV_INS'
+  #DESCRIPCION: Insercion de registros
+  #AUTOR:   admin 
+  #FECHA:   22-10-2015 20:42:41
+  ***********************************/
+
+  if(p_transaccion='SKA_MOV_INS')then
+          
         begin
 
-        	--Obtiene el usuario responsable del depto.
-        	if not exists(select 1 from param.tdepto_usuario
-        					where id_depto = v_parametros.id_depto
-        					and cargo = 'responsable') then
-        		raise exception 'No es posible guardar el movimiento porque no se ha definido Responsable del Depto.';
-        	end if;
+          --Obtiene el usuario responsable del depto.
+          if not exists(select 1 from param.tdepto_usuario
+                  where id_depto = v_parametros.id_depto
+                  and cargo = 'responsable') then
+            raise exception 'No es posible guardar el movimiento porque no se ha definido Responsable del Depto. de Activos Fijos';
+          end if;
 
-        	select id_usuario into v_id_responsable_depto
-        	from param.tdepto_usuario
-        	where id_depto = v_parametros.id_depto
-        	and cargo = 'responsable' limit 1;
+          select id_usuario into v_id_responsable_depto
+          from param.tdepto_usuario
+          where id_depto = v_parametros.id_depto
+          and cargo = 'responsable' limit 1;
 
-        	--------------------------
-        	--Obtiene el proceso macro
-        	--------------------------
-        	select 
+          --Verificación de período abierto
+          select po_id_periodo_subsistema into v_id_periodo_subsistema
+          from param.f_get_periodo_gestion(v_parametros.fecha_mov,v_id_subsistema);
+          v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
+
+          --------------------------
+          --Obtiene el proceso macro
+          --------------------------
+          select 
                pm.id_proceso_macro, tp.codigo
-        	into 
+          into 
                v_id_proceso_macro, v_codigo_tipo_proceso
-        	from kaf.tmovimiento_tipo mt
-        	inner join wf.tproceso_macro pm  on pm.id_proceso_macro =  mt.id_proceso_macro
-        	inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
-        	where mt.id_cat_movimiento = v_parametros.id_cat_movimiento
-        	      and tp.estado_reg = 'activo'
-        	      and tp.inicio = 'si';
+          from kaf.tmovimiento_tipo mt
+          inner join wf.tproceso_macro pm  on pm.id_proceso_macro =  mt.id_proceso_macro
+          inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
+          where mt.id_cat_movimiento = v_parametros.id_cat_movimiento
+                and tp.estado_reg = 'activo'
+                and tp.inicio = 'si';
 
-        	if v_id_proceso_macro is null then
-	           raise exception 'No existe un proceso inicial para el proceso macro indicado (Revise la configuración)';
-	        end if;
+          if v_id_proceso_macro is null then
+             raise exception 'No existe un proceso inicial para el proceso macro indicado (Revise la configuración)';
+          end if;
 
-	        --Obtencion de la gestion a partir de la fecha del movimiento
-	        select 
+          --Obtencion de la gestion a partir de la fecha del movimiento
+          select 
                 id_gestion
-	        into 
+          into 
                  v_id_gestion
-	        from param.tgestion
-	        where gestion = extract(year from v_parametros.fecha_mov);
+          from param.tgestion
+          where gestion = extract(year from v_parametros.fecha_mov);
 
-	        if v_id_gestion is null then
-	        	raise exception 'No existe la gestion abierta';
-	        end if;
+          if v_id_gestion is null then
+            raise exception 'La gestión no existe';
+          end if;
 
-        	----------------------
-        	--Inicio tramite en WF
-        	----------------------
-        	SELECT 
+          ----------------------
+          --Inicio tramite en WF
+          ----------------------
+          SELECT 
                ps_num_tramite ,
                ps_id_proceso_wf ,
                ps_id_estado_wf ,
                ps_codigo_estado 
-          	into
+            into
               v_num_tramite,
               v_id_proceso_wf,
               v_id_estado_wf,
@@ -152,8 +171,8 @@ BEGIN
             'Movimiento Activo Fijo',
             'S/N');
 
-        	--Sentencia de la insercion
-        	insert into kaf.tmovimiento(
+          --Sentencia de la insercion
+          insert into kaf.tmovimiento(
                 direccion,
                 fecha_hasta,
                 id_cat_movimiento,
@@ -181,7 +200,7 @@ BEGIN
                 id_deposito_dest,
                 id_funcionario_dest,
                 id_movimiento_motivo
-          	) values(
+            ) values(
                 v_parametros.direccion,
                 v_parametros.fecha_hasta,
                 v_parametros.id_cat_movimiento,
@@ -209,7 +228,7 @@ BEGIN
                 v_parametros.id_deposito_dest,
                 v_parametros.id_funcionario_dest,
                 v_parametros.id_movimiento_motivo
-			)RETURNING id_movimiento into v_id_movimiento;
+      ) RETURNING id_movimiento into v_id_movimiento;
 
             --Verifica si es depreciacion y esta en Estado Borrador, para precargar con todos los activos fijos del departamento
             select 
@@ -219,7 +238,7 @@ BEGIN
             from param.tcatalogo cat
             where cat.id_catalogo = v_parametros.id_cat_movimiento;
 
-            
+            --CARGA DE ACTIVOS FIJOS POR TIPO DE MOVIMIENTO
             if v_cod_movimiento in ('deprec','actua') then
                   
                   --Registra todos los activos del departamento que les corresponda depreciar en el periodo solicitado
@@ -246,7 +265,7 @@ BEGIN
                                         fecha_reg,
                                         id_usuario_reg,
                                         fecha_mod
-                                   	) values(
+                                    ) values(
                                       v_id_movimiento,
                                       v_registros_mov.id_activo_fijo,
                                       v_registros_mov.id_cat_estado_fun,
@@ -272,12 +291,12 @@ BEGIN
                                                        afij.id_funcionario = v_parametros.id_funcionario
                                                   and  afij.estado = 'alta'
                                                   and  afij.en_deposito = 'no'
-                 						) LOOP
+                            ) LOOP
                                         
                        
                        IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN    
                                                 
-                             --Registra todos los activos del funcionario origen
+                            --Registra todos los activos del funcionario origen
                             insert into kaf.tmovimiento_af(
                                 id_movimiento,
                                 id_activo_fijo,
@@ -300,35 +319,75 @@ BEGIN
                       END IF;        
                       
                  END LOOP;
+
+            elsif v_cod_movimiento = 'devol' then
+                
+                FOR v_registros_mov in (
+                                         select
+                                          afij.id_activo_fijo,
+                                          afij.id_cat_estado_fun
+                                          from kaf.tactivo_fijo afij
+                                          where 
+                                               afij.id_funcionario = v_parametros.id_funcionario
+                                          and  afij.estado = 'alta'
+                                          and  afij.en_deposito = 'no'
+                                        ) LOOP
+                                        
+                       
+                        IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN    
+                                                
+                            --Registra todos los activos del funcionario origen
+                            insert into kaf.tmovimiento_af(
+                                id_movimiento,
+                                id_activo_fijo,
+                                id_cat_estado_fun,
+                                estado_reg,
+                                fecha_reg,
+                                id_usuario_reg,
+                                fecha_mod
+                            )
+                            values(
+                                v_id_movimiento,
+                                v_registros_mov.id_activo_fijo,
+                                v_registros_mov.id_cat_estado_fun,
+                                'activo',
+                                now(),
+                                p_id_usuario,
+                                null
+                            );
+                              
+                        END IF;        
+                      
+                 END LOOP;
                  
                  
                 
             end if;
-			
-			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
+      
+      --Definicion de la respuesta
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_id_movimiento::varchar);
 
             --Devuelve la respuesta
             return v_resp;
 
-		end;
+    end;
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_MOD'
- 	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		22-10-2015 20:42:41
-	***********************************/
+  /*********************************    
+  #TRANSACCION:  'SKA_MOV_MOD'
+  #DESCRIPCION: Modificacion de registros
+  #AUTOR:   admin 
+  #FECHA:   22-10-2015 20:42:41
+  ***********************************/
 
-	elsif(p_transaccion='SKA_MOV_MOD')then
+  elsif(p_transaccion='SKA_MOV_MOD')then
 
-		begin
+    begin
             --Edicion solo para estado borrador
             if not exists(select 1 from kaf.tmovimiento
                         where id_movimiento = v_parametros.id_movimiento
                         and estado = 'borrador') then
-                raise exception 'No se puede Modificar los datos porque no esta en Borrador';
+                raise exception 'No se pueden Modificar los datos porque no esta en Borrador';
             end if;
 
             --Obtiene los datos actuales del movimiento
@@ -339,17 +398,28 @@ BEGIN
             from kaf.tmovimiento
             where id_movimiento = v_parametros.id_movimiento;
 
-			--Obtiene el responsable de depto en base a los ultimos cambios
-			select id_usuario into v_id_responsable_depto
-        	from param.tdepto_usuario
-        	where id_depto = v_parametros.id_depto
-        	and cargo = 'responsable' limit 1;
+          --Verificación de período abierto.
+          select id_subsistema into v_id_subsistema
+          from segu.tsubsistema
+          where codigo = 'KAF';
 
-        	if v_id_responsable_depto is not null then
-        		update kaf.tmovimiento set
-        		id_responsable_depto = v_id_responsable_depto
-        		where id_movimiento=v_parametros.id_movimiento;
-        	end if;
+          --Verificación de período abierto
+          select po_id_periodo_subsistema into v_id_periodo_subsistema
+          from param.f_get_periodo_gestion(v_parametros.fecha_mov,v_id_subsistema);
+
+          v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
+
+      --Obtiene el responsable de depto en base a los ultimos cambios
+      select id_usuario into v_id_responsable_depto
+          from param.tdepto_usuario
+          where id_depto = v_parametros.id_depto
+          and cargo = 'responsable' limit 1;
+
+          if v_id_responsable_depto is not null then
+            update kaf.tmovimiento set
+            id_responsable_depto = v_id_responsable_depto
+            where id_movimiento=v_parametros.id_movimiento;
+          end if;
 
             --Permite el cambio solamente si esta en estado Borrador
             if v_rec.estado = 'borrador' then
@@ -461,29 +531,29 @@ BEGIN
 
             
                
-			--Definicion de la respuesta
+      --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos modificado(a)'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_parametros.id_movimiento::varchar);
                
             --Devuelve la respuesta
             return v_resp;
             
-		end;
+    end;
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_ELI'
- 	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		22-10-2015 20:42:41
-	***********************************/
+  /*********************************    
+  #TRANSACCION:  'SKA_MOV_ELI'
+  #DESCRIPCION: Eliminacion de registros
+  #AUTOR:   admin 
+  #FECHA:   22-10-2015 20:42:41
+  ***********************************/
 
-	elsif(p_transaccion='SKA_MOV_ELI')then
+  elsif(p_transaccion='SKA_MOV_ELI')then
 
-		begin
-        	--Verifica existencia del movimiento
+    begin
+          --Verifica existencia del movimiento
             if not exists(select 1 from kaf.tmovimiento
-            			where id_movimiento = v_parametros.id_movimiento) then
-            	raise exception 'Movimiento no encontrado';
+                  where id_movimiento = v_parametros.id_movimiento) then
+              raise exception 'Movimiento no encontrado';
             end if;
             
             --Obtiene los datos actuales del movimiento
@@ -493,8 +563,8 @@ BEGIN
             where id_movimiento = v_parametros.id_movimiento;
 
             if v_rec.estado = 'borrador' then
-    			--Sentencia de la eliminacion
-    			delete from kaf.tmovimiento
+                --Sentencia de la eliminacion
+                delete from kaf.tmovimiento
                 where id_movimiento=v_parametros.id_movimiento;
             else
                 raise exception 'Eliminacion no permitida, debe estar en Estado Borrador';
@@ -507,22 +577,22 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
 
-		end;
+    end;
         
-    /*********************************    
- 	#TRANSACCION:  'SKA_MOVREL_DAT'
- 	#DESCRIPCION:	REllena masivamente el detalle del movimiento con los activos fijos enviados
- 	#AUTOR:			RCM
- 	#FECHA:			14/01/2016
-	***********************************/
+  /*********************************    
+  #TRANSACCION: 'SKA_MOVREL_DAT'
+  #DESCRIPCION: Rellena masivamente el detalle del movimiento con los activos fijos enviados
+  #AUTOR:       RCM
+  #FECHA:       14/01/2016
+  ***********************************/
 
-	elsif(p_transaccion='SKA_MOVREL_DAT')then
+  elsif(p_transaccion='SKA_MOVREL_DAT')then
 
-		begin
-        	--Verifica existencia del movimiento
+    begin
+          --Verifica existencia del movimiento
             if not exists(select 1 from kaf.tmovimiento
-            			where id_movimiento = v_parametros.id_movimiento) then
-            	raise exception 'Movimiento no encontrado';
+                  where id_movimiento = v_parametros.id_movimiento) then
+              raise exception 'Movimiento no encontrado';
             end if;
             
             --Obtiene datos del movimiento
@@ -547,7 +617,7 @@ BEGIN
                 from kaf.tactivo_fijo af
                 where af.id_activo_fijo in (' ||v_parametros.ids||')
                 and af.id_activo_fijo not in (select id_activo_fijo
-                							from kaf.tmovimiento_af
+                              from kaf.tmovimiento_af
                                             where id_movimiento = '||v_rec.id_movimiento||')';
             
             execute v_sql;
@@ -560,7 +630,7 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
 
-		end;
+    end;
 
     /*********************************    
     #TRANSACCION:  'KAF_SIGEMOV_IME'
@@ -581,59 +651,63 @@ BEGIN
             inner join param.tcatalogo cat
             on cat.id_catalogo = mov.id_cat_movimiento    
             where id_proceso_wf = v_parametros.id_proceso_wf_act;
+
+            --Verificación de período abierto
+            select po_id_periodo_subsistema into v_id_periodo_subsistema
+            from param.f_get_periodo_gestion(v_movimiento.fecha_mov,v_id_subsistema);
+            v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
             
+            --Obtención de la moneda base
             v_id_moneda_base  = param.f_get_moneda_base();
 
-            --Obtiene los datos del Estado Actual
+            --Obtención de datos del Estado Actual
             select 
-              ew.id_tipo_estado,
-              te.pedir_obs,
-              ew.id_estado_wf
+                ew.id_tipo_estado,
+                te.pedir_obs,
+                ew.id_estado_wf
             into 
-              v_id_tipo_estado,
-              v_pedir_obs,
-              v_id_estado_wf
+                v_id_tipo_estado,
+                v_pedir_obs,
+                v_id_estado_wf
             from wf.testado_wf ew
-            inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
+            inner join wf.ttipo_estado te
+            on te.id_tipo_estado = ew.id_tipo_estado
             where ew.id_estado_wf = v_parametros.id_estado_wf_act;
-              
-          
-
-          
             
             if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
                 v_id_depto = v_parametros.id_depto_wf;
-           end if;
+            end if;
                     
-           if pxp.f_existe_parametro(p_tabla,'obs') THEN
+            if pxp.f_existe_parametro(p_tabla,'obs') THEN
                 v_obs=v_parametros.obs;
-           else
+            else
                 v_obs='---';
-           end if;
+            end if;
                    
-            --Configurar acceso directo para la alarma   
-           v_acceso_directo = '';
-           v_clase = '';
-           v_parametros_ad = '';
-           v_tipo_noti = 'notificacion';
-           v_titulo  = 'Visto Bueno';
+            --Configuración del acceso directo para la alarma   
+            v_acceso_directo = '';
+            v_clase = '';
+            v_parametros_ad = '';
+            v_tipo_noti = 'notificacion';
+            v_titulo  = 'Visto Bueno';
            
-           select 
-               codigo
+            select 
+                codigo
             into 
-              v_codigo_estado_siguiente
-           from wf.ttipo_estado tes
-           where tes.id_tipo_estado =  v_parametros.id_tipo_estado;
+                v_codigo_estado_siguiente
+            from wf.ttipo_estado tes
+            where tes.id_tipo_estado =  v_parametros.id_tipo_estado;
                 
-           if v_codigo_estado_siguiente not in ('finalizado') then
+            if v_codigo_estado_siguiente not in ('finalizado') then
                 v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
                 v_clase = 'Movimiento';
                 v_parametros_ad = '{filtro_directo:{campo:"mov.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
                 v_tipo_noti = 'notificacion';
                 v_titulo  = 'Notificacion';             
-           end if;
-                 
-           v_id_estado_actual =  wf.f_registra_estado_wf(
+            end if;
+                
+            --Obtención id del estaado actual 
+            v_id_estado_actual =  wf.f_registra_estado_wf(
                 v_parametros.id_tipo_estado, 
                 v_parametros.id_funcionario_wf, 
                 v_parametros.id_estado_wf_act, 
@@ -650,38 +724,29 @@ BEGIN
                 v_titulo
             );
               
-            --Actualiza el estado actual
-          
-
-           update kaf.tmovimiento set
+            --Actualiza el estado actual del movimiento
+            update kaf.tmovimiento set
             id_estado_wf = v_id_estado_actual,
             estado = v_codigo_estado_siguiente
-           where id_movimiento = v_movimiento.id_movimiento;
+            where id_movimiento = v_movimiento.id_movimiento;
             
-            
-            
-            --raise exception '%',v_movimiento.cod_movimiento;
             --------------------------------------------
             --Acciones por Tipo de Movimiento y Estado
             --------------------------------------------
             if v_movimiento.cod_movimiento = 'alta' then
-            
-              
 
                 if v_codigo_estado_siguiente = 'finalizado' then
                 
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
-                        estado = 'alta',
-                        codigo = kaf.f_genera_codigo (movaf.id_activo_fijo)
+                    estado = 'alta',
+                    codigo = kaf.f_genera_codigo (movaf.id_activo_fijo)
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
                    
-                
-                
-                --lsitados de activos fijso dentro del movimeinto
-                FOR v_registros_af_mov in ( select
+                    --Recorrido de los activos fijos dentro del movimiento
+                    for v_registros_af_mov in (select
                                                  af.id_activo_fijo,
                                                   af.monto_compra,          
                                                   af.vida_util_original,      
@@ -695,95 +760,85 @@ BEGIN
                                               from kaf.tmovimiento_af movaf
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = movaf.id_activo_fijo
-                                              where movaf.id_movimiento = v_movimiento.id_movimiento  )LOOP
-                
-               
-                        
-                            -- por cada moneda configurada es necesario insertar un valor correpondiente 
-                            FOR v_registros_mod in (select 
-                                                          mod.id_moneda_dep,
-                                                          mod.id_moneda,                      
-                                                          mod.id_moneda_act
-                                                      from kaf.tmoneda_dep mod                                               
-                                                      where mod.estado_reg = 'activo') LOOP
-                                                      
-                                                      
-                                      v_monto_compra = param.f_convertir_moneda(
-                                                                                 v_id_moneda_base, --moneda origen para conversion
-                                                                                 v_registros_mod.id_moneda,   --moneda a la que sera convertido
-                                                                                 v_registros_af_mov.monto_compra, --este monto siemrpe estara en moenda base
-                                                                                 v_registros_af_mov.fecha_ini_dep, 
-                                                                                 'O',-- tipo oficial, venta, compra 
-                                                                                 NULL);--defecto dos decimales   
-                                                                                 
-                                      v_monto_rescate = param.f_convertir_moneda(
-                                                                                 v_id_moneda_base, --moneda origen para conversion
-                                                                                 v_registros_mod.id_moneda,   --moneda a la que sera convertido
-                                                                                 v_registros_af_mov.monto_rescate, --este monto siemrpe estara en moenda base
-                                                                                 v_registros_af_mov.fecha_ini_dep, 
-                                                                                 'O',-- tipo oficial, venta, compra 
-                                                                                 NULL);--defecto dos decimales                                                        
-                                                      
-                                     --Crea el registro de importes
-                                      insert into kaf.tactivo_fijo_valores(
-                                          id_usuario_reg, 
-                                          fecha_reg,
-                                          estado_reg,
-                                          id_activo_fijo,
-                                          monto_vigente_orig,
-                                          vida_util_orig,
-                                          fecha_ini_dep,
-                                          depreciacion_mes,
-                                          depreciacion_per,
-                                          depreciacion_acum,
-                                          monto_vigente,
-                                          vida_util,
-                                          estado,
-                                          principal,
-                                          monto_rescate,
-                                          id_movimiento_af,
-                                          tipo, 
-                                          codigo,
-                                          id_moneda_dep,
-                                          id_moneda,
-                                          fecha_inicio
-                                      )
-                                      values
-                                       (
-                                          p_id_usuario,
-                                          now(),
-                                          'activo',
-                                          v_registros_af_mov.id_activo_fijo,
-                                          v_monto_compra,            --  monto_vigente_orig
-                                          v_registros_af_mov.vida_util_original,      --  vida_util_orig
-                                          v_registros_af_mov.fecha_ini_dep,           --  fecha_ini_dep
-                                          0,
-                                          0,
-                                          0,
-                                          v_monto_compra,            --  monto_vigente
-                                          v_registros_af_mov.vida_util_original,      --  vida_util
-                                          'activo',
-                                          'si',
-                                          v_monto_rescate,           --  monto_rescate
-                                          v_registros_af_mov.id_movimiento_af,
-                                          'alta',
-                                          v_registros_af_mov.codigo,
-                                          v_registros_mod.id_moneda_dep,
-                                          v_registros_mod.id_moneda,
-                                          v_registros_af_mov.fecha_ini_dep           --  fecha_ini  desde cuando se considera el activo valor
-                                          
-                                     );
-                            
-                           END LOOP; -- fin loop moneda
+                                              where movaf.id_movimiento = v_movimiento.id_movimiento) loop
 
-                     END LOOP; -- fin loop movimeinto
-                    
-                    
+                        --Recorrido de las monedas configuradas para insertar un registro para cada una
+                        for v_registros_mod in (select 
+                                                    mod.id_moneda_dep,
+                                                    mod.id_moneda,                      
+                                                    mod.id_moneda_act
+                                                from kaf.tmoneda_dep mod                                               
+                                                where mod.estado_reg = 'activo') loop
+                                                      
+                            v_monto_compra = param.f_convertir_moneda(v_id_moneda_base, --moneda origen para conversion
+                                                                      v_registros_mod.id_moneda,   --moneda a la que sera convertido
+                                                                      v_registros_af_mov.monto_compra, --este monto siemrpe estara en moenda base
+                                                                      v_registros_af_mov.fecha_ini_dep, 
+                                                                      'O',-- tipo oficial, venta, compra 
+                                                                      NULL);--defecto dos decimales   
+                                                                                 
+                            v_monto_rescate = param.f_convertir_moneda(v_id_moneda_base, --moneda origen para conversion
+                                                                       v_registros_mod.id_moneda,   --moneda a la que sera convertido
+                                                                       v_registros_af_mov.monto_rescate, --este monto siemrpe estara en moenda base
+                                                                       v_registros_af_mov.fecha_ini_dep, 
+                                                                       'O',-- tipo oficial, venta, compra 
+                                                                       NULL);--defecto dos decimales                                                        
+                                                      
+                            --Crea el registro de importes
+                            insert into kaf.tactivo_fijo_valores(
+                                id_usuario_reg, 
+                                fecha_reg,
+                                estado_reg,
+                                id_activo_fijo,
+                                monto_vigente_orig,
+                                vida_util_orig,
+                                fecha_ini_dep,
+                                depreciacion_mes,
+                                depreciacion_per,
+                                depreciacion_acum,
+                                monto_vigente,
+                                vida_util,
+                                estado,
+                                principal,
+                                monto_rescate,
+                                id_movimiento_af,
+                                tipo, 
+                                codigo,
+                                id_moneda_dep,
+                                id_moneda,
+                                fecha_inicio
+                            ) values(
+                                p_id_usuario,
+                                now(),
+                                'activo',
+                                v_registros_af_mov.id_activo_fijo,
+                                v_monto_compra,            --  monto_vigente_orig
+                                v_registros_af_mov.vida_util_original,      --  vida_util_orig
+                                v_registros_af_mov.fecha_ini_dep,           --  fecha_ini_dep
+                                0,
+                                0,
+                                0,
+                                v_monto_compra,            --  monto_vigente
+                                v_registros_af_mov.vida_util_original,      --  vida_util
+                                'activo',
+                                'si',
+                                v_monto_rescate,           --  monto_rescate
+                                v_registros_af_mov.id_movimiento_af,
+                                'alta',
+                                v_registros_af_mov.codigo,
+                                v_registros_mod.id_moneda_dep,
+                                v_registros_mod.id_moneda,
+                                v_registros_af_mov.fecha_ini_dep           --  fecha_ini  desde cuando se considera el activo valor
+                           );
+                            
+                        end loop; -- fin loop moneda
+
+                    end loop; -- fin loop movimeinto
+
                 end if;
-                
-              
 
             elsif v_movimiento.cod_movimiento = 'baja' then
+                
                 if v_codigo_estado_siguiente = 'finalizado' then
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
@@ -798,7 +853,9 @@ BEGIN
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'asig' then
+
                 if v_codigo_estado_siguiente = 'finalizado' then
+
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
@@ -811,9 +868,6 @@ BEGIN
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
                 
                 end if;
-                
-                
-                
 
             -- RAC 03/03/2017
             -- aumento un if para considerar el caso de transferencias finalizadas
@@ -824,13 +878,14 @@ BEGIN
             elsif v_movimiento.cod_movimiento = 'transf' then
                 
                 if v_codigo_estado_siguiente = 'finalizado' then
+
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
-                    	en_deposito = 'no',
-                    	id_funcionario = mov.id_funcionario_dest,
-                    	id_persona = mov.id_persona
-                     from kaf.tmovimiento_af movaf
-                     inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
+                    en_deposito = 'no',
+                    id_funcionario = mov.id_funcionario_dest,
+                    id_persona = mov.id_persona
+                    from kaf.tmovimiento_af movaf
+                    inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
                 
@@ -838,7 +893,9 @@ BEGIN
             
             
             elsif v_movimiento.cod_movimiento = 'devol' then
+
                 if v_codigo_estado_siguiente = 'finalizado' then
+
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     en_deposito = 'si',
@@ -855,178 +912,184 @@ BEGIN
             elsif v_movimiento.cod_movimiento = 'reval' then
                 
                 if v_codigo_estado_siguiente = 'finalizado' then
-                
-                   --------------------------------------------------------------------------------------------------------
-                   --  La vida util de un activo es la maxima de activo_fijo_valor
-                   --  el precio de activo fijo es la suma se los monto_vigentes, entre depreciacion y revalorizaciones
-                   --  para evitar problema de incoherencias estos datos ya NO se actulizaran en la tabla de activo fijo
-                   ---------------------------------------------------------------------------------------------------------------------
-                   
-                   update kaf.tactivo_fijo set
-                    	cantidad_revaloriz = cantidad_revaloriz + 1
+
+                    --------------------------------------------------------------------------------------------------------
+                    --  La vida util de un activo es la maxima de activo_fijo_valor
+                    --  el precio de activo fijo es la suma se los monto_vigentes, entre depreciacion y revalorizaciones
+                    --  para evitar problema de incoherencias estos datos ya NO se actulizaran en la tabla de activo fijo
+                    --------------------------------------------------------------------------------------------------------
+                     
+                    --Incrementa la cantidad de revalorizaciones
+                    update kaf.tactivo_fijo set
+                    cantidad_revaloriz = cantidad_revaloriz + 1
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
-                          and movaf.id_movimiento = v_movimiento.id_movimiento;
-                          
-                   
-                    
-                    --lsitados de activos fijso dentro del movimeinto
-                    FOR v_registros_af_mov in (  select
-                                                            af.id_activo_fijo, 
-                                                            af.monto_compra,          
-                                                            af.vida_util_original,   
-                                                            mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
-                                                            movaf.importe,      
-                                                            movaf.vida_util,         
-                                                            movaf.id_movimiento_af,
-                                                            af.codigo,
-                                                            af.cantidad_revaloriz
-                                                        from kaf.tmovimiento_af movaf
-                                                        inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
-                                                        inner join kaf.tactivo_fijo af on af.id_activo_fijo = movaf.id_activo_fijo  
-                                                        where movaf.id_movimiento = v_movimiento.id_movimiento)LOOP 
-                  
-                
-                                  -- TODO, considerar multiples monedas al revalorizar el activo fijo 
-                                  -- por cada moneda configurada es necesario insertar un valor correpondiente 
-                                  FOR v_registros_mod in (select 
-                                                                mod.id_moneda_dep,
-                                                                mod.id_moneda,                      
-                                                                mod.id_moneda_act
-                                                            from kaf.tmoneda_dep mod                                               
-                                                            where mod.estado_reg = 'activo') LOOP
-                                                                    
-                                                         
-                                                         ------------------------------------------------------------------------------------
-                                                         --asumimos que las revalorizaciones y emjoras siemroe se registran en moenda base  
-                                                         ------------------------------------------------------------------------------------                      
-                                                      
-                                                          v_monto_compra = param.f_convertir_moneda(
-                                                                                                     v_id_moneda_base, --moneda origen para conversion
-                                                                                                     v_registros_mod.id_moneda,   --moneda a la que sera convertido
-                                                                                                     v_registros_af_mov.importe, --este monto siemrpe estara en moenda base
-                                                                                                     v_registros_af_mov.fecha_mov, 
-                                                                                                     'O',-- tipo oficial, venta, compra 
-                                                                                                     NULL);--defecto dos decimales   
-                                                                                               
-                                             
-                                                                                       
-                                   
-                                   
-                                                        --RAC, en mejorar la fecha de inicio de depreciacion es la fecha del movimiento 
+                    and movaf.id_movimiento = v_movimiento.id_movimiento;
 
-                                                        -- Crea el registro de importes
-                                                        -- en revalorizzciones y mejoras el monto de rescate siemrpe cera CERO 
-                                                        insert into kaf.tactivo_fijo_valores(
-                                                          id_usuario_reg,   
-                                                          fecha_reg,             
-                                                          estado_reg,
-                                                          id_activo_fijo,   
-                                                          monto_vigente_orig,    
-                                                          vida_util_orig,           
-                                                          fecha_ini_dep,
-                                                          depreciacion_mes, 
-                                                          depreciacion_per,      
-                                                          depreciacion_acum,  --10
-                                                          monto_vigente,    vida_util,             estado,                   principal,
-                                                          monto_rescate,    id_movimiento_af,      tipo,                     codigo,
-                                                          fecha_inicio,		id_moneda_dep,         id_moneda
-                                                          
-                                                        )
-                                                        values
-                                                        ( p_id_usuario,      
-                                                          now(),                   
-                                                          'activo',
+                    --Recorrido de los activos fijos de la revalorización
+                    for v_registros_af_mov in (select
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+                        --Obtener el valor real de la revalorización
+                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+
+                        if v_monto_inc_dec_real = 0  then
+                          raise exception 'Inc/Dec de la revalorización es cero. Nada que hacer.';
+                        end if;
+
+                        --Caso en función del valor vigente
+                        if v_registros_af_mov.monto_vigente_real_af <= 1 then
+                            ----------
+                            --Caso 1
+                            ----------
+                            --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                            v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                        v_registros_af_mov.id_activo_fijo,
+                                                        v_registros_af_mov.fecha_mov);
+
+                            --Creación de los nuevos AFV para la revalorización en todas las monedas
+                            v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                    v_movimiento.cod_movimiento,
+                                                    v_registros_af_mov.id_activo_fijo,
+                                                    v_id_moneda_base,
+                                                    v_registros_af_mov.id_movimiento_af,
+                                                    v_registros_af_mov.fecha_mov,
+                                                    v_monto_inc_dec_real,
+                                                    v_registros_af_mov.vida_util,
+                                                    v_registros_af_mov.codigo,
+                                                    v_registros_af_mov.cantidad_revaloriz,
+                                                    'no');
+
+                        else
+                          
+                            if v_monto_inc_dec_real > 0 then
+                                ----------
+                                --Caso 2
+                                ----------
+                                --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                                v_fun = kaf.f_afv_finalizar(p_id_usuario,
                                                           v_registros_af_mov.id_activo_fijo,
-                                                          v_monto_compra,          
-                                                          v_registros_af_mov.vida_util,   
-                                                          v_registros_af_mov.fecha_mov, -- la mejora empieza va depreciar a partir del registro del movimeinto, desde hay se contabiliza el timepo de vida de la mejora  af.fecha_ini_dep,
-                                                          0,                 
-                                                          0,                        
-                                                          0,  --10
-                                                          v_registros_af_mov.importe,      
-                                                          v_registros_af_mov.vida_util,         
-                                                          'activo',                
-                                                          'si',
-                                                          0,   
-                                                          v_registros_af_mov.id_movimiento_af,  
-                                                          'reval',               
-                                                          v_registros_af_mov.codigo||'-R'||cast(v_registros_af_mov.cantidad_revaloriz as varchar),
-                                                          v_registros_af_mov.fecha_mov,
-                                                          v_registros_mod.id_moneda_dep,
-                                                          v_registros_mod.id_moneda);
-                                   
-                                   
-                                   
-                                   
-                                   END LOOP; 
-                       
-                       END LOOP;     
-                   
+                                                          v_registros_af_mov.fecha_mov);
+
+                                --Replicación de AFV(s), con seteo de la nueva vida útil
+                                v_fun = kaf.f_afv_replicar(p_id_usuario,
+                                                          v_registros_af_mov.id_activo_fijo,
+                                                          v_registros_af_mov.id_movimiento_af,
+                                                          v_registros_af_mov.vida_util,
+                                                          v_registros_af_mov.fecha_mov);
+
+                                --Creación de los nuevos AFV para la revalorización en todas las monedas
+                                v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                        v_movimiento.cod_movimiento,
+                                                        v_registros_af_mov.id_activo_fijo,
+                                                        v_id_moneda_base,
+                                                        v_registros_af_mov.id_movimiento_af,
+                                                        v_registros_af_mov.fecha_mov,
+                                                        v_monto_inc_dec_real,
+                                                        v_registros_af_mov.vida_util,
+                                                        v_registros_af_mov.codigo,
+                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        'no');
+
+                            else
+                                ----------
+                                --Caso 3
+                                ----------
+                                --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                                v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                          v_registros_af_mov.id_activo_fijo,
+                                                          v_registros_af_mov.fecha_mov);
+
+                                --Creación de los nuevos AFV para la revalorización en todas las monedas
+                                v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                        v_movimiento.cod_movimiento,
+                                                        v_registros_af_mov.id_activo_fijo,
+                                                        v_id_moneda_base,
+                                                        v_registros_af_mov.id_movimiento_af,
+                                                        v_registros_af_mov.fecha_mov,
+                                                        v_monto_inc_dec_real,
+                                                        v_registros_af_mov.vida_util,
+                                                        v_registros_af_mov.codigo,
+                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        'si');
+
+                            end if;
+
+                        end if;
+
+                    end loop;
+
                 end if;
 
             elsif v_movimiento.cod_movimiento = 'deprec' then
             
-                 if v_codigo_estado_siguiente = 'generado' then
-                
-                   
+                if v_codigo_estado_siguiente = 'generado' then
 
-                    --Generacion de la depreciacion
+                    --Generación de la depreciación
                     for v_rec in (select id_movimiento_af, id_activo_fijo
                                 from kaf.tmovimiento_af
                                 where id_movimiento = v_movimiento.id_movimiento) loop
-
                         v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af);
-
                     end loop;
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
                 
-                         --  recuperar el codigo de plantilla para depreciacion
-                         v_kaf_cbte_depreciacion = pxp.f_get_variable_global('kaf_cbte_depreciacion');
+                    --Obtención del código de plantilla para depreciación
+                    v_kaf_cbte_depreciacion = pxp.f_get_variable_global('kaf_cbte_depreciacion');
                         
-                         
-                         --  generar comprobante de depreciación
-                          v_id_int_comprobante =   conta.f_gen_comprobante ( 
-                                                       v_movimiento.id_movimiento, 
-                                                       v_kaf_cbte_depreciacion ,
-                                                       v_id_estado_actual,                                                     
-                                                       p_id_usuario,
-                                                       v_parametros._id_usuario_ai, 
-                                                       v_parametros._nombre_usuario_ai);
+                    --Generación comprobante de depreciación
+                    v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
+                                                                    v_kaf_cbte_depreciacion ,
+                                                                    v_id_estado_actual,                                                     
+                                                                    p_id_usuario,
+                                                                    v_parametros._id_usuario_ai, 
+                                                                    v_parametros._nombre_usuario_ai);
             
-
-                        
-                        
-                        
-                        
-                         --  recuperar el codigo de plantilla para aitbdepreciacion
-                         v_kaf_cbte_depreciacion_aitb = pxp.f_get_variable_global('kaf_cbte_depreciacion_aitb');
-                         
-                          --  generar comprobante de depreciación
-                          v_id_int_comprobante_aitb =   conta.f_gen_comprobante ( 
-                                                       v_movimiento.id_movimiento, 
-                                                       v_kaf_cbte_depreciacion_aitb ,
-                                                       v_id_estado_actual,                                                     
-                                                       p_id_usuario,
-                                                       v_parametros._id_usuario_ai, 
-                                                       v_parametros._nombre_usuario_ai);
+                    --Obtención del código de plantilla para aitb/depreciacion
+                    v_kaf_cbte_depreciacion_aitb = pxp.f_get_variable_global('kaf_cbte_depreciacion_aitb');
+                     
+                    --Generación de comprobante de depreciación
+                    v_id_int_comprobante_aitb =   conta.f_gen_comprobante ( 
+                                                   v_movimiento.id_movimiento, 
+                                                   v_kaf_cbte_depreciacion_aitb ,
+                                                   v_id_estado_actual,                                                     
+                                                   p_id_usuario,
+                                                   v_parametros._id_usuario_ai, 
+                                                   v_parametros._nombre_usuario_ai);
             
+                    --Se relaciona los comprobantes generados con el movimiento
+                    update  kaf.tmovimiento  set 
+                    id_int_comprobante = v_id_int_comprobante ,
+                    id_int_comprobante_aitb = v_id_int_comprobante_aitb        
+                    where id_movimiento = v_movimiento.id_movimiento;
 
-                        update  kaf.tmovimiento   m set 
-                             id_int_comprobante = v_id_int_comprobante ,
-                             id_int_comprobante_aitb = v_id_int_comprobante_aitb        
-                        where id_movimiento = v_movimiento.id_movimiento;
-
-                   
-                       --  generar comprobante de actulizacion  
+                    --Generar comprobante de actualización  (RCM ??????? 28/06/2017) 
 
                 end if;
            
-           --RAC 04/04/2017 nuevo tipo de movimeinto
-           -- los activos no depreciable solo pueden actulizar AITB  
-              
-           elsif v_movimiento.cod_movimiento = 'actua' then
+            --RAC 04/04/2017 nuevo tipo de movimeinto
+            --los activos no depreciable solo pueden actulizar AITB  
+            elsif v_movimiento.cod_movimiento = 'actua' then
 
                 if v_codigo_estado_siguiente = 'generado' then
 
@@ -1034,12 +1097,224 @@ BEGIN
                     for v_rec in (select id_movimiento_af, id_activo_fijo
                                 from kaf.tmovimiento_af
                                 where id_movimiento = v_movimiento.id_movimiento) loop
-
                         v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af,'NO'); --el ultimo parametro indi
-
                     end loop;
 
                 elsif v_codigo_estado_siguiente = 'finalizado' then
+
+                end if;
+
+            --RCM 28-06-2017: nuevos movimientos (especiales)
+            elsif v_movimiento.cod_movimiento = 'divis' then
+
+                if v_codigo_estado_siguiente = 'finalizado' then
+
+                    --Finalizar AFV actual colocando fecha_fin
+                    v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                v_registros_af_mov.id_activo_fijo,
+                                                v_registros_af_mov.fecha_mov);
+
+                    --Recorrido de los activos fijos de la revalorización
+                    for v_registros_af_mov in (select
+                                              mov.id_movimiento_af,
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+                        --Recorre el detalle de los movimientos especiales e inserta los AFV nuevos según la división de valores definida
+                        for v_rec_mov_esp in select
+                                              importe
+                                              from kaf.tmovimiento_af_especial
+                                              where id_movimiento_af = v_registros_af_mov.id_movimiento_af loop
+
+                            --Creación de los nuevos AFV para la revalorización en todas las monedas
+                            v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                    v_movimiento.cod_movimiento,
+                                                    v_registros_af_mov.id_activo_fijo,
+                                                    v_id_moneda_base,
+                                                    v_registros_af_mov.id_movimiento_af,
+                                                    v_registros_af_mov.fecha_mov,
+                                                    v_rec_mov_esp.importe,
+                                                    v_registros_af_mov.vida_util_real_af,
+                                                    f_get_numero_siguiente_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
+                                                    'si');
+
+                        end loop;
+
+                    end loop;
+
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'desgl' then
+
+                if v_codigo_estado_siguiente = 'finalizado' then
+
+                    --Recorrido de los activos fijos de la revalorización
+                    for v_registros_af_mov in (select
+                                              mov.id_movimiento_af,
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+                        --Obtiene la cantidad de activos fijos previamente relacionados
+                        select count(1)+1 into v_numero
+                        from kaf.tactivo_fijo
+                        where id_activo_fijo_padre = v_registros_af_mov.id_activo_fijo;
+
+                        --Recorre el detalle de los movimientos especiales e inserta los AFV nuevos según la división de valores definida
+                        for v_rec_mov_esp in select
+                                              importe, id_activo_fijo_valor, id_movimiento_af_especial
+                                              from kaf.tmovimiento_af_especial
+                                              where id_movimiento_af = v_registros_af_mov.id_movimiento_af loop
+
+                            --Finalización de los AFV desglosados
+                            update kaf.tactivo_fijo_valores set
+                            fecha_fin = pxp.f_last_day(date_trunc('month', v_movimiento.fecha_mov - interval '1' month)::date),
+                            fecha_mod = now(),
+                            id_usuario_mod = p_id_usuario
+                            where id_activo_fijo_valor = v_rec_mov_esp.id_activo_fijo_valor;
+
+                            --Definición de código derivado
+                            v_nuevo_codigo = v_registros_af_mov.codigo||'-DES'||v_numero::varchar;
+
+                            --Creación de nuevos activos fijos de acuerdo al desglose
+                            select
+                            id_persona,
+                            id_proveedor,
+                            fecha_compra,
+                            --v_parametros.monto_vigente,
+                            id_cat_estado_fun,
+                            ubicacion,
+                            --v_parametros.vida_util,
+                            documento,
+                            observaciones,
+                            --v_parametros.fecha_ult_dep,
+                            monto_rescate,
+                            denominacion,
+                            id_funcionario,
+                            id_deposito,
+                            v_rec_mov_esp.importe,
+                            v_id_moneda_base,
+                            '',
+                            descripcion,
+                            v_id_moneda_base,
+                            v_registros_af_mov.fecha_mov,
+                            id_cat_estado_compra,
+                            v_registros_af_mov.vida_util_real_af,
+                            id_clasificacion,
+                            id_oficina,
+                            id_depto,
+                            p_id_usuario,
+                            null, -- v_parametros.nombre_usuario_ai,
+                            null, --v_parametros.id_usuario_ai
+                            codigo_ant,
+                            marca,
+                            nro_serie,
+                            NULL,
+                            id_proyecto
+                            into v_rec_af
+                            from kaf.tactivo_fijo
+                            where id_activo_fijo = v_registros_af_mov.id_activo_fijo;
+
+                            --Inserción del registro
+                            v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
+
+                            --Relación del nuevo activo fijo con el movimiento especial
+                            update kaf.tmovimiento_af_especial set
+                            id_activo_fijo_creado = v_id_activo_fijo
+                            where id_movimiento_af_especial = v_rec_mov_esp.id_movimiento_af_especial;
+
+                            --Actualización del nuevo activo fijo
+                            update kaf.tactivo_fijo set
+                            codigo = v_nuevo_codigo,
+                            id_activo_fijo_padre = v_registros_af_mov.id_activo_fijo
+                            where id_activo_fijo = v_id_activo_fijo;
+
+                            v_numero = v_numero + 1;
+
+                        end loop;
+
+
+                    end loop;
+
+                end if;
+
+            elsif v_movimiento.cod_movimiento = 'intpar' then
+
+                if v_codigo_estado_siguiente = 'finalizado' then
+
+                     --Recorrido de los activos fijos de la revalorización
+                    for v_registros_af_mov in (select
+                                              mov.id_movimiento_af,
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+                        --Recorre el detalle de los movimientos especiales e inserta los AFV nuevos según la división de valores definida
+                        for v_rec_mov_esp in select
+                                              importe, id_activo_fijo_valor, id_movimiento_af_especial, id_activo_fijo
+                                              from kaf.tmovimiento_af_especial
+                                              where id_movimiento_af = v_registros_af_mov.id_movimiento_af loop
+
+                            --Se relaciona el nuevo activo con el AFV
+                            update kaf.tactivo_fijo_valores set
+                            id_activo_fijo = v_rec_mov_esp.id_activo_fijo
+                            where id_activo_fijo_valor = v_rec_mov_esp.id_activo_fijo_valor;
+
+                        end loop;
+
+                    end loop;
 
                 end if;
 
@@ -1189,25 +1464,24 @@ BEGIN
           --Devuelve la respuesta
             return v_resp;
 
-        end;       
-
+        end;
 
          
-	else
+  else
      
-    	raise exception 'Transaccion inexistente: %',p_transaccion;
+      raise exception 'Transaccion inexistente: %',p_transaccion;
 
-	end if;
+  end if;
 
 EXCEPTION
-				
-	WHEN OTHERS THEN
-		v_resp='';
-		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-		raise exception '%',v_resp;
-				        
+        
+  WHEN OTHERS THEN
+    v_resp='';
+    v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+    v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+    v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+    raise exception '%',v_resp;
+                
 END;
 $body$
 LANGUAGE 'plpgsql'

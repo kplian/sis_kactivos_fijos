@@ -11,13 +11,13 @@ Descripción: Procesa la depreciación de los activos fijos de acuerdo a su mét
 */
 DECLARE
 
-    v_resp varchar;
-    v_nombre_funcion varchar;
-    v_id_moneda_principal integer;
-    v_rec_mov record;
-    v_rec record;
-    v_errores varchar;
-    v_movimiento varchar;
+    v_resp                      varchar;
+    v_nombre_funcion            varchar;
+    v_id_moneda_principal       integer;
+    v_rec_mov                   record;
+    v_rec                       record;
+    v_errores                   varchar;
+    v_movimiento                varchar;
 
 BEGIN
     v_nombre_funcion = 'kaf.f_procesa_depreciacion';
@@ -40,7 +40,7 @@ BEGIN
     end if;
     
     if v_rec_mov.estado <> 'borrador' then
-        raise exception 'El estado del movimiento debe estar en estado Borrador';
+        raise exception 'El estado del movimiento debe estar en Borrador';
     end if;
     
     --1.Obtención de la moneda base para actualización

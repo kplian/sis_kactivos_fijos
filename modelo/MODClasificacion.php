@@ -49,6 +49,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('tipo_activo','varchar');
 		$this->captura('depreciable','varchar');
 		$this->captura('contabilizar','varchar');
+		$this->captura('codigo_final','varchar');
 		
 		
 		//Ejecuta la instruccion
@@ -177,7 +178,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('tipo_activo','varchar');
 		$this->captura('depreciable','varchar');
 		$this->captura('contabilizar','varchar');
-		
+		$this->captura('codigo_final','varchar');
 		
 		
 		

@@ -388,6 +388,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     '<span>{oficina}</span>',
                     '<br><b>Monto compra: </b>',
                     '<span>{monto_compra}</span>',
+                    '<br><b>Fecha Última Deprec.: </b>',
+                    '<span>{fecha_ult_dep_real_af}</span>',
                     '<br><b>Monto Vigente: </b>',
                     '<span>{monto_vigente_real_af}</span>',
                     '<br><b>Depreciación Acum.: </b>',
@@ -440,7 +442,97 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             this.getBoton('triguerreturn').show();
             this.getBoton('triguerreturn').enable();
         }
-        
+
+        //Creación de ventana para clonación
+        var cant = new Ext.form.NumberField({
+            fieldLabel: 'Cantidad',
+            allowBlank: false,
+            allowDecimals: false,
+            allowNegative: false,
+            minValue: 1
+        });
+
+        this.formClone = new Ext.form.FormPanel({
+            id: this.idContenedor + '_af_form',
+            items: [cant],
+            padding: this.paddingForm,
+            bodyStyle: this.bodyStyleForm,
+            border: this.borderForm,
+            frame: this.frameForm, 
+            autoScroll: false,
+            autoDestroy: true,
+            autoScroll: true,
+            region: 'center'
+        });
+
+        this.submitClone = function(){
+            if(this.formClone.getForm().isValid()){
+                Phx.CP.loadingShow();
+                var post = {
+                    id_activo_fijo: this.idActivoFijoClone,
+                    cantidad_clon: this.formClone.getForm().items.items[0].value
+                };
+                Ext.Ajax.request({
+                    url: '../../sis_kactivos_fijos/control/ActivoFijo/clonarActivoFijo',
+                    params: post,
+                    isUpload: false,
+                    success: function(a,b,c){
+                        this.reload();
+                        Phx.CP.loadingHide();
+                        this.idActivoFijoClone=0;
+                        this.afWindowClone.hide();
+                    },
+                    argument: this.argumentSave,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        }
+
+        this.afWindowClone = new Ext.Window({
+            width: 300,
+            height: 120,
+            modal: true,
+            closeAction: 'hide',
+            labelAlign: 'top',
+            title: 'Clonar Activo Fijo:',
+            bodyStyle: 'padding:5px',
+            layout: 'border',
+            items: [this.formClone],
+            buttons: [{
+                text: 'Guardar',
+                handler: this.submitClone,
+                scope: this
+            }, {
+                text: 'Declinar',
+                handler: function() {
+                    this.afWindowClone.hide();
+                },
+                scope: this
+            }]
+        });
+
+        this.cloneAF = function(){
+            var data = this.sm.getSelected().data;
+            this.idActivoFijoClone = data.id_activo_fijo;
+            this.ctxMenu.hide();
+            this.afWindowClone.setTitle('Clonar Activo Fijo: ' +data.codigo+' '+data.denominacion);
+            this.afWindowClone.show();
+        };
+
+        this.ctxMenu = new Ext.menu.Menu({
+            items: [{
+                handler: this.cloneAF,
+                icon: '../../../lib/imagenes/arrow-down.gif',
+                text: 'Clonar activo fijo',
+                scope: this
+            }],
+            scope: this
+        });
+
+
+
     },
     Atributos: [{
         //configuracion del componente
@@ -2038,7 +2130,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             items: [{
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha inicio Dep/Act',
-                                qtip:'FEcha de iniciaio de depreaciación o de actualización',
+                                qtip:'Fecha de inicio de depreciación o de actualización',
                                 name: 'fecha_ini_dep',
                                 allowBlank: false,
                                 id: this.idContenedor+'_fecha_ini_dep'
@@ -2180,7 +2272,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 	                Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
             	}
             	
-            	this.actulizarSegunClasificacion(rec.data.tipo_activo, rec.data.depreciable);
+            	this.actualizarSegunClasificacion(rec.data.tipo_activo, rec.data.depreciable);
             	
             },this);
             //Vida util
@@ -2205,9 +2297,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     dir: 'ASC',
                     id_depto: rec.data.id_depto
                 };
-                //console.log('AAA',obj);
-                //Ext.apply(Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams,obj);
-                //console.log('BBB',Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams);
                 Ext.getCmp(this.idContenedor+'_id_deposito').reset();
                 Ext.getCmp(this.idContenedor+'_id_deposito').modificado=true;
                 Ext.getCmp(this.idContenedor+'_id_deposito').store.baseParams.id_depto=rec.data.id_depto;
@@ -2261,7 +2350,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var obj,key,objsec,keysec;
         Ext.each(this.form.getForm().items.keys, function(element, index){
             obj = Ext.getCmp(element);
-            //console.log(element,obj);
             if(obj.items){
                 Ext.each(obj.items.items, function(elm, b, c){
                     if(elm.getXType()=='combo'&&elm.mode=='remote'&&elm.store!=undefined){
@@ -2405,6 +2493,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         Ext.getCmp(this.idContenedor+'_monto_compra_mt').enable();
        	Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
        	Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
+        Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
+        Ext.getCmp(this.idContenedor+'_id_depto').enable();
+        Ext.getCmp(this.idContenedor+'_id_clasificacion').enable();
+        Ext.getCmp(this.idContenedor+'_id_deposito').enable();
     },
     onButtonEdit: function() {
         this.crearVentana();
@@ -2414,13 +2506,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
         
         //diapra eventos de clasificaciones selecionada
-        this.actulizarSegunClasificacion(data.tipo_activo, data.depreciable);
+        this.actualizarSegunClasificacion(data.tipo_activo, data.depreciable);
         
         if(data.estado!='registrado') {
         	Ext.getCmp(this.idContenedor+'_fecha_ini_dep').disable();
         	Ext.getCmp(this.idContenedor+'_id_moneda_orig').disable();
         	Ext.getCmp(this.idContenedor+'_monto_compra_mt').disable();
         	Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
+            Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
+            Ext.getCmp(this.idContenedor+'_id_depto').disable();
+            Ext.getCmp(this.idContenedor+'_id_clasificacion').disable();
+            Ext.getCmp(this.idContenedor+'_id_deposito').disable();
         	
         }
         else{
@@ -2428,7 +2524,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
           Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
           Ext.getCmp(this.idContenedor+'_monto_compra_mt').enable();
           Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
-         
+          Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
+          Ext.getCmp(this.idContenedor+'_id_depto').enable();
+          Ext.getCmp(this.idContenedor+'_id_clasificacion').enable();
+          Ext.getCmp(this.idContenedor+'_id_deposito').enable();
         }
         
        
@@ -2462,23 +2561,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },this);
     },
 
-    cloneAF: function(){
-        this.ctxMenu.hide();
-        alert('dddddddd');
-    },
-
-    ctxMenu: new Ext.menu.Menu({
-        items: [{
-            handler: this.cloneAF,
-            icon: '../../../lib/imagenes/arrow-down.gif',
-            text: 'Clonar',
-            scope: this
-        }],
-        scope: this
-    }),
     btriguerreturn:false,
     
-    actulizarSegunClasificacion: function(tipo_activo, depreciable){
+    actualizarSegunClasificacion: function(tipo_activo, depreciable){
     	if(tipo_activo == 'tangible'){
             	    Ext.getCmp(this.idContenedor+'_id_deposito').enable();
             	    Ext.getCmp(this.idContenedor+'_id_deposito').show();

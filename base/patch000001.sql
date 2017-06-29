@@ -726,7 +726,77 @@ IS 'incidique a que nivel de la claisficacion se buscara la relacion contable ap
 
 /***********************************F-SCP-RAC-KAF-1-02/05/2017****************************************/
 
- 
- 
 
+/***********************************I-SCP-RCM-KAF-1-05/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_periodo_subsistema INTEGER;
+ALTER TABLE kaf.tclasificacion
+  DROP CONSTRAINT uq_tclasificacion__codigo RESTRICT;
+/***********************************F-SCP-RCM-KAF-1-05/06/2017****************************************/  
 
+/***********************************I-SCP-RCM-KAF-1-19/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af.id_moneda
+IS 'Moneda Base';
+
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN depreciacion_acum NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tmovimiento_af.depreciacion_acum
+IS 'Depreciacion acumulada de inicio solo para movimiento de Ajustes';
+/***********************************F-SCP-RCM-KAF-1-19/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-22/06/2017****************************************/
+create table kaf.tmovimiento_af_especial(
+	id_movimiento_af_especial serial,
+	id_movimiento_af  integer not null,
+	id_activo_fijo_valor integer,
+	id_activo_fijo integer,
+	importe numeric(18,2) not null,
+	constraint pk_tmovimiento_af_especial__id_movimiento_af_especial primary key (id_movimiento_af_especial)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-1-22/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-23/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT uq_tmovimiento_af__id_movimiento__id_activo_fijo 
+    UNIQUE (id_activo_fijo, id_movimiento) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-23/06/2017****************************************/    
+
+/***********************************I-SCP-RCM-KAF-1-27/06/2017****************************************/
+CREATE TABLE kaf.tclasificacion_variable (
+  id_clasificacion_variable SERIAL,
+  id_clasificacion INTEGER NOT NULL,
+  nombre VARCHAR(50) NOT NULL,
+  descripcion VARCHAR(500),
+  tipo_dato VARCHAR(20),
+  obligatorio VARCHAR(2) DEFAULT 'no',
+  orden_var INTEGER,
+  PRIMARY KEY(id_clasificacion_variable)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE kaf.tactivo_fijo_caract
+  ADD COLUMN id_clasificacion_variable INTEGER;
+
+ALTER TABLE kaf.tactivo_fijo_caract
+  ADD CONSTRAINT uq_tactivo_fijo_caract__id_activo_fijo__id_clasificacion_variab 
+    UNIQUE (id_activo_fijo, id_clasificacion_variable) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-27/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-28/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_activo_fijo_creado INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_activo_fijo_creado
+IS 'Id del activo fijo creado por el Desglose de activos fijos';
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_activo_fijo_padre INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_activo_fijo_padre
+IS 'Id del activo origen del que se creó el activo';
+/***********************************F-SCP-RCM-KAF-1-28/06/2017****************************************/

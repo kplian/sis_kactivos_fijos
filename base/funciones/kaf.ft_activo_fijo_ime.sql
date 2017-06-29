@@ -126,7 +126,7 @@ BEGIN
               IF v_rec_af.estado != 'registrado' THEN
                  
                IF v_rec_af.monto_compra_mt != v_parametros.monto_compra_mt or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
-                 raise exception 'no puede editar datos de compras cuando el activo ya esta de alta, regitre una revalorizacion para hacer cualquier ajuste';
+                 raise exception 'no puede editar datos de compras cuando el activo ya esta de alta, registre una revalorizacion para hacer cualquier ajuste';
                END IF;
               END IF;  
               
@@ -391,6 +391,94 @@ BEGIN
             return v_resp;
         
         end;
+
+    /*********************************    
+	#TRANSACCION:  'SKA_AFIJ_CLO'
+	#DESCRIPCION:   Clonación de activos fijos
+	#AUTOR:         RCM
+	#FECHA:         13/06/2017
+	***********************************/
+
+	elsif(p_transaccion='SKA_AFIJ_CLO')then
+
+    	begin
+        	--Verifica existencia del movimiento
+          	if not exists(select 1 from kaf.tactivo_fijo
+                			where id_activo_fijo = v_parametros.id_activo_fijo) then
+            	raise exception 'Activo Fijo no encontrado';
+          	end if;
+
+          	--Obtención de datos del activo fijo principal
+          	select
+	        id_persona,
+			id_proveedor,
+			fecha_compra,
+			--monto_vigente,
+			id_cat_estado_fun,
+			ubicacion,
+			--vida_util,
+			documento,
+			observaciones,
+			--fecha_ult_dep,
+			monto_rescate,
+			denominacion,
+			id_funcionario,
+			id_deposito,
+			monto_compra_mt,
+			id_moneda_orig,
+			codigo,
+			descripcion,
+			id_moneda_orig,
+			fecha_ini_dep,
+			id_cat_estado_compra,
+			vida_util_original,
+			id_clasificacion,
+			id_oficina,
+			id_depto,
+			p_id_usuario,
+			null, -- nombre_usuario_ai,
+			null, --id_usuario_ai
+			codigo_ant,
+			marca,
+			nro_serie,
+			NULL,
+            id_proyecto
+	        into v_rec_af
+	        from kaf.tactivo_fijo
+	        where id_activo_fijo = v_parametros.id_activo_fijo;
+          
+          	for i in 1..v_parametros.cantidad_clon loop
+          		--Activo fijo
+		        v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
+		        --Características
+		        insert into kaf.tactivo_fijo_caract(
+				clave,
+				valor,
+				id_activo_fijo,
+				estado_reg,
+				fecha_reg,
+				id_usuario_reg
+	          	)
+		        select
+				clave,
+				valor,
+				v_id_activo_fijo,
+				estado_reg,
+				now(),
+				p_id_usuario
+		        from kaf.tactivo_fijo_caract
+		        where id_activo_fijo = v_parametros.id_activo_fijo;
+
+			end loop;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Activos fijos clonados (id_activo_fijo: '||v_parametros.id_activo_fijo::varchar||', cantidad: '||v_parametros.cantidad_clon::varchar||')'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
+                
+            --Devuelve la respuesta
+            return v_resp;
+
+      end; 
 
 	else
      

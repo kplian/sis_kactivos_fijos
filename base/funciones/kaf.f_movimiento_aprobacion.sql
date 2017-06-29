@@ -1,10 +1,12 @@
 CREATE OR REPLACE FUNCTION "kaf"."f_movimiento_aprobacion"(p_id_usuario int4, p_id_proceso_wf int4, p_id_estado_anterior int4, p_id_tipo_estado_actual int4)
   RETURNS "pg_catalog"."bool" AS $BODY$DECLARE
 
-	v_estado 				varchar;
-	v_movimiento 		record;
-	v_movimiento_af record;
-	v_rec 					record;
+	v_estado 					varchar;
+	v_movimiento 				record;
+	v_movimiento_af 			record;
+	v_rec 						record;
+	v_monto_inc_dec_real		numeric;
+	v_vida_util_inc_dec_real	integer;
 
 BEGIN
 
@@ -19,7 +21,7 @@ BEGIN
 	--Obtiene datos del movimiento
 	select
 	mov.id_movimiento, mov.id_cat_movimiento,
-	cat.codigo as movimiento
+	cat.codigo as movimiento, mov.fecha_mov
 	into v_movimiento
 	from kaf.tmovimiento mov
 	inner join param.tcatalogo cat
@@ -100,6 +102,146 @@ BEGIN
 
 			return true;
 		elsif v_movimiento.movimiento = 'reval' then
+			--RCM 12/06/2017: Aplicación de lógica en base a nuevo diagrama de flujo
+			for v_movimiento_af in (select * from kaf.tmovimiento_af maf
+									inner join kaf.f_activo_fijo_vigente() av
+									on av.id_activo_fijo = maf.id_activo_fijo
+									where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+				--Obtener el valor real de la revalorización
+				v_monto_inc_dec_real = v_movimiento_af.monto_vigente_real_af - v_movimiento_af.importe;
+				v_vida_util_inc_dec_real = v_movimiento_af.vida_util_real_af - v_movimiento_af.vida_util;
+
+				if v_monto_inc_dec_real = 0 and v_vida_util_inc_dec_real = 0 then
+					raise exception 'Inc/Dec de la revalorización es cero. Nada que hacer.';
+				end if;
+
+				--Caso en función del valor vigente
+				if v_movimiento_af.monto_vigente_real_af <= 1 then
+					--Caso 1
+					
+				else
+					if v_monto_inc_dec_real > 0 then
+						--Caso 2
+
+						--Finalizar AFV actual colocando fecha_fin
+						update kaf.tactivo_fijo_valores set
+						fecha_fin = v_movimiento.fecha_mov
+						where id_movimiento_af = v_movimiento_af.id_movimiento_af
+						and fecha_fin is null;
+
+						--Replicar AFV con nueva vida útil
+						insert into kaf.tactivo_fijo_valores(
+						id_usuario_reg,
+						fecha_reg,
+						estado_reg,
+						id_activo_fijo,
+						monto_vigente_orig,
+						vida_util_orig,
+						fecha_ini_dep,
+						depreciacion_mes,
+						depreciacion_per,
+						depreciacion_acum,
+						monto_vigente,
+						vida_util ,
+						tipo,
+						estado,
+						principal,
+						monto_rescate,
+						id_movimiento_af ,
+						codigo,
+						id_moneda_dep ,
+						id_moneda ,
+						fecha_inicio,
+						deducible,
+						id_activo_fijo_valor_original)
+						select
+						p_id_usuario,
+						now(),
+						'activo',
+						id_activo_fijo,
+						monto_vigente_orig,
+						v_vida_util_inc_dec_real,
+						v_movimiento.fecha_mov,
+						0,
+						0,
+						0,
+						monto_vigente,
+						v_vida_util_inc_dec_real,
+						tipo,
+						estado,
+						principal,
+						monto_rescate,
+						v_movimiento_af.id_movimiento_af,
+						codigo||'-G',
+						id_moneda_dep,
+						id_moneda,
+						v_movimiento.fecha_mov,
+						deducible,
+						id_activo_fijo_valor
+						from kaf.activo_fijo_valores
+						where id_movimiento_af = v_movimiento_af.id_movimiento_af
+						and fecha_fin is null;
+
+						--Creación de AFV para la revalorización
+						insert into kaf.tactivo_fijo_valores(
+						id_usuario_reg,
+						fecha_reg,
+						estado_reg,
+						id_activo_fijo,
+						monto_vigente_orig,
+						vida_util_orig,
+						fecha_ini_dep,
+						depreciacion_mes,
+						depreciacion_per,
+						depreciacion_acum,
+						monto_vigente,
+						vida_util,
+						tipo,
+						estado,
+						principal,
+						monto_rescate,
+						id_movimiento_af,
+						id_moneda_dep,
+						id_moneda,
+						fecha_inicio,
+						deducible
+						) values(
+						p_id_usuario,
+						now(),
+						'activo',
+						v_movimiento_af.id_activo_fijo,
+						v_monto_inc_dec_real,
+						v_vida_util_inc_dec_real,
+						v_movimiento.fecha_mov,
+						0,
+						0,
+						0,
+						v_monto_inc_dec_real,
+						v_vida_util_inc_dec_real,
+						v_movimiento.movimiento,
+						'activo',
+						'si',
+						1,
+						v_movimiento_af.id_movimiento_af,
+						1,
+						1,
+						v_movimiento.fecha_mov,
+						'si'
+						);
+
+
+					else
+						--Caso 3
+
+					end if;
+
+				end if;
+
+
+			end loop;
+
+
 			--Crea el registro de importes
 			insert into kaf.tactivo_fijo_valores(
 			id_usuario_reg, fecha_reg,estado_reg,
@@ -129,6 +271,34 @@ BEGIN
 
 			return true;
 		elsif v_movimiento.movimiento = 'deprec' then
+			return true;
+
+		elsif v_movimiento.movimiento = 'retiro' then
+			--Actualiza estado de activo fijo
+			update kaf.tactivo_fijo set
+			estado = 'retiro',
+			fecha_baja = mov.fecha_mov
+			from kaf.tmovimiento_af movaf
+			inner join kaf.tmovimiento mov
+			on mov.id_movimiento = movaf.id_movimiento
+			where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+			and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+
+			return true;
+
+		elsif v_movimiento.movimiento = 'transito' then
+			--Actualiza estado de activo fijo
+			update kaf.tactivo_fijo set
+			estado = 'transito',
+			fecha_baja = mov.fecha_mov
+			from kaf.tmovimiento_af movaf
+			inner join kaf.tmovimiento mov
+			on mov.id_movimiento = movaf.id_movimiento
+			where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+			and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+
 			return true;
 		end if;
 	

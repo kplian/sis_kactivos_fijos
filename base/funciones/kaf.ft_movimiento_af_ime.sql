@@ -106,7 +106,8 @@ BEGIN
                 id_usuario_reg,
                 id_usuario_ai,
                 id_usuario_mod,
-                fecha_mod
+                fecha_mod,
+                depreciacion_acum
           	) values(
                 v_parametros.id_movimiento,
                 v_parametros.id_activo_fijo,
@@ -120,7 +121,8 @@ BEGIN
                 p_id_usuario,
                 v_parametros._id_usuario_ai,
                 null,
-                null
+                null,
+                v_parametros.depreciacion_acum
 			)RETURNING id_movimiento_af into v_id_movimiento_af;
 			
 			--Definicion de la respuesta
@@ -189,7 +191,8 @@ BEGIN
                 id_usuario_mod = p_id_usuario,
                 fecha_mod = now(),
                 id_usuario_ai = v_parametros._id_usuario_ai,
-                usuario_ai = v_parametros._nombre_usuario_ai
+                usuario_ai = v_parametros._nombre_usuario_ai,
+                depreciacion_acum = v_parametros.depreciacion_acum
 			where id_movimiento_af=v_parametros.id_movimiento_af;
                
 			--Definicion de la respuesta

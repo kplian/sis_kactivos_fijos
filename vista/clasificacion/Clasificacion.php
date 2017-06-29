@@ -32,11 +32,20 @@ header("content-type: text/javascript; charset=UTF-8");
 			},
 			type : 'Field',
 			form : true
+		}, {
+			config : {
+				fieldLabel : 'Código',
+				name : 'codigo_final',
+				disabled: true,
+				anchor : '100%',
+			},
+			type : 'Field',
+			form : true
 		},
 		{
 			config : {
 				name : 'codigo',
-				fieldLabel : 'Codigo',
+				fieldLabel : 'Código Parcial',
 				allowBlank : false,
 				anchor : '100%',
 				maxLength : 20
@@ -149,9 +158,6 @@ header("content-type: text/javascript; charset=UTF-8");
 	       		 	},
 			form:true
 		},
-		
-		
-		
 		{
 			config : {
 				name : 'vida_util',
@@ -445,7 +451,7 @@ header("content-type: text/javascript; charset=UTF-8");
 		{
 			name: 'desc_ingas',
 			type : 'string'
-		}, 'depreciable','tipo_activo','contabilizar'
+		}, 'depreciable','tipo_activo','contabilizar','codigo_final'
 		
 		],
 		sortInfo : {
@@ -490,7 +496,9 @@ header("content-type: text/javascript; charset=UTF-8");
 		successSave : function(resp) {
 			Phx.vista.ClasificacionAF.superclass.successSave.call(this, resp);
 			var selectedNode = this.sm.getSelectedNode();
-			selectedNode.attributes.estado = 'restringido';
+			if(selectedNode){
+				selectedNode.attributes.estado = 'restringido';	
+			}
 		},
 		successBU : function(resp) {
 			Phx.CP.loadingHide();
@@ -504,5 +512,26 @@ header("content-type: text/javascript; charset=UTF-8");
 			resp.argument.node.reload();
 
 		},
+		//Cargar valores del padre
+		onButtonNew: function(){
+			Phx.vista.ClasificacionAF.superclass.onButtonNew.call(this);
+			if(this.sm.getSelectedNode()&&this.sm.getSelectedNode().attributes){
+				var master = this.sm.getSelectedNode().attributes;
+				//Setea valores del padre
+				this.Cmp['vida_util'].setValue(master.vida_util);
+				this.Cmp['tipo_activo'].setValue(master.tipo_activo);
+				this.Cmp['depreciable'].setValue(master.depreciable);
+				this.Cmp['contabilizar'].setValue(master.contabilizar);
+				this.Cmp['monto_residual'].setValue(master.monto_residual);
+				this.Cmp['id_cat_metodo_dep'].setValue(master.id_cat_metodo_dep);
+				this.Cmp['codigo_final'].setValue(master.codigo+'.');
+			}
+		},
+		east: {
+			url: '../../../sis_kactivos_fijos/vista/clasificacion_variable/ClasificacionVariable.php',
+			title: 'Variables',
+			width: '30%',
+			cls: 'ClasificacionVariable'
+		}
 	}); 
 </script>
