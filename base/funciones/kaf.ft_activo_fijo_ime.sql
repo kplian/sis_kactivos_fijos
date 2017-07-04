@@ -363,8 +363,8 @@ BEGIN
         end; 
 
     /*********************************    
- 	#TRANSACCION:  'SKA_AFCLO_INS'
- 	#DESCRIPCION:	Clonación del activo fijo seleccionado
+ 	#TRANSACCION:  'SKA_PHOTO_UPL'
+ 	#DESCRIPCION:	Upload de l a foto principal
  	#AUTOR:			RCM
  	#FECHA:			10/01/2016
 	***********************************/

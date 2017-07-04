@@ -35,8 +35,8 @@ DECLARE
 
 BEGIN
 
-  v_nombre_funcion = 'kaf.f_afv_crear';
-    
+    v_nombre_funcion = 'kaf.f_afv_crear';
+
     --Creación de los nuevos AFV para la revalorización en todas las monedas
     for v_rec in (select 
                   mod.id_moneda_dep,

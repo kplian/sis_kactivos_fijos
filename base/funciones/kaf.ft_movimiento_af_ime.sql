@@ -87,7 +87,7 @@ BEGIN
                       where     maf.id_movimiento =  v_parametros.id_movimiento 
                            and  maf.id_activo_fijo = v_parametros.id_activo_fijo 
                            and maf.estado_reg = 'activo') THEN
-                 raise exception 'El activo ya se encuentre registro para este movimiento';
+                 raise exception 'El activo ya se encuentra registrado en este movimiento';
             END IF;     
             
             

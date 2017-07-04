@@ -1153,7 +1153,7 @@ BEGIN
                                                     v_registros_af_mov.fecha_mov,
                                                     v_rec_mov_esp.importe,
                                                     v_registros_af_mov.vida_util_real_af,
-                                                    f_get_numero_siguiente_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
+                                                    kaf.f_get_numero_siguiente_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                     'si');
 
                         end loop;
