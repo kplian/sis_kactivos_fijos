@@ -240,4 +240,20 @@ VALUES
 
 
 
+/***********************************I-DAT-RCM-KAF-1-02/06/2017****************************************/
+select pxp.f_insert_tgui ('Gestión de Periodos', 'Gestión de Periodos', 'KAFPER', 'si', 5, 'sis_kactivos_fijos/vista/periodo_subsistema/PeriodoActivos.php', 2, '', 'PeriodoActivos', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFPER', 'KAF');
+/***********************************F-DAT-RCM-KAF-1-02/06/2017****************************************/
 
+/***********************************I-DAT-RCM-KAF-1-27/06/2017****************************************/
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Fecha','fecha');
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Número','numero');
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Texto','texto');
+
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Mejora','mejora','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','División de valores','divis','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Desglose','desgl','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Intercambio de partes','intpar','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Activos fijos en Transito','transito','');
+
+/***********************************F-DAT-RCM-KAF-1-27/06/2017****************************************/

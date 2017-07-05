@@ -305,6 +305,22 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'fecha_fin',
+				fieldLabel: 'Fecha Fin',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				format: 'd/m/Y', 
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'actval.fecha_fin',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		{
+			config:{
 				name: 'monto_rescate',
 				fieldLabel: 'Valor Rescate',
 				allowBlank: true,
@@ -607,7 +623,8 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
         'vida_util_real',
          'depreciacion_acum_ant_real',
          'depreciacion_acum_real',
-         'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda'
+         'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda',
+         {name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
 
 		
 	],

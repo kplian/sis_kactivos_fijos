@@ -146,7 +146,6 @@ class ACTMovimientoAfDep extends ACTbase{
 				$this->res = $this->objReporte->generarReporteListado('MODMovimientoAfDep','listarMovimientoAfDepResCabPr');
 			} else{
 				$this->objFunc=$this->create('MODMovimientoAfDep');
-				
 				$this->res=$this->objFunc->listarMovimientoAfDepResCabPr($this->objParam);
 			}
 			

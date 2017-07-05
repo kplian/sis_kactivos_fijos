@@ -61,13 +61,28 @@ BEGIN
 						af.codigo as cod_af,
 						af.denominacion,
 						cat.descripcion as estado_fun,
-						mmot.motivo
+						mmot.motivo,
+						af.descripcion,
+						COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra) as monto_vigente_real_af,
+                        COALESCE(afvi.vida_util_real_af,af.vida_util_original) as vida_util_real_af,                            
+                        afvi.fecha_ult_dep_real_af,
+                        COALESCE(round(afvi.depreciacion_acum_real_af,2),0) as depreciacion_acum_real_af,
+                        COALESCE(round( afvi.depreciacion_per_real_af,2),0) as depreciacion_per_real_af,
+                        mon.codigo as desc_moneda_orig,
+                        af.monto_compra,
+                        af.vida_util as vida_util_af,
+                        af.fecha_ini_dep,
+                        movaf.depreciacion_acum
 						from kaf.tmovimiento_af movaf
 						inner join segu.tusuario usu1 on usu1.id_usuario = movaf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movaf.id_usuario_mod
 						inner join kaf.tactivo_fijo af on af.id_activo_fijo = movaf.id_activo_fijo
 						left join param.tcatalogo cat on cat.id_catalogo = movaf.id_cat_estado_fun
 						left join kaf.tmovimiento_motivo mmot on mmot.id_movimiento_motivo = movaf.id_movimiento_motivo
+						left join kaf.f_activo_fijo_vigente() afvi
+                        on afvi.id_activo_fijo = af.id_activo_fijo
+                        and afvi.id_moneda = af.id_moneda_orig
+                        inner join param.tmoneda mon on mon.id_moneda = af.id_moneda_orig
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -97,6 +112,10 @@ BEGIN
 						inner join kaf.tactivo_fijo af on af.id_activo_fijo = movaf.id_activo_fijo
 						left join param.tcatalogo cat on cat.id_catalogo = movaf.id_cat_estado_fun
 						left join kaf.tmovimiento_motivo mmot on mmot.id_movimiento_motivo = movaf.id_movimiento_motivo
+						left join kaf.f_activo_fijo_vigente() afvi
+                        on afvi.id_activo_fijo = af.id_activo_fijo
+                        and afvi.id_moneda = af.id_moneda_orig
+                        inner join param.tmoneda mon on mon.id_moneda = af.id_moneda_orig
 					    where ';
 			
 			--Definicion de la respuesta		    

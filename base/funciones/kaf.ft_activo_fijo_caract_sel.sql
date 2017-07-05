@@ -53,8 +53,14 @@ BEGIN
 						afcaract.fecha_mod,
 						afcaract.id_usuario_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						afcaract.id_clasificacion_variable,
+						clavar.nombre as nombre_variable,
+						clavar.tipo_dato,
+						clavar.obligatorio
 						from kaf.tactivo_fijo_caract afcaract
+						left join kaf.tclasificacion_variable clavar
+						on clavar.id_clasificacion_variable = afcaract.id_clasificacion_variable
 						inner join segu.tusuario usu1 on usu1.id_usuario = afcaract.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afcaract.id_usuario_mod
 				        where  ';
@@ -81,6 +87,8 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_activo_fijo_caract)
 					    from kaf.tactivo_fijo_caract afcaract
+					    left join kaf.tclasificacion_variable clavar
+						on clavar.id_clasificacion_variable = afcaract.id_clasificacion_variable
 					    inner join segu.tusuario usu1 on usu1.id_usuario = afcaract.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afcaract.id_usuario_mod
 					    where ';

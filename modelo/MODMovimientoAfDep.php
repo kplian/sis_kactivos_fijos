@@ -280,6 +280,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('id_moneda','int4');
 		$this->captura('id_moneda_dep','int4');
 		$this->captura('desc_moneda','varchar');
+		$this->captura('fecha_fin','date');
 		
 		 
                          
