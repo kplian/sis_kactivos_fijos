@@ -727,6 +727,15 @@ IS 'incidique a que nivel de la claisficacion se buscara la relacion contable ap
 /***********************************F-SCP-RAC-KAF-1-02/05/2017****************************************/
 
  
+
+/***********************************I-SCP-RAC-KAF-1-31/05/2017****************************************/
+
  
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmoneda_dep
+  ADD COLUMN descripcion VARCHAR; 
+
+/***********************************F-SCP-RAC-KAF-1-31/05/2017****************************************/
 
 
