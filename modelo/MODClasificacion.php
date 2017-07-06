@@ -67,7 +67,7 @@ class MODClasificacion extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','int4');
+		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','varchar');
 		$this->setParametro('id_cat_metodo_dep','id_cat_metodo_dep','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('codigo','codigo','varchar');
@@ -99,7 +99,7 @@ class MODClasificacion extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('id_clasificacion','id_clasificacion','int4');
-		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','int4');
+		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','varchar');
 		$this->setParametro('id_cat_metodo_dep','id_cat_metodo_dep','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('codigo','codigo','varchar');

@@ -879,6 +879,7 @@ CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor_estado(
     id_moneda,
     id_moneda_dep,
     tipo_cambio_anterior,
+    estado_mov_dep,
     estado_mov)
 AS
   SELECT afv.id_usuario_reg,
@@ -920,11 +921,15 @@ AS
          afv.id_moneda,
          afv.id_moneda_dep,
          COALESCE(min.tipo_cambio_fin, NULL::numeric) AS tipo_cambio_anterior,
-         min.estado AS estado_mov
+         min.estado AS estado_mov_dep,
+         mov.estado AS estado_mov
   FROM kaf.tactivo_fijo_valores afv
        LEFT JOIN kaf.vminimo_movimiento_af_dep_estado min ON
          min.id_activo_fijo_valor = afv.id_activo_fijo_valor AND
-         afv.id_moneda_dep = min.id_moneda_dep;           
+         afv.id_moneda_dep = min.id_moneda_dep
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afv.id_movimiento_af
+       JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento;
 
 CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente_estado(
     id_activo_fijo,
@@ -935,7 +940,7 @@ CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente_estado(
     depreciacion_per_real_af,
     id_moneda,
     id_moneda_dep,
-    estado_mov)
+    estado_mov_dep)
 AS
   SELECT afd.id_activo_fijo,
          sum(afd.monto_vigente_real) AS monto_vigente_real_af,
@@ -945,12 +950,12 @@ AS
          sum(afd.depreciacion_per_real) AS depreciacion_per_real_af,
          afd.id_moneda,
          afd.id_moneda_dep,
-         afd.estado_mov
+         afd.estado_mov_dep
   FROM kaf.vactivo_fijo_valor_estado afd
   GROUP BY afd.id_activo_fijo,
            afd.id_moneda,
            afd.id_moneda_dep,
-           afd.estado_mov;
+           afd.estado_mov_dep;
          
 
 /***********************************F-DEP-RCM-KAF-1-09/06/2017****************************************/

@@ -891,7 +891,6 @@ BEGIN
                 
                 end if;
             
-            
             elsif v_movimiento.cod_movimiento = 'devol' then
 
                 if v_codigo_estado_siguiente = 'finalizado' then
@@ -1318,20 +1317,224 @@ BEGIN
 
                 end if;
 
-           end if;
+          elsif v_movimiento.cod_movimiento = 'mejora' then
+
+              if v_codigo_estado_siguiente = 'finalizado' then
+
+                    --------------------------------------------------------------------------------------------------------
+                    --  La vida util de un activo es la maxima de activo_fijo_valor
+                    --  el precio de activo fijo es la suma se los monto_vigentes, entre depreciacion y revalorizaciones
+                    --  para evitar problema de incoherencias estos datos ya NO se actulizaran en la tabla de activo fijo
+                    --------------------------------------------------------------------------------------------------------
+
+                    --Recorrido de los activos fijos de la mejora
+                    for v_registros_af_mov in (select
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
+
+                        --Obtener el valor real de la mejora
+                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+
+                        if v_monto_inc_dec_real = 0  then
+                          raise exception 'La mejora debe ser mayor a cero. Nada que hacer.';
+                        end if;
+
+                        --Caso en función del valor vigente
+                        if v_registros_af_mov.monto_vigente_real_af <= 1 then
+                            ----------
+                            --Caso 1
+                            ----------
+                            --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                            v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                        v_registros_af_mov.id_activo_fijo,
+                                                        v_registros_af_mov.fecha_mov);
+
+                            --Creación de los nuevos AFV para la mejora en todas las monedas
+                            v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                    v_movimiento.cod_movimiento,
+                                                    v_registros_af_mov.id_activo_fijo,
+                                                    v_id_moneda_base,
+                                                    v_registros_af_mov.id_movimiento_af,
+                                                    v_registros_af_mov.fecha_mov,
+                                                    v_monto_inc_dec_real,
+                                                    v_registros_af_mov.vida_util,
+                                                    v_registros_af_mov.codigo,
+                                                    v_registros_af_mov.cantidad_revaloriz,
+                                                    'no');
+
+                            --TODO: ¿¿Matar depreciación??
+
+                        else
+                          
+                            if v_monto_inc_dec_real > 0 then
+                                ----------
+                                --Caso 2
+                                ----------
+                                --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                                v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                          v_registros_af_mov.id_activo_fijo,
+                                                          v_registros_af_mov.fecha_mov);
+
+                                --Replicación de AFV(s), con seteo de la nueva vida útil
+                                v_fun = kaf.f_afv_replicar(p_id_usuario,
+                                                          v_registros_af_mov.id_activo_fijo,
+                                                          v_registros_af_mov.id_movimiento_af,
+                                                          v_registros_af_mov.vida_util,
+                                                          v_registros_af_mov.fecha_mov);
+
+                                --Creación de los nuevos AFV para la mejora en todas las monedas
+                                v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                        v_movimiento.cod_movimiento,
+                                                        v_registros_af_mov.id_activo_fijo,
+                                                        v_id_moneda_base,
+                                                        v_registros_af_mov.id_movimiento_af,
+                                                        v_registros_af_mov.fecha_mov,
+                                                        v_monto_inc_dec_real,
+                                                        v_registros_af_mov.vida_util,
+                                                        v_registros_af_mov.codigo,
+                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        'no');
+
+                            else
+                                ----------
+                                --Caso 3
+                                ----------
+                                raise exception 'La mejora debe incrementar el valor vigente del activo. Nada que hacer.';
+
+                            end if;
+
+                        end if;
+
+                    end loop;
+
+                end if;
+
+          elsif v_movimiento.cod_movimiento = 'ajuste' then
+
+              if v_codigo_estado_siguiente = 'finalizado' then
 
 
-           
+                  --Recorrido de los activos fijos de la mejora
+                    for v_registros_af_mov in (select
+                                              af.id_activo_fijo, 
+                                              af.monto_compra,          
+                                              af.vida_util_original,   
+                                              mov.fecha_mov,
+                                              maf.importe,      
+                                              maf.vida_util,         
+                                              maf.id_movimiento_af,
+                                              af.codigo,
+                                              af.cantidad_revaloriz,
+                                              av.monto_vigente_real_af,
+                                              av.vida_util_real_af
+                                              from kaf.tmovimiento_af maf
+                                              inner join kaf.tmovimiento mov
+                                              on mov.id_movimiento = maf.id_movimiento
+                                              inner join kaf.tactivo_fijo af
+                                              on af.id_activo_fijo = maf.id_activo_fijo
+                                              inner join kaf.f_activo_fijo_vigente() av
+                                              on av.id_activo_fijo = maf.id_activo_fijo
+                                              and av.id_moneda = v_id_moneda_base
+                                              where maf.id_movimiento = v_movimiento.id_movimiento) loop
 
-            -- si hay mas de un estado disponible  preguntamos al usuario
-           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
-           v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+                        --Obtener el valor real de la mejora
+                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+
+                        --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                        v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                    v_registros_af_mov.id_activo_fijo,
+                                                    v_registros_af_mov.fecha_mov);
+
+                        --Creación de los nuevos AFV para la mejora en todas las monedas
+                        v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                v_movimiento.cod_movimiento,
+                                                v_registros_af_mov.id_activo_fijo,
+                                                v_id_moneda_base,
+                                                v_registros_af_mov.id_movimiento_af,
+                                                v_registros_af_mov.fecha_mov,
+                                                v_monto_inc_dec_real,
+                                                v_registros_af_mov.vida_util,
+                                                v_registros_af_mov.codigo,
+                                                v_registros_af_mov.cantidad_revaloriz,
+                                                'si');
+
+                    end loop;
+
+              end if;
+
+          elsif v_movimiento.cod_movimiento = 'retiro' then
+
+              if v_codigo_estado_siguiente = 'finalizado' then
+                  --Actualiza estado de activo fijo
+                  update kaf.tactivo_fijo set
+                  estado = 'retiro'
+                  from kaf.tmovimiento_af movaf
+                  inner join kaf.tmovimiento mov
+                  on mov.id_movimiento = movaf.id_movimiento
+                  where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                  and movaf.id_movimiento = v_movimiento.id_movimiento;
+              
+              end if;
+
+          elsif v_movimiento.cod_movimiento = 'tranfdep' then
+
+               if v_codigo_estado_siguiente = 'finalizado' then
+                  --Actualiza estado de activo fijo
+                  update kaf.tactivo_fijo set
+                  id_depto = mov.id_depto_dest,
+                  id_deposito = mov.id_deposito_dest
+                  from kaf.tmovimiento_af movaf
+                  inner join kaf.tmovimiento mov
+                  on mov.id_movimiento = movaf.id_movimiento
+                  where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                  and movaf.id_movimiento = v_movimiento.id_movimiento;
+              
+              end if;
+
+          elsif v_movimiento.cod_movimiento = 'transito' then
+
+            if v_codigo_estado_siguiente = 'finalizado' then
+                --Actualiza estado de activo fijo
+                update kaf.tactivo_fijo set
+                estado = 'transito'
+                from kaf.tmovimiento_af movaf
+                inner join kaf.tmovimiento mov
+                on mov.id_movimiento = movaf.id_movimiento
+                where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                and movaf.id_movimiento = v_movimiento.id_movimiento;
+            end if;
+
+          end if;
+
+          -- si hay mas de un estado disponible  preguntamos al usuario
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del movimiento)'); 
+          v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
               
               
-            -- Devuelve la respuesta
-           return v_resp;
+          -- Devuelve la respuesta
+          return v_resp;
             
-         end;     
+        end;     
 
     
     /*********************************    

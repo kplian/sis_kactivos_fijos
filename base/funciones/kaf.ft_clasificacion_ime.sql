@@ -36,8 +36,9 @@ DECLARE
 	v_sep					varchar;   
 	v_nivel					integer;
 	v_rec 					record;
-	v_cod_fin			   varchar;
+	v_cod_fin			    varchar;
 	v_ins 					boolean;
+    v_id_clasificacion_fk   integer;
 			    
 BEGIN
 
@@ -66,6 +67,13 @@ BEGIN
 				raise exception 'Código existente: %',v_cod_fin;
 			end if;
 
+            --Verifica el padre
+            if v_parametros.id_clasificacion_fk = 'id' then
+                v_id_clasificacion_fk = null;
+            else 
+                v_id_clasificacion_fk = v_parametros.id_clasificacion_fk::integer;
+            end if;
+
         	--Sentencia de la insercion
         	insert into kaf.tclasificacion(
                 id_clasificacion_fk,
@@ -92,7 +100,7 @@ BEGIN
                 contabilizar,
 				codigo_completo_tmp
           	) values(
-                v_parametros.id_clasificacion_fk,
+                v_id_clasificacion_fk,
                 v_parametros.id_cat_metodo_dep,
                 v_parametros.id_concepto_ingas,
                 upper(v_codigo),
@@ -232,11 +240,18 @@ BEGIN
 						and id_clasificacion != v_parametros.id_clasificacion)then
 				raise exception 'Código existente: %',v_cod_fin;
 			end if;
+
+            --Verifica el padre
+            if v_parametros.id_clasificacion_fk = 'id' then
+                v_id_clasificacion_fk = null;
+            else 
+                v_id_clasificacion_fk = v_parametros.id_clasificacion_fk::integer;
+            end if;
 			
 			
 			--Sentencia de la modificacion
 			update kaf.tclasificacion set
-                id_clasificacion_fk = v_parametros.id_clasificacion_fk,
+                id_clasificacion_fk = v_id_clasificacion_fk,
                 id_cat_metodo_dep = v_parametros.id_cat_metodo_dep,
                 id_concepto_ingas = v_parametros.id_concepto_ingas,
                 codigo  = v_codigo,
