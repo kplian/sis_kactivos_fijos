@@ -117,9 +117,13 @@ BEGIN
                             COALESCE(round( afvi.depreciacion_per_real_af,2),0),
                             cla.tipo_activo,
                             cla.depreciable,
-                            afij.monto_compra_mt,
+                            afij.monto_compra_orig,
                             afij.id_proyecto,
-                            proy.codigo_proyecto as desc_proyecto
+                            proy.codigo_proyecto as desc_proyecto,
+                            afij.cantidad_af,
+                            afij.id_unidad_medida,
+                            unmed.codigo as codigo_unmed,
+                            unmed.descripcion as descripcion_unmed
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -143,6 +147,7 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -186,6 +191,7 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
 				        where  ';
 			
 			--Definicion de la respuesta		    
@@ -399,9 +405,13 @@ BEGIN
                             COALESCE(round( afvi.depreciacion_per_real_af,2),0),
                             cla.tipo_activo,
                             cla.depreciable,
-                            afij.monto_compra_mt,
+                            afij.monto_compra_orig,
                             afij.id_proyecto,
                             proy.codigo_proyecto as desc_proyecto
+                            afij.cantidad_af,
+                            afij.id_unidad_medida,
+                            unmed.codigo as codigo_unmed,
+                            unmed.descripcion as descripcion_unmed
                         from kaf.tactivo_fijo afij                       
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg                      
                         inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -425,6 +435,7 @@ BEGIN
                         left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
                         left join segu.vpersona per on per.id_persona = afij.id_persona
                         left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
                         where  ';
             
             --Definicion de la respuesta
@@ -439,6 +450,7 @@ BEGIN
 
     /*********************************    
     #TRANSACCION:  'SKA_AFFECH_CONT'
+
     #DESCRIPCION:   Conteo de registros
     #AUTOR:         RCM   
     #FECHA:         14/06/2017
@@ -471,6 +483,7 @@ BEGIN
                         left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
                         left join segu.vpersona per on per.id_persona = afij.id_persona
                         left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
                         where  ';
             
             --Definicion de la respuesta            

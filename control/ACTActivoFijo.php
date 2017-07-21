@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
+require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF_v1.php');
 
 class ACTActivoFijo extends ACTbase{    
 			
@@ -189,7 +190,7 @@ class ACTActivoFijo extends ACTbase{
 				//parametros basicos
 				
 				$orientacion = 'L';
-				$titulo = 'Código';				
+				$titulo = 'Códigos Activos Fijos';				
 				
 				//$width = 40;  
 		        //$height = 20;

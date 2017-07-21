@@ -309,7 +309,6 @@ Phx.vista.MovimientoPrincipal = {
     },
 
     onButtonEdit: function() {
-        this.form.html = 'asdasd Hello <b>world!</b> editando ...';
     	Phx.vista.Movimiento.superclass.onButtonEdit.call(this);
     	var data = this.getSelectedData();
     	this.habilitarCampos(data.cod_movimiento);

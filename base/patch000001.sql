@@ -800,3 +800,18 @@ ALTER TABLE kaf.tactivo_fijo
 COMMENT ON COLUMN kaf.tactivo_fijo.id_activo_fijo_padre
 IS 'Id del activo origen del que se creó el activo';
 /***********************************F-SCP-RCM-KAF-1-28/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-10/07/2017****************************************/
+alter table kaf.tactivo_fijo
+add column cantidad_af integer default 1;
+alter table kaf.tactivo_fijo
+add column id_unidad_medida integer;
+/***********************************F-SCP-RCM-KAF-1-10/07/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-12/07/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  RENAME COLUMN monto_compra_mt TO monto_compra_orig;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra_orig
+IS 'monto de la compra en la moneda original';
+/***********************************F-SCP-RCM-KAF-1-12/07/2017****************************************/

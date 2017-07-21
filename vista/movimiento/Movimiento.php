@@ -32,10 +32,6 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             handler : this.onButtonReportDepreciacion,
             tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
         });
-        
-        
-		
-		
 	},
 			
 	Atributos:[

@@ -209,6 +209,12 @@ class ACTMovimiento extends ACTbase{
 				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 		
 	}
+
+	function generarMovimientoRapido(){
+		$this->objFunc=$this->create('MODMovimiento');	
+		$this->res=$this->objFunc->generarMovimientoRapido($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 			
 }
 

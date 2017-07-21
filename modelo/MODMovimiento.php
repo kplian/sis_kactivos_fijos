@@ -358,6 +358,29 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function generarMovimientoRapido(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_movimiento_ime';
+		$this->transaccion='SKA_MOVRAP_INS';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_movimiento','tipo_movimiento','varchar');
+		$this->setParametro('fecha','fecha','date');
+		$this->setParametro('glosa','glosa','varchar');
+		$this->setParametro('id_funcionario','id_funcionario','integer');
+		$this->setParametro('direccion','direccion','varchar');
+		$this->setParametro('id_oficina','id_oficina','integer');
+		$this->setParametro('ids_af','ids_af','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

@@ -5,6 +5,16 @@
  * Autor RAC
  * Fecha: 16/03/2017
  * Descripcion para cambiar la calse que se ejecuta el momento de imprimir modificar la variable global kaf_clase_reporte_codigo en PXP 
+
+ Formato QR:
+
+ 	id_activo_fijo,
+ 	codigo,
+ 	codigo_anterior,
+ 	denominacion,
+ 	depto, 
+ 	empleado
+
  * 
  * */
 class RCodigoQRAF extends  ReportePDF {

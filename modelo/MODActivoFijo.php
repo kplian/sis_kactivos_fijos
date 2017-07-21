@@ -87,12 +87,13 @@ class MODActivoFijo extends MODbase{
         $this->captura('depreciacion_per_real_af','numeric');		
 		$this->captura('tipo_activo','varchar');
         $this->captura('depreciable','varchar');
-		$this->captura('monto_compra_mt','numeric');
+		$this->captura('monto_compra_orig','numeric');
 		$this->captura('id_proyecto','int4');		
 		$this->captura('desc_proyecto','varchar');
-				
-		
-		
+		$this->captura('cantidad_af','integer');
+		$this->captura('id_unidad_medida','integer');
+		$this->captura('codigo_unmed','varchar');
+		$this->captura('descripcion_unmed','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -147,9 +148,11 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
 		//$this->setParametro('caracteristicas','caracteristicas','text');		
-		$this->setParametro('monto_compra_mt','monto_compra_mt','numeric');
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
 		
 		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('cantidad_af','cantidad_af','int4');
+		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
 		
 		
 		
@@ -206,8 +209,10 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
 		//$this->setParametro('caracteristicas','caracteristicas','text');
-		$this->setParametro('monto_compra_mt','monto_compra_mt','numeric');
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('cantidad_af','cantidad_af','int4');
+		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
 		
 
 		//Ejecuta la instruccion
@@ -513,12 +518,13 @@ class MODActivoFijo extends MODbase{
         $this->captura('depreciacion_per_real_af','numeric');		
 		$this->captura('tipo_activo','varchar');
         $this->captura('depreciable','varchar');
-		$this->captura('monto_compra_mt','numeric');
+		$this->captura('monto_compra_orig','numeric');
 		$this->captura('id_proyecto','int4');		
 		$this->captura('desc_proyecto','varchar');
-				
-		
-		
+		$this->captura('cantidad_af','integer');
+		$this->captura('id_unidad_medida','integer');
+		$this->captura('codigo_unmed','varchar');
+		$this->captura('descripcion_unmed','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

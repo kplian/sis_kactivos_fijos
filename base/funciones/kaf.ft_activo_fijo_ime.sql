@@ -71,7 +71,7 @@ BEGIN
 			v_parametros.denominacion,
 			v_parametros.id_funcionario,
 			v_parametros.id_deposito,
-			v_parametros.monto_compra_mt,
+			v_parametros.monto_compra_orig,
 			v_parametros.id_moneda_orig,
 			v_parametros.codigo,
 			v_parametros.descripcion,
@@ -89,7 +89,9 @@ BEGIN
 			v_parametros.marca,
 			v_parametros.nro_serie,
 			NULL,
-            v_parametros.id_proyecto
+            v_parametros.id_proyecto,
+            v_parametros.cantidad_af,
+            v_parametros.id_unidad_medida
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -125,7 +127,7 @@ BEGIN
           
               IF v_rec_af.estado != 'registrado' THEN
                  
-               IF v_rec_af.monto_compra_mt != v_parametros.monto_compra_mt or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
+               IF v_rec_af.monto_compra_orig != v_parametros.monto_compra_orig or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
                  raise exception 'no puede editar datos de compras cuando el activo ya esta de alta, registre una revalorizacion para hacer cualquier ajuste';
                END IF;
               END IF;  
@@ -133,7 +135,7 @@ BEGIN
               v_monto_compra = param.f_convertir_moneda(
                                                          v_parametros.id_moneda_orig, 
                                                          NULL,   --por defecto moenda base
-                                                         v_parametros.monto_compra_mt, 
+                                                         v_parametros.monto_compra_orig, 
                                                          v_parametros.fecha_compra, 
                                                          'O',-- tipo oficial, venta, compra 
                                                          NULL);--defecto dos decimales
@@ -158,7 +160,7 @@ BEGIN
                 denominacion = v_parametros.denominacion,
                 id_funcionario = v_parametros.id_funcionario,
                 id_deposito = v_parametros.id_deposito,
-                monto_compra_mt = v_parametros.monto_compra_mt,
+                monto_compra_orig = v_parametros.monto_compra_orig,
                 monto_compra = v_monto_compra,
                 id_moneda = v_parametros.id_moneda_orig,
                 codigo = v_parametros.codigo,
@@ -179,8 +181,10 @@ BEGIN
                 codigo_ant = v_parametros.codigo_ant,
                 nro_serie = v_parametros.nro_serie,
                 marca = v_parametros.marca,
-                id_proyecto = v_parametros.id_proyecto
-                --caraceristicas = v_parametros._nombre_usuario_ai
+                id_proyecto = v_parametros.id_proyecto,
+                --caraceristicas = v_parametros._nombre_usuario_ai,
+                cantidad_af = v_parametros.cantidad_af,
+                id_unidad_medida = v_parametros.id_unidad_medida
 			where id_activo_fijo = v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta
@@ -293,7 +297,9 @@ BEGIN
 			id_oficina,
 			id_depto,
 			null as nombre_usuario_ai,
-			null as id_usuario_ai
+			null as id_usuario_ai,
+			cantidad_af,
+			id_unidad_medida
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -340,14 +346,11 @@ BEGIN
             left join param.tentidad ent on ent.id_entidad = dep.id_entidad
 			where id_activo_fijo = v_parametros.id_activo_fijo;
             
-            --recuperar configuracion del reporte de codigo de barrar por defecto de variable global
+            --Recuperar configuracion del reporte de codigo de barrar por defecto de variable global
              v_clase_reporte = pxp.f_get_variable_global('kaf_clase_reporte_codigo');
-            
-            
-			
-            
+
             --Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Foto subida correctamente'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Código recuperado'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_rec_af.codigo::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'codigo_ant',v_rec_af.codigo_ant::varchar);
@@ -355,7 +358,6 @@ BEGIN
             v_resp = pxp.f_agrega_clave(v_resp,'nombre_depto',v_rec_af.nombre_depto::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'nombre_entidad',v_rec_af.nombre_entidad::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
-            
 
             --Devuelve la respuesta
             return v_resp;
@@ -424,7 +426,7 @@ BEGIN
 			denominacion,
 			id_funcionario,
 			id_deposito,
-			monto_compra_mt,
+			monto_compra_orig,
 			id_moneda_orig,
 			codigo,
 			descripcion,
@@ -442,7 +444,9 @@ BEGIN
 			marca,
 			nro_serie,
 			NULL,
-            id_proyecto
+            id_proyecto,
+            cantidad_af,
+            id_unidad_medida
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;

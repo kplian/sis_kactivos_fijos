@@ -6,11 +6,11 @@
 *@date 29-10-2015 03:18:45
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
-
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
+    dblclickEdit: true,
     mainRegionPanel: {
         region:'west',
         collapsed: true,
@@ -531,7 +531,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             scope: this
         });
 
-
+        this.crearMenuMov();
 
     },
     Atributos: [{
@@ -708,6 +708,44 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         type: 'TextField',
         filters: {
             pfiltro: 'afij.marca',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
+            name: 'cantidad_af',
+            fieldLabel: 'Cantidad',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 150,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.cantidad_af',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true
+    }, {
+        config: {
+            name: 'id_unidad_medida',
+            fieldLabel: 'Unidad de Medida',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 150,
+            maxLength: 50,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['descripcion_unmed']);
+            }
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.id_unidad_medida',
             type: 'string'
         },
         id_grupo: 1,
@@ -1104,16 +1142,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
-            name: 'monto_compra_mt',
-            fieldLabel: 'monto_compra_mt',
+            name: 'monto_compra_orig',
+            fieldLabel: 'Monto Compra Mon.Orig.',
             allowBlank: true,
             anchor: '80%',
-            gwidth: 100,
-            maxLength: -5
+            gwidth: 100
         },
         type: 'NumberField',
         filters: {
-            pfiltro: 'afij.monto_compra_mt',
+            pfiltro: 'afij.monto_compra_orig',
             type: 'numeric'
         },
         id_grupo: 1,
@@ -1675,8 +1712,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name: 'codigo_ant',type: 'string'},{name: 'marca',type: 'string'},
              {name: 'nro_serie',type: 'string'},
              {name: 'caracteristicas',type: 'string'},
-             'monto_compra_mt','desc_proyecto','id_proyecto',
-             'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af','tipo_activo','depreciable'],
+             'monto_compra_orig','desc_proyecto','id_proyecto',
+             'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af','tipo_activo','depreciable','cantidad_af','id_unidad_medida','codigo_unmed',
+             {name:'descripcion_unmed',type:'string'}],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
         field: 'id_activo_fijo',
@@ -1704,6 +1742,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     region: 'center',
                     layout: 'column',
                     border: false,
+                    autoScroll: true,
                     items: [{
                         xtype: 'tabpanel',
                         plain: true,
@@ -1719,6 +1758,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             defaults: {
                                 width: 400
                             },
+                            autoScroll: true,
                             defaultType: 'textfield',
                             items: [{
                                 name: 'id_activo_fijo',
@@ -1851,6 +1891,46 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 name: 'descripcion',
                                 allowBlank: false,
                                 id: this.idContenedor+'_descripcion'
+                            }, {
+                                xtype: 'numberfield',
+                                fieldLabel: 'Cantidad',
+                                name: 'cantidad_af',
+                                allowBlank: false,
+                                id: this.idContenedor+'_cantidad_af'
+                            }, {
+                                xtype: 'combo',
+                                fieldLabel: 'Unidad de Medida',
+                                name: 'id_unidad_medida',
+                                //hiddenName: 'id_cat_estado_fun',
+                                allowBlank: false,
+                                id: this.idContenedor+'_id_unidad_medida',
+                                emptyText: 'Elija una opción',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_parametros/control/UnidadMedida/listarUnidadMedida',
+                                    id: 'id_unidad_medida',
+                                    root: 'datos',
+                                    fields: ['id_unidad_medida','codigo','descripcion'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'descripcion',
+                                        dir: 'ASC'
+                                    }
+                                }),
+                                valueField: 'id_unidad_medida',
+                                hiddenValue: 'id_unidad_medida',
+                                displayField: 'descripcion',
+                                gdisplayField: 'descripcion_unmed',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true,
+                                pageSize: 15,
+                                tpl : '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Estado funcional Actual',
@@ -2046,9 +2126,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 items: [{
                                     xtype: 'numberfield',
                                     fieldLabel: 'Monto compra',
-                                    name: 'monto_compra_mt',
+                                    name: 'monto_compra_orig',
                                     allowBlank: false,
-                                    id: this.idContenedor+'_monto_compra_mt',
+                                    id: this.idContenedor+'_monto_compra_orig',
                                     width: 140
                                 }, {
                                     xtype: 'combo',
@@ -2321,8 +2401,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 Ext.getCmp(this.idContenedor+'_ubicacion').setValue(rec.data.ubicacion);
             },this);
             //Monto Compra
-            Ext.getCmp(this.idContenedor+'_monto_compra_mt').on('blur', function(a,b,c){
-                Ext.getCmp(this.idContenedor+'_monto_vigente_real_af').setValue(Ext.getCmp(this.idContenedor+'_monto_compra_mt').getValue());
+            Ext.getCmp(this.idContenedor+'_monto_compra_orig').on('blur', function(a,b,c){
+                Ext.getCmp(this.idContenedor+'_monto_vigente_real_af').setValue(Ext.getCmp(this.idContenedor+'_monto_compra_orig').getValue());
                 Ext.getCmp(this.idContenedor+'_depreciacion_acum_real_af').setValue('0.00');
                 Ext.getCmp(this.idContenedor+'_depreciacion_per_real_af').setValue('0.00');
                 Ext.getCmp(this.idContenedor+'_depreciacion').setValue('0.00');
@@ -2490,7 +2570,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.abrirVentana('new');
         Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();        
         Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
-        Ext.getCmp(this.idContenedor+'_monto_compra_mt').enable();
+        Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
        	Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
        	Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
         Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
@@ -2511,7 +2591,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         if(data.estado!='registrado') {
         	Ext.getCmp(this.idContenedor+'_fecha_ini_dep').disable();
         	Ext.getCmp(this.idContenedor+'_id_moneda_orig').disable();
-        	Ext.getCmp(this.idContenedor+'_monto_compra_mt').disable();
+        	Ext.getCmp(this.idContenedor+'_monto_compra_orig').disable();
         	Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
             Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
             Ext.getCmp(this.idContenedor+'_id_depto').disable();
@@ -2522,7 +2602,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         else{
           Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
           Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
-          Ext.getCmp(this.idContenedor+'_monto_compra_mt').enable();
+          Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
           Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
           Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
           Ext.getCmp(this.idContenedor+'_id_depto').enable();
@@ -2640,7 +2720,70 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 		    }
     
     
-    ]
+    ],
+    abrirMovimientosRapido: function(tipoMov,title){
+        var params={};
+        //Obtiene los registros seleccionados de la grilla
+        var rec = this.sm.getSelections();
 
+        if(this.sm.getCount()>0){
+            var win = Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoRapido.php',
+                title, {
+                    width: 870,
+                    height : 620,
+                    buttons: [],
+                    bbar: []
+                }, { 
+                    dataAf: rec,
+                    tipoMov: tipoMov,
+                    title: title
+                },
+                this.idContenedor,
+                'MovimientoRapido'
+            );
+        } else {
+            Ext.MessageBox.alert('Información','Debe seleccionar almenos un Registro para continuar');
+        }
+    },
+    crearMenuMov: function(){
+        //Creación de menúes
+        this.mnuMov = new Ext.menu.Item({
+            text: 'Generar Movimiento Af',
+            icon:'../../../lib/imagenes/gear.png',
+            menu:{}
+        });
+        this.mnuMovAsig = new Ext.menu.Item({
+            text: 'Asignación',
+            icon:'../../../lib/imagenes/gear.png',
+            handler: function(){
+                this.abrirMovimientosRapido('asig','Asignación');
+            },
+            scope: this
+        });
+        this.mnuMovTransf = new Ext.menu.Item({
+            text: 'Transferencia',
+            icon:'../../../lib/imagenes/gear.png',
+            handler: function(){
+                this.abrirMovimientosRapido('transf','Transferencia');
+            },
+            scope: this
+        });
+        this.mnuMovDevol = new Ext.menu.Item({
+            text: 'Devolución',
+            icon:'../../../lib/imagenes/gear.png',
+            handler: function(){
+                this.abrirMovimientosRapido('devol','Devolución');
+            },
+            scope: this
+        });
+
+        //Adición al menú contextual
+        this.mnuMov.menu.addItem(this.mnuMovAsig);
+        this.mnuMov.menu.addItem(this.mnuMovTransf);
+        this.mnuMov.menu.addSeparator()
+        this.mnuMov.menu.addItem(this.mnuMovDevol); 
+        this.ctxMenu.addItem(this.mnuMov);
+    }
+    
 })
 </script>
