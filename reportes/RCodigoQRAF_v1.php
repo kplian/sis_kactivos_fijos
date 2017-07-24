@@ -112,7 +112,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		$this->SetFont('','',20);
 		$this->SetXY(80,5);
 		$this->cell(75, 5, 'Activos Fijos', 0, 1, 'C');
-		$this->Image(dirname(__FILE__).'/imagenes/logo.png', 105, 15, 25, 0,'','','C');
+		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 105, 15, 25, 0,'','','C');
 		$this->SetFont('','B',25);
 		$this->SetXY(80,25);
 		$this->cell(75, 5, $this->cod['cod'], 0, 1, 'C',false,'',0);
@@ -120,7 +120,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		$this->SetXY(80,38);
 		//Descripcion
 		$maxLength=80;
-		$maxLengthLinea=17;
+		$maxLengthLinea=16;
 		$x=80;
 		$y=38;
 		$codAux = substr($this->cod['desc'],0,$maxLength);

@@ -403,7 +403,12 @@ class ACTActivoFijo extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
-			
+	function consultaQR(){
+		$this->objFunc=$this->create('MODActivoFijo');	
+		$this->res=$this->objFunc->consultaQR($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
 }
 
 ?>

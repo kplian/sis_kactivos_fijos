@@ -484,6 +484,72 @@ BEGIN
 
       end; 
 
+    /*********************************    
+ 	#TRANSACCION:  'SKA_AFQR_DAT'
+ 	#DESCRIPCION:	Consulta de datos desde QR
+ 	#AUTOR:			RCM
+ 	#FECHA:			24/07/2017
+	***********************************/
+
+	elsif(p_transaccion='SKA_AFQR_DAT')then
+
+		begin
+
+			if not exists(select 1 from kaf.tactivo_fijo
+							where id_activo_fijo = v_parametros.id_activo_fijo) then
+				raise exception 'Activo fijo no existente';
+			end if;
+
+			select
+			af.id_activo_fijo, af.codigo, af.denominacion, af.descripcion, af.fecha_compra,
+			ofi.codigo || ' - ' ||ofi.nombre as oficina_asignacion,
+			af.ubicacion, af.fecha_ini_dep, 
+			af.monto_compra_orig,
+			mon.codigo as moneda,
+			af.vida_util_original,
+			COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra) as valor_actual,
+			af.vida_util_original - COALESCE(afvi.vida_util_real_af, af.vida_util_original) as vida_util_restante,
+			fun.desc_funcionario2 as responsable,
+			fun.nombre_cargo as cargo,
+			fun.oficina_nombre as oficina_responsable
+			into v_rec_af
+			from kaf.tactivo_fijo af
+			left join kaf.f_activo_fijo_vigente() afvi
+            on afvi.id_activo_fijo = af.id_activo_fijo
+            and afvi.id_moneda = af.id_moneda_orig
+			inner join orga.toficina ofi
+			on af.id_oficina = ofi.id_oficina
+			inner join param.tmoneda mon
+			on mon.id_moneda = af.id_moneda_orig
+			left join orga.vfuncionario_cargo_lugar fun
+			on fun.id_funcionario = af.id_funcionario
+			where af.id_activo_fijo = v_parametros.id_activo_fijo
+			order by fun.fecha_asignacion desc limit 1;
+               
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Consulta QR realizada'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_rec_af.id_activo_fijo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_rec_af.codigo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'denominacion',v_rec_af.denominacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'fecha_compra',v_rec_af.fecha_compra::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'oficina_asignacion',v_rec_af.oficina_asignacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'ubicacion',v_rec_af.ubicacion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'fecha_ini_dep',v_rec_af.fecha_ini_dep::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'monto_compra_orig',v_rec_af.monto_compra_orig::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'moneda',v_rec_af.moneda::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'vida_util_original',v_rec_af.vida_util_original::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'valor_actual',v_rec_af.valor_actual::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'vida_util_restante',v_rec_af.vida_util_restante::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'responsable',v_rec_af.responsable::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'cargo',v_rec_af.cargo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'oficina_responsable',v_rec_af.oficina_responsable::varchar);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
 	else
      
     	raise exception 'Transaccion inexistente: %',p_transaccion;
