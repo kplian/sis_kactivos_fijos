@@ -11,6 +11,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
 <script>
 Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
+    ActSave:'../../sis_kactivos_fijos/control/ActivoFijo/impVariosCodigoActivoFijo',
+    tipo: 'reporte',
+    topBar: true,
     constructor:function(config)
     {   
     	this.panelResumen = new Ext.Panel({html:'Hola Prueba'});
@@ -26,14 +29,10 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 				    },
 				     this.panelResumen
 				    ];
-				    
-        Phx.vista.FormRepCodigoAF.superclass.constructor.call(this,config);
+    	Phx.vista.FormRepCodigoAF.superclass.constructor.call(this,config);
         this.init(); 
         this.iniciarEventos();   
-       
-        
-        
-    },
+     },
     
     Atributos:[
           
@@ -92,8 +91,8 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 	            lazyRender: true,
 	            mode: 'remote',
 	            pageSize: 15,
-	            queryDelay: 1000,
 	            anchor: '100%',
+	            queryDelay: 1000,
 	            gwidth: 150,
 	            minChars: 2,
 	            renderer: function(value, p, record) {
@@ -101,7 +100,6 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 	            }
 	        },
 	        type: 'ComboBox',
-	        id_grupo: 0,
 	        filters: {
 	            pfiltro: 'cla.nombre',
 	            type: 'string'

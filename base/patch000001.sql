@@ -447,3 +447,380 @@ ALTER TABLE kaf.tmovimiento
 
 /***********************************F-SCP-RAC-KAF-1-10/02/2017****************************************/
 
+
+
+
+/***********************************I-SCP-RAC-KAF-1-04/04/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN tipo_activo VARCHAR(30) DEFAULT 'tangible' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.tipo_activo
+IS 'tangible o intangible';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN depreciable VARCHAR(4) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.depreciable
+IS 'si se aplicaqn o no depreciaciones';
+
+
+
+/***********************************F-SCP-RAC-KAF-1-04/04/2017****************************************/
+
+
+
+
+/***********************************I-SCP-RAC-KAF-1-10/04/2017****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN tipo_cambio_ini TYPE NUMERIC;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN tipo_cambio_ini TYPE NUMERIC;
+  
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN monto_actualiz_ant NUMERIC DEFAULT 0 NOT NULL;
+ 
+/***********************************F-SCP-RAC-KAF-1-10/04/2017****************************************/
+ 
+  
+  
+  
+  
+/***********************************I-SCP-RAC-KAF-1-20/04/2017****************************************/
+ 
+ 
+  
+  --------------- SQL ---------------
+
+CREATE TABLE kaf.tmoneda_dep (
+  id_moneda_dep SERIAL,
+  id_moneda INTEGER,
+  id_moneda_act INTEGER,
+  contabilizar VARCHAR(5) DEFAULT 'no' NOT NULL,
+  actualizar VARCHAR(5) DEFAULT 'no' NOT NULL,
+  PRIMARY KEY(id_moneda_dep)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN kaf.tmoneda_dep.id_moneda_act
+IS 'indica que moenda se utiliza para actualizar';
+
+COMMENT ON COLUMN kaf.tmoneda_dep.contabilizar
+IS 'solo una de la monedas puede contabilizar , esa sera considerada la principal';
+
+COMMENT ON COLUMN kaf.tmoneda_dep.actualizar
+IS 'indica si esta moneda actualiza en tal casola moneda de actulizacion tiene que estar configurada';
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_moneda_dep INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_moneda_dep
+IS 'indica la configuracion utilizada para la depreciacion / actualizacion';
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep DROP DEFAULT;
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep TYPE BIGINT;
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN id_movimiento_af_dep SET DEFAULT nextval('kaf.tmovimiento_af_dep_id_movimiento_af_dep_seq'::regclass);
+
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN monto_compra_mt NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra_mt
+IS 'monto de la compra en moneda de la trasaccion, indicada por el id_moneda';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra
+IS 'monto de la compra en moneda base';
+
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_rescate
+IS 'monto de rescate en moneda base';
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_vigente
+IS 'este campo esta obsoleto no utilizar, el monto vigente real se obtiene de la vista de base de datos vactivo_fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_moneda
+IS 'moneda en que estan regitrado los montos';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN id_moneda_dep INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.id_moneda_dep
+IS 'configuracion de moneda con que se realizo el registro de depreicacion';
+  
+/***********************************F-SCP-RAC-KAF-1-20/04/2017****************************************/
+
+
+/***********************************I-SCP-RAC-KAF-1-25/04/2017****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN tipo_reg VARCHAR(100) DEFAULT 'manual' NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.tipo_reg
+IS 'manual, preingreso, division, identifica la forma en que fue creado el activo fijo';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN num_div INTEGER DEFAULT 0 NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.num_div
+IS 'controla el numero de divisiones del activo fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN fecha_inicio DATE;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_inicio
+IS 'fecha desde que considerar este regitro de valor para el activo fijo';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN fecha_fin DATE;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_fin
+IS 'fecha hasta al cual se considera el valor de este activo fijo';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN deducible VARCHAR(6) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.deducible
+IS 'no o  si,  si es decubile el gasto peude reducirce del impuesto a las utilidades';
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN id_activo_fijo_valor_original INTEGER;
+  
+  
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.id_activo_fijo_valor_original
+IS 'indetifica el valor origen para el caso de activos que se dividen';  
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN kaf.tmovimiento_af.importe
+IS 'es importe siemre estara en moneda base';
+
+
+/***********************************F-SCP-RAC-KAF-1-25/04/2017****************************************/
+
+
+/***********************************I-SCP-RAC-KAF-1-29/04/2017****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_proyecto INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_proyecto
+IS 'indetifica el proyecto dodne se carga las depreciaciones dela citvo fijo, peude obtener del centro de costo de la compra pero no es obligatorio esta dato peude cambiarce en cualqeuir momento';
+
+ 
+ 
+/***********************************F-SCP-RAC-KAF-1-29/04/2017****************************************/
+
+  
+/***********************************I-SCP-RAC-KAF-1-02/05/2017****************************************/
+ 
+ CREATE TABLE kaf.ttipo_prorrateo (
+  id_tipo_prorrateo SERIAL,
+  id_proyecto INTEGER,
+  id_activo_fijo INTEGER,
+  id_centro_costo INTEGER,
+  id_ot INTEGER,
+  descripcion VARCHAR,
+  factor NUMERIC DEFAULT 1 NOT NULL,
+  id_gestion INTEGER,
+  CONSTRAINT ttipo_prorrateo_pkey PRIMARY KEY(id_tipo_prorrateo)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN kaf.ttipo_prorrateo.id_activo_fijo
+IS 'opcional, primero se busca configuracion para el activo si no hay busca configuracion para el proyecto';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_int_comprobante INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante
+IS 'hace referencia al comproante contable del movimeitno, ejm si es de depreciacion el cbte sera el de depreciacion';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_int_comprobante_aitb INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_aitb
+IS 'solo para movimiento de depreciacion, este es el comprobante de actulizacion y tenencia de bienes';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN contabilizar VARCHAR(6) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN kaf.tclasificacion.contabilizar
+IS 'incidique a que nivel de la claisficacion se buscara la relacion contable apra generar comprobantes';
+
+/***********************************F-SCP-RAC-KAF-1-02/05/2017****************************************/
+
+
+/***********************************I-SCP-RCM-KAF-1-05/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN id_periodo_subsistema INTEGER;
+ALTER TABLE kaf.tclasificacion
+  DROP CONSTRAINT uq_tclasificacion__codigo RESTRICT;
+/***********************************F-SCP-RCM-KAF-1-05/06/2017****************************************/  
+
+/***********************************I-SCP-RCM-KAF-1-19/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af.id_moneda
+IS 'Moneda Base';
+
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN depreciacion_acum NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tmovimiento_af.depreciacion_acum
+IS 'Depreciacion acumulada de inicio solo para movimiento de Ajustes';
+/***********************************F-SCP-RCM-KAF-1-19/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-22/06/2017****************************************/
+create table kaf.tmovimiento_af_especial(
+	id_movimiento_af_especial serial,
+	id_movimiento_af  integer not null,
+	id_activo_fijo_valor integer,
+	id_activo_fijo integer,
+	importe numeric(18,2) not null,
+	constraint pk_tmovimiento_af_especial__id_movimiento_af_especial primary key (id_movimiento_af_especial)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-1-22/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-23/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD CONSTRAINT uq_tmovimiento_af__id_movimiento__id_activo_fijo 
+    UNIQUE (id_activo_fijo, id_movimiento) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-23/06/2017****************************************/    
+
+/***********************************I-SCP-RCM-KAF-1-27/06/2017****************************************/
+CREATE TABLE kaf.tclasificacion_variable (
+  id_clasificacion_variable SERIAL,
+  id_clasificacion INTEGER NOT NULL,
+  nombre VARCHAR(50) NOT NULL,
+  descripcion VARCHAR(500),
+  tipo_dato VARCHAR(20),
+  obligatorio VARCHAR(2) DEFAULT 'no',
+  orden_var INTEGER,
+  PRIMARY KEY(id_clasificacion_variable)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE kaf.tactivo_fijo_caract
+  ADD COLUMN id_clasificacion_variable INTEGER;
+
+ALTER TABLE kaf.tactivo_fijo_caract
+  ADD CONSTRAINT uq_tactivo_fijo_caract__id_activo_fijo__id_clasificacion_variab 
+    UNIQUE (id_activo_fijo, id_clasificacion_variable) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-27/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-28/06/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_activo_fijo_creado INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_activo_fijo_creado
+IS 'Id del activo fijo creado por el Desglose de activos fijos';
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_activo_fijo_padre INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_activo_fijo_padre
+IS 'Id del activo origen del que se creó el activo';
+/***********************************F-SCP-RCM-KAF-1-28/06/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-10/07/2017****************************************/
+alter table kaf.tactivo_fijo
+add column cantidad_af integer default 1;
+alter table kaf.tactivo_fijo
+add column id_unidad_medida integer;
+/***********************************F-SCP-RCM-KAF-1-10/07/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-12/07/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  RENAME COLUMN monto_compra_mt TO monto_compra_orig;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra_orig
+IS 'monto de la compra en la moneda original';
+/***********************************F-SCP-RCM-KAF-1-12/07/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-26/07/2017****************************************/
+alter table kaf.tactivo_fijo
+add column monto_compra_orig_100 numeric;
+alter table kaf.tactivo_fijo
+add column nro_cbte_asociado varchar(50);
+alter table kaf.tactivo_fijo
+add column fecha_cbte_asociado date;
+/***********************************F-SCP-RCM-KAF-1-26/07/2017****************************************/

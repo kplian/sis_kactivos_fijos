@@ -12,102 +12,26 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 
-	gruposBarraTareas:[
-		{name:'Todos',title:'<h1 align="center"><i class="fa fa-bars"></i> Todos</h1>',grupo:0,height:0},
-	   	{name:'Altas',title:'<h1 align="center"><i class="fa fa-thumbs-o-up"></i> Altas</h1>',grupo:1,height:0},
-       	{name:'Bajas',title:'<H1 align="center"><i class="fa fa-thumbs-o-down"></i> Bajas</h1>',grupo:2,height:0},
-       	{name:'Revalorizaciones/Mejoras',title:'<H1 align="center"><i class="fa fa-plus-circle"></i> Revaloriz/Incrementos</h1>',grupo:3,height:0},
-       	{name:'Asignaciones/Devoluciones',title:'<H1 align="center"><i class="fa fa-user-plus"></i> Asig/Devol/Transf</h1>',grupo:4,height:0},
-       	{name:'Depreciaciones',title:'<H1 align="center"><i class="fa fa-calculator"></i> Depreciaciones</h1>',grupo:5,height:0}
-    ],
-
-    actualizarSegunTab: function(name, indice){
-    	if(indice==0){
-    		this.filterMov='%';
-    	} else if(indice==1){
-    		this.filterMov='alta';
-    	} else if(indice==2){
-    		this.filterMov='baja';
-    	} else if(indice==3){
-    		this.filterMov='reval,incdec';
-    	} else if(indice==4){
-    		this.filterMov='asig,devol,transf,tranfdep';
-    	} else if(indice==5){
-    		this.filterMov='deprec';
-    	}
-    	this.store.baseParams.cod_movimiento = this.filterMov;
-    	//this.getBoton('btnReporte').show();
-    	this.load({params:{start:0, limit:this.tam_pag}});
-    },
-    bnewGroups: [0,1,2,3,4,5],
-    beditGroups: [0,1,2,3,4,5],
-    bdelGroups:  [0,1,2,3,4,5],
-    bactGroups:  [0,1,2,3,4,5],
-    btestGroups: [0,1,2,3,4,5],
-    bexcelGroups: [0,1,2,3,4,5],
-
 	constructor:function(config){
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.Movimiento.superclass.constructor.call(this,config);
-		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
-
-		/*this.addButton('btnMovGral',
-            {
-                text: 'Movimientos',
-                iconCls: 'bchecklist',
-                disabled: false,
-                handler: this.openMovimientos
-            }
-        );*/
-        //Add handler to id_cat_movimiento field
-        this.Cmp.id_cat_movimiento.on('select', function(cmp,rec,el){
-        	this.habilitarCampos(rec.data.codigo);
-        	this.Cmp.id_movimiento_motivo.reset();
-            this.Cmp.id_movimiento_motivo.modificado=true;
-            this.Cmp.id_movimiento_motivo.store.baseParams.id_cat_movimiento=rec.data.id_catalogo;
-        }, this);
-        //Add report button
+		//Add report button
         this.addButton('btnReporte',{
             text :'Reporte',
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonReport,
-            tooltip : '<b>Reporte Ingreso/Salida</b><br/><b>Solicitud del ingreso o salida</b>'
+            tooltip : '<b>Reporte de Movimiennto</b><br/><b>Reporte de Movimiento efectuado y su detalle</b>'
         });
-        //Add handler to id_cat_movimiento field
-        this.Cmp.id_depto_dest.on('select', function(cmp,rec,el){
-        	this.Cmp.id_deposito_dest.reset();
-            this.Cmp.id_deposito_dest.modificado=true;
-            this.Cmp.id_deposito_dest.store.baseParams.id_depto=rec.data.id_depto;
-        }, this);
-
-        this.addButton('ant_estado',{argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
-        this.addButton('sig_estado',{text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
-		this.addButton('diagrama_gantt',{text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt del proceso</b>'});
-		this.addButton('btnChequeoDocumentosWf',
-            {
-                text: 'Documentos',
-                iconCls: 'bchecklist',
-                disabled: true,
-                handler: this.loadCheckDocumentosPlanWf,
-                tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
-            }
-        );
-
-        function diagramGantt(){
-            var data=this.sm.getSelected().data.id_proceso_wf;
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url:'../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
-                params:{'id_proceso_wf':data},
-                success:this.successExport,
-                failure: this.conexionFailure,
-                timeout:this.timeout,
-                scope:this
-            });         
-        } 
+        
+         this.addButton('btnReporteDep',{
+            text :'Det. Dep',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.onButtonReportDepreciacion,
+            tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
+        });
 	},
 			
 	Atributos:[
@@ -141,20 +65,20 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'movimiento',
 				hiddenName: 'id_cat_movimiento',
-				gwidth: 95,
+				gwidth: 55,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tmovimiento__id_cat_movimiento'
 				},
 				renderer: function (value,p,record) {
 					var result;
-					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='18' height='18' title='"+record.data.movimiento+"'/><br> <u>"+record.data.movimiento+"</u></div>";
+					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='24' height='24' title='"+record.data.movimiento+"'/></div>";
 					return result;
 				},
 				valueField: 'id_catalogo'
 			},
 			type: 'ComboRec',
-			id_grupo: 1,
+			id_grupo: 0,
 			filters:{pfiltro:'cat.descripcion',type:'string'},
 			grid: true,
 			form: true
@@ -177,7 +101,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.num_tramite',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:true,
 			form:false,
 			bottom_filter:true
@@ -201,7 +125,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.estado',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:false,
 			form:true,
 			bottom_filter:true
@@ -218,7 +142,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_mov',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:false,
 				form:true
 		},
@@ -292,7 +216,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextArea',
 			filters:{pfiltro:'mov.glosa',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:true,
 			form:true,
 			bottom_filter:true
@@ -310,7 +234,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_hasta',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -389,12 +313,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                         field: 'codigo',
                         direction: 'ASC'
                     },
-                    baseParams:{
-                        start: 0,
-                        limit: 10,
-                        sort: 'codigo',
-                        dir: 'ASC'
-                    }
+                    baseParams:{par_filtro:'ofi.codigo#ofi.nombre'}
                 }),
 				valueField: 'id_oficina',
 				displayField: 'nombre',
@@ -432,7 +351,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextArea',
 				filters:{pfiltro:'mov.direccion',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -446,7 +365,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.codigo',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -467,12 +386,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                         field: 'codigo',
                         direction: 'ASC'
                     },
-                    baseParams:{
-                        start: 0,
-                        limit: 10,
-                        sort: 'codigo',
-                        dir: 'ASC'
-                    }
+                    baseParams:{par_filtro:'dep.codigo#dep.nombre'}
+                    
                 }),
 				valueField: 'id_deposito',
 				displayField: 'nombre',
@@ -681,7 +596,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.estado_reg',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -696,7 +611,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'mov.id_usuario_ai',type:'numeric'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:false,
 				form:false
 		},
@@ -711,7 +626,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -727,7 +642,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_reg',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -742,7 +657,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.usuario_ai',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -758,7 +673,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_mod',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -773,13 +688,11 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		}
 	],
-	arrayDefaultColumHidden:['fecha_reg','usr_reg','fecha_mod','usr_mod','fecha_hasta',
-	'id_proceso_wf','id_estado_wf','id_funcionario','estado_reg','id_usuario_ai','usuario_ai','direccion','id_oficina'],
 	tam_pag:50,	
 	title:'Movimiento de Activos Fijos',
 	ActSave:'../../sis_kactivos_fijos/control/Movimiento/insertarMovimiento',
@@ -836,192 +749,9 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_movimiento',
 		direction: 'DESC'
 	},
-	bdel:true,
-	bsave:true,
-	rowExpander: new Ext.ux.grid.RowExpander({
-	        tpl : new Ext.Template(
-	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Registro:&nbsp;&nbsp;</b> {usr_reg}</p>',
-	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Registro:&nbsp;&nbsp;</b> {fecha_reg}</p>',	       
-	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
-	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
-	        )
-    }),
-    openMovimientos: function(){
-    	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoGral.php',
-            'Movimientos',
-            {
-                width:'50%',
-                height:'85%'
-            },
-            {},
-            this.idContenedor,
-            'MovimientoGral'
-        )
-    },
-
-    habilitarCampos: function(mov){
-    	var swDireccion=false,swFechaHasta=false,swFuncionario=false,swOficina=false,swPersona=false,h=130,w=450,swDeptoDest=false,swDepositoDest=false,swFuncionarioDest=false,swCatMovMotivo=false;
-
-    	//Muesta y habilita los campos basicos
-    	this.Cmp.fecha_mov.setVisible(true);
-    	this.Cmp.glosa.setVisible(true);
-    	this.Cmp.id_depto.setVisible(true);
-
-    	this.form.getForm().clearInvalid();
-
-    	//Muestra y habilita los campos especificos por tipo de movimiento
-    	if(mov=='alta'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
-    		h=253;
-    	} else if(mov=='asig'){
-    		swDireccion=true;
-    		swFechaHasta=false;
-    		swFuncionario=true;
-    		swOficina=true;
-    		swPersona=true;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
-    		h=381;
-    	} else if(mov=='baja'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=true;
-    		h=275;
-    	} else if(mov=='deprec'){
-    		swDireccion=false;
-    		swFechaHasta=true;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
-    		h=280;
-    	} else if(mov=='desuso'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=true;
-    		h=275;
-    	} else if(mov=='devol'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=true;
-    		swOficina=false;
-    		swPersona=true;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
-    		h=298;
-    	} else if(mov=='incdec'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=true;
-    		h=275;
-    	} else if(mov=='reval'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=false;
-    		swPersona=false;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=true;
-    		h=275;
-    	} else if(mov=='transf'){
-    		swDireccion=true;
-    		swFechaHasta=false;
-    		swFuncionario=true;
-    		swOficina=true;
-    		swPersona=true;
-    		swDeptoDest=false;
-    		swDepositoDest=false;
-    		swFuncionarioDest=true;
-    		swCatMovMotivo=false;
-    		h=415;
-    	} else if(mov=='tranfdep'){
-    		swDireccion=false;
-    		swFechaHasta=false;
-    		swFuncionario=false;
-    		swOficina=true;
-    		swPersona=false;
-    		swDeptoDest=true;
-    		swDepositoDest=true;
-    		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
-    		h=355;
-    	} 
-
-    	//Enable/disable user controls based on mov type
-    	this.Cmp.direccion.setVisible(swDireccion);
-    	this.Cmp.fecha_hasta.setVisible(swFechaHasta);
-    	this.Cmp.id_funcionario.setVisible(swFuncionario);
-    	this.Cmp.id_oficina.setVisible(swOficina);
-    	this.Cmp.id_persona.setVisible(swPersona);
-    	this.Cmp.id_depto_dest.setVisible(swDeptoDest);
-    	this.Cmp.id_deposito_dest.setVisible(swDepositoDest);
-    	this.Cmp.id_funcionario_dest.setVisible(swFuncionarioDest);
-    	this.Cmp.id_movimiento_motivo.setVisible(swCatMovMotivo);
-
-    	//Set required or not
-    	this.Cmp.direccion.allowBlank=!swDireccion;
-    	this.Cmp.fecha_hasta.allowBlank=!swFechaHasta;
-    	this.Cmp.id_funcionario.allowBlank=!swFuncionario;
-    	this.Cmp.id_oficina.allowBlank=!swOficina;
-    	//this.Cmp.id_persona.allowBlank=!swPersona;
-    	this.Cmp.id_depto_dest.allowBlank=!swDeptoDest;
-    	this.Cmp.id_deposito_dest.allowBlank=!swDepositoDest;
-    	this.Cmp.id_funcionario_dest.allowBlank=!swFuncionarioDest;
-    	this.Cmp.id_movimiento_motivo.allowBlank=!swCatMovMotivo;
-
-    	//Resize window
-    	this.window.setSize(w,h);
-    },
-
-    onButtonEdit: function() {
-    	Phx.vista.Movimiento.superclass.onButtonEdit.call(this);
-    	var data = this.getSelectedData();
-    	this.habilitarCampos(data.cod_movimiento);
-    },
-
-    south: {
-		url: '../../../sis_kactivos_fijos/vista/movimiento_af/MovimientoAf.php',
-		title: 'Detalle de Movimiento',
-		height: '50%',
-		cls: 'MovimientoAf'
-	},
 	onButtonReport:function(){
 	    var rec=this.sm.getSelected();
+	    Phx.CP.loadingShow();
         Ext.Ajax.request({
             url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimiento',
             params:{'id_movimiento':rec.data.id_movimiento},
@@ -1031,159 +761,19 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             scope:this
         });  
 	},
-	liberaMenu:function(){
-        var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
-        if(tb){
-            this.getBoton('btnReporte').disable();
-            this.getBoton('ant_estado').disable();
-	        this.getBoton('sig_estado').disable();
-	        this.getBoton('btnChequeoDocumentosWf').disable();
-	        this.getBoton('diagrama_gantt').disable();
-        }
-       return tb
-    },
-    preparaMenu:function(n){
-    	var tb = Phx.vista.Movimiento.superclass.preparaMenu.call(this);
-      	var data = this.getSelectedData();
-      	var tb = this.tbar;
-
-        this.getBoton('btnReporte').enable(); 
-        this.getBoton('btnChequeoDocumentosWf').enable();
-        this.getBoton('diagrama_gantt').enable();
-
-        //Enable/disable WF buttons by status
-        this.getBoton('ant_estado').enable();
-        this.getBoton('sig_estado').enable();
-        if(data.estado=='borrador'){
-        	this.getBoton('ant_estado').disable();
-        }
-        if(data.estado=='finalizado'||data.estado=='cancelado'){
-        	this.getBoton('ant_estado').disable();
-        	this.getBoton('sig_estado').disable();
-        }
-        
-
-        return tb;
-    },
-    antEstado:function(){
-        var rec=this.sm.getSelected();
-            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
-            'Estado de Wf',
-            {
-                modal:true,
-                width:450,
-                height:250
-            }, {data:rec.data}, this.idContenedor,'AntFormEstadoWf',
-            {
-                config:[{
-                  event:'beforesave',
-                  delegate: this.onAntEstado,
-                }
-            ],
-            scope:this
-        })
-    },
-    onAntEstado:function(wizard,resp){
-        Phx.CP.loadingShow(); 
-        Ext.Ajax.request({ 
-            url:'../../sis_kactivos_fijos/control/Movimiento/anteriorEstadoMovimiento',
-            params:{
-                    id_proceso_wf:resp.id_proceso_wf,
-                    id_estado_wf:resp.id_estado_wf,  
-                    obs:resp.obs
-             },
-            argument:{wizard:wizard},  
-            success:this.successWizard,
-            failure: this.conexionFailure,
-            timeout:this.timeout,
-            scope:this
-        });
-    },
-    sigEstado:function(){
-		var rec=this.sm.getSelected();
-
-		this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
-	        'Estado de Wf',
-	        {
-	            modal:true,
-	            width:700,
-	            height:450
-	        }, {data:{
-	               id_estado_wf:rec.data.id_estado_wf,
-	               id_proceso_wf:rec.data.id_proceso_wf,
-	               fecha_ini:rec.data.fecha_mov,
-	            }}, this.idContenedor,'FormEstadoWf',
-	        {
-	            config:[{
-                  event:'beforesave',
-                  delegate: this.onSaveWizard,
-                  
-                }],
-	            scope:this
-	        });        
-    },
-    onSaveWizard:function(wizard,resp){
-        Phx.CP.loadingShow();
+	
+	onButtonReportDepreciacion:function(){
+	    var rec=this.sm.getSelected();
+	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Movimiento/siguienteEstadoMovimiento',
-            params:{
-                id_proceso_wf_act:  resp.id_proceso_wf_act,
-                id_estado_wf_act:   resp.id_estado_wf_act,
-                id_tipo_estado:     resp.id_tipo_estado,
-                id_funcionario_wf:  resp.id_funcionario_wf,
-                id_depto_wf:        resp.id_depto_wf,
-                obs:                resp.obs,
-                json_procesos:      Ext.util.JSON.encode(resp.procesos)
-                },
-            success:this.successWizard,
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacion',
+            params:{'id_movimiento':rec.data.id_movimiento, fecha_hasta: rec.data.fecha_mov},
+            success: this.successExport,
             failure: this.conexionFailure,
-            argument:{wizard:wizard},
             timeout:this.timeout,
             scope:this
-        });
-    },
-    successWizard:function(resp){
-        Phx.CP.loadingHide();
-        resp.argument.wizard.panel.destroy()
-        this.reload();
-    },
-    loadCheckDocumentosPlanWf:function() {
-        var rec=this.sm.getSelected();
-        rec.data.nombreVista = this.nombreVista;
-        Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
-            'Chequear documento del WF',
-            {
-                width:'90%',
-                height:500
-            },
-            rec.data,
-            this.idContenedor,
-            'DocumentoWf'
-    	)
-    },
-
-    onButtonNew: function() {
-    	this.hideFields();
-    	this.window.setSize(450,130);
-    	Phx.vista.Movimiento.superclass.onButtonNew.call(this);
-    },
-
-    hideFields: function() {
-    	this.Cmp.estado.hide();
-    	this.Cmp.codigo.hide();
-    	this.Cmp.fecha_mov.hide();
-    	this.Cmp.glosa.hide();
-    	this.Cmp.id_depto.hide();
-    	this.Cmp.id_oficina.hide();
-    	this.Cmp.direccion.hide();
-    	this.Cmp.fecha_hasta.hide();
-    	this.Cmp.id_funcionario.hide();
-    	this.Cmp.id_persona.hide();
-    	this.Cmp.id_depto_dest.hide();
-    	this.Cmp.id_deposito_dest.hide();
-    	this.Cmp.id_funcionario_dest.hide();
-    	this.Cmp.id_movimiento_motivo.hide();
-    }
+        });  
+	}
 
 })
 </script>

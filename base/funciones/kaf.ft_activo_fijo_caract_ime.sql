@@ -54,7 +54,8 @@ BEGIN
 			fecha_reg,
 			id_usuario_reg,
 			fecha_mod,
-			id_usuario_mod
+			id_usuario_mod,
+			id_clasificacion_variable
           	) values(
 			v_parametros.clave,
 			v_parametros.valor,
@@ -65,10 +66,8 @@ BEGIN
 			now(),
 			p_id_usuario,
 			null,
-			null
-							
-			
-			
+			null,
+			v_parametros.id_clasificacion_variable
 			)RETURNING id_activo_fijo_caract into v_id_activo_fijo_caract;
 			
 			--Definicion de la respuesta
@@ -98,7 +97,8 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+			id_clasificacion_variable = v_parametros.id_clasificacion_variable
 			where id_activo_fijo_caract=v_parametros.id_activo_fijo_caract;
                
 			--Definicion de la respuesta

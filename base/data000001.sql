@@ -16,14 +16,18 @@ select pxp.f_insert_testructura_gui ('KAFCLA', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFACF', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMOV', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFREP', 'KAF');
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_codigo_longitud', E'4', E'Longitud correlativo en el codigo de activos');
+  
+  
+  
 /***********************************F-DAT-RCM-KAF-1-02/09/2015****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-11/09/2015****************************************/
-select pxp.f_add_catalog('KAF','tclasificacion__id_cat_metodo_dep','lineal');
-select pxp.f_add_catalog('KAF','tclasificacion__id_cat_metodo_dep','hrs_prod');
-select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_fun','bueno');
-select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_fun','regular');
-select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_fun','malo');
+
 
 ALTER SEQUENCE kaf.tactivo_fijo_valores_id_activo_fijo_valor_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 RESTART 1 CACHE 1 NO CYCLE;
 ALTER SEQUENCE kaf.tmovimiento_af_dep_id_movimiento_af_dep_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 RESTART 1 CACHE 1 NO CYCLE;
@@ -34,20 +38,6 @@ ALTER SEQUENCE kaf.tactivo_fijo_id_activo_fijo_seq INCREMENT 1 MINVALUE 1 MAXVAL
 
 /***********************************F-DAT-RCM-KAF-1-11/09/2015****************************************/
 
-
-/***********************************I-DAT-RCM-KAF-1-25/10/2015****************************************/
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Alta','alta','ball_blue.png');
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Baja','baja','ball_red.png');
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Mejora/Revalorización','reval','ball_yellow.png');
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Depreciación/Actualización','deprec','ball_green.png');
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Asignación','asig','ball_white.png');
-select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Devolución','devol','ball_close.png');
-/***********************************F-DAT-RCM-KAF-1-25/10/2015****************************************/
-
-/***********************************I-DAT-RCM-KAF-1-30/10/2015****************************************/
-select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_compra','Nuevo','nuevo','ball_close.png');
-select pxp.f_add_catalog('KAF','tactivo_fijo__id_cat_estado_compra','Usado','usado','ball_yellow.png');
-/***********************************F-DAT-RCM-KAF-1-30/10/2015****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-18/03/2016****************************************/
 select pxp.f_insert_tgui ('Tipo Movimiento - Motivos', 'Tipo Movimiento - Motivos', 'KAFMMOT', 'si', 4, 'sis_kactivos_fijos/vista/movimiento_motivo/MovimientoMotivo.php', 2, '', 'MovimientoMotivo', 'KAF');
@@ -64,10 +54,10 @@ select wf.f_import_tcategoria_documento ('insert','proceso', 'Proceso');
 select wf.f_import_ttipo_proceso ('insert','PRO-AF',NULL,NULL,'KAF-MOV-AF','Procesos de Activos Fijos','kat.tmovimiento','id_movimiento','si','','','','PRO-AF',NULL);
 select wf.f_import_ttipo_estado ('insert','borrador','PRO-AF','Borrador','si','no','no','ninguno','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL);
 select wf.f_import_ttipo_estado ('insert','pendiente','PRO-AF','Pendiente','no','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL);
-select wf.f_import_ttipo_estado ('insert','finalizacion','PRO-AF','Finalizacion','no','no','si','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL);
+select wf.f_import_ttipo_estado ('insert','finalizado','PRO-AF','Finalizado','no','no','si','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL);
 select wf.f_import_ttipo_estado ('insert','cancelado','PRO-AF','Cancelado','no','no','si','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL);
 select wf.f_import_testructura_estado ('insert','borrador','pendiente','PRO-AF',1,'');
-select wf.f_import_testructura_estado ('insert','pendiente','finalizacion','PRO-AF',1,'');
+select wf.f_import_testructura_estado ('insert','pendiente','finalizado','PRO-AF',1,'');
 /***********************************F-DAT-RCM-KAF-1-25/03/2016****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-29/03/2016****************************************/
@@ -115,7 +105,6 @@ insert into pxp.variable_global(variable,valor,descripcion) values('kaf_nivel_ti
 
 /***********************************I-DAT-RAC-KAF-1-25/07/2016****************************************/
 
-
 ----------------------------------
 --COPY LINES TO SUBSYSTEM data.sql FILE  
 ---------------------------------
@@ -125,9 +114,8 @@ select param.f_import_tcatalogo ('insert','KAF','Malo en Uso','3','tactivo_fijo_
 select param.f_import_tcatalogo ('insert','KAF','Malo en Desuso','4','tactivo_fijo__id_cat_estado_fun');
 select param.f_import_tcatalogo ('insert','KAF','Bueno','1','tactivo_fijo__id_cat_estado_fun');
 select param.f_import_tcatalogo ('insert','KAF','Regular','2','tactivo_fijo__id_cat_estado_fun');
-select param.f_import_tcatalogo ('insert','KAF','bueno',NULL,'tactivo_fijo__id_cat_estado_fun');
-select param.f_import_tcatalogo ('insert','KAF','regular',NULL,'tactivo_fijo__id_cat_estado_fun');
-select param.f_import_tcatalogo ('insert','KAF','malo',NULL,'tactivo_fijo__id_cat_estado_fun');
+
+
 
 ----------------------------------
 --COPY LINES TO SUBSYSTEM data.sql FILE  
@@ -136,8 +124,8 @@ select param.f_import_tcatalogo ('insert','KAF','malo',NULL,'tactivo_fijo__id_ca
 select param.f_import_tcatalogo_tipo ('insert','tclasificacion__id_cat_metodo_dep','KAF','tclasificacion__id_cat_metodo_dep');
 select param.f_import_tcatalogo ('insert','KAF','lineal',NULL,'tclasificacion__id_cat_metodo_dep');
 select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion__id_cat_metodo_dep');
-select param.f_import_tcatalogo ('insert','KAF','lineal',NULL,'tclasificacion__id_cat_metodo_dep');
-select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion__id_cat_metodo_dep');
+
+
 
 ----------------------------------
 --COPY LINES TO SUBSYSTEM data.sql FILE  
@@ -146,7 +134,6 @@ select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion_
 select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__id_cat_estado_compra','KAF','tactivo_fijo__id_cat_estado_compra');
 select param.f_import_tcatalogo ('insert','KAF','Nuevo','nuevo','tactivo_fijo__id_cat_estado_compra');
 select param.f_import_tcatalogo ('insert','KAF','Usado','usado','tactivo_fijo__id_cat_estado_compra');
-
 
 
 ----------------------------------
@@ -166,24 +153,125 @@ select param.f_import_tcatalogo ('insert','KAF','Desuso temporal','desuso','tmov
 select param.f_import_tcatalogo ('insert','KAF','Transferencia Deposito','tranfdep','tmovimiento__id_cat_movimiento');
 
 
-----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
----------------------------------
-
-select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo_valores__tipo','KAF','tactivo_fijo_valores__tipo');
-select param.f_import_tcatalogo ('insert','KAF','Alta','alta','tactivo_fijo_valores__tipo');
-select param.f_import_tcatalogo ('insert','KAF','Revalorizacion','reval','tactivo_fijo_valores__tipo');
-select param.f_import_tcatalogo ('insert','KAF','Otros','otro','tactivo_fijo_valores__tipo');
-
-
-----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
----------------------------------
-
-select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__codigo','KAF','tactivo_fijo__codigo');
-select param.f_import_tcatalogo ('insert','KAF','texto',NULL,'tactivo_fijo__codigo');
-select param.f_import_tcatalogo ('insert','KAF','barras',NULL,'tactivo_fijo__codigo');
-select param.f_import_tcatalogo ('insert','KAF','qr',NULL,'tactivo_fijo__codigo');
 
 /***********************************F-DAT-RAC-KAF-1-25/07/2016****************************************/
 
+
+
+/***********************************I-DAT-RAC-KAF-1-14/03/2017****************************************/
+
+
+select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php', 2, '', 'MovimientoPrincipal', 'KAF');
+
+/* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_clase_reporte_codigo', E'RCodigoQRAF', E'nombre de la calse utilizada para imprimir el codigo de af,  el codigo de la clase debe acomodarce dentro del archivo sis_kactivos_fijos/reportes/RCodigoQRAF.php');
+
+
+/***********************************F-DAT-RAC-KAF-1-14/03/2017****************************************/
+
+
+
+
+
+/***********************************I-DAT-RAC-KAF-1-10/04/2017****************************************/
+
+
+select param.f_import_tcatalogo ('insert','KAF','Actualización','actua','tmovimiento__id_cat_movimiento');
+
+
+
+/***********************************F-DAT-RAC-KAF-1-10/04/2017****************************************/
+
+
+
+/***********************************I-DAT-RAC-KAF-1-20/04/2017****************************************/
+
+
+----------------------------------
+--COPY LINES TO data.sql FILE  
+---------------------------------
+
+select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php', 2, '', 'MovimientoPrincipal', 'KAF');
+select pxp.f_insert_tgui ('Configuración', 'Configuración', 'CONFAF', 'si', 1, '', 2, '', '', 'KAF');
+select pxp.f_insert_tgui ('Monedas Dep', 'Moneda para depreciación', 'MONDEP', 'si', 1, 'sis_kactivos_fijos/vista/moneda_dep/MonedaDep.php', 3, '', 'MonedaDep', 'KAF');
+
+
+/***********************************F-DAT-RAC-KAF-1-20/04/2017****************************************/
+
+
+
+
+/***********************************I-DAT-RAC-KAF-1-02/05/2017****************************************/
+
+
+
+
+----------------------------------
+--COPY LINES TO data.sql FILE  
+---------------------------------
+
+select pxp.f_insert_tgui ('Configuración Prorrateo', 'Configuración Prorrateo', 'TIPRO', 'si', 2, 'sis_kactivos_fijos/vista/tipo_prorrateo/ProyectoKaf.php', 3, '', 'ProyectoKaf', 'KAF');
+select pxp.f_insert_tgui ('Clasificación Relación Contable', 'Clasificación Relación Contable', 'LAFRC', 'si', 3, 'sis_kactivos_fijos/vista/cta_clasificacion/CtaClasificacion.php', 3, '', 'CtaClasificacion', 'KAF');
+----------------------------------
+--COPY LINES TO dependencies.sql FILE  
+---------------------------------
+
+select pxp.f_insert_testructura_gui ('TIPRO', 'CONFAF');
+select pxp.f_insert_testructura_gui ('LAFRC', 'CONFAF');
+
+
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_cbte_depreciacion', E'DEPAF', E'codigo de la plantilla de cbte de depreciacion');
+  
+  
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_cbte_depreciacion_aitb', E'AITBAF', E'cbte de AITB activos Fijos');
+
+
+
+/***********************************F-DAT-RAC-KAF-1-02/05/2017****************************************/
+
+
+
+/***********************************I-DAT-RCM-KAF-1-02/06/2017****************************************/
+select pxp.f_insert_tgui ('Gestión de Periodos', 'Gestión de Periodos', 'KAFPER', 'si', 5, 'sis_kactivos_fijos/vista/periodo_subsistema/PeriodoActivos.php', 2, '', 'PeriodoActivos', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFPER', 'KAF');
+/***********************************F-DAT-RCM-KAF-1-02/06/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-27/06/2017****************************************/
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Fecha','fecha');
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Número','numero');
+select pxp.f_add_catalog('KAF','tclasificacion_variable__tipo_dato','Texto','texto');
+
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Mejora','mejora','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','División de valores','divis','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Desglose','desgl','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Intercambio de partes','intpar','');
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Activos fijos en Transito','transito','');
+
+/***********************************F-DAT-RCM-KAF-1-27/06/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-24/07/2017****************************************/
+select pxp.f_insert_tgui ('Kardex', 'Kardex por activo fijo', 'KAF.REP.01', 'si', 1, 'sis_kactivos_fijos/vista/reportes/ParametrosReportes.php', 3, '', 'ParametrosReportes', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.01', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-24/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-25/07/2017****************************************/
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Registrado','registrado');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Alta','alta');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Tránsito','transito');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Baja','baja');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Retiro','retiro');
+/***********************************F-DAT-RCM-KAF-1-25/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-04/08/2017****************************************/
+select pxp.f_insert_tgui ('Pre-Ingreso', 'Pre ingreso al módulo de activos fijos', 'KAFPREI', 'si', 11, 'sis_almacenes/vista/preingreso/PreingresoAct.php', 3, '', 'PreingresoAct', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFPREI', 'KAF');
+/***********************************F-DAT-RCM-KAF-0-04/08/2017****************************************/

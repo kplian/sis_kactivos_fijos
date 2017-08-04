@@ -80,6 +80,24 @@ class MODActivoFijo extends MODbase{
 		$this->captura('marca','varchar');
 		$this->captura('nro_serie','varchar');
 		$this->captura('caracteristicas','text');
+		$this->captura('monto_vigente_real_af','numeric');
+		$this->captura('vida_util_real_af','int4');		
+		$this->captura('fecha_ult_dep_real_af','date');
+        $this->captura('depreciacion_acum_real_af','numeric');
+        $this->captura('depreciacion_per_real_af','numeric');		
+		$this->captura('tipo_activo','varchar');
+        $this->captura('depreciable','varchar');
+		$this->captura('monto_compra_orig','numeric');
+		$this->captura('id_proyecto','int4');		
+		$this->captura('desc_proyecto','varchar');
+		$this->captura('cantidad_af','integer');
+		$this->captura('id_unidad_medida','integer');
+		$this->captura('codigo_unmed','varchar');
+		$this->captura('descripcion_unmed','varchar');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('nro_cbte_asociado','varchar');
+		$this->captura('fecha_cbte_asociado','date');
+		$this->captura('vida_util_original_anios','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -133,8 +151,18 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('codigo_ant','codigo_ant','varchar');
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
-		//$this->setParametro('caracteristicas','caracteristicas','text');
-
+		//$this->setParametro('caracteristicas','caracteristicas','text');		
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
+		
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('cantidad_af','cantidad_af','int4');
+		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
+		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
+		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
+		
+		
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -188,6 +216,14 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('marca','marca','varchar');
 		$this->setParametro('nro_serie','nro_serie','varchar');
 		//$this->setParametro('caracteristicas','caracteristicas','text');
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('cantidad_af','cantidad_af','int4');
+		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
+		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
+		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -248,6 +284,58 @@ class MODActivoFijo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	
+	
+	
+	function recuperarCodigoQR(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_activo_fijo_ime';
+		$this->transaccion='SKA_GETQR_MOD';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	function recuperarListadoCodigosQR(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this -> procedimiento='kaf.ft_activo_fijo_sel';
+		$this -> transaccion='SKA_GEVARTQR_SEL';
+		$this -> tipo_procedimiento='SEL';
+		$this -> setCount(false);
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_clasificacion','id_clasificacion','int4');
+		$this->setParametro('desde','desde','date');
+		$this->setParametro('hasta','hasta','date');
+		
+		$this->captura('id_activo_fijo','int4');
+	    $this->captura('codigo','varchar');
+	    $this->captura('codigo_ant','varchar');
+	    $this->captura('denominacion','varchar');
+	    $this->captura('nombre_depto','varchar');
+	    $this->captura('nombre_entidad','varchar');
+                            
+							
+							
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
+	
 
 	function subirFoto(){ 
                     
@@ -345,6 +433,137 @@ class MODActivoFijo extends MODbase{
 	    return $this->respuesta;
 	      
     }
+
+    function clonarActivoFijo(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_activo_fijo_ime';
+		$this->transaccion='SKA_AFIJ_CLO';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+		$this->setParametro('cantidad_clon','cantidad_clon','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarActivoFijoFecha(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_sel';
+		$this->transaccion='SKA_AFFECH_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('fecha_mov','fecha_mov','date');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','int4');
+		$this->captura('id_persona','int4');
+		$this->captura('cantidad_revaloriz','int4');
+		$this->captura('foto','varchar');
+		$this->captura('id_proveedor','int4');
+		$this->captura('estado_reg','varchar');
+		$this->captura('fecha_compra','date');
+		$this->captura('monto_vigente','numeric');
+		$this->captura('id_cat_estado_fun','int4');
+		$this->captura('ubicacion','varchar');
+		$this->captura('vida_util','int4');
+		$this->captura('documento','varchar');
+		$this->captura('observaciones','varchar');
+		$this->captura('fecha_ult_dep','date');
+		$this->captura('monto_rescate','numeric');
+		$this->captura('denominacion','varchar');
+		$this->captura('id_funcionario','int4');
+		$this->captura('id_deposito','int4');
+		$this->captura('monto_compra','numeric');
+		$this->captura('id_moneda','int4');
+		$this->captura('depreciacion_mes','numeric');
+		$this->captura('codigo','varchar');
+		$this->captura('descripcion','varchar');
+		$this->captura('id_moneda_orig','int4');
+		$this->captura('fecha_ini_dep','date');
+		$this->captura('id_cat_estado_compra','int4');
+		$this->captura('depreciacion_per','numeric');
+		$this->captura('vida_util_original','int4');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('estado','varchar');
+		$this->captura('id_clasificacion','int4');
+		$this->captura('id_centro_costo','int4');
+		$this->captura('id_oficina','int4');
+		$this->captura('id_depto','int4');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('usuario_ai','varchar');
+		$this->captura('id_usuario_ai','int4');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+		$this->captura('persona','text');
+		$this->captura('desc_proveedor','varchar');
+		$this->captura('estado_fun','varchar');
+		$this->captura('estado_compra','varchar');
+		$this->captura('clasificacion','text');
+		$this->captura('centro_costo','text');
+		$this->captura('oficina','text');
+		$this->captura('depto','text');
+		$this->captura('funcionario','text');
+		$this->captura('deposito','varchar');
+		$this->captura('deposito_cod','varchar');
+		$this->captura('desc_moneda_orig','varchar');
+		$this->captura('en_deposito','varchar');
+		$this->captura('extension','varchar');
+		$this->captura('codigo_ant','varchar');
+		$this->captura('marca','varchar');
+		$this->captura('nro_serie','varchar');
+		$this->captura('caracteristicas','text');
+		$this->captura('monto_vigente_real_af','numeric');
+		$this->captura('vida_util_real_af','int4');		
+		$this->captura('fecha_ult_dep_real_af','date');
+        $this->captura('depreciacion_acum_real_af','numeric');
+        $this->captura('depreciacion_per_real_af','numeric');		
+		$this->captura('tipo_activo','varchar');
+        $this->captura('depreciable','varchar');
+		$this->captura('monto_compra_orig','numeric');
+		$this->captura('id_proyecto','int4');		
+		$this->captura('desc_proyecto','varchar');
+		$this->captura('cantidad_af','integer');
+		$this->captura('id_unidad_medida','integer');
+		$this->captura('codigo_unmed','varchar');
+		$this->captura('descripcion_unmed','varchar');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('nro_cbte_asociado','varchar');
+		$this->captura('fecha_cbte_asociado','date');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function consultaQR(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_activo_fijo_ime';
+		$this->transaccion='SKA_AFQR_DAT';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

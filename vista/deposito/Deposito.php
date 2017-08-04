@@ -17,7 +17,7 @@ Phx.vista.Deposito=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Deposito.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		this.load({params:{start:0, limit:this.tam_pag}});
 	},
 
 	Atributos:[
@@ -303,8 +303,7 @@ Phx.vista.Deposito=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true
-	}
-)
+})
 </script>
 		
 		

@@ -71,15 +71,29 @@ class ACTClasificacion extends ACTbase{
 
 		array_push($arreglo, array('nombre' => 'id', 'valor' => 'id_clasificacion'));
         array_push($arreglo, array('nombre' => 'id_p', 'valor' => 'id_clasificacion_fk'));
-        array_push($arreglo, array('nombre' => 'text', 'valores' => '[#codigo#]-#nombre# #descripcion#'));
+        array_push($arreglo, array('nombre' => 'text', 'valores' => '[#codigo_final#]-#nombre# #descripcion#'));
         array_push($arreglo, array('nombre' => 'cls', 'valor' => 'descripcion'));
-        array_push($arreglo, array('nombre' => 'qtip', 'valores' => '<b>#codigo#</b><br/>#nombre# #descripcion#'));
+        array_push($arreglo, array('nombre' => 'qtip', 'valores' => '<b>#codigo_final#</b><br/>#nombre# #descripcion#'));
 	
         /*Estas funciones definen reglas para los nodos en funcion a los tipo de nodos que contenga cada uno*/
         $this->res->addNivelArbol('tipo_nodo', 'raiz', array('leaf' => false, 'draggable' => true, 'allowDelete' => true, 'allowEdit' => true, 'cls' => 'folder', 'tipo_nodo' => 'raiz', 'icon' => '../../../lib/imagenes/a_form_edit.png'), $arreglo,$arreglo_valores);
         $this->res->addNivelArbol('tipo_nodo', 'hijo', array('leaf' => false, 'draggable' => true, 'allowDelete' => true, 'allowEdit' => true, 'tipo_nodo' => 'hijo', 'icon' => '../../../lib/imagenes/a_form_edit.png'), $arreglo,$arreglo_valores);
         
         echo $this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function listarClasificacionTree(){
+		$this->objParam->defecto('ordenacion','orden');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODClasificacion','listarClasificacionTree');
+		} else{
+			$this->objFunc=$this->create('MODClasificacion');
+			$this->res=$this->objFunc->listarClasificacionTree($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 			
 }

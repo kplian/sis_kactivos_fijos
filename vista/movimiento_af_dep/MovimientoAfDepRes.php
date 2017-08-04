@@ -313,12 +313,16 @@ Phx.vista.MovimientoAfDepRes=Ext.extend(Phx.gridInterfaz,{
 		this.maestro = m;
 		console.log('TRES',this.maestro);
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento_af;
-		this.Atributos[2].valorInicial = this.maestro.id_activo_fijo_valor;
+		this.Atributos[2].valorInicial = this.maestro.id_activo_fijo_valor;  
+		
+		
 
 		this.store.baseParams = {
 			id_movimiento_af: this.maestro.id_movimiento_af,
 			id_activo_fijo_valor: this.maestro.id_activo_fijo_valor
 		};
+		
+		
 		this.load({
 			params : {
 				start : 0, 

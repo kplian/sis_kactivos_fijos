@@ -128,7 +128,271 @@ BEGIN
 
             return v_consulta;  
         end;
-    
+
+    /*********************************   
+     #TRANSACCION:  'SKA_KARD_SEL'
+     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #AUTOR:        RCM
+     #FECHA:        27/07/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_KARD_SEL') then
+
+        begin
+
+            v_consulta = 'select
+                        af.codigo,af.denominacion,af.fecha_compra,af.fecha_ini_dep,af.estado,af.vida_util_original,
+                        (af.vida_util_original/12) as porcentaje_dep,
+                        af.ubicacion, af.monto_compra_orig, mon.moneda, af.nro_cbte_asociado, af.fecha_cbte_asociado,
+                        af.monto_compra_orig_100,
+                        COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra_orig) as valor_actual,
+                        COALESCE(afvi.vida_util_real_af,af.vida_util_original) as vida_util_residual,
+                        cla.codigo_completo_tmp as cod_clasif, cla.nombre as desc_clasif,
+                        mdep.descripcion as metodo_dep,
+                        param.f_get_tipo_cambio(3,af.fecha_compra,''O'') as ufv_fecha_compra,
+                        fun.desc_funcionario2 as responsable,
+                        orga.f_get_cargo_x_funcionario_str(af.id_funcionario,now()::date) as cargo,
+                        mov.fecha_mov, mov.num_tramite, 
+                        proc.descripcion as desc_mov,
+                        proc.codigo as codigo_mov,
+                        param.f_get_tipo_cambio(3,mov.fecha_mov,''O'') as ufv_mov,
+                        af.id_activo_fijo,
+                        mov.id_movimiento
+                        from kaf.tmovimiento_af movaf
+                        inner join kaf.tmovimiento mov
+                        on mov.id_movimiento = movaf.id_movimiento
+                        and mov.estado <> ''cancelado''
+                        inner join kaf.tactivo_fijo af
+                        on af.id_activo_fijo = movaf.id_activo_fijo
+                        left join kaf.f_activo_fijo_vigente() afvi
+                        on afvi.id_activo_fijo = af.id_activo_fijo
+                        and afvi.id_moneda = af.id_moneda_orig
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = af.id_clasificacion
+                        left join orga.vfuncionario fun
+                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,mov.id_funcionario)
+                        inner join param.tmoneda mon
+                        on mon.id_moneda = af.id_moneda_orig
+                        left join param.tcatalogo mdep
+                        on mdep.id_catalogo = cla.id_cat_metodo_dep
+                        left join param.tcatalogo proc
+                        on proc.id_catalogo = mov.id_cat_movimiento
+                        where movaf.id_activo_fijo = '||v_parametros.id_activo_fijo||'
+                        and mov.fecha_mov between '''||v_parametros.fecha_desde ||'''and ''' ||v_parametros.fecha_hasta||''' ';
+
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_consulta = v_consulta || ' and mov.estado = ''finalizado'' ';
+                end if;
+            end if;
+
+            if v_parametros.tipo_salida = 'grid' then
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||' and '||v_parametros.filtro;
+                v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            else
+                v_consulta = v_consulta||' order by mov.fecha_mov desc';
+            end if;
+
+
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_KARD_CONT'
+     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #AUTOR:        RCM
+     #FECHA:        27/07/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_KARD_CONT') then
+
+        begin
+
+            v_consulta = 'select
+                        count(1) as total
+                        from kaf.tmovimiento_af movaf
+                        inner join kaf.tmovimiento mov
+                        on mov.id_movimiento = movaf.id_movimiento
+                        and mov.estado <> ''cancelado''
+                        inner join kaf.tactivo_fijo af
+                        on af.id_activo_fijo = movaf.id_activo_fijo
+                        left join kaf.f_activo_fijo_vigente() afvi
+                        on afvi.id_activo_fijo = af.id_activo_fijo
+                        and afvi.id_moneda = af.id_moneda_orig
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = af.id_clasificacion
+                        left join orga.vfuncionario fun
+                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,mov.id_funcionario)
+                        inner join param.tmoneda mon
+                        on mon.id_moneda = af.id_moneda_orig
+                        left join param.tcatalogo mdep
+                        on mdep.id_catalogo = cla.id_cat_metodo_dep
+                        left join param.tcatalogo proc
+                        on proc.id_catalogo = mov.id_cat_movimiento
+                        where movaf.id_activo_fijo = '||v_parametros.id_activo_fijo||'
+                        and mov.fecha_mov between '''||v_parametros.fecha_desde ||'''and ''' ||v_parametros.fecha_hasta||''' ';
+
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_consulta = v_consulta || ' and mov.estado = ''finalizado'' ';
+                end if;
+            end if;
+
+            if v_parametros.tipo_salida = 'grid' then
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||' and '||v_parametros.filtro;
+            end if;
+            
+
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_GRALAF_SEL'
+     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #AUTOR:        RCM
+     #FECHA:        27/07/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_GRALAF_SEL') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+            v_consulta='';
+
+            if v_parametros.reporte = 'rep.sasig' then
+
+                v_consulta = 'select
+                            afij.codigo,
+                            afij.denominacion,
+                            afij.descripcion,
+                            afij.fecha_ini_dep,
+                            afij.monto_compra_orig_100,
+                            afij.monto_compra_orig,
+                            afij.ubicacion,
+                            fun.desc_funcionario2 as responsable
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            inner join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''si''
+                            ';
+
+            elsif v_parametros.reporte = 'rep.asig' then
+                v_consulta = 'select
+                            afij.codigo,
+                            afij.denominacion,
+                            afij.descripcion,
+                            afij.fecha_ini_dep,
+                            afij.monto_compra_orig_100,
+                            afij.monto_compra_orig,
+                            afij.ubicacion,
+                            fun.desc_funcionario2 as responsable
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            inner join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            ';
+            else
+                raise exception 'Reporte desconocido';
+            end if;
+
+            --Si la consulta es para un grid, aumenta los parametros para la páginación
+            if v_parametros.tipo_salida = 'grid' then
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||' and '||v_parametros.filtro;
+                v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            else
+                v_consulta:=v_consulta||' limit 2000';
+            end if;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_GRALAF_CONT'
+     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #AUTOR:        RCM
+     #FECHA:        27/07/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_GRALAF_CONT') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+            v_consulta='';
+
+            if v_parametros.reporte = 'rep.sasig' then
+
+                v_consulta = 'select
+                            count(1) as total
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''si''
+                            and ';
+
+            elsif v_parametros.reporte = 'rep.asig' then
+                 v_consulta = 'select
+                            count(1) as total
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            and ';
+            else
+                raise exception 'Reporte desconocido';
+            end if;
+
+            --Se aumenta el filtro para el listado
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
      
     else
         raise exception 'Transacción inexistente';  

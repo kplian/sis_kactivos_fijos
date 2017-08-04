@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.f_genera_codigo (
   p_id_activo_fijo integer
 )
@@ -23,8 +25,13 @@ DECLARE
     v_correl integer;
     v_id_clasificacion integer;
     v_longitud integer;
+    v_resp varchar;
+    v_nombre_funcion varchar;
+    v_rec_af    record;
 
 BEGIN
+
+    v_nombre_funcion = 'kaf.f_genera_codigo';
 
     --1. Validaciones
     if not exists(select 1 from kaf.tactivo_fijo
@@ -33,8 +40,9 @@ BEGIN
     end if;
     if exists(select 1 from kaf.tactivo_fijo
             where id_activo_fijo = p_id_activo_fijo
-            and codigo is not null) then
-        raise exception 'El Activo Fijo ya tiene un código asignado';
+            and (codigo is not null and codigo !='')) then
+            
+       -- raise exception 'El Activo Fijo ya tiene un código asignado';
     end if;
     
     --2. Obtención de datos
@@ -42,13 +50,20 @@ BEGIN
     into v_id_clasificacion
     from kaf.tactivo_fijo
     where id_activo_fijo = p_id_activo_fijo;
+
+    --Datos de activo fijo
+    select
+    id_activo_fijo, codigo
+    into v_rec_af
+    from kaf.tactivo_fijo
+    where id_activo_fijo = p_id_activo_fijo;
     
     if v_id_clasificacion is null then
-        raise exception 'No es posible codificar activo: clasificación inexistente';
+        raise exception 'No es posible codificar activo: clasificación inexistente. Activo fijo: % (%)',v_rec_af.codigo,v_rec_af.id_activo_fijo;
     end if;
     
     --3. Generación de código único en función de la clasificación de activos
-    select coalesce(correlativo_act,0) + 1, codigo
+    select coalesce(correlativo_act,0) + 1, codigo_completo_tmp
     into v_correl, v_codigo
     from kaf.tclasificacion
     where id_clasificacion = v_id_clasificacion;
@@ -74,6 +89,16 @@ BEGIN
     
     --7. Salida
     return v_codigo;
+    
+    
+EXCEPTION
+				
+	WHEN OTHERS THEN
+		v_resp='';
+		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+		raise exception '%',v_resp;    
 
 END;
 $body$
