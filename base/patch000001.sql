@@ -815,3 +815,12 @@ ALTER TABLE kaf.tactivo_fijo
 COMMENT ON COLUMN kaf.tactivo_fijo.monto_compra_orig
 IS 'monto de la compra en la moneda original';
 /***********************************F-SCP-RCM-KAF-1-12/07/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-26/07/2017****************************************/
+alter table kaf.tactivo_fijo
+add column monto_compra_orig_100 numeric;
+alter table kaf.tactivo_fijo
+add column nro_cbte_asociado varchar(50);
+alter table kaf.tactivo_fijo
+add column fecha_cbte_asociado date;
+/***********************************F-SCP-RCM-KAF-1-26/07/2017****************************************/

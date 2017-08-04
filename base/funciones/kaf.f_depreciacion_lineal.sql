@@ -44,12 +44,12 @@ DECLARE
     v_id_subsistema         integer;
     v_id_periodo_subsistema integer;
     v_res                   varchar;
+    v_salida                varchar;
 
 BEGIN
     
     v_nombre_funcion = 'kaf.f_depreciacion_lineal';
-  
-    
+    v_salida = 'done';
     
     --RAC 03/03/2017
     --  TODO validar que no se valores dos veces dentro el mismo omvimeinto
@@ -69,18 +69,18 @@ BEGIN
     
    --Lista las monedas configuradas para depreciar
     FOR v_registros_mod in (
-    							select 
-                                  mod.id_moneda_dep,
-                                  mod.id_moneda,                      
-                                  mod.id_moneda_act,
-                                  mod.actualizar,
-                                  mod.contabilizar
+    							            select 
+                              mod.id_moneda_dep,
+                              mod.id_moneda,                      
+                              mod.id_moneda_act,
+                              mod.actualizar,
+                              mod.contabilizar
                               from kaf.tmoneda_dep mod                                               
                               where mod.estado_reg = 'activo') LOOP
                               
                   
-                --moenda de actulizacion
-                v_id_moneda_act = v_registros_mod.id_moneda_act;            
+              --moneda de actulizacion
+              v_id_moneda_act = v_registros_mod.id_moneda_act;            
                               
                --lista los activos fijos y sus revalorizaciones a partir de la ultima depreciacion ....
               -- cuando se da de alta una activo se llena un registro en tactivo_fijo_valores con los valores de compra
@@ -359,9 +359,12 @@ BEGIN
     
     END LOOP; --fin loop de moneda de depreciacion;
     
-    
+    --Verifica si al menos se depreció una vez
+    if v_contador > 0 then
+      v_salida = 'Sin depreciar';
+    end if;
    
-    return 'done';
+    return v_salida;
 
 EXCEPTION
   WHEN OTHERS THEN

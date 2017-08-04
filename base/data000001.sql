@@ -257,3 +257,21 @@ select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Intercambio de 
 select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Activos fijos en Transito','transito','');
 
 /***********************************F-DAT-RCM-KAF-1-27/06/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-24/07/2017****************************************/
+select pxp.f_insert_tgui ('Kardex', 'Kardex por activo fijo', 'KAF.REP.01', 'si', 1, 'sis_kactivos_fijos/vista/reportes/ParametrosReportes.php', 3, '', 'ParametrosReportes', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.01', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-24/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-25/07/2017****************************************/
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Registrado','registrado');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Alta','alta');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Tránsito','transito');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Baja','baja');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Retiro','retiro');
+/***********************************F-DAT-RCM-KAF-1-25/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-04/08/2017****************************************/
+select pxp.f_insert_tgui ('Pre-Ingreso', 'Pre ingreso al módulo de activos fijos', 'KAFPREI', 'si', 11, 'sis_almacenes/vista/preingreso/PreingresoAct.php', 3, '', 'PreingresoAct', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFPREI', 'KAF');
+/***********************************F-DAT-RCM-KAF-0-04/08/2017****************************************/

@@ -94,6 +94,10 @@ class MODActivoFijo extends MODbase{
 		$this->captura('id_unidad_medida','integer');
 		$this->captura('codigo_unmed','varchar');
 		$this->captura('descripcion_unmed','varchar');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('nro_cbte_asociado','varchar');
+		$this->captura('fecha_cbte_asociado','date');
+		$this->captura('vida_util_original_anios','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -153,6 +157,9 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('cantidad_af','cantidad_af','int4');
 		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
+		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
+		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
 		
 		
 		
@@ -213,6 +220,9 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('cantidad_af','cantidad_af','int4');
 		$this->setParametro('id_unidad_medida','id_unidad_medida','int4');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
+		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
+		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
 		
 
 		//Ejecuta la instruccion
@@ -525,6 +535,9 @@ class MODActivoFijo extends MODbase{
 		$this->captura('id_unidad_medida','integer');
 		$this->captura('codigo_unmed','varchar');
 		$this->captura('descripcion_unmed','varchar');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('nro_cbte_asociado','varchar');
+		$this->captura('fecha_cbte_asociado','date');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

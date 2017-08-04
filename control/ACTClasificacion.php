@@ -81,6 +81,20 @@ class ACTClasificacion extends ACTbase{
         
         echo $this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+	function listarClasificacionTree(){
+		$this->objParam->defecto('ordenacion','orden');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODClasificacion','listarClasificacionTree');
+		} else{
+			$this->objFunc=$this->create('MODClasificacion');
+			$this->res=$this->objFunc->listarClasificacionTree($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 			
 }
 

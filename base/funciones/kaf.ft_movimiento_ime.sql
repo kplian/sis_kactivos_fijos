@@ -78,6 +78,13 @@ DECLARE
     v_nuevo_codigo                varchar;
     v_rec_mov_esp                 record;
     v_id_activo_fijo              integer;
+    v_ids_mov                     varchar;
+    v_desc_movimiento             varchar;
+    v_id_cat_movimiento           integer;
+    v_cods_mov                    varchar;
+    v_cod_mov_aux                 varchar;
+    v_registros                   record;
+    v_id_movimiento_af            integer;
           
 BEGIN
 
@@ -98,280 +105,40 @@ BEGIN
 
   if(p_transaccion='SKA_MOV_INS')then
           
-        begin
+    begin
 
-          --Obtiene el usuario responsable del depto.
-          if not exists(select 1 from param.tdepto_usuario
-                  where id_depto = v_parametros.id_depto
-                  and cargo = 'responsable') then
-            raise exception 'No es posible guardar el movimiento porque no se ha definido Responsable del Depto. de Activos Fijos';
-          end if;
+      select
+      coalesce(v_parametros.direccion,null) as direccion,
+      coalesce(v_parametros.fecha_hasta,null) as fecha_hasta,
+      coalesce(v_parametros.id_cat_movimiento,null) as id_cat_movimiento,
+      coalesce(v_parametros.fecha_mov,null) as fecha_mov,
+      coalesce(v_parametros.id_depto,null) as id_depto,
+      coalesce(v_parametros.glosa,null) as glosa,
+      coalesce(v_parametros.id_funcionario,null) as id_funcionario,
+      coalesce(v_parametros.id_oficina,null) as id_oficina,
+      coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
+      coalesce(p_id_usuario,null) as id_usuario,
+      coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
+      coalesce(v_parametros.id_persona,null) as id_persona,
+      coalesce(v_parametros.codigo,null) as codigo,
+      coalesce(v_parametros.id_deposito,null) as id_deposito,
+      coalesce(v_parametros.id_depto_dest,null) as id_depto_dest,
+      coalesce(v_parametros.id_deposito_dest,null) as id_deposito_dest,
+      coalesce(v_parametros.id_funcionario_dest,null) as id_funcionario_dest,
+      coalesce(v_parametros.id_movimiento_motivo,null) as id_movimiento_motivo
+      into v_rec_af;
 
-          select id_usuario into v_id_responsable_depto
-          from param.tdepto_usuario
-          where id_depto = v_parametros.id_depto
-          and cargo = 'responsable' limit 1;
+      --Inserción del movimiento
+      v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
 
-          --Verificación de período abierto
-          select po_id_periodo_subsistema into v_id_periodo_subsistema
-          from param.f_get_periodo_gestion(v_parametros.fecha_mov,v_id_subsistema);
-          v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
-
-          --------------------------
-          --Obtiene el proceso macro
-          --------------------------
-          select 
-               pm.id_proceso_macro, tp.codigo
-          into 
-               v_id_proceso_macro, v_codigo_tipo_proceso
-          from kaf.tmovimiento_tipo mt
-          inner join wf.tproceso_macro pm  on pm.id_proceso_macro =  mt.id_proceso_macro
-          inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
-          where mt.id_cat_movimiento = v_parametros.id_cat_movimiento
-                and tp.estado_reg = 'activo'
-                and tp.inicio = 'si';
-
-          if v_id_proceso_macro is null then
-             raise exception 'No existe un proceso inicial para el proceso macro indicado (Revise la configuración)';
-          end if;
-
-          --Obtencion de la gestion a partir de la fecha del movimiento
-          select 
-                id_gestion
-          into 
-                 v_id_gestion
-          from param.tgestion
-          where gestion = extract(year from v_parametros.fecha_mov);
-
-          if v_id_gestion is null then
-            raise exception 'La gestión no existe';
-          end if;
-
-          ----------------------
-          --Inicio tramite en WF
-          ----------------------
-          SELECT 
-               ps_num_tramite ,
-               ps_id_proceso_wf ,
-               ps_id_estado_wf ,
-               ps_codigo_estado 
-            into
-              v_num_tramite,
-              v_id_proceso_wf,
-              v_id_estado_wf,
-              v_codigo_estado   
-            FROM wf.f_inicia_tramite(
-            p_id_usuario, 
-            v_parametros._id_usuario_ai,
-            v_parametros._nombre_usuario_ai,
-            v_id_gestion, 
-            v_codigo_tipo_proceso, 
-            NULL,
-            NULL,
-            'Movimiento Activo Fijo',
-            'S/N');
-
-          --Sentencia de la insercion
-          insert into kaf.tmovimiento(
-                direccion,
-                fecha_hasta,
-                id_cat_movimiento,
-                fecha_mov,
-                id_depto,
-                id_proceso_wf,
-                id_estado_wf,
-                glosa,
-                id_funcionario,
-                estado,
-                id_oficina,
-                estado_reg,
-                num_tramite,
-                id_usuario_ai,
-                id_usuario_reg,
-                fecha_reg,
-                usuario_ai,
-                fecha_mod,
-                id_usuario_mod,
-                id_responsable_depto,
-                id_persona,
-                codigo,
-                id_deposito,
-                id_depto_dest,
-                id_deposito_dest,
-                id_funcionario_dest,
-                id_movimiento_motivo
-            ) values(
-                v_parametros.direccion,
-                v_parametros.fecha_hasta,
-                v_parametros.id_cat_movimiento,
-                v_parametros.fecha_mov,
-                v_parametros.id_depto,
-                v_id_proceso_wf,
-                v_id_estado_wf,
-                v_parametros.glosa,
-                v_parametros.id_funcionario,
-                v_codigo_estado,
-                v_parametros.id_oficina,
-                'activo',
-                v_num_tramite,
-                v_parametros._id_usuario_ai,
-                p_id_usuario,
-                now(),
-                v_parametros._nombre_usuario_ai,
-                null,
-                null,
-                v_id_responsable_depto,
-                v_parametros.id_persona,
-                v_parametros.codigo,
-                v_parametros.id_deposito,
-                v_parametros.id_depto_dest,
-                v_parametros.id_deposito_dest,
-                v_parametros.id_funcionario_dest,
-                v_parametros.id_movimiento_motivo
-      ) RETURNING id_movimiento into v_id_movimiento;
-
-            --Verifica si es depreciacion y esta en Estado Borrador, para precargar con todos los activos fijos del departamento
-            select 
-               cat.codigo
-            into 
-                v_cod_movimiento
-            from param.tcatalogo cat
-            where cat.id_catalogo = v_parametros.id_cat_movimiento;
-
-            --CARGA DE ACTIVOS FIJOS POR TIPO DE MOVIMIENTO
-            if v_cod_movimiento in ('deprec','actua') then
-                  
-                  --Registra todos los activos del departamento que les corresponda depreciar en el periodo solicitado
-                  FOR v_registros_mov in ( select 
-                                               afij.id_activo_fijo,
-                                               afij.id_cat_estado_fun
-                                            from kaf.tactivo_fijo afij
-                                            inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-                                            where afij.estado = 'alta'
-                                            and   afij.id_depto = v_parametros.id_depto
-                                            and (
-                                                     (afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) 
-                                                 or 
-                                                     (afij.fecha_ult_dep < v_parametros.fecha_hasta))) LOOP
-                           
-                           --RAC, 29/03/2017 , realiza validaciones sobre los activos que peuden relacionarce ...
-                           IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN                          
-                                   
-                                    insert into kaf.tmovimiento_af(
-                                        id_movimiento,
-                                        id_activo_fijo,
-                                        id_cat_estado_fun,
-                                        estado_reg,
-                                        fecha_reg,
-                                        id_usuario_reg,
-                                        fecha_mod
-                                    ) values(
-                                      v_id_movimiento,
-                                      v_registros_mov.id_activo_fijo,
-                                      v_registros_mov.id_cat_estado_fun,
-                                      'activo',
-                                      now(),
-                                      p_id_usuario,
-                                      null
-                                    );
-                           END IF;
-                  
-                  END LOOP;
-
-                
-            
-            elsif v_cod_movimiento = 'transf' then
-                
-                 FOR v_registros_mov in (
-                                         select
-                                                  afij.id_activo_fijo,
-                                                  afij.id_cat_estado_fun
-                                                  from kaf.tactivo_fijo afij
-                                                  where 
-                                                       afij.id_funcionario = v_parametros.id_funcionario
-                                                  and  afij.estado = 'alta'
-                                                  and  afij.en_deposito = 'no'
-                            ) LOOP
-                                        
-                       
-                       IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN    
-                                                
-                            --Registra todos los activos del funcionario origen
-                            insert into kaf.tmovimiento_af(
-                                id_movimiento,
-                                id_activo_fijo,
-                                id_cat_estado_fun,
-                                estado_reg,
-                                fecha_reg,
-                                id_usuario_reg,
-                                fecha_mod
-                            )
-                            values(
-                                v_id_movimiento,
-                                v_registros_mov.id_activo_fijo,
-                                v_registros_mov.id_cat_estado_fun,
-                                'activo',
-                                now(),
-                                p_id_usuario,
-                                null
-                              );
-                              
-                      END IF;        
-                      
-                 END LOOP;
-
-            elsif v_cod_movimiento = 'devol' then
-                
-                FOR v_registros_mov in (
-                                         select
-                                          afij.id_activo_fijo,
-                                          afij.id_cat_estado_fun
-                                          from kaf.tactivo_fijo afij
-                                          where 
-                                               afij.id_funcionario = v_parametros.id_funcionario
-                                          and  afij.estado = 'alta'
-                                          and  afij.en_deposito = 'no'
-                                        ) LOOP
-                                        
-                       
-                        IF kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, FALSE)  THEN    
-                                                
-                            --Registra todos los activos del funcionario origen
-                            insert into kaf.tmovimiento_af(
-                                id_movimiento,
-                                id_activo_fijo,
-                                id_cat_estado_fun,
-                                estado_reg,
-                                fecha_reg,
-                                id_usuario_reg,
-                                fecha_mod
-                            )
-                            values(
-                                v_id_movimiento,
-                                v_registros_mov.id_activo_fijo,
-                                v_registros_mov.id_cat_estado_fun,
-                                'activo',
-                                now(),
-                                p_id_usuario,
-                                null
-                            );
-                              
-                        END IF;        
-                      
-                 END LOOP;
-                 
-                 
-                
-            end if;
-      
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_id_movimiento::varchar);
+      v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_id_movimiento::varchar);
 
-            --Devuelve la respuesta
-            return v_resp;
+      --Devuelve la respuesta
+      return v_resp;
 
-    end;
+  end;
 
   /*********************************    
   #TRANSACCION:  'SKA_MOV_MOD'
@@ -1084,6 +851,19 @@ BEGIN
 
                     --Generar comprobante de actualización  (RCM ??????? 28/06/2017) 
 
+                elsif v_codigo_estado_siguiente = 'finalizado' then
+                  --Verificar si los comprobantes fueron validados
+                  if not exists(select 1 from conta.tint_comprobante
+                                where id_int_comprobante = v_movimiento.id_int_comprobante_aitb
+                                /*and estado_reg = 'validado'*/) then
+                    raise exception 'El Comprobante de Actualización por AITB aún no ha sido validado (%)',v_movimiento.id_int_comprobante_aitb;
+                  end if;
+                  if not exists(select 1 from conta.tint_comprobante
+                                where id_int_comprobante = v_movimiento.id_int_comprobante
+                                /*and estado_reg = 'validado'*/) then
+                    raise exception 'El Comprobante de depreciación aún no ha sido validado (%)',v_movimiento.id_int_comprobante;
+                  end if;
+
                 end if;
            
             --RAC 04/04/2017 nuevo tipo de movimeinto
@@ -1660,15 +1440,112 @@ BEGIN
                       
 
             -- si hay mas de un estado disponible  preguntamos al usuario
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se retorocedio el estado del movimiento)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se retorocedio el estado del movimiento'); 
             v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
                         
                               
-          --Devuelve la respuesta
+            --Devuelve la respuesta
             return v_resp;
 
         end;
 
+  /*********************************    
+  #TRANSACCION:  'SKA_MOVRAP_INS'
+  #DESCRIPCION:   Generación de los movimientos rápidos
+  #AUTOR:         RCM
+  #FECHA:         03/08/2017
+  ***********************************/
+
+  elseif(p_transaccion='SKA_MOVRAP_INS') then   
+
+      begin
+          --Inicialización de variables
+          v_ids_mov='';
+          v_cods_mov='';
+
+          --Verificación de los activos fijos recibidos
+          if coalesce(v_parametros.ids_af,'')='' then
+            raise exception 'Movimientos no creados. No se recibieron Activos Fijos';
+          end if;
+
+          --Obtención del id del movimiento a realizar
+          select
+          cat.id_catalogo, cat.codigo, cat.descripcion
+          into
+          v_id_cat_movimiento, v_cod_movimiento, v_desc_movimiento
+          from param.tcatalogo_tipo ctip
+          inner join param.tcatalogo cat
+          on cat.id_catalogo_tipo = ctip.id_catalogo_tipo
+          where ctip.tabla = 'tmovimiento__id_cat_movimiento'
+          and cat.codigo = v_parametros.tipo_movimiento;
+
+
+          for v_rec in execute('select distinct id_depto
+                              from kaf.tactivo_fijo
+                              where id_activo_fijo in ('||v_parametros.ids_af||')') loop
+              v_cod_mov_aux='';
+              --Creación de la cabecera
+              select
+              coalesce(v_parametros.fecha_mov,null) as fecha_mov,
+              coalesce(v_parametros.glosa,null) as glosa,
+              coalesce(v_parametros.id_funcionario,null) as id_funcionario,
+              coalesce(v_parametros.id_funcionario_dest,null) as id_funcionario_dest,
+              coalesce(v_parametros.direccion,null) as direccion,
+              coalesce(v_parametros.id_oficina,null) as id_oficina,
+              v_id_cat_movimiento as id_cat_movimiento,
+              v_rec.id_depto as id_depto,
+              false as reg_masivo
+              into v_rec_af;
+
+              --Inserción del movimiento
+              v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
+              v_ids_mov = v_ids_mov || v_id_movimiento::varchar;
+
+              select num_tramite into v_cod_mov_aux
+              from kaf.tmovimiento
+              where id_movimiento = v_id_movimiento;
+
+              v_cods_mov = v_cods_mov || v_cod_mov_aux || ' ,';
+
+              for v_rec_af in execute('select id_activo_fijo
+                              from kaf.tactivo_fijo
+                              where id_activo_fijo in ('||v_parametros.ids_af||')
+                              and id_depto = '||v_rec.id_depto) loop
+
+                --Se setea los datos para llamar a la función de inserción
+                select
+                coalesce(v_id_movimiento,null) as id_movimiento,
+                coalesce(v_rec_af.id_activo_fijo,null) as id_activo_fijo,
+                null as id_movimiento_motivo,
+                null as importe,
+                null as vida_util,
+                coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
+                coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
+                null as depreciacion_acum
+                into v_registros;
+
+                --Inserción del movimiento
+                v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_registros));
+
+              end loop;
+
+          end loop;
+
+          --Caso por tipo de movimiento
+          if v_parametros.tipo_movimiento = 'asig' then
+
+          elsif v_parametros.tipo_movimiento = 'transf' then
+          elsif v_parametros.tipo_movimiento = 'dev' then
+          end if;
+
+          --RESPUESTA
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se crearon los siguientes Movimientos: '||v_cods_mov); 
+          v_resp = pxp.f_agrega_clave(v_resp,'ids_movimiento',v_ids_mov); 
+          v_resp = pxp.f_agrega_clave(v_resp,'cods_movimiento',v_cods_mov); 
+
+          return v_resp;
+
+      end;
          
   else
      

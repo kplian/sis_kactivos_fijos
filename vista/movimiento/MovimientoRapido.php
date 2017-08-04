@@ -78,7 +78,7 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
             if(this.validacionRegistro(newRecord)){
                 this.storeDest.add(newRecord);
             } else {
-                error = 'Algún(os) activos no cumplen regla para ser incluido(s)';
+                error = 'Algún(os) activo(s) no cumple(n) regla para ser incluido(s)';
                 this.storeOrig.add(newRecord);
             }
         },this);
@@ -477,11 +477,12 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
                     url: '../../sis_kactivos_fijos/control/Movimiento/generarMovimientoRapido',
                     params: params,
                     isUpload: false,
-                    success: function(a,b,c){
-                        this.reload();
+                    success: function(resp){
                         Phx.CP.loadingHide();
+                        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                        console.log('reg',reg.ROOT);
                         this.winForm.close();
-                        Ext.MessageBox.alert('Información','EL movimiento ha sido generado satisfactoriamente.');
+                        Ext.MessageBox.alert('Información','Se crearon los siguientes Movimientos: ' + reg.ROOT.datos.cods_movimiento);
                     },
                     argument: Phx.CP.argumentSave,
                     failure: Phx.CP.conexionFailure,
@@ -554,9 +555,10 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
     getFormParams: function(){
         return {
             tipo_movimiento: this.tipoMov,
-            fecha: this.cmpFecha.getValue(),
+            fecha_mov: this.cmpFecha.getValue(),
             glosa: this.cmpGlosa.getValue(),
-            id_funcionario: this.cmpFuncionarioDest.getValue(),
+            id_funcionario: this.cmpFuncionario.getValue(),
+            id_funcionario_dest: this.cmpFuncionarioDest.getValue(),
             direccion: this.cmpDireccion.getValue(),
             id_oficina: this.cmpOficina.getValue(),
             ids_af: this.getIdsFromList()

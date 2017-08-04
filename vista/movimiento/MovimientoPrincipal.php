@@ -43,6 +43,7 @@ Phx.vista.MovimientoPrincipal = {
             this.filterMov='divis,desgl,intpar';
         }
     	this.store.baseParams.cod_movimiento = this.filterMov;
+        this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
     	//this.getBoton('btnReporte').show();
     	this.load({params:{start:0, limit:this.tam_pag}});
     },
@@ -56,12 +57,17 @@ Phx.vista.MovimientoPrincipal = {
     
     
     constructor: function(config) {
-       
         Phx.vista.MovimientoPrincipal.superclass.constructor.call(this,config);
-        
+        this.maestro = config;
+        console.log('maestro',this.maestro)
         this.init();
-        
-        this.load({params:{start:0, limit:this.tam_pag}})
+        this.load({
+            params:{
+                start:0,
+                limit:this.tam_pag,
+                id_movimiento: this.maestro.lnk_id_movimiento
+            }
+        });
 
 		/*this.addButton('btnMovGral',
             {

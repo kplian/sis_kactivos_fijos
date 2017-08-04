@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -110,11 +108,11 @@ BEGIN
                             afij.marca,
                             afij.nro_serie,
                             afij.caracteristicas,
-                            COALESCE(round(afvi.monto_vigente_real_af,2), afij.monto_compra),
-                            COALESCE(afvi.vida_util_real_af,afij.vida_util_original),                            
+                            COALESCE(round(afvi.monto_vigente_real_af,2), afij.monto_compra) as monto_vigente_real_af,
+                            COALESCE(afvi.vida_util_real_af,afij.vida_util_original) as vida_util_real_af,                            
                             afvi.fecha_ult_dep_real_af,
-                            COALESCE(round(afvi.depreciacion_acum_real_af,2),0),
-                            COALESCE(round( afvi.depreciacion_per_real_af,2),0),
+                            COALESCE(round(afvi.depreciacion_acum_real_af,2),0) as depreciacion_acum_real_af,
+                            COALESCE(round( afvi.depreciacion_per_real_af,2),0) as depreciacion_per_real_af,
                             cla.tipo_activo,
                             cla.depreciable,
                             afij.monto_compra_orig,
@@ -123,7 +121,11 @@ BEGIN
                             afij.cantidad_af,
                             afij.id_unidad_medida,
                             unmed.codigo as codigo_unmed,
-                            unmed.descripcion as descripcion_unmed
+                            unmed.descripcion as descripcion_unmed,
+                            afij.monto_compra_orig_100,
+                            afij.nro_cbte_asociado,
+                            afij.fecha_cbte_asociado,
+                            round(afij.vida_util_original/12,2)::numeric as vida_util_original_anios
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -407,11 +409,14 @@ BEGIN
                             cla.depreciable,
                             afij.monto_compra_orig,
                             afij.id_proyecto,
-                            proy.codigo_proyecto as desc_proyecto
+                            proy.codigo_proyecto as desc_proyecto,
                             afij.cantidad_af,
                             afij.id_unidad_medida,
                             unmed.codigo as codigo_unmed,
-                            unmed.descripcion as descripcion_unmed
+                            unmed.descripcion as descripcion_unmed,
+                            afij.monto_compra_orig_100,
+                            afij.nro_cbte_asociado,
+                            afij.fecha_cbte_asociado
                         from kaf.tactivo_fijo afij                       
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg                      
                         inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun

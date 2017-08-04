@@ -21,24 +21,20 @@ Phx.vista.MovimientoPorActivo = {
 	bedit:false,
     
     constructor: function(config) {
-       
+        this.modificarAtributo();
         Phx.vista.MovimientoPorActivo.superclass.constructor.call(this,config);
         this.init();
         
         var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
         if(dataPadre){
             this.onEnablePanel(this, dataPadre);
-        }
-        else
-        {
+        } else {
            this.bloquearMenus();
         }
-       
-        
-        
-    } , 
-    
-    
+
+        //Grid
+       	this.grid.on('cellclick', this.abrirEnlace, this);
+    }, 
     onReloadPage:function(m){
 		this.maestro=m;
 		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo};		
@@ -59,8 +55,53 @@ Phx.vista.MovimientoPorActivo = {
 	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
 	            '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
 	        )
-    })      
-    
+    }),
+    modificarAtributo: function(){
+    	this.Atributos[2] = {
+			config: {
+				name: 'id_cat_movimiento',
+				fieldLabel: 'Proceso',
+				anchor: '95%',
+				tinit: false,
+				allowBlank: false,
+				origen: 'CATALOGO',
+				gdisplayField: 'movimiento',
+				hiddenName: 'id_cat_movimiento',
+				gwidth: 55,
+				baseParams:{
+						cod_subsistema:'KAF',
+						catalogo_tipo:'tmovimiento__id_cat_movimiento'
+				},
+				renderer: function (value,p,record) {
+					var result;
+					result = "<div style='text-align:center'><i class='fa fa-reply-all' aria-hidden='true'></i>&nbsp<img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='24' height='24' title='"+record.data.movimiento+"'/></div>";
+					return result;
+				},
+				valueField: 'id_catalogo'
+			},
+			type: 'ComboRec',
+			id_grupo: 0,
+			filters:{pfiltro:'cat.descripcion',type:'string'},
+			grid: true,
+			form: true
+		};
+    },
+    abrirEnlace: function(cell,rowIndex,columnIndex,e){
+    	if(columnIndex==1){
+			var data = this.sm.getSelected().data;
+			Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php',
+			'Detalle', {
+				width:'90%',
+				height:'90%'
+		    }, {
+		    	lnk_id_movimiento: data.id_movimiento,
+		    	link: true
+		    },
+		    this.idContenedor,
+		    'MovimientoPrincipal'
+			);
+		}
+    }
     
 };
 </script>

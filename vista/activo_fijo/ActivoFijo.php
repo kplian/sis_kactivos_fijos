@@ -224,7 +224,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         ]
     },
     constructor: function(config) {
-        this.maestro = config.maestro;
+        this.maestro = config;
         //llama al constructor de la clase padre
         Phx.vista.ActivoFijo.superclass.constructor.call(this, config);
 
@@ -299,15 +299,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },this);
 
         this.init();
+        //////////////////
         //Carga los datos
-        this.load({
-            params: {
-                start: 0,
-                limit: this.tam_pag,
-                sort: 'id_activo_fijo',
-                dir: 'desc'
-            }
-        });
+        //////////////////
+        this.load({params: {
+            start: 0,
+            limit: this.tam_pag,
+            sort: 'id_activo_fijo',
+            dir: 'desc',
+            id_activo_fijo: this.maestro.lnk_id_activo_fijo
+        }});
         //Button for select IDs
         // this.addButton('btnSelect', {
         //     text : 'Seleccionar todos',
@@ -1714,7 +1715,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name: 'caracteristicas',type: 'string'},
              'monto_compra_orig','desc_proyecto','id_proyecto',
              'monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af','tipo_activo','depreciable','cantidad_af','id_unidad_medida','codigo_unmed',
-             {name:'descripcion_unmed',type:'string'}],
+             {name:'descripcion_unmed',type:'string'},
+             {name:'monto_compra_orig_100',type:'numeric'},
+             {name:'nro_cbte_asociado',type:'string'},
+             {name:'fecha_cbte_asociado',type:'date',dateFormat: 'Y-m-d'},
+             {name:'vida_util_original_anios',type:'numeric'},
+             ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
         field: 'id_activo_fijo',
@@ -1841,21 +1847,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_id_clasificacion',
                                 emptyText: 'Elija la Clasificación',
                                 store: new Ext.data.JsonStore({
-                                    url: '../../sis_kactivos_fijos/control/Clasificacion/listarClasificacion',
+                                    url: '../../sis_kactivos_fijos/control/Clasificacion/ListarClasificacionTree',
                                     id: 'id_clasificacion',
                                     root: 'datos',
-                                    fields: ['id_clasificacion','codigo','nombre','met_dep','vida_util','monto_residual','clasificacion', 'depreciable','tipo_activo'],
-                                    totalProperty: 'total',
                                     sortInfo: {
-                                        field: 'codigo',
+                                        field: 'orden',
                                         direction: 'ASC'
                                     },
-                                    baseParams:{
-                                        start: 0,
-                                        limit: 10,
-                                        sort: 'codigo',
-                                        dir: 'ASC',
-                                        par_filtro:'claf.codigo#claf.nombre'
+                                    totalProperty: 'total',
+                                    fields: ['id_clasificacion','clasificacion', 'id_clasificacion_fk','tipo_activo','depreciable','vida_util'],
+                                    remoteSort: true,
+                                    baseParams: {
+                                        par_filtro:'claf.clasificacion'
                                     }
                                 }),
                                 valueField: 'id_clasificacion',
@@ -1863,13 +1866,35 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 gdisplayField: 'clasificacion',
                                 mode: 'remote',
                                 triggerAction: 'all',
+                                typeAhead: false,
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                queryDelay: 1000,
+                                minChars: 2
                             }, {
-                                fieldLabel: 'Vida útil inicial (meses)',
-                                name: 'vida_util_original',
-                                allowBlank: false,
-                                id: this.idContenedor+'_vida_util_original'
+                                xtype: 'compositefield',
+                                fieldLabel: 'Vida útil inicial',
+                                items: [{
+                                    xtype: 'label',
+                                    text: 'Meses'
+                                }, {
+                                    xtype: 'numberfield',
+                                    fieldLabel: 'Vida útil inicial (meses)',
+                                    name: 'vida_util_original',
+                                    width: 60,
+                                    allowBlank: false,
+                                    id: this.idContenedor+'_vida_util_original'
+                                }, {
+                                    xtype: 'label',
+                                    text: 'Años'
+                                }, {
+                                    xtype: 'numberfield',
+                                    fieldLabel: 'Vida útil inicial (años)',
+                                    name: 'vida_util_original_anios',
+                                    width: 60,
+                                    allowBlank: false,
+                                    id: this.idContenedor+'_vida_util_original_anios'
+                                }]
                             }, {
                                 fieldLabel: '#Serie',
                                 name: 'nro_serie',
@@ -1894,6 +1919,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                             }, {
                                 xtype: 'numberfield',
                                 fieldLabel: 'Cantidad',
+                                width: 60,
                                 name: 'cantidad_af',
                                 allowBlank: false,
                                 id: this.idContenedor+'_cantidad_af'
@@ -2124,12 +2150,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     flex: 1
                                 },*/
                                 items: [{
+                                    xtype: 'label',
+                                    text: '(87%)'
+                                }, {
                                     xtype: 'numberfield',
-                                    fieldLabel: 'Monto compra',
+                                    fieldLabel: 'Monto compra 87',
                                     name: 'monto_compra_orig',
                                     allowBlank: false,
                                     id: this.idContenedor+'_monto_compra_orig',
-                                    width: 140
+                                    width: 127
                                 }, {
                                     xtype: 'combo',
                                     fieldLabel: 'Moneda',
@@ -2164,6 +2193,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     triggerAction: 'all',
                                     lazyRender: true,
                                     pageSize: 15
+                                }, {
+                                    xtype: 'label',
+                                    text: '(100%)'
+                                }, {
+                                    xtype: 'numberfield',
+                                    fieldLabel: 'Monto compra 100',
+                                    name: 'monto_compra_orig_100',
+                                    allowBlank: false,
+                                    id: this.idContenedor+'_monto_compra_orig_100',
+                                    width: 127
                                 }]
                             }, {
                                 xtype: 'combo',
@@ -2199,6 +2238,20 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15
+                            }, {
+                                xtype: 'textfield',
+                                fieldLabel: 'Nro.Cbte Asociado',
+                                name: 'nro_cbte_asociado',
+                                allowBlank: true,
+                                id: this.idContenedor+'_nro_cbte_asociado',
+                                width: 140
+                            }, {
+                                xtype: 'datefield',
+                                fieldLabel: 'Fecha.Cbte Asociado',
+                                name: 'fecha_cbte_asociado',
+                                allowBlank: true,
+                                id: this.idContenedor+'_fecha_cbte_asociado',
+                                width: 140
                             }]
                         }, {
                             title: 'Datos Depreciación',
@@ -2346,19 +2399,34 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
             	if(rec.data.depreciable == 'si'){
-            		
             		Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
-	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
-	                Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
-            	}
-            	
+                    Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
+                    Ext.getCmp(this.idContenedor+'_monto_rescate').setValue(rec.data.monto_residual);
+                    //Convierte a años
+                    Ext.getCmp(this.idContenedor+'_vida_util_original_anios').setValue(this.convertirVidaUtil(rec.data.vida_util));
+            	} else {
+                    Ext.getCmp(this.idContenedor+'_vida_util_original').allowBlank = true;
+                    Ext.getCmp(this.idContenedor+'_vida_util_original_anios').allowBlank = true;
+                    Ext.getCmp(this.idContenedor+'_vida_util_original').setValue('')
+                    Ext.getCmp(this.idContenedor+'_vida_util_original_anios').setValue('')
+                }
             	this.actualizarSegunClasificacion(rec.data.tipo_activo, rec.data.depreciable);
             	
             },this);
             //Vida util
             Ext.getCmp(this.idContenedor+'_vida_util_original').on('blur',function(cmp,rec,index){
                 Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue());
-            },this)
+                //Convierte a años
+                Ext.getCmp(this.idContenedor+'_vida_util_original_anios').setValue(this.convertirVidaUtil(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue()));
+
+            },this);
+            //Vida util años
+            Ext.getCmp(this.idContenedor+'_vida_util_original_anios').on('blur',function(cmp,rec,index){
+                //Convertir a meses
+                Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(this.convertirVidaUtil(Ext.getCmp(this.idContenedor+'_vida_util_original_anios').getValue(),'anios'));
+                Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(Ext.getCmp(this.idContenedor+'_vida_util_original').getValue());
+            },this);
+
             //Denominación
             Ext.getCmp(this.idContenedor+'_denominacion').on('blur',function(cmp){
                 if(Ext.getCmp(this.idContenedor+'_descripcion').getValue()==''){
@@ -2469,9 +2537,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             text: data.codigo,
             width: 128,
             height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
         });
         if(data.codigo==''){
             qrcode.clear();
@@ -2571,6 +2639,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();        
         Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
         Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
+        Ext.getCmp(this.idContenedor+'_monto_compra_orig_100').enable();
        	Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
        	Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
         Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
@@ -2592,6 +2661,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         	Ext.getCmp(this.idContenedor+'_fecha_ini_dep').disable();
         	Ext.getCmp(this.idContenedor+'_id_moneda_orig').disable();
         	Ext.getCmp(this.idContenedor+'_monto_compra_orig').disable();
+            Ext.getCmp(this.idContenedor+'_monto_compra_orig_100').disable();
         	Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
             Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
             Ext.getCmp(this.idContenedor+'_id_depto').disable();
@@ -2603,6 +2673,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
           Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
           Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
           Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
+          Ext.getCmp(this.idContenedor+'_monto_compra_orig_100').enable();
           Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
           Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
           Ext.getCmp(this.idContenedor+'_id_depto').enable();
@@ -2644,49 +2715,26 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     btriguerreturn:false,
     
     actualizarSegunClasificacion: function(tipo_activo, depreciable){
+        console.log('actualizar',tipo_activo, depreciable)
     	if(tipo_activo == 'tangible'){
-            	    Ext.getCmp(this.idContenedor+'_id_deposito').enable();
-            	    Ext.getCmp(this.idContenedor+'_id_deposito').show();
-            	    
-            	    Ext.getCmp(this.idContenedor+'_nro_serie').enable();
-            	    Ext.getCmp(this.idContenedor+'_nro_serie').show();
-            	    Ext.getCmp(this.idContenedor+'_marca').enable();
-            	    Ext.getCmp(this.idContenedor+'_marca').show();
-            	}
-            	else{
-            	    Ext.getCmp(this.idContenedor+'_id_deposito').disable();
-            	    Ext.getCmp(this.idContenedor+'_id_deposito').hide();
-            	    
-            	    //escondemos los campos marca y serie
-            	    Ext.getCmp(this.idContenedor+'_nro_serie').disable();
-            	    Ext.getCmp(this.idContenedor+'_nro_serie').hide();
-            	    Ext.getCmp(this.idContenedor+'_marca').disable();
-            	    Ext.getCmp(this.idContenedor+'_marca').hide();
-            	    
-            	    
-            	}
-            	
-            	if(depreciable == 'si'){            		
-            		Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
-	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
-	                Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
-	                Ext.getCmp(this.idContenedor+'_vida_util_original').show();
-	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').show();
-	                Ext.getCmp(this.idContenedor+'_monto_rescate').show();
-	                
-            	}
-            	else{
-            		
-            		Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
-	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
-	                Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
-	                Ext.getCmp(this.idContenedor+'_vida_util_original').hide();
-	                Ext.getCmp(this.idContenedor+'_vida_util_real_af').hide();
-	                Ext.getCmp(this.idContenedor+'_monto_rescate').hide();
-            	}
-            	
-            	
-            	
+    	    Ext.getCmp(this.idContenedor+'_id_deposito').enable();
+    	    Ext.getCmp(this.idContenedor+'_nro_serie').enable();
+    	    Ext.getCmp(this.idContenedor+'_marca').enable();
+    	} else {
+    	    Ext.getCmp(this.idContenedor+'_id_deposito').disable();
+    	    Ext.getCmp(this.idContenedor+'_nro_serie').disable();
+    	    Ext.getCmp(this.idContenedor+'_marca').disable();
+    	}
+    	
+    	if(depreciable == 'si'){            		
+    		Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
+            Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
+            Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
+    	} else {
+    		Ext.getCmp(this.idContenedor+'_vida_util_original').disable();
+            Ext.getCmp(this.idContenedor+'_vida_util_real_af').disable();
+            Ext.getCmp(this.idContenedor+'_monto_rescate').disable();
+    	}
     },
     
 
@@ -2783,6 +2831,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.mnuMov.menu.addSeparator()
         this.mnuMov.menu.addItem(this.mnuMovDevol); 
         this.ctxMenu.addItem(this.mnuMov);
+    },
+    convertirVidaUtil(cantidad,tipo='mes'){
+        var valor=0;
+        if(tipo=='anios'){
+            //Convierte de años a meses
+            valor = Ext.util.Format.round(cantidad * 12,0);
+        } else {
+            //Convierte de meses a años
+            valor = Ext.util.Format.round(cantidad / 12,2);
+        }
+        return valor;
     }
     
 })

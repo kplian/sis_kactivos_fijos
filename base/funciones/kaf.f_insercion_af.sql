@@ -78,7 +78,12 @@ BEGIN
         marca,
         nro_serie,
         caracteristicas,
-        id_proyecto
+        id_proyecto,
+        id_unidad_medida,
+        cantidad_af,
+        monto_compra_orig_100,
+        nro_cbte_asociado,
+        fecha_cbte_asociado
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -125,7 +130,12 @@ BEGIN
         (p_parametros->'marca')::varchar,
         (p_parametros->'nro_serie')::varchar,
         (p_parametros->'caracteristicas')::text,
-        (p_parametros->'id_proyecto')::integer
+        (p_parametros->'id_proyecto')::integer,
+        (p_parametros->'id_unidad_medida')::integer,
+        (p_parametros->'cantidad_af')::integer,
+        (p_parametros->'monto_compra_orig_100')::numeric,
+        (p_parametros->'nro_cbte_asociado')::varchar,
+        (p_parametros->'fecha_cbte_asociado')::date
         
     ) returning id_activo_fijo into v_id_activo_fijo;
 

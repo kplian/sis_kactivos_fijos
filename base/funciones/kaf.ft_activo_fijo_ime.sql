@@ -91,7 +91,10 @@ BEGIN
 			NULL,
             v_parametros.id_proyecto,
             v_parametros.cantidad_af,
-            v_parametros.id_unidad_medida
+            v_parametros.id_unidad_medida,
+            v_parametros.monto_compra_orig_100,
+            v_parametros.nro_cbte_asociado,
+            v_parametros.fecha_cbte_asociado
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -184,7 +187,10 @@ BEGIN
                 id_proyecto = v_parametros.id_proyecto,
                 --caraceristicas = v_parametros._nombre_usuario_ai,
                 cantidad_af = v_parametros.cantidad_af,
-                id_unidad_medida = v_parametros.id_unidad_medida
+                id_unidad_medida = v_parametros.id_unidad_medida,
+                monto_compra_orig_100 = v_parametros.monto_compra_orig_100,
+                nro_cbte_asociado = v_parametros.nro_cbte_asociado,
+                fecha_cbte_asociado = v_parametros.fecha_cbte_asociado
 			where id_activo_fijo = v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta
@@ -299,7 +305,10 @@ BEGIN
 			null as nombre_usuario_ai,
 			null as id_usuario_ai,
 			cantidad_af,
-			id_unidad_medida
+			id_unidad_medida,
+			monto_compra_orig_100,
+			nro_cbte_asociado,
+			fecha_cbte_asociado
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -446,7 +455,10 @@ BEGIN
 			NULL,
             id_proyecto,
             cantidad_af,
-            id_unidad_medida
+            id_unidad_medida,
+            monto_compra_orig_100,
+            nro_cbte_asociado,
+            fecha_cbte_asociado
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -505,6 +517,9 @@ BEGIN
 			ofi.codigo || ' - ' ||ofi.nombre as oficina_asignacion,
 			af.ubicacion, af.fecha_ini_dep, 
 			af.monto_compra_orig,
+			af.monto_compra_orig_100,
+			af.nro_cbte_asociado,
+			af.fecha_cbte_asociado,
 			mon.codigo as moneda,
 			af.vida_util_original,
 			COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra) as valor_actual,
@@ -537,6 +552,9 @@ BEGIN
             v_resp = pxp.f_agrega_clave(v_resp,'ubicacion',v_rec_af.ubicacion::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'fecha_ini_dep',v_rec_af.fecha_ini_dep::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'monto_compra_orig',v_rec_af.monto_compra_orig::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'monto_compra_orig_100',v_rec_af.monto_compra_orig_100::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'nro_cbte_asociado',v_rec_af.nro_cbte_asociado::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'fecha_cbte_asociado',v_rec_af.fecha_cbte_asociado::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'moneda',v_rec_af.moneda::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'vida_util_original',v_rec_af.vida_util_original::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'valor_actual',v_rec_af.valor_actual::varchar);

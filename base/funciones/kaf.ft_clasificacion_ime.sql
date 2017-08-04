@@ -59,7 +59,11 @@ BEGIN
 
         	--Obtiene el código del padre
             v_codigo = v_parametros.codigo;
-			v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
+            v_cod_fin = upper(v_codigo);
+
+            if v_parametros.id_clasificacion_fk <> '' then
+			    v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
+            end if;
 
             --Verifica que el nuevo código no exista
             if exists(select 1 from kaf.tclasificacion
@@ -68,7 +72,7 @@ BEGIN
 			end if;
 
             --Verifica el padre
-            if v_parametros.id_clasificacion_fk = 'id' then
+            if v_parametros.id_clasificacion_fk = 'id' or v_parametros.id_clasificacion_fk = '' then
                 v_id_clasificacion_fk = null;
             else 
                 v_id_clasificacion_fk = v_parametros.id_clasificacion_fk::integer;

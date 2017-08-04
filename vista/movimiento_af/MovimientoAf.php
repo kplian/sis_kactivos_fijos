@@ -30,7 +30,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonDetDep,
-            tooltip : '<b>Depreciacion</b><br/>Detalle del calculo de depreciacion'
+            tooltip : '<b>Depreciación</b><br/>Detalle del cálculo de depreciación'
        	});
 
         /////////
@@ -56,6 +56,9 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
        	this.Cmp.depreciacion_acum.on('blur', function(cmp){
        		this.validarDatosMov();
        	}, this);
+
+       	//Grid
+       	this.grid.on('cellclick', this.abrirEnlace, this);
 	},
 
 	isNumeric: function (obj) {
@@ -103,9 +106,12 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'cod_af',
-				fieldLabel: 'Codigo',
+				fieldLabel: 'Código',
 				gwidth: 130,
-				maxLength:10
+				maxLength:10,
+				renderer: function(value,p,record){
+					return String.format('{0}','<i class="fa fa-reply-all" aria-hidden="true"></i> '+record.data['cod_af']);
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'af.codigo',type:'string'},
@@ -826,9 +832,11 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	    	this.habilitarCampos();
 	    	this.cargarResumenAf(this.sm.getSelected().data);
 	    	//Carga los inc. o dec. reales
-	    	this.Cmp.res_saldo_importe.setValue(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue());
+	    	var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+	    	var temp1 = Ext.util.Format.round(this.Cmp.depreciacion_acum.getValue()-this.Cmp.res_dep_acum_real.getValue(),2);
+	    	this.Cmp.res_saldo_importe.setValue(temp);
 			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
-			this.Cmp.res_saldo_depreciacion_acum.setValue(this.Cmp.depreciacion_acum.getValue()-this.Cmp.res_dep_acum_real.getValue());
+			this.Cmp.res_saldo_depreciacion_acum.setValue(temp1);
 		}
 		this.IdMovimientoAf=this.sm.getSelected().data.id_movimiento_af;
     },
@@ -889,7 +897,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
     	if(this.maestro.cod_movimiento=='reval'){
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			this.Cmp.res_saldo_importe.setValue(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue());
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
     			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
@@ -901,7 +910,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			this.Cmp.res_saldo_importe.setValue(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue());
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
     			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
@@ -917,7 +927,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
     	} else if(this.maestro.cod_movimiento=='ajuste'){
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			this.Cmp.res_saldo_importe.setValue(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue());
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
     			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
@@ -2323,6 +2334,22 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	            timeout: this.timeout,
 	            scope: this
 			});
+		}
+	},
+	abrirEnlace: function(cell,rowIndex,columnIndex,e){
+		if(columnIndex==1){
+			var data = this.sm.getSelected().data;
+			Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
+			'Detalle', {
+				width:'90%',
+				height:'90%'
+		    }, {
+		    	lnk_id_activo_fijo: data.id_activo_fijo,
+		    	link: true
+		    },
+		    this.idContenedor,
+		    'ActivoFijo'
+			);
 		}
 	}
 })

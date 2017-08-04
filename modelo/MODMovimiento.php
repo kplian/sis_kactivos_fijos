@@ -184,9 +184,6 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-	
-
-
 
    function listarReporteMovimientoMaestro(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -227,7 +224,6 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-
 
 	function listarReporteMovimientoDetalle(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -309,7 +305,7 @@ class MODMovimiento extends MODbase{
         return $this->respuesta;
     }
 	
-	  function listarDatalleDepreciaconReporte(){
+	function listarDatalleDepreciaconReporte(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_movimiento_sel';
 		$this->transaccion='SKA_REPDETDE_REP';
@@ -347,8 +343,6 @@ class MODMovimiento extends MODbase{
         $this->captura('id_clasificacion_raiz','INTEGER');
 		$this->captura('depreciacion_per_final','NUMERIC'); 
         $this->captura('depreciacion_per_actualiz_final','NUMERIC'); 
-		
-	
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -367,9 +361,10 @@ class MODMovimiento extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('tipo_movimiento','tipo_movimiento','varchar');
-		$this->setParametro('fecha','fecha','date');
+		$this->setParametro('fecha_mov','fecha_mov','date');
 		$this->setParametro('glosa','glosa','varchar');
 		$this->setParametro('id_funcionario','id_funcionario','integer');
+		$this->setParametro('id_funcionario_dest','id_funcionario_dest','integer');
 		$this->setParametro('direccion','direccion','varchar');
 		$this->setParametro('id_oficina','id_oficina','integer');
 		$this->setParametro('ids_af','ids_af','varchar');

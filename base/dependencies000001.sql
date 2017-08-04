@@ -1000,3 +1000,47 @@ ALTER TABLE kaf.tclasificacion_variable
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-DEP-RCM-KAF-1-27/06/2017****************************************/    
+
+
+/***********************************I-DEP-RCM-KAF-1-25/07/2017****************************************/    
+CREATE VIEW kaf.vclasificacion_arbol(
+    clasificacion,
+    nivel,
+    id_clasificacion,
+    id_clasificacion_fk,
+    orden)
+AS
+WITH RECURSIVE t(
+    id,
+    id_fk,
+    nombre,
+    codigo,
+    n,
+    orden) AS(
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         1,
+         l.id_clasificacion * 1000000
+  FROM kaf.tclasificacion l
+  WHERE l.id_clasificacion_fk IS NULL
+  UNION ALL
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         t_1.n + 1,
+         l.id_clasificacion * 1000000 + l.id_clasificacion
+  FROM kaf.tclasificacion l,
+       t t_1
+  WHERE l.id_clasificacion_fk = t_1.id)
+      SELECT ((((repeat('--->'::text, t.n - 1) || ' '::text) || t.codigo::text)
+        || ' - '::text) || t.nombre::text)::character varying AS clasificacion,
+             t.n AS nivel,
+             t.id AS id_clasificacion,
+             t.id_fk AS id_clasificacion_fk,
+             orden
+      FROM t
+      ORDER BY t.orden;
+/***********************************F-DEP-RCM-KAF-1-25/07/2017****************************************/    
