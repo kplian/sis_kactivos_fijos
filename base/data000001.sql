@@ -143,13 +143,13 @@ select param.f_import_tcatalogo ('insert','KAF','Usado','usado','tactivo_fijo__i
 select param.f_import_tcatalogo_tipo ('insert','tmovimiento__id_cat_movimiento','KAF','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Alta','alta','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Baja','baja','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Mejora/Revalorización','reval','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Revalorización','reval','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Depreciación/Actualización','deprec','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Asignación','asig','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Devolución','devol','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Transferencia','transf','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Incrementos/Decrementos','incdec','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Desuso temporal','desuso','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Ajustes','ajuste','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Retiros','retiro','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Transferencia Deposito','tranfdep','tmovimiento__id_cat_movimiento');
 
 
