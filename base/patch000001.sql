@@ -824,3 +824,8 @@ add column nro_cbte_asociado varchar(50);
 alter table kaf.tactivo_fijo
 add column fecha_cbte_asociado date;
 /***********************************F-SCP-RCM-KAF-1-26/07/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-11/08/2017****************************************/
+ALTER TABLE kaf.tmoneda_dep
+  ADD COLUMN descripcion VARCHAR(200);
+/***********************************F-SCP-RCM-KAF-1-11/08/2017****************************************/
