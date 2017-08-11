@@ -20,7 +20,7 @@ select pxp.f_insert_testructura_gui ('KAFREP', 'KAF');
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES 
-  (E'kaf_codigo_longitud', E'4', E'Longitud correlativo en el codigo de activos');
+  (E'kaf_codigo_longitud', E'5', E'Longitud correlativo en el codigo de activos');
   
   
   
@@ -271,7 +271,9 @@ select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Baja','baja');
 select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Retiro','retiro');
 /***********************************F-DAT-RCM-KAF-1-25/07/2017****************************************/
 
-/***********************************I-DAT-RCM-KAF-0-04/08/2017****************************************/
-select pxp.f_insert_tgui ('Pre-Ingreso', 'Pre ingreso al módulo de activos fijos', 'KAFPREI', 'si', 11, 'sis_almacenes/vista/preingreso/PreingresoAct.php', 3, '', 'PreingresoAct', 'KAF');
+/***********************************I-DAT-RCM-KAF-0-08/08/2017****************************************/
+select pxp.f_insert_tgui ('Pre-Ingreso', 'Pre ingreso al módulo de activos fijos', 'KAFPREI', 'si', 11, 'sis_almacenes/vista/preingreso/PreingresoActV2.php', 3, '', 'PreingresoActV2', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFPREI', 'KAF');
-/***********************************F-DAT-RCM-KAF-0-04/08/2017****************************************/
+select pxp.f_insert_tgui ('Mis Activos Fijos', 'Listado de mis activos fijos asignados', 'KAFMIASIG', 'si', 11, 'sis_kactivos_fijos/vista/activo_fijo/ActivoFijoUsuario.php', 3, '', 'ActivoFijoUsuario', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMIASIG', 'KAF');
+/***********************************F-DAT-RCM-KAF-0-08/08/2017****************************************/

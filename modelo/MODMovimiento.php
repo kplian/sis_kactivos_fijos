@@ -18,6 +18,8 @@ class MODMovimiento extends MODbase{
 		$this->procedimiento='kaf.ft_movimiento_sel';
 		$this->transaccion='SKA_MOV_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('por_usuario','por_usuario','varchar');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_movimiento','int4');

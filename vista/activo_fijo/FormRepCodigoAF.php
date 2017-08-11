@@ -16,6 +16,19 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
     topBar: true,
     constructor:function(config)
     {   
+    	this.panelResumen = new Ext.Panel({html:'Hola Prueba'});
+    	this.Grupos = [{
+
+	                    xtype: 'fieldset',
+	                    border: false,
+	                    autoScroll: true,
+	                    layout: 'form',
+	                    items: [],
+	                    id_grupo: 0
+				               
+				    },
+				     this.panelResumen
+				    ];
     	Phx.vista.FormRepCodigoAF.superclass.constructor.call(this,config);
         this.init(); 
         this.iniciarEventos();   
@@ -29,7 +42,7 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 					fieldLabel: 'Comprado Desde',
 					allowBlank: true,
 					format: 'd/m/Y',
-					width: 200
+					width: 150
 				},
 				type: 'DateField',
 				id_grupo: 0,
@@ -41,7 +54,7 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 					fieldLabel: 'Compra Hasta',
 					allowBlank: true,
 					format: 'd/m/Y',
-					width: 200
+					width: 150
 				},
 				type: 'DateField',
 				id_grupo: 0,
@@ -69,7 +82,8 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 	                }
 	            }),
 	            valueField: 'id_clasificacion',
-	            displayField: 'clasificacion',	          
+	            displayField: 'clasificacion',
+	            gdisplayField: 'clasificacion',
 	            hiddenName: 'id_clasificacion',
 	            forceSelection: true,
 	            typeAhead: false,
@@ -77,15 +91,58 @@ Phx.vista.FormRepCodigoAF=Ext.extend(Phx.frmInterfaz,{
 	            lazyRender: true,
 	            mode: 'remote',
 	            pageSize: 15,
+	            anchor: '100%',
 	            queryDelay: 1000,
-	            width: 200,
-	            minChars: 2
+	            gwidth: 150,
+	            minChars: 2,
+	            renderer: function(value, p, record) {
+	                return String.format('{0}', record.data['clasificacion']);
+	            }
 	        },
-	        type: 'ComboBox'
+	        type: 'ComboBox',
+	        filters: {
+	            pfiltro: 'cla.nombre',
+	            type: 'string'
+	        },
+	        grid: true,
+	        form: false,
+	        bottom_filter:true
 	    }
     ],
     labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
-    title: 'Filtro de mayores'
+    title: 'Filtro de mayores',
+    // Funcion guardar del formulario
+    onSubmit: function(o) {
+    	var me = this;
+    	if (me.form.getForm().isValid()) {
+             var parametros = me.getValForm()
+             Phx.CP.loadingShow();
+             
+             var deptos = this.Cmp.id_deptos.getValue('object');
+             console.log('deptos',deptos)
+             var sw = 0, codigos = ''
+             deptos.forEach(function(entry) {
+			    if(sw == 0){
+			    	codigos = entry.codigo;
+			    }
+			    else{
+			    	codigos = codigos + ', '+ entry.codigo;
+			    }
+			    sw = 1;
+			});
+             
+             Ext.Ajax.request({
+						url : '../../sis_contabilidad/control/Cuenta/reporteBalanceGeneral',
+						params : Ext.apply(parametros,{'codigos': codigos, 'tipo_balance':'general'}),
+						success : this.successExport,
+						failure : this.conexionFailure,
+						timeout : this.timeout,
+						scope : this
+					})
+                    
+        }
+
+    }
     
     
 })    

@@ -665,7 +665,7 @@ BEGIN
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     en_deposito = 'si',
-                    id_funcionario = mov.id_funcionario,
+                    id_funcionario = mov.id_funcionario_dest,
                     id_persona = null
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov

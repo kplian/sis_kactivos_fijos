@@ -829,3 +829,26 @@ add column fecha_cbte_asociado date;
 ALTER TABLE kaf.tmoneda_dep
   ADD COLUMN descripcion VARCHAR(200);
 /***********************************F-SCP-RCM-KAF-1-11/08/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-08/08/2017****************************************/
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN codigo_completo_tmp VARCHAR(50);
+/***********************************F-SCP-RCM-KAF-1-08/08/2017****************************************/
+
+
+/***********************************I-SCP-RCM-KAF-1-09/08/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_cotizacion_det INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_cotizacion_det
+IS 'Id del cotización detalle';
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN id_preingreso_det INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_preingreso_det
+IS 'Id del preingeso detalle';
+
+CREATE INDEX idx_tactivo_fijo__id_activo_fijo ON kaf.tactivo_fijo
+  USING btree (id_activo_fijo);
+/***********************************F-SCP-RCM-KAF-1-09/08/2017****************************************/

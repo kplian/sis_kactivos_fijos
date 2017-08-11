@@ -94,7 +94,7 @@ BEGIN
                             pro.desc_proveedor,
                             cat1.descripcion as estado_fun,
                             cat2.descripcion as estado_compra,
-                            cla.codigo || '' '' || cla.nombre as clasificacion,
+                            cla.codigo_completo_tmp || '' '' || cla.nombre as clasificacion,
                             cc.codigo_cc as centro_costo,
                             ofi.codigo || '' '' || ofi.nombre as oficina,
                             dpto.codigo || '' '' || dpto.nombre as depto,
@@ -125,7 +125,8 @@ BEGIN
                             afij.monto_compra_orig_100,
                             afij.nro_cbte_asociado,
                             afij.fecha_cbte_asociado,
-                            round(afij.vida_util_original/12,2)::numeric as vida_util_original_anios
+                            round(afij.vida_util_original/12,2)::numeric as vida_util_original_anios,
+                            uo.nombre_cargo
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -150,7 +151,27 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
+                        left join orga.tuo_funcionario uof
+                        on uof.id_funcionario = afij.id_funcionario
+                        and uof.fecha_asignacion <= now()
+                        and coalesce(uof.fecha_finalizacion, now())>=now() 
+                        and uof.estado_reg = ''activo'' 
+                        and uof.tipo = ''oficial''
+                        left join orga.tuo uo
+                        on uo.id_uo = uof.id_uo
 				        where  ';
+
+            --Verifica si la consulta es por usuario
+            if pxp.f_existe_parametro(p_tabla,'por_usuario') then
+                if v_parametros.por_usuario = 'si' then
+                    v_consulta = v_consulta || ' afij.id_funcionario in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') and ';
+                end if;
+            end if;
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -194,7 +215,27 @@ BEGIN
 						left join segu.vpersona per on per.id_persona = afij.id_persona
 						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
+                        left join orga.tuo_funcionario uof
+                        on uof.id_funcionario = afij.id_funcionario
+                        and uof.fecha_asignacion <= now()
+                        and coalesce(uof.fecha_finalizacion, now())>=now() 
+                        and uof.estado_reg = ''activo'' 
+                        and uof.tipo = ''oficial''
+                        left join orga.tuo uo
+                        on uo.id_uo = uof.id_uo
 				        where  ';
+
+            --Verifica si la consulta es por usuario
+            if pxp.f_existe_parametro(p_tabla,'por_usuario') then
+                if v_parametros.por_usuario = 'si' then
+                    v_consulta = v_consulta || ' afij.id_funcionario in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') and ';
+                end if;
+            end if;
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -386,7 +427,7 @@ BEGIN
                             pro.desc_proveedor,
                             cat1.descripcion as estado_fun,
                             cat2.descripcion as estado_compra,
-                            cla.codigo || '' '' || cla.nombre as clasificacion,
+                            cla.codigo_completo_tmp || '' '' || cla.nombre as clasificacion,
                             cc.codigo_cc as centro_costo,
                             ofi.codigo || '' '' || ofi.nombre as oficina,
                             dpto.codigo || '' '' || dpto.nombre as depto,
@@ -416,7 +457,8 @@ BEGIN
                             unmed.descripcion as descripcion_unmed,
                             afij.monto_compra_orig_100,
                             afij.nro_cbte_asociado,
-                            afij.fecha_cbte_asociado
+                            afij.fecha_cbte_asociado,
+                            uo.nombre_cargo
                         from kaf.tactivo_fijo afij                       
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg                      
                         inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -441,6 +483,14 @@ BEGIN
                         left join segu.vpersona per on per.id_persona = afij.id_persona
                         left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
+                        left join orga.tuo_funcionario uof
+                        on uof.id_funcionario = afij.id_funcionario
+                        and uof.fecha_asignacion <= ''' || v_parametros.fecha_mov || '''
+                        and coalesce(uof.fecha_finalizacion, '''||v_parametros.fecha_mov||''')>=''' || v_parametros.fecha_mov || '''
+                        and uof.estado_reg = ''activo'' 
+                        and uof.tipo = ''oficial''
+                        left join orga.tuo uo
+                        on uo.id_uo = uof.id_uo
                         where  ';
             
             --Definicion de la respuesta
@@ -489,6 +539,14 @@ BEGIN
                         left join segu.vpersona per on per.id_persona = afij.id_persona
                         left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
+                        left join orga.tuo_funcionario uof
+                        on uof.id_funcionario = afij.id_funcionario
+                        and uof.fecha_asignacion <= ''' || v_parametros.fecha_mov || '''
+                        and coalesce(uof.fecha_finalizacion, '''||v_parametros.fecha_mov||''')>=''' || v_parametros.fecha_mov || '''
+                        and uof.estado_reg = ''activo'' 
+                        and uof.tipo = ''oficial''
+                        left join orga.tuo uo
+                        on uo.id_uo = uof.id_uo
                         where  ';
             
             --Definicion de la respuesta            

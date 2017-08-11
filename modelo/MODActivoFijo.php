@@ -18,6 +18,8 @@ class MODActivoFijo extends MODbase{
 		$this->procedimiento='kaf.ft_activo_fijo_sel';
 		$this->transaccion='SKA_AFIJ_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('por_usuario','por_usuario','varchar');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo','int4');
@@ -98,6 +100,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('nro_cbte_asociado','varchar');
 		$this->captura('fecha_cbte_asociado','date');
 		$this->captura('vida_util_original_anios','numeric');
+		$this->captura('nombre_cargo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -165,6 +168,7 @@ class MODActivoFijo extends MODbase{
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+
 		$this->ejecutarConsulta();
 
 		//Devuelve la respuesta
@@ -538,6 +542,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('monto_compra_orig_100','numeric');
 		$this->captura('nro_cbte_asociado','varchar');
 		$this->captura('fecha_cbte_asociado','date');
+		$this->captura('nombre_cargo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

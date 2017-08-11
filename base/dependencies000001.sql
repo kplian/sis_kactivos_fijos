@@ -1044,3 +1044,27 @@ WITH RECURSIVE t(
       FROM t
       ORDER BY t.orden;
 /***********************************F-DEP-RCM-KAF-1-25/07/2017****************************************/    
+
+
+/***********************************I-DEP-RCM-KAF-1-09/08/2017****************************************/    
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_unidad_medida FOREIGN KEY (id_unidad_medida)
+    REFERENCES param.tunidad_medida(id_unidad_medida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_cotizacion_det FOREIGN KEY (id_cotizacion_det)
+    REFERENCES adq.tcotizacion_det(id_cotizacion_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_preingreso_det FOREIGN KEY (id_preingreso_det)
+    REFERENCES alm.tpreingreso_det(id_preingreso_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-1-09/08/2017****************************************/    
