@@ -83,7 +83,9 @@ BEGIN
         cantidad_af,
         monto_compra_orig_100,
         nro_cbte_asociado,
-        fecha_cbte_asociado
+        fecha_cbte_asociado,
+        id_cotizacion_det,
+        id_preingreso_det
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -135,7 +137,9 @@ BEGIN
         (p_parametros->'cantidad_af')::integer,
         (p_parametros->'monto_compra_orig_100')::numeric,
         (p_parametros->'nro_cbte_asociado')::varchar,
-        (p_parametros->'fecha_cbte_asociado')::date
+        (p_parametros->'fecha_cbte_asociado')::date,
+        (p_parametros->'id_cotizacion_det')::integer,
+        (p_parametros->'id_preingreso_det')::integer
         
     ) returning id_activo_fijo into v_id_activo_fijo;
 

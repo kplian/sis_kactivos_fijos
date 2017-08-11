@@ -49,12 +49,28 @@ BEGIN
           where id_depto = (p_parametros->'id_depto')::integer
           and cargo = 'responsable') then
         raise exception 'No es posible guardar el movimiento porque no se ha definido Responsable del Depto. de Activos Fijos';
-    end if; 
+    end if;
 
     select id_usuario into v_id_responsable_depto
     from param.tdepto_usuario
     where id_depto = (p_parametros->'id_depto')::integer
     and cargo = 'responsable' limit 1;
+
+    if not exists(select 1
+                from segu.tusuario usu
+                inner join orga.vfuncionario_persona fun
+                on fun.id_persona = usu.id_persona
+                where usu.id_usuario = v_id_responsable_depto
+                ) then
+        raise exception 'El usuario responsable del Dpto. no está registrado como funcionario';
+    end if;
+
+    select fun.id_funcionario
+    into v_id_responsable_depto
+    from segu.tusuario usu
+    inner join orga.vfuncionario_persona fun
+    on fun.id_persona = usu.id_persona
+    where usu.id_usuario = v_id_responsable_depto;
 
     --Verificación de período abierto
     select po_id_periodo_subsistema into v_id_periodo_subsistema
@@ -263,29 +279,10 @@ BEGIN
         end loop;
 
     elsif v_cod_movimiento = 'devol' and v_sw_reg_masivo then
-        --DEVOLUCIÓN: Obtiene el cargo del depto de AF para definirlo como nuevo responsable del activo
-        if not exists(select 1
-                    from segu.tusuario usu
-                    inner join segu.tpersona per
-                    on per.id_persona = usu.id_persona
-                    inner join orga.tfuncionario fun
-                    on fun.id_persona = per.id_persona
-                    where usu.id_usuario = v_id_responsable_depto) then
-            raise exception 'No se puede hacer la devolución porque no se encuentra al responsable del Dpto. de Activos como funcionario';
-        end if;
-
-        select fun.id_funcionario
-        into v_id_funcionario
-        from segu.tusuario usu
-        inner join segu.tpersona per
-        on per.id_persona = usu.id_persona
-        inner join orga.tfuncionario fun
-        on fun.id_persona = per.id_persona
-        where usu.id_usuario = v_id_responsable_depto;
 
         --Actualiza el funcionario destino como el responsable del depto.
         update kaf.tmovimiento set
-        id_funcionario_dest = v_id_funcionario
+        id_funcionario_dest = v_id_responsable_depto
         where id_movimiento = v_id_movimiento;
         
         for v_registros_mov in (select

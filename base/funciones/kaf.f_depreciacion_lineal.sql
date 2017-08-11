@@ -45,11 +45,13 @@ DECLARE
     v_id_periodo_subsistema integer;
     v_res                   varchar;
     v_salida                varchar;
+    v_sw                    boolean;
 
 BEGIN
     
     v_nombre_funcion = 'kaf.f_depreciacion_lineal';
     v_salida = 'done';
+    v_sw = false;
     
     --RAC 03/03/2017
     --  TODO validar que no se valores dos veces dentro el mismo omvimeinto
@@ -77,7 +79,7 @@ BEGIN
                               mod.contabilizar
                               from kaf.tmoneda_dep mod                                               
                               where mod.estado_reg = 'activo') LOOP
-                              
+              v_sw = true;
                   
               --moneda de actulizacion
               v_id_moneda_act = v_registros_mod.id_moneda_act;            
@@ -358,6 +360,10 @@ BEGIN
               end loop;
     
     END LOOP; --fin loop de moneda de depreciacion;
+
+    if v_sw = false then
+      raise exception 'No se encontró registrada ninguna moneda para la depreciación';
+    end if;
     
     --Verifica si al menos se depreció una vez
     if v_contador > 0 then

@@ -36,6 +36,20 @@ class ACTActivoFijo extends ACTbase{
 
 			} else if($colFilter=='id_oficina'){
 				$this->objParam->addFiltro("afij.id_oficina = ".$this->objParam->getParametro('id_filter_panel'));
+			} else if($colFilter=='id_uo'){
+				$this->objParam->addFiltro("uo.id_uo in (
+					WITH RECURSIVE t(id,id_fk,n) AS (
+					SELECT l.id_uo_hijo,l.id_uo_padre,1
+					FROM orga.testructura_uo l
+					WHERE l.id_uo_hijo = ".$this->objParam->getParametro('id_filter_panel')."
+					UNION ALL
+					SELECT l.id_uo_hijo,l.id_uo_padre,n+1
+					FROM orga.testructura_uo l, t
+					WHERE l.id_uo_padre = t.id
+					)
+					SELECT id
+					FROM t)");
+
 			}
 
 			//Por caracteristicas
