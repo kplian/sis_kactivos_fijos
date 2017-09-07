@@ -23,18 +23,17 @@ $body$
 ***************************************************************************/
 
 DECLARE
- v_resp	varchar;
- v_nombre_funcion	varchar;
- v_registros		record;
- v_reg_af			record;
- v_error 			varchar;
- v_registros_mov	record;
 
+  v_resp	varchar;
+  v_nombre_funcion	varchar;
+  v_registros		record;
+  v_reg_af			record;
+  v_error 			varchar;
+  v_registros_mov	record;
 
 BEGIN
  
-   v_nombre_funcion = 'kaf.f_validar_ins_mov_af';
-   
+    v_nombre_funcion = 'kaf.f_validar_ins_mov_af';
    
     select 
           mov.estado,
@@ -66,26 +65,27 @@ BEGIN
       where af.id_activo_fijo = p_id_activo_fijo;   
       
       -----------------------------
-      -- validaciones genericas
+      -- Validaciones genéricas
       -----------------------------
-           --  validar que no exista otro movimiento del mismo tipo que este en borrador o no este finalizado
+      --Validar que no exista otro movimiento del mismo tipo que este en borrador o no este finalizado
         
-      v_error = '';
-      FOR v_registros_mov in (
-      						 select
-                                mov.id_movimiento,
-                                mov.num_tramite
+      /*v_error = '';
+      FOR v_registros_mov in (select
+                              mov.id_movimiento,
+                              mov.num_tramite
                               from kaf.tmovimiento mov
-                              inner join kaf.tmovimiento_af maf on mov.id_movimiento = maf.id_movimiento and maf.id_activo_fijo = p_id_activo_fijo
-                              where     mov.id_movimiento != p_id_movimiento 
+                              inner join kaf.tmovimiento_af maf
+                              on mov.id_movimiento = maf.id_movimiento
+                              and maf.id_activo_fijo = p_id_activo_fijo
+                              where mov.id_movimiento != p_id_movimiento 
                                     and  mov.id_cat_movimiento = v_registros.id_cat_movimiento
                                     and mov.estado_reg = 'activo'
                                     and mov.estado  not in ('finalizado')) LOOP
       
      		 v_error = v_error ||'<BR> '||v_registros_mov.num_tramite;
       
-      
-      END LOOP;
+      END LOOP;*/
+      v_error = kaf.f_movimiento_af_validar_mov_compatibles(p_id_movimiento,v_reg_af.id_activo_fijo);
       
       IF v_reg_af.id_depto != v_registros.id_depto THEN
            

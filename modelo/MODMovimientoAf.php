@@ -41,6 +41,17 @@ class MODMovimientoAf extends MODbase{
 		$this->captura('denominacion','varchar');
 		$this->captura('estado_fun','varchar');
 		$this->captura('motivo','varchar');
+		$this->captura('descripcion','varchar');
+		$this->captura('monto_vigente_real_af','numeric');
+        $this->captura('vida_util_real_af','int4');
+        $this->captura('fecha_ult_dep_real_af','date');
+        $this->captura('depreciacion_acum_real_af','numeric');
+        $this->captura('depreciacion_per_real_af','numeric');
+        $this->captura('desc_moneda_orig','varchar');
+        $this->captura('monto_compra','numeric');
+        $this->captura('vida_util_af','int4');
+        $this->captura('fecha_ini_dep','date');
+        $this->captura('depreciacion_acum','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -65,6 +76,7 @@ class MODMovimientoAf extends MODbase{
 		$this->setParametro('importe','importe','numeric');
 		$this->setParametro('respuesta','respuesta','text');
 		$this->setParametro('vida_util','vida_util','int4');
+		$this->setParametro('depreciacion_acum','depreciacion_acum','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -90,6 +102,7 @@ class MODMovimientoAf extends MODbase{
 		$this->setParametro('importe','importe','numeric');
 		$this->setParametro('respuesta','respuesta','text');
 		$this->setParametro('vida_util','vida_util','int4');
+		$this->setParametro('depreciacion_acum','depreciacion_acum','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

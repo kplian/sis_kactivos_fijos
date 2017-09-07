@@ -75,7 +75,8 @@ BEGIN
                             claf.descripcion,
                             claf.tipo_activo,
                             claf.depreciable,
-                            claf.contabilizar
+                            claf.contabilizar,
+                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
@@ -165,7 +166,8 @@ BEGIN
                             claf.descripcion,
                             claf.tipo_activo,
                             claf.depreciable,
-                            claf.contabilizar
+                            claf.contabilizar,
+                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod

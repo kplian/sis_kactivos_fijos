@@ -353,7 +353,8 @@ BEGIN
                           COALESCE(min.monto_actualiz, actval.monto_vigente_orig) AS monto_actualiz_real,
                           actval.id_moneda,
                           actval.id_moneda_dep,
-                          mon.codigo as desc_moneda
+                          mon.codigo as desc_moneda,
+                          actval.fecha_fin
 						from  kaf.tactivo_fijo_valores actval 
                         LEFT JOIN ( SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
                                  afd.monto_vigente,
@@ -372,7 +373,7 @@ BEGIN
                           ORDER BY afd.id_activo_fijo_valor,
                                    afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
                         inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
-                        WHERE      (actval.fecha_fin is null or actval.fecha_fin <= '''||v_parametros.fecha_hasta||'''::date)  
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)  
                                and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
                                and ';
 			
@@ -424,7 +425,7 @@ BEGIN
                           ORDER BY afd.id_activo_fijo_valor,
                                    afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
                         inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
-                        WHERE      (actval.fecha_fin is null or actval.fecha_fin <= '''||v_parametros.fecha_hasta||'''::date) 
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date) 
                                and actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
                                and ';
 			

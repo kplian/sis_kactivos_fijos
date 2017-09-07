@@ -48,6 +48,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('codigo','varchar');
+		$this->captura('fecha_fin','date');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -139,6 +140,54 @@ class MODActivoFijoValores extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarActivoFijoValoresArb(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_valores_sel';
+		$this->transaccion='SKA_ACTVAL_ARB';
+		$this->setCount(false);
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo_valor','int4');
+		$this->captura('id_activo_fijo','int4');
+		$this->captura('depreciacion_per','numeric');
+		$this->captura('estado','varchar');
+		$this->captura('principal','varchar');
+		$this->captura('monto_vigente','numeric');
+		$this->captura('monto_rescate','numeric');
+		$this->captura('tipo_cambio_ini','numeric');
+		$this->captura('estado_reg','varchar');
+		$this->captura('tipo','varchar');
+		$this->captura('depreciacion_mes','numeric');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('fecha_ult_dep','date');
+		$this->captura('fecha_ini_dep','date');
+		$this->captura('monto_vigente_orig','numeric');
+		$this->captura('vida_util','int4');
+		$this->captura('vida_util_orig','int4');
+		$this->captura('id_movimiento_af','int4');
+		$this->captura('tipo_cambio_fin','numeric');
+		$this->captura('usuario_ai','varchar');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('id_usuario_ai','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+		$this->captura('codigo','varchar');
+		$this->captura('fecha_fin','date');
+		$this->captura('tipo_nodo','varchar');
+		$this->captura('monto_vigente_real','numeric');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

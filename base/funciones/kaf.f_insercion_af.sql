@@ -24,7 +24,6 @@ BEGIN
      
      --conversion de monedas
      
-     
       v_monto_compra = param.f_convertir_moneda(
                            (p_parametros->'id_moneda_orig')::integer, 
                            NULL,   --por defecto moenda base

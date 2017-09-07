@@ -33,6 +33,10 @@ class MODActivoFijoCaract extends MODbase{
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('id_clasificacion_variable','int4');
+		$this->captura('nombre_variable','varchar');
+		$this->captura('tipo_dato','varchar');
+		$this->captura('obligatorio','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -53,6 +57,7 @@ class MODActivoFijoCaract extends MODbase{
 		$this->setParametro('valor','valor','varchar');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('id_clasificacion_variable','id_clasificacion_variable','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -74,6 +79,7 @@ class MODActivoFijoCaract extends MODbase{
 		$this->setParametro('valor','valor','varchar');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('id_clasificacion_variable','id_clasificacion_variable','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

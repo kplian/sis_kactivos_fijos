@@ -36,7 +36,7 @@ DECLARE
 	v_sep					varchar;   
 	v_nivel					integer;
 	v_rec 					record;
-	v_cod_fin_padre			varchar;
+	v_cod_fin			   varchar;
 	v_ins 					boolean;
 			    
 BEGIN
@@ -57,16 +57,14 @@ BEGIN
         begin
 
         	--Obtiene el código del padre
-        	select codigo, substring(codigo from length(codigo)-3 for 4)
-        	into v_codigo, v_cod_fin_padre
-        	from kaf.tclasificacion
-        	where id_clasificacion = v_parametros.id_clasificacion_fk;
+            v_codigo = v_parametros.codigo;
+			v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
 
-        	if v_codigo is null then
-        		v_codigo = v_parametros.codigo;
-        	else
-        		v_codigo = coalesce(v_codigo,'')||v_sep||v_parametros.codigo;
-        	end if;
+            --Verifica que el nuevo código no exista
+            if exists(select 1 from kaf.tclasificacion
+						where codigo_completo_tmp = v_cod_fin)then
+				raise exception 'Código existente: %',v_cod_fin;
+			end if;
 
         	--Sentencia de la insercion
         	insert into kaf.tclasificacion(
@@ -91,7 +89,8 @@ BEGIN
                 descripcion,
                 tipo_activo,
                 depreciable,
-                contabilizar
+                contabilizar,
+				codigo_completo_tmp
           	) values(
                 v_parametros.id_clasificacion_fk,
                 v_parametros.id_cat_metodo_dep,
@@ -114,7 +113,8 @@ BEGIN
                 upper(v_parametros.descripcion),
                 v_parametros.tipo_activo,
                 v_parametros.depreciable,
-                v_parametros.contabilizar
+                v_parametros.contabilizar,
+				v_cod_fin
 
 			)RETURNING id_clasificacion into v_id_clasificacion;
 
@@ -129,7 +129,7 @@ BEGIN
 
 							--Verifica el nivel para hacer la insercion
 							if v_nivel = 4 then
-								if substring(v_rec.codigo from length(v_rec.codigo)-3 for 4) != v_cod_fin_padre then
+								if substring(v_rec.codigo from length(v_rec.codigo)-3 for 4) != v_cod_fin then
 									v_ins = false;
 								end if;
 							end if;
@@ -158,7 +158,8 @@ BEGIN
                                     descripcion,
                                     tipo_activo,
                                     depreciable,
-                                    contabilizar
+                                    contabilizar,
+									codigo_completo_tmp
 					          	) values(
                                     v_rec.id_clasificacion,
                                     v_parametros.id_cat_metodo_dep,
@@ -181,7 +182,8 @@ BEGIN
                                     upper(v_parametros.descripcion),
                                     v_parametros.tipo_activo,
                                     v_parametros.depreciable,
-                                    v_parametros.contabilizar
+                                    v_parametros.contabilizar,
+									v_parametros.codigo_completo_tmp
 								);
 							end if;
 							v_ins = true;
@@ -210,12 +212,34 @@ BEGIN
 	elsif(p_transaccion='SKA_CLAF_MOD')then
 
 		begin
+		
+			--Verifica si existen activos registrados en la clasificacion a modificar o en alguna de sus ramas
+			if exists(select 1
+					from kaf.tactivo_fijo af
+					where coalesce(af.codigo,'') != ''
+					and af.id_clasificacion in (select get_id_clasificaciones_sel
+												from kaf.get_id_clasificaciones_sel(v_parametros.id_clasificacion,'hijos'))) then
+				raise exception 'No es posible realizar ninguna modificación porque existen activos fijos registrados con esta clasificación';
+			end if;
+			
+			--Obtiene el código del padre
+            v_codigo = v_parametros.codigo;
+			v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
+
+            --Verifica que el nuevo código no exista
+            if exists(select 1 from kaf.tclasificacion
+						where codigo_completo_tmp = v_cod_fin
+						and id_clasificacion != v_parametros.id_clasificacion)then
+				raise exception 'Código existente: %',v_cod_fin;
+			end if;
+			
+			
 			--Sentencia de la modificacion
 			update kaf.tclasificacion set
                 id_clasificacion_fk = v_parametros.id_clasificacion_fk,
                 id_cat_metodo_dep = v_parametros.id_cat_metodo_dep,
                 id_concepto_ingas = v_parametros.id_concepto_ingas,
-                codigo  = upper(v_parametros.codigo),
+                codigo  = v_codigo,
                 nombre = upper(v_parametros.nombre),
                 vida_util = v_parametros.vida_util,
                 correlativo_act = v_parametros.correlativo_act,
@@ -231,7 +255,8 @@ BEGIN
                 descripcion = upper(v_parametros.descripcion),
                 tipo_activo = v_parametros.tipo_activo,
                 depreciable = v_parametros.depreciable,
-                contabilizar = v_parametros.contabilizar
+                contabilizar = v_parametros.contabilizar,
+				codigo_completo_tmp = v_cod_fin
 			where id_clasificacion=v_parametros.id_clasificacion;
                
 			--Definicion de la respuesta

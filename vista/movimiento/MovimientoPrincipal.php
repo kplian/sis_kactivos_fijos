@@ -13,16 +13,17 @@ Phx.vista.MovimientoPrincipal = {
     bsave:false,    
     require:'../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php',
     requireclase:'Phx.vista.Movimiento',
-    title:'Venta',
+    title:'Movimientos',
     nombreVista: 'MovimientoPrincipal',
     
     gruposBarraTareas:[
 		{name:'Todos',title:'<h1 align="center"><i class="fa fa-bars"></i> Todos</h1>',grupo:0,height:0},
 	   	{name:'Altas',title:'<h1 align="center"><i class="fa fa-thumbs-o-up"></i> Altas</h1>',grupo:1,height:0},
-       	{name:'Bajas',title:'<H1 align="center"><i class="fa fa-thumbs-o-down"></i> Bajas</h1>',grupo:2,height:0},
-       	{name:'Revalorizaciones/Mejoras',title:'<H1 align="center"><i class="fa fa-plus-circle"></i> Revaloriz/Incrementos</h1>',grupo:3,height:0},
+       	{name:'Bajas/Retiros',title:'<H1 align="center"><i class="fa fa-thumbs-o-down"></i> Bajas y Retiros</h1>',grupo:2,height:0},
+       	{name:'Revalorizaciones/Mejoras',title:'<H1 align="center"><i class="fa fa-plus-circle"></i> Revaloriz/Ajustes</h1>',grupo:3,height:0},
        	{name:'Asignaciones/Devoluciones',title:'<H1 align="center"><i class="fa fa-user-plus"></i> Asig/Devol/Transf</h1>',grupo:4,height:0},
-       	{name:'Depreciaciones',title:'<H1 align="center"><i class="fa fa-calculator"></i> Depreciaciones</h1>',grupo:5,height:0}
+       	{name:'Depreciaciones',title:'<H1 align="center"><i class="fa fa-calculator"></i> Depreciaciones</h1>',grupo:5,height:0},
+        {name:'Desglose/División',title:'<H1 align="center"><i class="fa fa-calculator"></i> Desglose, división e intercambio de partes</h1>',grupo:6,height:0}
     ],
 
     actualizarSegunTab: function(name, indice){
@@ -31,14 +32,16 @@ Phx.vista.MovimientoPrincipal = {
     	} else if(indice==1){
     		this.filterMov='alta';
     	} else if(indice==2){
-    		this.filterMov='baja';
+    		this.filterMov='baja,retiro';
     	} else if(indice==3){
-    		this.filterMov='reval,incdec';
+    		this.filterMov='reval,ajuste,mejora,transito';
     	} else if(indice==4){
     		this.filterMov='asig,devol,transf,tranfdep';
     	} else if(indice==5){
     		this.filterMov='deprec,actua';
-    	}
+    	} else if(indice==6){
+            this.filterMov='divis,desgl,intpar';
+        }
     	this.store.baseParams.cod_movimiento = this.filterMov;
     	//this.getBoton('btnReporte').show();
     	this.load({params:{start:0, limit:this.tam_pag}});
@@ -108,8 +111,6 @@ Phx.vista.MovimientoPrincipal = {
                 scope:this
             });         
         } 
-        
-        
     } ,  
     
      openMovimientos: function(){
@@ -158,7 +159,7 @@ Phx.vista.MovimientoPrincipal = {
     		swFuncionarioDest=false;
     		swCatMovMotivo=false;
     		h=381;
-    	} else if(mov=='baja'){
+    	} else if(mov=='baja'||mov=='retiro'){
     		swDireccion=false;
     		swFechaHasta=false;
     		swFuncionario=false;
@@ -202,7 +203,7 @@ Phx.vista.MovimientoPrincipal = {
     		swFuncionarioDest=false;
     		swCatMovMotivo=false;
     		h=298;
-    	} else if(mov=='incdec'){
+    	} else if(mov=='ajuste'){
     		swDireccion=false;
     		swFechaHasta=false;
     		swFuncionario=false;
@@ -213,7 +214,7 @@ Phx.vista.MovimientoPrincipal = {
     		swFuncionarioDest=false;
     		swCatMovMotivo=true;
     		h=275;
-    	} else if(mov=='reval'){
+    	} else if(mov=='reval'||mov=='mejora'){
     		swDireccion=false;
     		swFechaHasta=false;
     		swFuncionario=false;
@@ -257,7 +258,29 @@ Phx.vista.MovimientoPrincipal = {
     		swFuncionarioDest=false;
     		swCatMovMotivo=false;
     		h=280;
-    	}
+    	} else if(mov=='divis'||mov=='desgl'||mov=='intpar'){
+            swDireccion=false;
+            swFechaHasta=false;
+            swFuncionario=false;
+            swOficina=false;
+            swPersona=false;
+            swDeptoDest=false;
+            swDepositoDest=false;
+            swFuncionarioDest=false;
+            swCatMovMotivo=false;
+            h=253;
+        } else if(mov=='transito'){
+            swDireccion=false;
+            swFechaHasta=false;
+            swFuncionario=false;
+            swOficina=false;
+            swPersona=false;
+            swDeptoDest=false;
+            swDepositoDest=false;
+            swFuncionarioDest=false;
+            swCatMovMotivo=false;
+            h=253;
+        }
 
     	//Enable/disable user controls based on mov type
     	this.Cmp.direccion.setVisible(swDireccion);
@@ -286,9 +309,11 @@ Phx.vista.MovimientoPrincipal = {
     },
 
     onButtonEdit: function() {
+        this.form.html = 'asdasd Hello <b>world!</b> editando ...';
     	Phx.vista.Movimiento.superclass.onButtonEdit.call(this);
     	var data = this.getSelectedData();
     	this.habilitarCampos(data.cod_movimiento);
+        
     },
 
     south: {
@@ -326,8 +351,8 @@ Phx.vista.MovimientoPrincipal = {
         	this.getBoton('ant_estado').disable();
         }
         if(data.estado=='finalizado'||data.estado=='cancelado'){
-        	//this.getBoton('ant_estado').disable();
-        	//this.getBoton('sig_estado').disable();
+        	this.getBoton('ant_estado').disable();
+        	this.getBoton('sig_estado').disable();
         }
         if(data.cod_movimiento=='deprec'  || data.cod_movimiento=='actua'){
         	this.getBoton('btnReporteDep').enable();

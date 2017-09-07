@@ -303,8 +303,7 @@ Phx.vista.Deposito=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true
-	}
-)
+})
 </script>
 		
 		

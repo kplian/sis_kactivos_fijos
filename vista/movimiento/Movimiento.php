@@ -22,7 +22,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonReport,
-            tooltip : '<b>Reporte de Movimiennto</b><br/><b>Reporte de Movimiennto efectuado y su detalle</b>'
+            tooltip : '<b>Reporte de Movimiennto</b><br/><b>Reporte de Movimiento efectuado y su detalle</b>'
         });
         
          this.addButton('btnReporteDep',{
@@ -30,7 +30,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             iconCls : 'bpdf32',
             disabled: true,
             handler : this.onButtonReportDepreciacion,
-            tooltip : '<b>Reporte Depresiación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
+            tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
         });
         
         
@@ -69,20 +69,20 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'movimiento',
 				hiddenName: 'id_cat_movimiento',
-				gwidth: 95,
+				gwidth: 55,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tmovimiento__id_cat_movimiento'
 				},
 				renderer: function (value,p,record) {
 					var result;
-					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='18' height='18' title='"+record.data.movimiento+"'/><br> <u>"+record.data.movimiento+"</u></div>";
+					result = "<div style='text-align:center'><img src = '../../../lib/imagenes/" + record.data.icono +"'align='center' width='24' height='24' title='"+record.data.movimiento+"'/></div>";
 					return result;
 				},
 				valueField: 'id_catalogo'
 			},
 			type: 'ComboRec',
-			id_grupo: 1,
+			id_grupo: 0,
 			filters:{pfiltro:'cat.descripcion',type:'string'},
 			grid: true,
 			form: true
@@ -105,7 +105,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.num_tramite',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:true,
 			form:false,
 			bottom_filter:true
@@ -129,7 +129,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.estado',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:false,
 			form:true,
 			bottom_filter:true
@@ -146,7 +146,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_mov',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:false,
 				form:true
 		},
@@ -220,7 +220,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextArea',
 			filters:{pfiltro:'mov.glosa',type:'string'},
-			id_grupo:1,
+			id_grupo:0,
 			grid:true,
 			form:true,
 			bottom_filter:true
@@ -238,7 +238,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_hasta',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -355,7 +355,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextArea',
 				filters:{pfiltro:'mov.direccion',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -369,7 +369,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.codigo',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -600,7 +600,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.estado_reg',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -615,7 +615,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'mov.id_usuario_ai',type:'numeric'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:false,
 				form:false
 		},
@@ -630,7 +630,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -646,7 +646,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_reg',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -661,7 +661,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mov.usuario_ai',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -677,7 +677,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'mov.fecha_mod',type:'date'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		},
@@ -692,7 +692,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'Field',
 				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:false
 		}

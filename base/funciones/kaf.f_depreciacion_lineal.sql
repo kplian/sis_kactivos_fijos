@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.f_depreciacion_lineal (
   p_id_usuario integer,
   p_id_activo_fijo integer,
@@ -19,7 +17,7 @@ DECLARE
     v_resp                  varchar;
     v_nombre_funcion        varchar;
     v_meses_dep             integer;
-    v_id_moneda_act             integer;
+    v_id_moneda_act         integer;
     v_rec_ant               record;
     v_rec_tc                record;
     v_dep_acum_actualiz     numeric;
@@ -35,14 +33,17 @@ DECLARE
     v_nuevo_monto_vigente   numeric;
     v_nuevo_vida_util       integer;
     v_mes_dep               date;
-    v_gestion_previa		integer;
-    v_gestion_dep			integer;
+    v_gestion_previa		    integer;
+    v_gestion_dep			      integer;
     v_ant_monto_actualiz  	numeric;
-    v_gestion_aux			integer;
-    v_mes_aux				integer;
-    v_registros_mod			record;
-    v_contador 				integer;
+    v_gestion_aux			      integer;
+    v_mes_aux				        integer;
+    v_registros_mod			    record;
+    v_contador 				      integer;
     v_tipo_cambio_anterior	numeric;
+    v_id_subsistema         integer;
+    v_id_periodo_subsistema integer;
+    v_res                   varchar;
 
 BEGIN
     
@@ -59,6 +60,11 @@ BEGIN
     where mafd.id_movimiento_af = p_id_movimiento_af;
     
     ---FIN RAC
+
+    --Obtención del subsistema para posterior verificación de período abierto
+    select id_subsistema into v_id_subsistema
+    from segu.tsubsistema
+    where codigo = 'KAF';
    
     
    --Lista las monedas configuradas para depreciar
@@ -118,10 +124,10 @@ BEGIN
                                 and afv.id_moneda_dep =  v_registros_mod.id_moneda_dep    --   para depreciar en diferentes monedas
                                 and (
                                       CASE WHEN p_depreciar = 'SI'  THEN -- case para activos no depreciables
-                                               vida_util_real > 0   
-                                           ELSE
-                                               0 = 0
-                                           END)
+                                          vida_util_real > 0   
+                                      ELSE
+                                          0 = 0
+                                      END)
                                 
                                 ) loop   
                                 
@@ -181,6 +187,16 @@ BEGIN
                           --raise exception '%, % , %, meses = %',v_rec_ant.fecha_inicio, v_mes_dep, p_hasta, v_meses_dep;
                           
                           for i in 1..v_meses_dep loop
+
+                                --RCM:  Verificación periodo cerrado
+                                /*select po_id_periodo_subsistema into v_id_periodo_subsistema
+                                from param.f_get_periodo_gestion(v_mes_dep,v_id_subsistema);
+                                v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema, false);
+                                if v_res != 'exito' then
+                                  return v_res;
+                                  exit;
+                                end if;*/
+                                --FIN RCM
                           
                                   -- SI la moneda requiere actulizacion  , calculamos factorres
                                   IF v_registros_mod.actualizar = 'si'  THEN  
