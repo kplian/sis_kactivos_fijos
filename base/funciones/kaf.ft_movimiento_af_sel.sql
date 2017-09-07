@@ -72,7 +72,9 @@ BEGIN
                         af.monto_compra,
                         af.vida_util as vida_util_af,
                         af.fecha_ini_dep,
-                        movaf.depreciacion_acum
+                        movaf.depreciacion_acum,
+                        movaf.importe_ant,
+                        movaf.vida_util_ant
 						from kaf.tmovimiento_af movaf
 						inner join segu.tusuario usu1 on usu1.id_usuario = movaf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movaf.id_usuario_mod

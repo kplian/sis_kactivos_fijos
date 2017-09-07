@@ -277,3 +277,8 @@ select pxp.f_insert_testructura_gui ('KAFPREI', 'KAF');
 select pxp.f_insert_tgui ('Mis Activos Fijos', 'Listado de mis activos fijos asignados', 'KAFMIASIG', 'si', 11, 'sis_kactivos_fijos/vista/activo_fijo/ActivoFijoUsuario.php', 3, '', 'ActivoFijoUsuario', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMIASIG', 'KAF');
 /***********************************F-DAT-RCM-KAF-0-08/08/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-15/08/2017****************************************/
+select pxp.f_insert_tgui ('Procesos - Cuentas', 'Configuración de las cuentas por Proceso y Clasificación', 'MOTTIPCAT', 'si', 1, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipoCat.php', 3, '', 'MovimientoTipoCat', 'KAF');
+select pxp.f_insert_testructura_gui ('MOTTIPCAT', 'CONFAF');
+/***********************************F-DAT-RCM-KAF-0-15/08/2017****************************************/

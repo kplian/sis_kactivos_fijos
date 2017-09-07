@@ -91,7 +91,9 @@ BEGIN
 			            depdest.nombre as depto_dest,
 			            depodest.nombre as deposito_dest,
 			            fundest.desc_funcionario2,
-			            movmot.motivo
+			            movmot.motivo,
+			            mov.id_int_comprobante,
+			            mov.id_int_comprobante_aitb
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod

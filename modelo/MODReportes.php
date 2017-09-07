@@ -43,9 +43,6 @@ class MODReportes extends MODbase{
 		$this->captura('moneda','VARCHAR');
 		$this->captura('nro_cbte_asociado','VARCHAR');
 		$this->captura('fecha_cbte_asociado','DATE');
-		$this->captura('monto_compra_orig_100','NUMERIC');
-		$this->captura('valor_actual','NUMERIC');
-		$this->captura('vida_util_residual','INTEGER');
 		$this->captura('cod_clasif','VARCHAR');
 		$this->captura('desc_clasif','VARCHAR');
 		$this->captura('metodo_dep','VARCHAR');
@@ -59,6 +56,18 @@ class MODReportes extends MODbase{
 		$this->captura('ufv_mov','NUMERIC');
 		$this->captura('id_activo_fijo','INTEGER');
 		$this->captura('id_movimiento','INTEGER');
+		$this->captura('monto_vigente_orig_100','NUMERIC');
+		$this->captura('monto_vigente_orig','NUMERIC');
+		$this->captura('monto_vigente_ant','NUMERIC');
+		$this->captura('actualiz_monto_vigente','NUMERIC');
+		$this->captura('monto_actualiz','NUMERIC');
+		$this->captura('vida_util_usada','INTEGER');
+		$this->captura('vida_util','INTEGER');
+		$this->captura('dep_acum_gest_ant','NUMERIC');
+		$this->captura('act_dep_gest_ant','NUMERIC');
+		$this->captura('depreciacion_per','NUMERIC');
+		$this->captura('depreciacion_acum','NUMERIC');
+		$this->captura('monto_vigente','NUMERIC');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -93,10 +102,22 @@ class MODReportes extends MODbase{
 		$this->captura('denominacion','VARCHAR');
 		$this->captura('descripcion','VARCHAR');
 		$this->captura('fecha_ini_dep','DATE');
-		$this->captura('monto_compra_orig_100','numeric');
-		$this->captura('monto_compra_orig','numeric');
+		//$this->captura('monto_compra_orig_100','numeric');
+		//$this->captura('monto_compra_orig','numeric');
 		$this->captura('ubicacion','varchar');
 		$this->captura('responsable','text');
+		$this->captura('monto_vigente_orig_100','NUMERIC');
+		$this->captura('monto_vigente_orig','NUMERIC');
+		$this->captura('monto_vigente_ant','NUMERIC');
+		$this->captura('actualiz_monto_vigente','NUMERIC');
+		$this->captura('monto_actualiz','NUMERIC');
+		$this->captura('vida_util_usada','INTEGER');
+		$this->captura('vida_util','INTEGER');
+		$this->captura('dep_acum_gest_ant','NUMERIC');
+		$this->captura('act_dep_gest_ant','NUMERIC');
+		$this->captura('depreciacion_per','NUMERIC');
+		$this->captura('depreciacion_acum','NUMERIC');
+		$this->captura('monto_vigente','NUMERIC');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

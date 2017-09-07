@@ -68,6 +68,8 @@ class MODMovimiento extends MODbase{
 		$this->captura('deposito_dest','varchar');
 		$this->captura('funcionario_dest','text');
 		$this->captura('motivo','varchar');
+		$this->captura('id_int_comprobante','int4');
+		$this->captura('id_int_comprobante_aitb','int4');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

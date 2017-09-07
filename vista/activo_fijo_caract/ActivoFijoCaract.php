@@ -16,6 +16,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoCaract.superclass.constructor.call(this,config);
 		this.init();
+		this.bloquearMenus();
 
 		//Eventos
 		this.Cmp.id_clasificacion_variable.on('select',function(combo,record,index){

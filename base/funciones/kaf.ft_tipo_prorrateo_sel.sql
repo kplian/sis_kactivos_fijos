@@ -18,9 +18,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION: 	Modificación de la función por cambio en las columnas de la tabla tipo_prorrateo
+ AUTOR:			RCM
+ FECHA:			23/08/2017	
 ***************************************************************************/
 
 DECLARE
@@ -48,12 +48,10 @@ BEGIN
     		--Sentencia de la consulta
 			v_consulta:='select
                             tipr.id_tipo_prorrateo,
-                            tipr.descripcion,
                             tipr.estado_reg,
-                            tipr.id_gestion,
                             tipr.id_ot,
                             tipr.id_activo_fijo,
-                            tipr.id_centro_costo,
+                            tipr.id_tipo_cc,
                             tipr.id_proyecto,
                             tipr.factor,
                             tipr.id_usuario_reg,
@@ -64,13 +62,11 @@ BEGIN
                             tipr.fecha_mod,
                             usu1.cuenta as usr_reg,
                             usu2.cuenta as usr_mod,
-                            ges.gestion::varchar as desc_gestion,
-                            cc.codigo_cc::varchar as desc_centro_costo,
+                            (cc.codigo || '' - '' || cc.descripcion)::varchar as desc_tipo_cc,
                             ot.desc_orden::varchar desc_ot	
 						from kaf.ttipo_prorrateo tipr
 						inner join segu.tusuario usu1 on usu1.id_usuario = tipr.id_usuario_reg
-                        inner join param.tgestion ges on ges.id_gestion = tipr.id_gestion
-                        inner join param.vcentro_costo cc on cc.id_centro_costo = tipr.id_centro_costo
+                        inner join param.vtipo_cc cc on cc.id_tipo_cc = tipr.id_tipo_cc
                         left join conta.torden_trabajo ot on ot.id_orden_trabajo = tipr.id_ot
 						left join segu.tusuario usu2 on usu2.id_usuario = tipr.id_usuario_mod
 				        where  ';
@@ -98,8 +94,7 @@ BEGIN
 			v_consulta:='select count(id_tipo_prorrateo)
 					    from kaf.ttipo_prorrateo tipr
 						inner join segu.tusuario usu1 on usu1.id_usuario = tipr.id_usuario_reg
-                        inner join param.tgestion ges on ges.id_gestion = tipr.id_gestion
-                        inner join param.vcentro_costo cc on cc.id_centro_costo = tipr.id_centro_costo
+                        inner join param.vtipo_cc cc on cc.id_tipo_cc = tipr.id_tipo_cc
                         left join conta.torden_trabajo ot on ot.id_orden_trabajo = tipr.id_ot
 						left join segu.tusuario usu2 on usu2.id_usuario = tipr.id_usuario_mod
 				        where ';

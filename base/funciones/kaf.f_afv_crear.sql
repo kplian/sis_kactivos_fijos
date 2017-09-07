@@ -65,7 +65,8 @@ BEGIN
         depreciacion_acum,
         monto_vigente,    vida_util,             estado,                   principal,
         monto_rescate,    id_movimiento_af,      tipo,                     codigo,
-        fecha_inicio,   id_moneda_dep,         id_moneda,                  deducible
+        fecha_inicio,   id_moneda_dep,         id_moneda,                  deducible,
+        monto_vigente_orig_100
       ) values (
         p_id_usuario,      
         now(),                   
@@ -88,7 +89,8 @@ BEGIN
         p_fecha,
         v_rec.id_moneda_dep,
         v_rec.id_moneda,
-        p_deducible
+        p_deducible,
+        v_monto_compra
       );
 
     end loop;

@@ -21,8 +21,6 @@ Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
 				por_usuario: 'si'
 			}
 		});
-
-		console.log('ana',Phx.CP.getPagina(config.idContenedor+'-east'));
 	},
 	Atributos: [{
 			config:{
@@ -195,6 +193,50 @@ Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
         title: 'Movimientos',
         cls: 'MovimientoPorActivo',
         width: '300'
-    }
+    },
+    onButtonAct: function() {
+    	console.log('sssssssss 111');
+    	//this.store.rejectChanges();
+		//Phx.CP.varLog=false;
+		this.load({
+			params: {
+				start: 0,
+				limit: this.tam_pag,
+				por_usuario: 'si'
+			}
+		});
+    	//this.onEnablePanel(this.idContenedor + '-east',{})
+    	//////
+    	//var myPanel = Phx.CP.getPagina(this.idContenedor + '-east');
+
+        //if ((this.idContenedor + '-east') && myPanel) {
+        	//myPanel.desbloquearMenus();
+        	//myPanel.liberaMenu(); 
+
+            /*if (myPanel.tipoInterfaz == 'gridInterfaz') {
+                myPanel.desbloquearMenus()
+                }
+            if (myPanel.tipoInterfaz == 'arbInterfaz'  ||   myPanel.tipoInterfaz == 'arbGridInterfaz') {
+                myPanel.treePanel.getTopToolbar().enable();
+            }
+            
+            
+            //cambia el orden por logica el reload se llena con logica del programador
+            //RAC 31/05/2017
+            // esta liena esta primero que libera menu 
+            //por que esta funcion por lo general carga datos maestros que se utilizan en la demas funciones
+            myPanel.onReloadPage(data);
+            
+            
+            // recupera
+            myPanel.liberaMenu();   // no comentar por favor,...rompe la logcia de validaciones en las interfaces
+            
+            myPanel.postReloadPage(data);*/
+
+
+
+    	/////
+    	//}
+	}
 });
 </script>>

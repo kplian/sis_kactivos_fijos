@@ -2786,8 +2786,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 url: '../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDepPrin.php',
                 title: 'Depreciaciones/Actualizaciones',
                 cls: 'ActivoFijoValoresDepPrin'
+            },
+            {
+                url: '../../../sis_kactivos_fijos/vista/tipo_prorrateo/TipoProrrateo.php',
+                title: 'Centros de Costo',
+                cls: 'TipoProrrateo'
+            },
+            {
+                url: '../../../sis_kactivos_fijos/vista/activo_fijo_modificacion/ActivoFijoModificacion.php',
+                title: 'Modificaciones',
+                cls: 'ActivoFijoModificacion'
             }
-    
     
     ],
     abrirMovimientosRapido: function(tipoMov,title){

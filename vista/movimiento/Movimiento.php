@@ -32,6 +32,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             handler : this.onButtonReportDepreciacion,
             tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
         });
+
 	},
 			
 	Atributos:[
@@ -587,6 +588,32 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'id_int_comprobante',
+				fieldLabel: 'Cbte',
+				allowBlank: true,
+				gwidth: 40
+			},
+			type:'TextField',
+			filters:{pfiltro:'mov.id_int_comprobante',type:'numeric'},
+			id_grupo:0,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'id_int_comprobante_aitb',
+				fieldLabel: 'Cbte AITB',
+				allowBlank: true,
+				gwidth: 70
+			},
+			type:'TextField',
+			filters:{pfiltro:'mov.id_int_comprobante_aitb',type:'numeric'},
+			id_grupo:0,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
 				allowBlank: true,
@@ -743,7 +770,9 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'deposito_dest', type: 'string'},
 		{name:'funcionario_dest', type: 'string'},
 		{name:'motivo', type: 'string'},
-		{name:'desc_funcionario2', type: 'string'}
+		{name:'desc_funcionario2', type: 'string'},
+		'id_int_comprobante',
+		'id_int_comprobante_aitb'
 	],
 	sortInfo:{
 		field: 'id_movimiento',

@@ -17,6 +17,7 @@ DECLARE
     v_id_cat_estado_fun     integer;
     v_id_movimiento_af      integer;
     v_aux                   record;
+    v_id_moneda_base        integer;
 
 BEGIN
 
@@ -66,6 +67,9 @@ BEGIN
          raise exception 'El activo ya se encuentra registrado en el movimiento actual';
     end if;
 
+    --Se obtiene la moneda base
+    v_id_moneda_base  = param.f_get_moneda_base();
+
     --Inserción del registro
     insert into kaf.tmovimiento_af(
         id_movimiento,
@@ -81,7 +85,10 @@ BEGIN
         id_usuario_ai,
         id_usuario_mod,
         fecha_mod,
-        depreciacion_acum
+        depreciacion_acum,
+        id_moneda,
+        importe_ant,
+        vida_util_ant
     ) values(
         (p_parametros->'id_movimiento')::integer,
         (p_parametros->'id_activo_fijo')::integer,
@@ -96,7 +103,10 @@ BEGIN
         (p_parametros->'_id_usuario_ai')::integer,
         null,
         null,
-        (p_parametros->'depreciacion_acum')::numeric
+        (p_parametros->'depreciacion_acum')::numeric,
+        v_id_moneda_base,
+        (p_parametros->'importe_ant')::numeric,
+        (p_parametros->'vida_util_ant')::integer
     ) returning id_movimiento_af into v_id_movimiento_af;
     
     

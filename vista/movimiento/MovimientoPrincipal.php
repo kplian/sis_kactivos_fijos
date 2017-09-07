@@ -59,7 +59,6 @@ Phx.vista.MovimientoPrincipal = {
     constructor: function(config) {
         Phx.vista.MovimientoPrincipal.superclass.constructor.call(this,config);
         this.maestro = config;
-        console.log('maestro',this.maestro)
         this.init();
         this.load({
             params:{
@@ -77,12 +76,30 @@ Phx.vista.MovimientoPrincipal = {
                 handler: this.openMovimientos
             }
         );*/
+
+        //Evento para store de motivos
+        this.Cmp.id_movimiento_motivo.getStore().on('load', function(store, records, options){
+            if(store.getCount()==1){
+                var data = records[0].id;
+                this.Cmp.id_movimiento_motivo.setValue(records[0].id);
+            }
+        },this);
+
         //Add handler to id_cat_movimiento field
         this.Cmp.id_cat_movimiento.on('select', function(cmp,rec,el){
+            //Habilita los campos
         	this.habilitarCampos(rec.data.codigo);
         	this.Cmp.id_movimiento_motivo.reset();
             this.Cmp.id_movimiento_motivo.modificado=true;
             this.Cmp.id_movimiento_motivo.store.baseParams.id_cat_movimiento=rec.data.id_catalogo;
+
+             //Carga el store del combo de motivos
+            this.Cmp.id_movimiento_motivo.getStore().load({
+                params:{
+                    start:0,
+                    limit:this.tam_pag
+                }
+            });
         }, this);
         
         //Add handler to id_cat_movimiento field
@@ -117,7 +134,8 @@ Phx.vista.MovimientoPrincipal = {
                 scope:this
             });         
         } 
-    } ,  
+
+    },  
     
      openMovimientos: function(){
     	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoGral.php',
@@ -152,7 +170,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=253;
     	} else if(mov=='asig'){
     		swDireccion=true;
@@ -163,7 +181,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=381;
     	} else if(mov=='baja'||mov=='retiro'){
     		swDireccion=false;
@@ -185,7 +203,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=280;
     	} else if(mov=='desuso'){
     		swDireccion=false;
@@ -207,7 +225,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=298;
     	} else if(mov=='ajuste'){
     		swDireccion=false;
@@ -240,7 +258,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=true;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=415;
     	} else if(mov=='tranfdep'){
     		swDireccion=false;
@@ -251,7 +269,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=true;
     		swDepositoDest=true;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=355;
     	} else if(mov=='actua'){
     		swDireccion=false;
@@ -262,7 +280,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDeptoDest=false;
     		swDepositoDest=false;
     		swFuncionarioDest=false;
-    		swCatMovMotivo=false;
+    		swCatMovMotivo=true;
     		h=280;
     	} else if(mov=='divis'||mov=='desgl'||mov=='intpar'){
             swDireccion=false;
@@ -273,7 +291,7 @@ Phx.vista.MovimientoPrincipal = {
             swDeptoDest=false;
             swDepositoDest=false;
             swFuncionarioDest=false;
-            swCatMovMotivo=false;
+            swCatMovMotivo=true;
             h=253;
         } else if(mov=='transito'){
             swDireccion=false;
@@ -284,7 +302,7 @@ Phx.vista.MovimientoPrincipal = {
             swDeptoDest=false;
             swDepositoDest=false;
             swFuncionarioDest=false;
-            swCatMovMotivo=false;
+            swCatMovMotivo=true;
             h=253;
         }
 

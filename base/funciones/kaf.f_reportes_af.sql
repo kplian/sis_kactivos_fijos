@@ -27,6 +27,7 @@ DECLARE
     v_fecha           date;
     v_ids_depto       varchar;
     v_sql             varchar;
+    v_aux             varchar;
 
 BEGIN
  
@@ -140,37 +141,70 @@ BEGIN
 
         begin
 
+            v_aux = 'no';
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_aux = 'si';
+                end if;
+            end if;
+
             v_consulta = 'select
-                        af.codigo,af.denominacion,af.fecha_compra,af.fecha_ini_dep,af.estado,af.vida_util_original,
+                        af.codigo,
+                        af.denominacion,
+                        af.fecha_compra,
+                        af.fecha_ini_dep,
+                        af.estado,
+                        af.vida_util_original,
                         (af.vida_util_original/12) as porcentaje_dep,
-                        af.ubicacion, af.monto_compra_orig, mon.moneda, af.nro_cbte_asociado, af.fecha_cbte_asociado,
-                        af.monto_compra_orig_100,
-                        COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra_orig) as valor_actual,
-                        COALESCE(afvi.vida_util_real_af,af.vida_util_original) as vida_util_residual,
+                        af.ubicacion,
+                        af.monto_compra_orig,
+                        mon.moneda,
+                        af.nro_cbte_asociado,
+                        af.fecha_cbte_asociado,
                         cla.codigo_completo_tmp as cod_clasif, cla.nombre as desc_clasif,
                         mdep.descripcion as metodo_dep,
                         param.f_get_tipo_cambio(3,af.fecha_compra,''O'') as ufv_fecha_compra,
                         fun.desc_funcionario2 as responsable,
-                        orga.f_get_cargo_x_funcionario_str(af.id_funcionario,now()::date) as cargo,
+                        orga.f_get_cargo_x_funcionario_str(coalesce(mov.id_funcionario_dest,coalesce(mov.id_funcionario,af.id_funcionario)),now()::date) as cargo,
                         mov.fecha_mov, mov.num_tramite, 
                         proc.descripcion as desc_mov,
                         proc.codigo as codigo_mov,
                         param.f_get_tipo_cambio(3,mov.fecha_mov,''O'') as ufv_mov,
                         af.id_activo_fijo,
-                        mov.id_movimiento
+                        mov.id_movimiento,
+                        coalesce(afvi.monto_vigente_orig_100,afvi.monto_vigente_orig) as monto_vigente_orig_100,
+                        afvi.monto_vigente_orig,
+                        afvi.monto_vigente_ant,
+                        afvi.monto_actualiz - afvi.monto_vigente_ant actualiz_monto_vigente,
+                        afvi.monto_actualiz as monto_actualiz,
+                        afvi.vida_util_orig - afvi.vida_util as vida_util_usada,
+                        afvi.vida_util,
+                        (select
+                        afvi1.depreciacion_acum
+                        from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||v_parametros.fecha_hasta ||'''),'''||v_aux||''') afvi1
+                        where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                        and afvi.id_moneda = 1 ) as dep_acum_gest_ant,
+                        afvi.depreciacion_per - (select
+                                                afvi1.depreciacion_acum
+                                                from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||v_parametros.fecha_hasta ||'''),'''||v_aux||''') afvi1
+                                                where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                                                and afvi.id_moneda = 1) as act_dep_gest_ant,
+                        afvi.depreciacion_per,
+                        afvi.depreciacion_acum,
+                        afvi.monto_vigente
                         from kaf.tmovimiento_af movaf
                         inner join kaf.tmovimiento mov
                         on mov.id_movimiento = movaf.id_movimiento
                         and mov.estado <> ''cancelado''
                         inner join kaf.tactivo_fijo af
                         on af.id_activo_fijo = movaf.id_activo_fijo
-                        left join kaf.f_activo_fijo_vigente() afvi
+                        left join kaf.f_activo_fijo_dep_x_fecha_afv('''||v_parametros.fecha_hasta ||''','''||v_aux||''') afvi
                         on afvi.id_activo_fijo = af.id_activo_fijo
-                        and afvi.id_moneda = af.id_moneda_orig
+                        and afvi.id_moneda = '|| v_parametros.id_moneda ||'
                         inner join kaf.tclasificacion cla
                         on cla.id_clasificacion = af.id_clasificacion
                         left join orga.vfuncionario fun
-                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,mov.id_funcionario)
+                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,coalesce(mov.id_funcionario,af.id_funcionario))
                         inner join param.tmoneda mon
                         on mon.id_moneda = af.id_moneda_orig
                         left join param.tcatalogo mdep
@@ -178,7 +212,7 @@ BEGIN
                         left join param.tcatalogo proc
                         on proc.id_catalogo = mov.id_cat_movimiento
                         where movaf.id_activo_fijo = '||v_parametros.id_activo_fijo||'
-                        and mov.fecha_mov between '''||v_parametros.fecha_desde ||'''and ''' ||v_parametros.fecha_hasta||''' ';
+                        and mov.fecha_mov between '''||v_parametros.fecha_desde ||''' and ''' ||v_parametros.fecha_hasta||''' ';
 
             if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
                 if v_parametros.af_estado_mov <> 'todos' then
@@ -191,9 +225,8 @@ BEGIN
                 v_consulta:=v_consulta||' and '||v_parametros.filtro;
                 v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             else
-                v_consulta = v_consulta||' order by mov.fecha_mov desc';
+                v_consulta = v_consulta||' order by mov.fecha_mov';
             end if;
-
 
             return v_consulta;
 
@@ -210,6 +243,13 @@ BEGIN
 
         begin
 
+            v_aux = 'no';
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_aux = 'si';
+                end if;
+            end if;
+
             v_consulta = 'select
                         count(1) as total
                         from kaf.tmovimiento_af movaf
@@ -218,13 +258,13 @@ BEGIN
                         and mov.estado <> ''cancelado''
                         inner join kaf.tactivo_fijo af
                         on af.id_activo_fijo = movaf.id_activo_fijo
-                        left join kaf.f_activo_fijo_vigente() afvi
+                        left join kaf.f_activo_fijo_dep_x_fecha_afv('''||v_parametros.fecha_hasta ||''','''||v_aux||''') afvi
                         on afvi.id_activo_fijo = af.id_activo_fijo
-                        and afvi.id_moneda = af.id_moneda_orig
+                        and afvi.id_moneda = '|| v_parametros.id_moneda ||'
                         inner join kaf.tclasificacion cla
                         on cla.id_clasificacion = af.id_clasificacion
                         left join orga.vfuncionario fun
-                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,mov.id_funcionario)
+                        on fun.id_funcionario = coalesce(mov.id_funcionario_dest,coalesce(mov.id_funcionario,af.id_funcionario))
                         inner join param.tmoneda mon
                         on mon.id_moneda = af.id_moneda_orig
                         left join param.tcatalogo mdep
@@ -252,7 +292,7 @@ BEGIN
 
     /*********************************   
      #TRANSACCION:  'SKA_GRALAF_SEL'
-     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #DESCRIPCION:  Reporte Gral de activos fijos con el filtro general
      #AUTOR:        RCM
      #FECHA:        27/07/2017
     ***********************************/
@@ -276,42 +316,99 @@ BEGIN
             execute(v_consulta);
             v_consulta='';
 
+            v_aux = 'no';
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_aux = 'si';
+                end if;
+            end if;
+
             if v_parametros.reporte = 'rep.sasig' then
 
                 v_consulta = 'select
                             afij.codigo,
                             afij.denominacion,
                             afij.descripcion,
-                            afij.fecha_ini_dep,
-                            afij.monto_compra_orig_100,
-                            afij.monto_compra_orig,
+                            afvi.fecha_ini_dep,
+                            --afij.fecha_ini_dep,
+                            --afij.monto_compra_orig_100,
+                            --afij.monto_compra_orig,
                             afij.ubicacion,
-                            fun.desc_funcionario2 as responsable
+                            fun.desc_funcionario2 as responsable,
+                            coalesce(afvi.monto_vigente_orig_100,coalesce(afvi.monto_vigente_orig,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig_100,'''||now()||'''::date,''O'',2))) as monto_vigente_orig_100,
+                            coalesce(afvi.monto_vigente_orig,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig_100,'''||now()||'''::date,''O'',2)) as monto_vigente_orig,
+                            coalesce(afvi.monto_vigente_ant,0) as monto_vigente_ant,
+                            coalesce(afvi.monto_actualiz - afvi.monto_vigente_ant,0) as actualiz_monto_vigente,
+                            coalesce(afvi.monto_actualiz,0) as monto_actualiz,
+                            coalesce(afvi.vida_util_orig - afvi.vida_util,0) as vida_util_usada,
+                            coalesce(afvi.vida_util,afij.vida_util_original) as vida_util,
+                            coalesce((select
+                            afvi1.depreciacion_acum
+                            from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||now()||'''::date),'''||v_aux||''') afvi1
+                            where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                            and afvi.id_moneda = '||v_parametros.id_moneda||' ),0) as dep_acum_gest_ant,
+                            coalesce(afvi.depreciacion_per - (select
+                                                    afvi1.depreciacion_acum
+                                                    from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||now()||'''::date),'''||v_aux||''') afvi1
+                                                    where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                                                    and afvi.id_moneda = '||v_parametros.id_moneda||'),0) as act_dep_gest_ant,
+                            coalesce(afvi.depreciacion_per,0) as depreciacion_per,
+                            coalesce(afvi.depreciacion_acum,0) as depreciacion_acum,
+                            coalesce(afvi.monto_vigente,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig,'''||now()||'''::date,''O'',2)) as monto_vigente
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
-                            inner join orga.vfuncionario fun
+                            left join orga.vfuncionario fun
                             on fun.id_funcionario = afij.id_funcionario
+                            left join kaf.f_activo_fijo_dep_x_fecha_afv('''||now()||'''::date,'''||v_aux||''') afvi
+                            on afvi.id_activo_fijo = afij.id_activo_fijo
+                            and afvi.id_moneda = '||v_parametros.id_moneda||'
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''si''
                             ';
 
+
             elsif v_parametros.reporte = 'rep.asig' then
+
                 v_consulta = 'select
                             afij.codigo,
                             afij.denominacion,
                             afij.descripcion,
-                            afij.fecha_ini_dep,
-                            afij.monto_compra_orig_100,
-                            afij.monto_compra_orig,
+                            afvi.fecha_ini_dep,
+                            --afij.fecha_ini_dep,
+                            --afij.monto_compra_orig_100,
+                            --afij.monto_compra_orig,
                             afij.ubicacion,
-                            fun.desc_funcionario2 as responsable
+                            fun.desc_funcionario2 as responsable,
+                            coalesce(afvi.monto_vigente_orig_100,coalesce(afvi.monto_vigente_orig,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig_100,'''||now()||'''::date,''O'',2))) as monto_vigente_orig_100,
+                            coalesce(afvi.monto_vigente_orig,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig_100,'''||now()||'''::date,''O'',2)) as monto_vigente_orig,
+                            coalesce(afvi.monto_vigente_ant,0) as monto_vigente_ant,
+                            coalesce(afvi.monto_actualiz - afvi.monto_vigente_ant,0) as actualiz_monto_vigente,
+                            coalesce(afvi.monto_actualiz,0) as monto_actualiz,
+                            coalesce(afvi.vida_util_orig - afvi.vida_util,0) as vida_util_usada,
+                            coalesce(afvi.vida_util,afij.vida_util_original) as vida_util,
+                            coalesce((select
+                            afvi1.depreciacion_acum
+                            from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||now()||'''::date),'''||v_aux||''') afvi1
+                            where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                            and afvi.id_moneda = '||v_parametros.id_moneda||' ),0) as dep_acum_gest_ant,
+                            coalesce(afvi.depreciacion_per - (select
+                                                    afvi1.depreciacion_acum
+                                                    from kaf.f_activo_fijo_dep_x_fecha_afv(kaf.f_get_fecha_gestion_ant('''||now()||'''::date),'''||v_aux||''') afvi1
+                                                    where afvi1.id_activo_fijo_valor = afvi.id_activo_fijo_valor
+                                                    and afvi.id_moneda = '||v_parametros.id_moneda||'),0) as act_dep_gest_ant,
+                            coalesce(afvi.depreciacion_per,0) as depreciacion_per,
+                            coalesce(afvi.depreciacion_acum,0) as depreciacion_acum,
+                            coalesce(afvi.monto_vigente,param.f_convertir_moneda(afij.id_moneda_orig, '||v_parametros.id_moneda||',afij.monto_compra_orig,'''||now()||'''::date,''O'',2)) as monto_vigente
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
-                            inner join orga.vfuncionario fun
+                            left join orga.vfuncionario fun
                             on fun.id_funcionario = afij.id_funcionario
+                            left join kaf.f_activo_fijo_dep_x_fecha_afv('''||now()||'''::date,'''||v_aux||''') afvi
+                            on afvi.id_activo_fijo = afij.id_activo_fijo
+                            and afvi.id_moneda = '||v_parametros.id_moneda||'
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''no''
@@ -360,6 +457,13 @@ BEGIN
             execute(v_consulta);
             v_consulta='';
 
+            v_aux = 'no';
+            if(pxp.f_existe_parametro(p_tabla,'af_estado_mov')) then
+                if v_parametros.af_estado_mov <> 'todos' then
+                    v_aux = 'si';
+                end if;
+            end if;
+
             if v_parametros.reporte = 'rep.sasig' then
 
                 v_consulta = 'select
@@ -367,6 +471,11 @@ BEGIN
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            left join kaf.f_activo_fijo_dep_x_fecha_afv('''||now()||'''::date,'''||v_aux||''') afvi
+                            on afvi.id_activo_fijo = afij.id_activo_fijo
+                            and afvi.id_moneda = '||v_parametros.id_moneda||'
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''si''
@@ -378,6 +487,11 @@ BEGIN
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            left join kaf.f_activo_fijo_dep_x_fecha_afv('''||now()||'''::date,'''||v_aux||''') afvi
+                            on afvi.id_activo_fijo = afij.id_activo_fijo
+                            and afvi.id_moneda = '||v_parametros.id_moneda||'
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''no''

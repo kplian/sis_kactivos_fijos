@@ -266,8 +266,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.radGroupEstadoMov = new Ext.form.RadioGroup({
 			fieldLabel: '3',
 			items: [
-				{boxLabel: 'Sólo Procesos Finalizados', name: 'rb-auto1', inputValue: 'finalizado'},
-                {boxLabel: 'Todos', name: 'rb-auto1', inputValue: 'todos', checked: true}
+				{boxLabel: 'Sólo Procesos Finalizados', name: 'rb-auto2', inputValue: 'finalizado'},
+                {boxLabel: 'Todos', name: 'rb-auto2', inputValue: 'todos', checked: true}
             ]
 		});
 		this.cmbDepto = new Ext.form.ComboBox({
@@ -358,7 +358,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			pageSize: 15,
 			queryDelay: 1000,
 			gwidth: 150,
-			minChars: 2
+			minChars: 2,
+			allowBlank: false
 		});
 	},
 	layout: function(){
@@ -467,20 +468,25 @@ Ext.define('Phx.vista.ParametrosBase', {
 		var _fecha_desde = this.dteFechaDesde.getValue(),
 			_fecha_hasta = this.dteFechaHasta.getValue(),
 			_fecha_compra = this.dteFechaCompra.getValue(),
-			_fecha_ini_dep = this.dteFechaIniDep.getValue()
+			_fecha_ini_dep = this.dteFechaIniDep.getValue(),
+			_id_clasificacion;
+
+		//Clasificación (por el problema de que getvalue devuelve la descripción y no el valor ¡?¡??)
+		if(this.cmbClasificacion.selectedIndex!=-1){
+			_id_clasificacion = this.cmbClasificacion.store.getAt(this.cmbClasificacion.selectedIndex).id;
+		}
 
 		if(this.dteFechaDesde.getValue()) _fecha_desde = this.dteFechaDesde.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaHasta.getValue()) _fecha_hasta = this.dteFechaHasta.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaCompra.getValue()) _fecha_compra = this.dteFechaCompra.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaIniDep.getValue()) _fecha_ini_dep = this.dteFechaIniDep.getValue().dateFormat('Y-m-d');
-
 		return {
 			titleReporte: this.titleReporte,
 			reporte: this.cmbReporte.getValue(),
 			fecha_desde: _fecha_desde,
 			fecha_hasta: _fecha_hasta,
 			id_activo_fijo: this.cmbActivo.getValue(),
-			id_clasificacion: this.cmbClasificacion.getValue(),
+			id_clasificacion: _id_clasificacion,
 			denominacion: this.txtDenominacion.getValue(),
 			fecha_compra: _fecha_compra,
 			fecha_ini_dep: _fecha_ini_dep,

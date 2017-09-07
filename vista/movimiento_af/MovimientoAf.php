@@ -2351,6 +2351,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		    'ActivoFijo'
 			);
 		}
+	},
+	agregarArgsExtraSubmit: function(){
+		//Inicializa el objeto de los argumentos extra
+		this.argumentExtraSubmit={};
+			//Añade los parámetros extra para mandar por submit
+		this.argumentExtraSubmit.importe_ant=this.Cmp.res_monto_compra.getValue();
+		this.argumentExtraSubmit.vida_util_ant=this.Cmp.res_vida_util_real.getValue();
 	}
 })
 </script>

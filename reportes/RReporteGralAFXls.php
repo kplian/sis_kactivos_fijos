@@ -281,16 +281,25 @@ class RReporteGralAFXls
 		 	'valor_residual'=>0,
 		 	'impuestos' => 0
 		);
+		echo '<pre>';
+		print_r($this->dataSet);
+		echo '</pre>';
+		exit;
 
 		for ($fil=0; $fil < count($this->dataSet); $fil++) {
 			$f++;
+			//Fecha
+			$fecha='';
+			if($this->dataSet[$fil]['fecha_ini_dep']!=''){
+				$fecha=date("d/m/Y",strtotime($this->dataSet[$fil]['fecha_ini_dep']));
+			}
 			$this->cell($sheet,$fil+1,"A$f",0,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
 			$this->cell($sheet,$this->dataSet[$fil]['codigo'],"B$f",1,$f,"left",false,$this->tam_letra_detalle,Arial,true,true);
 			$this->cell($sheet,$this->dataSet[$fil]['denominacion'],"C$f",2,$f,"left",false,$this->tam_letra_detalle,Arial,true,true);
 			$this->cell($sheet,$this->dataSet[$fil]['descripcion'],"D$f",3,$f,"left",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$this->dataSet[$fil]['fecha_ini_dep'],"E$f",4,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$this->dataSet[$fil]['monto_compra_orig_100'],"F$f",5,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
-			$this->cell($sheet,$this->dataSet[$fil]['monto_compra_orig'],"G$f",6,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
+			$this->cell($sheet,$fecha,"E$f",4,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,$this->dataSet[$fil]['monto_vigente_orig_100'],"F$f",5,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
+			$this->cell($sheet,$this->dataSet[$fil]['monto_vigente_orig'],"G$f",6,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
 			$this->cell($sheet,$this->dataSet[$fil]['valor_residual_gest_ant'],"H$f",7,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
 			$this->cell($sheet,$this->dataSet[$fil]['inc_gest_actual'],"I$f",8,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);
 			$this->cell($sheet,$this->dataSet[$fil]['ajustes'],"J$f",9,$f,"right",false,$this->tam_letra_detalle,Arial,false,true);

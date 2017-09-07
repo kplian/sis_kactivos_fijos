@@ -16,9 +16,16 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoMotivo.superclass.constructor.call(this,config);
-		console.log('llega aqui',config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		//this.load({params:{start:0, limit:this.tam_pag}})
+		//Add report button
+        this.addButton('btnCuenta',{
+            text:'Cuentas Contables',
+            //iconCls: 'bpdf32',
+            disabled: true,
+            handler: this.onButtonCuenta,
+            tooltip: '<b>Cuentas Contables</b><br/>Configuración de las cuentas contables por Proceso y Clasificación'
+       	});
 	},
 
 	Atributos:[
@@ -33,30 +40,14 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
-			config: {
-				name: 'id_cat_movimiento',
-				fieldLabel: 'Tipo Movimiento',
-				anchor: '95%',
-				tinit: false,
-				allowBlank: true,
-				origen: 'CATALOGO',
-				gdisplayField: 'movimiento',
-				hiddenName: 'id_cat_movimiento',
-				gwidth: 120,
-				baseParams:{
-						cod_subsistema:'KAF',
-						catalogo_tipo:'tmovimiento__id_cat_movimiento'
-				},
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['movimiento']);
-				},
-				valueField: 'id_catalogo'
+			//configuracion del componente
+			config:{
+				labelSeparator:'',
+				inputType:'hidden',
+				name: 'id_cat_movimiento'
 			},
-			type: 'ComboRec',
-			id_grupo: 1,
-			filters:{pfiltro:'cat.descripcion',type:'string'},
-			grid: true,
-			form: true
+			type:'Field',
+			form:true 
 		},
 		{
 			config:{
@@ -69,6 +60,22 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'mmot.motivo',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'plantilla_cbte',
+				fieldLabel: 'Plantilla Comprobante',
+				qtip: 'Código de la Plantilla de Comprobante con el que se generará el comprobante por el motivo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 200,
+				maxLength:100
+			},
+				type:'TextField',
+				filters:{pfiltro:'mmot.plantilla_cbte',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:true
@@ -181,7 +188,6 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-			
 	
 	tam_pag:50,	
 	title:'Motivo',
@@ -203,14 +209,57 @@ Phx.vista.MovimientoMotivo=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'movimiento', type: 'string'},
-		
+		{name:'plantilla_cbte', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_movimiento_motivo',
 		direction: 'ASC'
 	},
 	bdel:true,
-	bsave:true
+	bsave:true,
+	onReloadPage: function(m){
+		this.maestro = m;
+		this.Atributos[1].valorInicial = this.maestro.id_catalogo;
+
+		this.store.baseParams = {
+			id_cat_movimiento: this.maestro.id_catalogo
+		};
+		this.load({
+			params: {
+				start: 0,
+				limit: 50
+			}
+		});
+	},
+	onButtonCuenta: function(){
+	    var rec=this.sm.getSelected();
+		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/clasificacion_cuenta_motivo/ClasificacionCuentaMotivo.php',
+			'Detalle', {
+				width:'70%',
+				height:'70%'
+		    },
+		    rec.data,
+		    this.idContenedor,
+		    'ClasificacionCuentaMotivo'
+		);
+	},
+	liberaMenu:function(){
+        var tb = Phx.vista.MovimientoMotivo.superclass.liberaMenu.call(this);
+        if(tb){
+            this.getBoton('btnCuenta').disable();
+        }
+       return tb
+    },
+    preparaMenu:function(n){
+    	var tb = Phx.vista.MovimientoMotivo.superclass.preparaMenu.call(this);
+      	var data = this.getSelectedData();
+      	var tb = this.tbar;
+
+        this.getBoton('btnCuenta').enable();        
+
+        return tb;
+    }
+
 });
 </script>
 		

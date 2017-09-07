@@ -852,3 +852,85 @@ IS 'Id del preingeso detalle';
 CREATE INDEX idx_tactivo_fijo__id_activo_fijo ON kaf.tactivo_fijo
   USING btree (id_activo_fijo);
 /***********************************F-SCP-RCM-KAF-1-09/08/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-15/08/2017****************************************/
+CREATE TABLE kaf.tclasificacion_cuenta_motivo (
+  id_clasificacion_cuenta_motivo SERIAL,
+  id_clasificacion INTEGER NOT NULL,
+  id_movimiento_motivo INTEGER NOT NULL,
+  PRIMARY KEY(id_clasificacion_cuenta_motivo)
+) INHERITS (pxp.tbase);
+
+CREATE UNIQUE INDEX uq_tclasificacion_cuenta_motivo__id_movimiento_motivo__id_clasi ON kaf.tclasificacion_cuenta_motivo
+  USING btree (id_movimiento_motivo, id_clasificacion);
+/***********************************F-SCP-RCM-KAF-1-15/08/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-16/08/2017****************************************/
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.monto_vigente_orig
+IS 'Corresponde al Importe del 87%';
+
+alter table kaf.tactivo_fijo_valores
+add column  monto_vigente_orig_100 numeric;
+/***********************************F-SCP-RCM-KAF-1-16/08/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-22/08/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN importe_ant NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tmovimiento_af.importe_ant
+IS 'Importe anterior a la realización del movimiento. Usados por los movimientos que mueven importe';
+
+
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN vida_util_ant INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af.vida_util_ant
+IS 'Vida útil anterior a la realización del movimiento. Usados por los movimientos que mueven importe y vida útil';
+/***********************************F-SCP-RCM-KAF-1-22/08/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-23/08/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN aplicacion_contable VARCHAR(30);
+
+COMMENT ON COLUMN kaf.tactivo_fijo.aplicacion_contable
+IS 'Variable que permitirá precisar a que tipo de cuenta irá. Valores posibles (''afecta_concesion'',''no_afecta_concesion'')';
+
+ALTER TABLE kaf.tclasificacion
+  ADD COLUMN aplicacion_contable VARCHAR(30);
+
+COMMENT ON COLUMN kaf.tclasificacion.aplicacion_contable
+IS 'Variable que permitirá a cada activo fijo precisar a que tipo de cuenta irá. Valores posibles (''afecta_concesion'',''no_afecta_concesion'')';
+
+create table kaf.tactivo_fijo_modificacion (
+	id_activo_fijo_modificacion serial,
+	id_activo_fijo integer,
+	id_oficina integer,
+	id_tipo_cc integer,
+	ubicacion varchar(1000),
+	id_oficina_ant integer,
+	id_tipo_cc_ant integer,
+	ubicacion_ant varchar(1000),
+	observaciones varchar(5000),
+	constraint pk_tactivo_fijo_modificacion__id_activo_fijo_modificacion primary key (id_activo_fijo_modificacion)
+) inherits (pxp.tbase) without oids;
+
+ALTER TABLE kaf.ttipo_prorrateo
+  RENAME COLUMN id_centro_costo TO id_tipo_cc;
+
+COMMENT ON COLUMN kaf.ttipo_prorrateo.id_tipo_cc
+IS 'ID del tipo de centro de costo';
+
+ALTER TABLE kaf.ttipo_prorrateo
+  DROP COLUMN descripcion;
+ALTER TABLE kaf.ttipo_prorrateo
+  DROP COLUMN id_gestion;  
+/***********************************F-SCP-RCM-KAF-1-23/08/2017****************************************/
+
+
+/***********************************I-SCP-RCM-KAF-1-25/08/2017****************************************/
+ALTER TABLE kaf.tmovimiento_motivo
+  ADD COLUMN plantilla_cbte VARCHAR(20);
+
+COMMENT ON COLUMN kaf.tmovimiento_motivo.plantilla_cbte
+IS 'Código de la Plantilla de Comprobante';
+/***********************************F-SCP-RCM-KAF-1-25/08/2017****************************************/

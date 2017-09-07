@@ -245,7 +245,16 @@ class RKardexAFxls
 			$f++;
 			//Calcula la fecha hasta si existe
 			$fecha_sig='';
+			/*// --Caso de ordenamiento desc (comentado por ahora)
 			if($arrayTmp[$fil-1]['fecha_mov']!=''){
+				$fecha_sig = date("d/m/Y",strtotime($arrayTmp[$fil-1]['fecha_mov']. ' -1 day'));
+				//Verifica que esta fecha no sea menor que la fecha del movimiento (desde)
+				if($fecha_sig < date("d/m/Y",strtotime($arrayTmp[$fil]['fecha_mov']))){
+					$fecha_sig = date("d/m/Y",strtotime($arrayTmp[$fil]['fecha_mov']));
+				}
+			}*/
+			// --Caso de ordenamiento asc
+			if($arrayTmp[$fil+1]['fecha_mov']!=''){
 				$fecha_sig = date("d/m/Y",strtotime($arrayTmp[$fil-1]['fecha_mov']. ' -1 day'));
 				//Verifica que esta fecha no sea menor que la fecha del movimiento (desde)
 				if($fecha_sig < date("d/m/Y",strtotime($arrayTmp[$fil]['fecha_mov']))){
@@ -296,23 +305,19 @@ class RKardexAFxls
 				$this->cell($sheet,$this->dataSet[$fil]['ufv_mov'],"K$f",10,$f,"right",false,$this->tam_letra_detalle,Arial,true,false);
 				$this->cell($sheet,$this->dataSet[$fil]['num_tramite'],"L$f",11,$f,"center",false,$this->tam_letra_detalle,Arial,true,false);
 				//Escoge en que celda colocar el importe
-				$monto='';
+				$monto=$this->dataSet[$fil]['monto_vigente_orig'];
 				$celda='';
 				$numero='';
 				if($this->dataSet[$fil]['codigo_mov']=='mejora'){
-					$monto='978.23';
 					$celda="M";
 					$numero=12;
 				} else if($this->dataSet[$fil]['codigo_mov']=='reval'){
-					$monto='978.23';
 					$celda="N";
 					$numero=13;
 				} else if($this->dataSet[$fil]['codigo_mov']=='ajuste'){
-					$monto='978.23';
 					$celda="O";
 					$numero=14;
 				} else if($this->dataSet[$fil]['codigo_mov']=='retiro'){
-					$monto='978.23';
 					$celda="P";
 					$numero=15;
 				}
@@ -377,18 +382,18 @@ class RKardexAFxls
 			$this->cell($sheet,date("d/m/Y",strtotime($arrayTmp[$fil]['fecha_mov'])),"D$f",3,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
 			$sheet->mergeCells("D$f:E$f");
 			$this->cellBorder($sheet,"D$f:E$f");
-			$this->cell($sheet,$arrayTmp[$fil]['monto_compra_orig_100'],"F$f",5,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil]['monto_compra_orig'],"G$f",6,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"H$f",7,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"I$f",8,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"J$f",9,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"K$f",10,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"L$f",11,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"M$f",12,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['monto_vigente_orig_100'],2),"F$f",5,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['monto_vigente_orig'],2),"G$f",6,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['monto_actualiz'],2),"H$f",7,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['actualiz_monto_vigente'],2),"I$f",8,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['monto_actualiz'],2),"J$f",9,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,$arrayTmp[$fil]['vida_util_usada'],"K$f",10,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,$arrayTmp[$fil]['vida_util'],"L$f",11,$f,"center",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['dep_acum_gest_ant'],2),"M$f",12,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
 			$this->cell($sheet,$arrayTmp[$fil][''],"N$f",13,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"O$f",14,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"P$f",15,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
-			$this->cell($sheet,$arrayTmp[$fil][''],"Q$f",16,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['depreciacion_per'],2),"O$f",14,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['depreciacion_acum'],2),"P$f",15,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
+			$this->cell($sheet,number_format($arrayTmp[$fil]['monto_vigente'],2),"Q$f",16,$f,"right",false,$this->tam_letra_detalle,Arial,true,true);
 		}
 
 		//Borde a la caja

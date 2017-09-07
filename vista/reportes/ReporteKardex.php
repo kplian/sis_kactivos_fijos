@@ -201,7 +201,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 150
 			},
 			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
+			filters:{pfiltro:'fun.desc_funcionario2',type:'string'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -275,7 +275,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'monto_compra_orig',
+				name: 'monto_vigente_orig',
 				fieldLabel: 'Monto Compra Orig.(87%)',
 				gwidth: 140
 			},
@@ -287,7 +287,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'monto_compra_orig_100',
+				name: 'monto_vigente_orig_100',
 				fieldLabel: 'Monto Compra Orig.(100%)',
 				gwidth: 150
 			},
@@ -299,8 +299,8 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'valor_actual',
-				fieldLabel: 'Valor Actual',
+				name: 'monto_vigente',
+				fieldLabel: 'Monto Vigente',
 				gwidth: 100
 			},
 			type:'TextField',
@@ -323,7 +323,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'vida_util_residual',
+				name: 'vida_util',
 				fieldLabel: 'VU. Res.',
 				gwidth: 100
 			},
@@ -378,10 +378,11 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 	title:'Kardex Activos Fijos',
 	ActList:'../../sis_kactivos_fijos/control/Reportes/reporteKardexAF',
 	fields: [
+
 		{name:'codigo',type: 'string'},
 		{name:'denominacion',type: 'string'},
-		{name:'fecha_compra',type: 'date',dateFormat: 'Y-m-d'},
-		{name:'fecha_ini_dep',type: 'date',dateFormat: 'Y-m-d'},
+		{name:'fecha_compra',type: 'date'},
+		{name:'fecha_ini_dep',type: 'date'},
 		{name:'estado',type: 'string'},
 		{name:'vida_util_original',type: 'numeric'},
 		{name:'porcentaje_dep',type: 'numeric'},
@@ -389,22 +390,33 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		{name:'monto_compra_orig',type: 'numeric'},
 		{name:'moneda',type: 'string'},
 		{name:'nro_cbte_asociado',type: 'string'},
-		{name:'fecha_cbte_asociado',type: 'date',dateFormat: 'Y-m-d'},
-		{name:'monto_compra_orig_100',type: 'numeric'},
-		{name:'valor_actual',type: 'numeric'},
-		{name:'vida_util_residual',type: 'numeric'},
+		{name:'fecha_cbte_asociado',type: 'date'},
 		{name:'cod_clasif',type: 'string'},
 		{name:'desc_clasif',type: 'string'},
 		{name:'metodo_dep',type: 'string'},
 		{name:'ufv_fecha_compra',type: 'date'},
 		{name:'responsable',type: 'string'},
 		{name:'cargo',type: 'string'},
-		{name:'fecha_mov',type: 'date',dateFormat: 'Y-m-d'},
+		{name:'fecha_mov',type: 'date'},
 		{name:'num_tramite',type: 'string'},
 		{name:'desc_mov',type: 'string'},
+		{name:'codigo_mov',type: 'string'},
 		{name:'ufv_mov',type: 'date'},
 		{name:'id_activo_fijo',type: 'numeric'},
-		{name:'id_movimiento',type: 'numeric'}
+		{name:'id_movimiento',type: 'numeric'},
+		{name:'monto_vigente_orig_100',type: 'numeric'},
+		{name:'monto_vigente_orig',type: 'numeric'},
+		{name:'monto_vigente_ant',type: 'numeric'},
+		{name:'actualiz_monto_vigente',type: 'numeric'},
+		{name:'monto_actualiz',type: 'numeric'},
+		{name:'vida_util_usada',type: 'numeric'},
+		{name:'vida_util',type: 'numeric'},
+		{name:'dep_acum_gest_ant',type: 'numeric'},
+		{name:'act_dep_gest_ant',type: 'numeric'},
+		{name:'depreciacion_per',type: 'numeric'},
+		{name:'depreciacion_acum',type: 'numeric'},
+		{name:'monto_vigente',type: 'numeric'}
+
 	],
 	sortInfo:{
 		field: 'fecha_mov',

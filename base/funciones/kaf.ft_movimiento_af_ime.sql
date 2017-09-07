@@ -25,16 +25,17 @@ $body$
 
 DECLARE
 
-	v_nro_requerimiento   integer;
-	v_parametros          record;
-	v_id_requerimiento    integer;
-	v_resp		            varchar;
-	v_nombre_funcion      text;
-	v_mensaje_error       text;
-	v_id_movimiento_af		integer;
-	v_id_cat_estado_fun		integer;
-  v_registros				    record;
-  v_registros_mov			  record;
+	v_nro_requerimiento    integer;
+	v_parametros           record;
+	v_id_requerimiento     integer;
+	v_resp		           varchar;
+	v_nombre_funcion       text;
+	v_mensaje_error        text;
+	v_id_movimiento_af     integer;
+	v_id_cat_estado_fun	   integer;
+    v_registros		       record;
+    v_registros_mov        record;
+    v_id_moneda_base       integer;
 			    
 BEGIN
 
@@ -61,7 +62,9 @@ BEGIN
         coalesce(v_parametros.vida_util,null) as vida_util,
         coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
         coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
-        coalesce(v_parametros.depreciacion_acum,null) as depreciacion_acum
+        coalesce(v_parametros.depreciacion_acum,null) as depreciacion_acum,
+        coalesce(v_parametros.importe_ant,null) as importe_ant,
+        coalesce(v_parametros.vida_util_ant,null) as vida_util_ant
         into v_registros;
 
         --Inserción del movimiento
@@ -122,6 +125,9 @@ BEGIN
                raise exception 'ERROR al validar activos';
             END IF;
 
+            --Se obtiene la moneda base
+            v_id_moneda_base  = param.f_get_moneda_base();
+
 			--Sentencia de la modificacion
 			update kaf.tmovimiento_af set
                 id_movimiento = v_parametros.id_movimiento,
@@ -134,7 +140,10 @@ BEGIN
                 fecha_mod = now(),
                 id_usuario_ai = v_parametros._id_usuario_ai,
                 usuario_ai = v_parametros._nombre_usuario_ai,
-                depreciacion_acum = v_parametros.depreciacion_acum
+                depreciacion_acum = v_parametros.depreciacion_acum,
+                id_moneda = v_id_moneda_base,
+                importe_ant = v_parametros.importe_ant,
+                vida_util_ant = v_parametros.vida_util_ant
 			where id_movimiento_af=v_parametros.id_movimiento_af;
                
 			--Definicion de la respuesta
