@@ -879,6 +879,7 @@ CREATE OR REPLACE VIEW kaf.vactivo_fijo_valor_estado(
     id_moneda,
     id_moneda_dep,
     tipo_cambio_anterior,
+    estado_mov_dep,
     estado_mov)
 AS
   SELECT afv.id_usuario_reg,
@@ -920,11 +921,15 @@ AS
          afv.id_moneda,
          afv.id_moneda_dep,
          COALESCE(min.tipo_cambio_fin, NULL::numeric) AS tipo_cambio_anterior,
-         min.estado AS estado_mov
+         min.estado AS estado_mov_dep,
+         mov.estado AS estado_mov
   FROM kaf.tactivo_fijo_valores afv
        LEFT JOIN kaf.vminimo_movimiento_af_dep_estado min ON
          min.id_activo_fijo_valor = afv.id_activo_fijo_valor AND
-         afv.id_moneda_dep = min.id_moneda_dep;           
+         afv.id_moneda_dep = min.id_moneda_dep
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afv.id_movimiento_af
+       JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento;
 
 CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente_estado(
     id_activo_fijo,
@@ -935,7 +940,7 @@ CREATE OR REPLACE VIEW kaf.vactivo_fijo_vigente_estado(
     depreciacion_per_real_af,
     id_moneda,
     id_moneda_dep,
-    estado_mov)
+    estado_mov_dep)
 AS
   SELECT afd.id_activo_fijo,
          sum(afd.monto_vigente_real) AS monto_vigente_real_af,
@@ -945,12 +950,12 @@ AS
          sum(afd.depreciacion_per_real) AS depreciacion_per_real_af,
          afd.id_moneda,
          afd.id_moneda_dep,
-         afd.estado_mov
+         afd.estado_mov_dep
   FROM kaf.vactivo_fijo_valor_estado afd
   GROUP BY afd.id_activo_fijo,
            afd.id_moneda,
            afd.id_moneda_dep,
-           afd.estado_mov;
+           afd.estado_mov_dep;
          
 
 /***********************************F-DEP-RCM-KAF-1-09/06/2017****************************************/
@@ -995,3 +1000,243 @@ ALTER TABLE kaf.tclasificacion_variable
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-DEP-RCM-KAF-1-27/06/2017****************************************/    
+
+
+/***********************************I-DEP-RCM-KAF-1-25/07/2017****************************************/    
+CREATE VIEW kaf.vclasificacion_arbol(
+    clasificacion,
+    nivel,
+    id_clasificacion,
+    id_clasificacion_fk,
+    orden)
+AS
+WITH RECURSIVE t(
+    id,
+    id_fk,
+    nombre,
+    codigo,
+    n,
+    orden) AS(
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         1,
+         l.id_clasificacion * 1000000
+  FROM kaf.tclasificacion l
+  WHERE l.id_clasificacion_fk IS NULL
+  UNION ALL
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         t_1.n + 1,
+         l.id_clasificacion * 1000000 + l.id_clasificacion
+  FROM kaf.tclasificacion l,
+       t t_1
+  WHERE l.id_clasificacion_fk = t_1.id)
+      SELECT ((((repeat('--->'::text, t.n - 1) || ' '::text) || t.codigo::text)
+        || ' - '::text) || t.nombre::text)::character varying AS clasificacion,
+             t.n AS nivel,
+             t.id AS id_clasificacion,
+             t.id_fk AS id_clasificacion_fk,
+             orden
+      FROM t
+      ORDER BY t.orden;
+/***********************************F-DEP-RCM-KAF-1-25/07/2017****************************************/    
+
+
+/***********************************I-DEP-RCM-KAF-1-09/08/2017****************************************/    
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_unidad_medida FOREIGN KEY (id_unidad_medida)
+    REFERENCES param.tunidad_medida(id_unidad_medida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_cotizacion_det FOREIGN KEY (id_cotizacion_det)
+    REFERENCES adq.tcotizacion_det(id_cotizacion_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD CONSTRAINT fk_tactivo_fijo__id_preingreso_det FOREIGN KEY (id_preingreso_det)
+    REFERENCES alm.tpreingreso_det(id_preingreso_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-1-09/08/2017****************************************/    
+
+
+/***********************************I-DEP-RCM-KAF-1-14/08/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD CONSTRAINT tmovimiento_af_dep__id_moneda_dep_fk FOREIGN KEY (id_moneda_dep)
+    REFERENCES kaf.tmoneda_dep(id_moneda_dep)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-1-14/08/2017****************************************/
+
+
+/***********************************I-DEP-RCM-KAF-1-21/08/2017****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_alta(
+    id_movimiento_af,
+    id_movimiento,
+    monto_compra,
+    id_clasificacion)
+AS
+  SELECT maf.id_movimiento_af,
+         mov.id_movimiento,
+         afij.monto_compra,
+         afij.id_clasificacion
+  FROM kaf.tmovimiento_af maf
+       JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+       JOIN kaf.tactivo_fijo afij ON afij.id_activo_fijo = maf.id_activo_fijo;
+/***********************************F-DEP-RCM-KAF-1-21/08/2017****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-23/08/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD CONSTRAINT fk_tactivo_fijo_modificacion__id_activo_fijo FOREIGN KEY (id_activo_fijo)
+    REFERENCES kaf.tactivo_fijo(id_activo_fijo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD CONSTRAINT fk_tactivo_fijo_modificacion__id_oficina FOREIGN KEY (id_oficina)
+    REFERENCES orga.toficina(id_oficina)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD CONSTRAINT fk_tactivo_fijo_modificacion__id_oficina_ant FOREIGN KEY (id_oficina_ant)
+    REFERENCES orga.toficina(id_oficina)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-1-23/08/2017****************************************/
+
+
+
+/***********************************I-DEP-RCM-KAF-1-25/08/2017****************************************/
+CREATE VIEW kaf.v_cbte_det_importe 
+AS 
+select 
+id_movimiento,
+id_moneda,
+id_clasificacion,
+id_centro_costo,
+sum(importe) as importe
+from (select
+maf.id_movimiento_af,
+maf.id_movimiento,
+maf.id_moneda,
+afij.id_activo_fijo,
+mov.fecha_mov,
+afij.id_clasificacion,
+maf.importe*coalesce(tpro.factor,1) as importe,
+coalesce(cc.id_centro_costo,carcc.id_centro_costo) as id_centro_costo,
+coalesce(tpro.factor,1) as prorrateo
+from kaf.tmovimiento_af maf
+inner join kaf.tactivo_fijo afij
+on afij.id_activo_fijo = maf.id_activo_fijo
+inner join kaf.tmovimiento mov
+on mov.id_movimiento = maf.id_movimiento
+left join kaf.ttipo_prorrateo tpro
+on tpro.id_activo_fijo = afij.id_activo_fijo
+left join param.tcentro_costo cc
+on cc.id_tipo_cc = tpro.id_tipo_cc
+and cc.id_gestion = (SELECT po_id_gestion from param.f_get_limites_gestion(mov.fecha_mov))
+left join orga.tuo_funcionario uofun
+on uofun.id_funcionario = afij.id_funcionario
+left join orga.tcargo_centro_costo carcc
+on carcc.id_cargo = uofun.id_cargo) as det
+group by id_movimiento,id_moneda,id_clasificacion,id_centro_costo;
+/***********************************F-DEP-RCM-KAF-1-25/08/2017****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-28/08/2017****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_det_base(
+    id_movimiento_af,
+    id_movimiento,
+    id_moneda,
+    id_activo_fijo,
+    fecha_mov,
+    id_clasificacion,
+    importe_mov,
+    id_centro_costo,
+    prorrateo,
+    monto_vigente,
+    vida_util_real,
+    depreciacion_acum,
+    depreciacion_per)
+AS
+  SELECT maf.id_movimiento_af,
+         maf.id_movimiento,
+         maf.id_moneda,
+         afij.id_activo_fijo,
+         mov.fecha_mov,
+         afij.id_clasificacion,
+         COALESCE(maf.importe * COALESCE(tpro.factor, 1::numeric),
+           afij.monto_compra * COALESCE(tpro.factor, 1::numeric)) AS importe_mov
+  ,
+         COALESCE(cc.id_centro_costo, carcc.id_centro_costo) AS id_centro_costo,
+         COALESCE(tpro.factor, 1::numeric) AS prorrateo,
+         COALESCE(round(afvi.monto_vigente * COALESCE(tpro.factor, 1::numeric), 2), afij.monto_compra) AS
+           monto_vigente,
+         COALESCE(afvi.vida_util, afij.vida_util_original) AS vida_util_real,
+         COALESCE(round(afvi.depreciacion_acum * COALESCE(tpro.factor, 1::numeric), 2), 0::numeric) AS
+           depreciacion_acum,
+         COALESCE(round(afvi.depreciacion_per * COALESCE(tpro.factor, 1::numeric), 2), 0::numeric) AS
+           depreciacion_per
+  FROM kaf.tmovimiento_af maf
+       JOIN kaf.tactivo_fijo afij ON afij.id_activo_fijo = maf.id_activo_fijo
+       JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+       LEFT JOIN kaf.ttipo_prorrateo tpro ON tpro.id_activo_fijo =
+         afij.id_activo_fijo
+       LEFT JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tpro.id_tipo_cc AND
+         cc.id_gestion =((
+                           SELECT f_get_limites_gestion.po_id_gestion
+                           FROM param.f_get_limites_gestion(mov.fecha_mov)
+                             f_get_limites_gestion(po_fecha_ini, po_fecha_fin,
+                             po_id_gestion)
+       ))
+       LEFT JOIN orga.tuo_funcionario uofun ON uofun.id_funcionario =
+         afij.id_funcionario
+       LEFT JOIN orga.tcargo_centro_costo carcc ON carcc.id_cargo =
+         uofun.id_cargo
+       LEFT JOIN LATERAL kaf.f_activo_fijo_dep_x_fecha_afv(mov.fecha_mov, 'si'::
+         character varying) afvi(id_activo_fijo_valor, id_activo_fijo,
+         id_movimiento_af, id_moneda_dep, id_moneda, codigo, tipo, deducible,
+         fecha_ini_dep, fecha_inicio, fecha_fin, fecha_ult_dep, monto_rescate,
+         monto_vigente_orig, vida_util_orig, depreciacion_acum_ant,
+         depreciacion_per_ant, monto_vigente_ant, vida_util_ant,
+         depreciacion_acum_actualiz, depreciacion_per_actualiz, monto_actualiz,
+         depreciacion, depreciacion_acum, depreciacion_per, monto_vigente,
+         vida_util, monto_vigente_orig_100) ON afvi.id_activo_fijo =
+         afij.id_activo_fijo AND afvi.id_moneda = maf.id_moneda;
+         
+CREATE OR REPLACE VIEW kaf.v_cbte_det_baja(
+    id_movimiento,
+    id_moneda,
+    id_clasificacion,
+    id_centro_costo,
+    dep_acumulada,
+    monto_vigente,
+    importe_haber)
+AS
+  SELECT ba.id_movimiento,
+         ba.id_moneda,
+         ba.id_clasificacion,
+         ba.id_centro_costo,
+         sum(ba.depreciacion_acum) AS dep_acumulada,
+         sum(ba.monto_vigente) AS monto_vigente,
+         sum(ba.depreciacion_acum) + sum(ba.monto_vigente) AS importe_haber
+  FROM kaf.v_cbte_det_base ba
+  GROUP BY ba.id_movimiento,
+           ba.id_moneda,
+           ba.id_clasificacion,
+           ba.id_centro_costo;
+/***********************************F-DEP-RCM-KAF-1-28/08/2017****************************************/

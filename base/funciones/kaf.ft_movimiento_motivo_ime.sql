@@ -53,7 +53,8 @@ BEGIN
 			fecha_reg,
 			id_usuario_reg,
 			id_usuario_mod,
-			fecha_mod
+			fecha_mod,
+			plantilla_cbte
           	) values(
 			v_parametros.id_cat_movimiento,
 			v_parametros.motivo,
@@ -63,10 +64,8 @@ BEGIN
 			now(),
 			p_id_usuario,
 			null,
-			null
-							
-			
-			
+			null,
+			v_parametros.plantilla_cbte
 			)RETURNING id_movimiento_motivo into v_id_movimiento_motivo;
 			
 			--Definicion de la respuesta
@@ -95,7 +94,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+			plantilla_cbte = v_parametros.plantilla_cbte
 			where id_movimiento_motivo=v_parametros.id_movimiento_motivo;
                
 			--Definicion de la respuesta

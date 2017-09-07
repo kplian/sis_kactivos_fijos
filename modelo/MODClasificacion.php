@@ -50,7 +50,7 @@ class MODClasificacion extends MODbase{
 		$this->captura('depreciable','varchar');
 		$this->captura('contabilizar','varchar');
 		$this->captura('codigo_final','varchar');
-		
+		$this->captura('vida_util_anios','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -67,7 +67,7 @@ class MODClasificacion extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','int4');
+		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','varchar');
 		$this->setParametro('id_cat_metodo_dep','id_cat_metodo_dep','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('codigo','codigo','varchar');
@@ -99,7 +99,7 @@ class MODClasificacion extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('id_clasificacion','id_clasificacion','int4');
-		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','int4');
+		$this->setParametro('id_clasificacion_fk','id_clasificacion_fk','varchar');
 		$this->setParametro('id_cat_metodo_dep','id_cat_metodo_dep','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('codigo','codigo','varchar');
@@ -179,12 +179,34 @@ class MODClasificacion extends MODbase{
 		$this->captura('depreciable','varchar');
 		$this->captura('contabilizar','varchar');
 		$this->captura('codigo_final','varchar');
-		
-		
+		$this->captura('vida_util_anios','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarClasificacionTree(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_clasificacion_sel';
+		$this->transaccion='SKA_CLAFTREE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_clasificacion','int4');
+		$this->captura('id_clasificacion_fk','int4');
+		$this->captura('clasificacion','varchar');
+		$this->captura('nivel','integer');
+		$this->captura('tipo_activo','varchar');
+		$this->captura('depreciable','varchar');
+		$this->captura('vida_util','integer');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

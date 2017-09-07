@@ -61,47 +61,26 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		
-		{
-	   			config:{
-	   				name : 'id_gestion',
-	   				origen : 'GESTION',
-	   				fieldLabel : 'Gestion',
-	   				allowBlank : false,
-	   				resizable:true,
-	   				gdisplayField : 'desc_gestion',//mapea al store del grid
-	   				width: 380,
-	   				gwidth : 100
-	       	     },
-	   			type : 'ComboRec',
-	   			id_grupo : 0,
-	   			filters : {	
-			        pfiltro : 'ges.gestion',
-					type : 'numeric'
-				},
-	   		   
-	   			grid : true,
-	   			form : true
-	   	},
-		{
-            config:{
-                name: 'id_centro_costo',
-                fieldLabel: 'Centro Costo',
-                allowBlank: false,
-                tinit:false,
-                resizable:true,
-                origen:'CENTROCOSTO',
-                gdisplayField: 'desc_centro_costo',
-                width: 380,
-                gwidth: 300
-            },
-            type:'ComboRec',
-            filters:{pfiltro:'cc.codigo_cc',type:'string'},
-            bottom_filter : true,
-            id_grupo:1,
-            grid:true,
-            form:true
-        },
+        {
+	   		config: {
+   				name:'id_tipo_cc',
+   				qtip: 'Tipo de centro de costo',
+   				origen:'TIPOCC',
+   				fieldLabel:'Centro de Costo',
+   				gdisplayField:'desc_tipo_cc',//mapea al store del grid
+   				anchor: '100%',
+   				listWidth: 0,
+   				gwidth:200,
+   				allowBlank: false
+   				
+      		},
+   			type:'ComboRec',
+   			id_grupo:1,
+   			filters:{pfiltro:'cc.codigo#cc.descripcion',type:'string'},
+   		    grid:true,
+   			form:true,
+   			bottom_filter: true
+	    },
         {
             config:{
                     name:'id_ot',
@@ -124,11 +103,13 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'factor',
-				fieldLabel: 'factor',
+				fieldLabel: 'Prorrateo (0 - 1)',
 				allowBlank: false,
 				width: 380,
 				gwidth: 100,
-				maxLength:1
+				maxValue:1,
+				minValue:0,
+				allowDecimals: true
 			},
 				type:'NumberField',
 				valorInicial: 1,
@@ -137,21 +118,7 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-				name: 'descripcion',
-				fieldLabel: 'descripcion',
-				allowBlank: true,
-				width: 380,
-				gwidth: 100,
-				maxLength:300
-			},
-				type:'TextArea',
-				filters:{pfiltro:'tipr.descripcion',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+
 		{
 			config:{
 				name: 'estado_reg',
@@ -268,12 +235,10 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 	id_store:'id_tipo_prorrateo',
 	fields: [
 		{name:'id_tipo_prorrateo', type: 'numeric'},
-		{name:'descripcion', type: 'string'},
 		{name:'estado_reg', type: 'string'},
-		{name:'id_gestion', type: 'numeric'},
 		{name:'id_ot', type: 'numeric'},
 		{name:'id_activo_fijo', type: 'numeric'},
-		{name:'id_centro_costo', type: 'numeric'},
+		{name:'id_tipo_cc', type: 'numeric'},
 		{name:'id_proyecto', type: 'numeric'},
 		{name:'factor', type: 'numeric'},
 		{name:'id_usuario_reg', type: 'numeric'},
@@ -283,7 +248,9 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},'desc_ot','desc_centro_costo','desc_gestion'
+		{name:'usr_mod', type: 'string'},
+		{name:'desc_ot', type: 'string'},
+		{name:'desc_tipo_cc', type: 'string'}
 		
 	],
 	sortInfo:{
@@ -294,13 +261,15 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
 	bsave:false,
 	onReloadPage:function(m){
 		this.maestro=m;
-		this.store.baseParams={id_proyecto:this.maestro.id_proyecto};
+		//this.store.baseParams={id_proyecto:this.maestro.id_proyecto};
+		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo};
 		this.load({params:{start:0, limit:50}})
 		
 	},
 	loadValoresIniciales:function(){
 		Phx.vista.TipoProrrateo.superclass.loadValoresIniciales.call(this);
-		this.getComponente('id_proyecto').setValue(this.maestro.id_proyecto);		
+		//this.getComponente('id_proyecto').setValue(this.maestro.id_proyecto);		
+		this.getComponente('id_activo_fijo').setValue(this.maestro.id_activo_fijo);		
 	}
 	
 	

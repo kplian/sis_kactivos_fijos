@@ -20,22 +20,17 @@ DECLARE
 
 BEGIN
 
-     v_nombre_funcion = 'kaf.f_insercion_af';
+    v_nombre_funcion = 'kaf.f_insercion_af';
      
-     --conversion de monedas
-     
-      v_monto_compra = param.f_convertir_moneda(
+    --Conversión de monedas
+    v_monto_compra = param.f_convertir_moneda(
                            (p_parametros->'id_moneda_orig')::integer, 
-                           NULL,   --por defecto moenda base
-                           (p_parametros->'monto_compra_mt')::numeric, 
+                           NULL,   --por defecto moneda base
+                           (p_parametros->'monto_compra_orig')::numeric, 
                            (p_parametros->'fecha_compra')::date, 
                            'O',-- tipo oficial, venta, compra 
                            NULL);--defecto dos decimales
             
-     
-     
-     
-
 	--Se hace el registro del activo fijo
 	insert into kaf.tactivo_fijo(
 		id_persona,
@@ -55,7 +50,7 @@ BEGIN
 		denominacion,
         id_funcionario,
         id_deposito,
-        monto_compra_mt,
+        monto_compra_orig,
         monto_compra,
         id_moneda,
         depreciacion_mes,
@@ -83,7 +78,14 @@ BEGIN
         marca,
         nro_serie,
         caracteristicas,
-        id_proyecto
+        id_proyecto,
+        id_unidad_medida,
+        cantidad_af,
+        monto_compra_orig_100,
+        nro_cbte_asociado,
+        fecha_cbte_asociado,
+        id_cotizacion_det,
+        id_preingreso_det
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -102,7 +104,7 @@ BEGIN
         (p_parametros->'denominacion')::varchar,
         (p_parametros->'id_funcionario')::integer,
         (p_parametros->'id_deposito')::integer,
-        (p_parametros->'monto_compra_mt')::numeric,
+        (p_parametros->'monto_compra_orig')::numeric,
          v_monto_compra,
         (p_parametros->'id_moneda_orig')::integer,
         0,
@@ -130,10 +132,16 @@ BEGIN
         (p_parametros->'marca')::varchar,
         (p_parametros->'nro_serie')::varchar,
         (p_parametros->'caracteristicas')::text,
-        (p_parametros->'id_proyecto')::integer
+        (p_parametros->'id_proyecto')::integer,
+        (p_parametros->'id_unidad_medida')::integer,
+        (p_parametros->'cantidad_af')::integer,
+        (p_parametros->'monto_compra_orig_100')::numeric,
+        (p_parametros->'nro_cbte_asociado')::varchar,
+        (p_parametros->'fecha_cbte_asociado')::date,
+        (p_parametros->'id_cotizacion_det')::integer,
+        (p_parametros->'id_preingreso_det')::integer
         
-    )RETURNING id_activo_fijo into v_id_activo_fijo;
-
+    ) returning id_activo_fijo into v_id_activo_fijo;
 
 	--Respuesta
     return v_id_activo_fijo;

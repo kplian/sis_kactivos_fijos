@@ -17,6 +17,10 @@ class ACTTipoProrrateo extends ACTbase{
 		if($this->objParam->getParametro('id_proyecto')!=''){
 			$this->objParam->addFiltro("tipr.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));	
 		}
+
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("tipr.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo'));
+		}
 		
 		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

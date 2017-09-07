@@ -17,20 +17,12 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValores.superclass.constructor.call(this,config);
 		
-		
-		
-		
-		
 		this.cmbMonedaDep.on('select', function(){
-			    if( this.validarFiltros() ){
-	                  this.capturaFiltros();
-	             }
-		     },this);
-		     
-		     
-		
-			
-			
+		    if( this.validarFiltros() ){
+                  this.capturaFiltros();
+             }
+	     },this);
+
 		this.init();
 		
 	},
@@ -551,6 +543,29 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},
+		{
+			config:{
+				name: 'monto_vigente_orig_100',
+				fieldLabel: 'Monto vigente Orig.(100%)',
+				allowBlank: true,
+				anchor: '80%',
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+						}
+				},
+				gwidth: 100,
+			},
+				type:'NumberField',
+				filters:{pfiltro:'actval.monto_vigente_orig_100',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:false
 		}
 	],
 	capturaFiltros : function(combo, record, index) {
@@ -621,11 +636,11 @@ Phx.vista.ActivoFijoValores=Ext.extend(Phx.gridInterfaz,{
 		{name:'codigo', type: 'string'},
         'monto_vigente_real',
         'vida_util_real',
-         'depreciacion_acum_ant_real',
-         'depreciacion_acum_real',
-         'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda',
-         {name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
-
+        'depreciacion_acum_ant_real',
+        'depreciacion_acum_real',
+        'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda',
+        {name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
+        {name:'monto_vigente_orig_100', type: 'numeric'}
 		
 	],
 	sortInfo:{

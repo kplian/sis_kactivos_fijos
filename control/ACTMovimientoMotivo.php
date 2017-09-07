@@ -39,7 +39,7 @@ class ACTMovimientoMotivo extends ACTbase{
 	}
 						
 	function eliminarMovimientoMotivo(){
-			$this->objFunc=$this->create('MODMovimientoMotivo');	
+		$this->objFunc=$this->create('MODMovimientoMotivo');	
 		$this->res=$this->objFunc->eliminarMovimientoMotivo($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}

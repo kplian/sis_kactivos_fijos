@@ -78,7 +78,7 @@ BEGIN
 						ofi.nombre as oficina,
 						mov.id_responsable_depto,
 						mov.id_persona,
-						usu.desc_persona as responsable_depto,
+						usu.desc_funcionario1 as responsable_depto,
 						per.nombre_completo2 as custodio,
 						tew.icono as icono_estado,
 						mov.codigo,
@@ -91,7 +91,9 @@ BEGIN
 			            depdest.nombre as depto_dest,
 			            depodest.nombre as deposito_dest,
 			            fundest.desc_funcionario2,
-			            movmot.motivo
+			            movmot.motivo,
+			            mov.id_int_comprobante,
+			            mov.id_int_comprobante_aitb
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -99,7 +101,7 @@ BEGIN
 						inner join param.tdepto dep on dep.id_depto = mov.id_depto
 						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
 						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
 						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
@@ -109,6 +111,24 @@ BEGIN
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
 				        where  ';
+
+			--Verifica si la consulta es por usuario
+            if pxp.f_existe_parametro(p_tabla,'por_usuario') then
+                if v_parametros.por_usuario = 'si' then
+                    v_consulta = v_consulta || ' (mov.id_funcionario in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') or
+                                                mov.id_funcionario_dest in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') )and ';
+                end if;
+            end if;
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -138,7 +158,7 @@ BEGIN
 						inner join param.tdepto dep on dep.id_depto = mov.id_depto
 						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-						inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
 						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
 						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
@@ -148,6 +168,24 @@ BEGIN
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
 					    where ';
+
+			--Verifica si la consulta es por usuario
+            if pxp.f_existe_parametro(p_tabla,'por_usuario') then
+                if v_parametros.por_usuario = 'si' then
+                    v_consulta = v_consulta || ' (mov.id_funcionario in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') or
+                                                mov.id_funcionario_dest in (select 
+                                                fun.id_funcionario
+                                                from segu.tusuario usu
+                                                inner join orga.vfuncionario_persona fun
+                                                on fun.id_persona = usu.id_persona
+                                                where usu.id_usuario = '||p_id_usuario||') )and ';
+                end if;
+            end if;
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;

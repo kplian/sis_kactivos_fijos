@@ -69,7 +69,8 @@ BEGIN
 			id_usuario_ai,
 			fecha_mod,
 			id_usuario_mod,
-			codigo
+			codigo,
+			monto_vigente_orig_100
           	) values(
 			v_parametros.id_activo_fijo,
 			v_parametros.depreciacion_per,
@@ -95,7 +96,8 @@ BEGIN
 			v_parametros._id_usuario_ai,
 			null,
 			null,
-			v_parametros.codigo
+			v_parametros.codigo,
+			v_parametros.monto_vigente_orig_100
 			)RETURNING id_activo_fijo_valor into v_id_activo_fijo_valor;
 			
 			--Definicion de la respuesta
@@ -140,7 +142,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-			codigo = v_parametros.codigo
+			codigo = v_parametros.codigo,
+			monto_vigente_orig_100 = v_parametros.monto_vigente_orig_100
 			where id_activo_fijo_valor=v_parametros.id_activo_fijo_valor;
                
 			--Definicion de la respuesta

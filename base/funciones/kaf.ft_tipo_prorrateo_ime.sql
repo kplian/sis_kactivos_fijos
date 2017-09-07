@@ -18,9 +18,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION: 	Modificación de la función por cambio en las columnas de la tabla tipo_prorrateo
+ AUTOR:			RCM
+ FECHA:			23/08/2017
 ***************************************************************************/
 
 DECLARE
@@ -50,12 +50,10 @@ BEGIN
         begin
         	--Sentencia de la insercion
         	insert into kaf.ttipo_prorrateo(
-			descripcion,
 			estado_reg,
-			id_gestion,
 			id_ot,
 			id_activo_fijo,
-			id_centro_costo,
+			id_tipo_cc,
 			id_proyecto,
 			factor,
 			id_usuario_reg,
@@ -65,12 +63,10 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod
           	) values(
-			v_parametros.descripcion,
 			'activo',
-			v_parametros.id_gestion,
 			v_parametros.id_ot,
 			v_parametros.id_activo_fijo,
-			v_parametros.id_centro_costo,
+			v_parametros.id_tipo_cc,
 			v_parametros.id_proyecto,
 			v_parametros.factor,
 			p_id_usuario,
@@ -79,9 +75,6 @@ BEGIN
 			v_parametros._id_usuario_ai,
 			null,
 			null
-							
-			
-			
 			)RETURNING id_tipo_prorrateo into v_id_tipo_prorrateo;
 			
 			--Definicion de la respuesta
@@ -105,11 +98,9 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update kaf.ttipo_prorrateo set
-			descripcion = v_parametros.descripcion,
-			id_gestion = v_parametros.id_gestion,
 			id_ot = v_parametros.id_ot,
 			id_activo_fijo = v_parametros.id_activo_fijo,
-			id_centro_costo = v_parametros.id_centro_costo,
+			id_tipo_cc = v_parametros.id_tipo_cc,
 			id_proyecto = v_parametros.id_proyecto,
 			factor = v_parametros.factor,
 			id_usuario_mod = p_id_usuario,

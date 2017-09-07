@@ -5,36 +5,36 @@ CREATE OR REPLACE FUNCTION kaf.f_activo_fijo_valor (
 RETURNS SETOF kaf.vactivo_fijo_valor_estado AS
 $body$
 /**************************************************************************
- SISTEMA:		Sistema de Activos Fijos
- FUNCION: 		kaf.f_activo_fijo_valor
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.f_activo_fijo_valor
  DESCRIPCION:   Recupera el valor real de los activo_fijo_valor, pudiendo ser sólo con movimientos finalizados o no
- AUTOR: 		(RCM)
- FECHA:	        12/06/2017
- COMENTARIOS:	
+ AUTOR:         (RCM)
+ FECHA:         12/06/2017
+ COMENTARIOS:   
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:   
+ AUTOR:         
+ FECHA:     
 ***************************************************************************/
 
 DECLARE
-	v_rec record;
-	v_result kaf.vactivo_fijo_valor_estado;
+    v_rec record;
+    v_result kaf.vactivo_fijo_valor_estado;
 BEGIN
 
-	
     
-    	for v_rec in select 
-        				afv.id_usuario_reg,
+    
+        for v_rec in select 
+                        afv.id_usuario_reg,
                         afv.id_usuario_mod,
                         afv.fecha_reg,
                         afv.fecha_mod,
                         afv.estado_reg,
                         afv.id_usuario_ai,
                         afv.usuario_ai,
-        				afv.id_activo_fijo_valor,
+                        afv.id_activo_fijo_valor,
                         afv.id_activo_fijo,
                         afv.monto_vigente_orig,
                         afv.vida_util_orig,
@@ -74,12 +74,12 @@ BEGIN
                         on maf.id_movimiento_af = afv.id_movimiento_af
                         inner join kaf.tmovimiento mov
                         on mov.id_movimiento = maf.id_movimiento
-                        left join kaf.vminimo_movimiento_af_dep_estado min
+                        left join kaf.f_activo_fijo_dep_x_fecha(p_fecha,p_solo_finalizados) min --kaf.vminimo_movimiento_af_dep_estado min
                         on min.id_activo_fijo_valor = afv.id_activo_fijo_valor
                         where (afv.fecha_fin is null or afv.fecha_fin > p_fecha)
                         and afv.fecha_inicio <= p_fecha loop
                         
-    		--Inicialización de variables
+            --Inicialización de variables
             v_result.id_usuario_reg = v_rec.id_usuario_reg;
             v_result.id_usuario_mod = v_rec.id_usuario_mod;
             v_result.fecha_reg = v_rec.fecha_reg;
@@ -111,7 +111,7 @@ BEGIN
             v_result.estado_mov_dep = v_rec.min_estado_dep;
             v_result.estado_mov = v_rec.estado_mov;
             
-			v_result.monto_vigente_real = 0;
+            v_result.monto_vigente_real = 0;
             v_result.vida_util_real = 0;
             v_result.fecha_ult_dep_real = NULL;
             v_result.depreciacion_acum_real = 0;
@@ -121,8 +121,8 @@ BEGIN
             v_result.tipo_cambio_anterior = 0;
             
             if p_solo_finalizados = 'si' then
-            	if v_rec.min_estado_dep = 'finalizado' then
-                	v_result.monto_vigente_real = v_rec.min_monto_vigente;
+                if v_rec.min_estado_dep = 'finalizado' then
+                    v_result.monto_vigente_real = v_rec.min_monto_vigente;
                     v_result.vida_util_real = v_rec.min_vida_util;
                     v_result.fecha_ult_dep_real = v_rec.min_fecha;
                     v_result.depreciacion_acum_real = COALESCE(v_rec.min_depreciacion_acum, 0::numeric);
@@ -131,7 +131,7 @@ BEGIN
                     v_result.monto_actualiz_real = v_rec.min_monto_actualiz;
                     v_result.tipo_cambio_anterior = COALESCE(v_rec.min_tipo_cambio_fin, NULL::numeric);
                 elsif v_rec.estado_mov = 'finalizado' then
-                	v_result.monto_vigente_real = v_rec.monto_vigente_orig;
+                    v_result.monto_vigente_real = v_rec.monto_vigente_orig;
                     v_result.vida_util_real = COALESCE(v_rec.min_vida_util, v_rec.vida_util_orig);
                     v_result.fecha_ult_dep_real = v_rec.fecha_ini_dep;
                     v_result.depreciacion_acum_real = COALESCE(v_rec.min_depreciacion_acum, 0::numeric);
@@ -141,7 +141,7 @@ BEGIN
                     v_result.tipo_cambio_anterior = COALESCE(v_rec.min_tipo_cambio_fin, NULL::numeric);
                 end if;
             else
-            	v_result.monto_vigente_real = COALESCE(v_rec.min_monto_vigente, v_rec.monto_vigente_orig);
+                v_result.monto_vigente_real = COALESCE(v_rec.min_monto_vigente, v_rec.monto_vigente_orig);
                 v_result.vida_util_real = COALESCE(v_rec.min_vida_util, v_rec.vida_util_orig);
                 v_result.fecha_ult_dep_real = COALESCE(v_rec.min_fecha, v_rec.fecha_ini_dep);
                 v_result.depreciacion_acum_real = COALESCE(v_rec.min_depreciacion_acum, 0::numeric);
@@ -155,8 +155,8 @@ BEGIN
         
         end loop;
 
-	
-	
+    
+    
     return ;
 
 END;

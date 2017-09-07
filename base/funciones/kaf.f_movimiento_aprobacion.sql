@@ -40,13 +40,15 @@ BEGIN
 				id_usuario_reg, fecha_reg,estado_reg,
 				id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
 				depreciacion_mes,depreciacion_per,depreciacion_acum,
-				monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
+				monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af,
+				monto_vigente_orig_100
 				)
 				select
 				p_id_usuario,now(),'activo',
 				af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
 				0,0,0,
-				af.monto_compra,af.vida_util_original,'activo','si',af.monto_rescate,movaf.id_movimiento_af
+				af.monto_compra,af.vida_util_original,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
+				af.monto_compra_orig_100
 				from kaf.tmovimiento_af movaf
 				inner join kaf.tactivo_fijo af
 				on af.id_activo_fijo = movaf.id_activo_fijo
@@ -132,29 +134,31 @@ BEGIN
 
 						--Replicar AFV con nueva vida útil
 						insert into kaf.tactivo_fijo_valores(
-						id_usuario_reg,
-						fecha_reg,
-						estado_reg,
-						id_activo_fijo,
-						monto_vigente_orig,
-						vida_util_orig,
-						fecha_ini_dep,
-						depreciacion_mes,
-						depreciacion_per,
-						depreciacion_acum,
-						monto_vigente,
-						vida_util ,
-						tipo,
-						estado,
-						principal,
-						monto_rescate,
-						id_movimiento_af ,
-						codigo,
-						id_moneda_dep ,
-						id_moneda ,
-						fecha_inicio,
-						deducible,
-						id_activo_fijo_valor_original)
+							id_usuario_reg,
+							fecha_reg,
+							estado_reg,
+							id_activo_fijo,
+							monto_vigente_orig,
+							vida_util_orig,
+							fecha_ini_dep,
+							depreciacion_mes,
+							depreciacion_per,
+							depreciacion_acum,
+							monto_vigente,
+							vida_util ,
+							tipo,
+							estado,
+							principal,
+							monto_rescate,
+							id_movimiento_af ,
+							codigo,
+							id_moneda_dep ,
+							id_moneda ,
+							fecha_inicio,
+							deducible,
+							id_activo_fijo_valor_original,
+							monto_vigente_orig_100
+						)
 						select
 						p_id_usuario,
 						now(),
@@ -178,7 +182,8 @@ BEGIN
 						id_moneda,
 						v_movimiento.fecha_mov,
 						deducible,
-						id_activo_fijo_valor
+						id_activo_fijo_valor,
+						monto_vigente_orig
 						from kaf.activo_fijo_valores
 						where id_movimiento_af = v_movimiento_af.id_movimiento_af
 						and fecha_fin is null;
@@ -205,7 +210,8 @@ BEGIN
 						id_moneda_dep,
 						id_moneda,
 						fecha_inicio,
-						deducible
+						deducible,
+						monto_vigente_orig_100
 						) values(
 						p_id_usuario,
 						now(),
@@ -227,7 +233,8 @@ BEGIN
 						1,
 						1,
 						v_movimiento.fecha_mov,
-						'si'
+						'si',
+						v_monto_inc_dec_real
 						);
 
 
@@ -247,13 +254,15 @@ BEGIN
 			id_usuario_reg, fecha_reg,estado_reg,
 			id_activo_fijo,monto_vigente_orig,vida_util_orig,fecha_ini_dep,
 			depreciacion_mes,depreciacion_per,depreciacion_acum,
-			monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af
+			monto_vigente,vida_util,estado,principal,monto_rescate,id_movimiento_af,
+			monto_vigente_orig_100
 			)
 			select
 			p_id_usuario,now(),'activo',
 			af.id_activo_fijo,af.monto_compra,af.vida_util_original,af.fecha_ini_dep,
 			0,0,0,
-			moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af
+			moavaf.importe,movaf.vida_util,'activo','si',af.monto_rescate,movaf.id_movimiento_af,
+			af.monto_compra
 			from kaf.tmovimiento_af movaf
 			inner join kaf.tactivo_fijo af
 			on af.id_activo_fijo = movaf.id_activo_fijo

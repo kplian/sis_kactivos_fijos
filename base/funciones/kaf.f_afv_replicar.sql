@@ -37,7 +37,8 @@ BEGIN
     depreciacion_per, depreciacion_acum, monto_vigente, vida_util ,
     tipo, estado, principal, monto_rescate,
     id_movimiento_af, codigo, id_moneda_dep, id_moneda,
-    fecha_inicio, deducible, id_activo_fijo_valor_original
+    fecha_inicio, deducible, id_activo_fijo_valor_original,
+    monto_vigente_orig_100
     )
     select
     p_id_usuario,
@@ -62,7 +63,8 @@ BEGIN
     id_moneda,
     p_fecha,
     deducible,
-    id_activo_fijo_valor
+    id_activo_fijo_valor,
+    monto_vigente_orig
     from kaf.tactivo_fijo_valores
     where id_activo_fijo = p_id_activo_fijo;
     

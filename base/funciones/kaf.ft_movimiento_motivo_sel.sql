@@ -53,7 +53,8 @@ BEGIN
 						mmot.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-						cat.descripcion as movimiento
+						cat.descripcion as movimiento,
+						mmot.plantilla_cbte
 						from kaf.tmovimiento_motivo mmot
 						inner join segu.tusuario usu1 on usu1.id_usuario = mmot.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mmot.id_usuario_mod
@@ -72,7 +73,7 @@ BEGIN
 	/*********************************    
  	#TRANSACCION:  'SKA_MMOT_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		18-03-2016 07:25:59
 	***********************************/
 
