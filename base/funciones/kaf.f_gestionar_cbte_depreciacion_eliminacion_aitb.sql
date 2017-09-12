@@ -69,19 +69,16 @@ BEGIN
       from  kaf.tmovimiento  mov
       inner join conta.tint_comprobante  c on c.id_int_comprobante = mov.id_int_comprobante 
       where  mov.id_int_comprobante_aitb = p_id_int_comprobante; 
+
+    --2) Validar que tenga una cuenta documentada
+          
+    IF  v_registros.id_movimiento is NULL  THEN     
+      raise exception 'El comprobante no está relacionado a ningún movimiento de depreciación';
+    END IF;
     
     
     IF v_registros.id_int_comprobante is NULL THEN
-    
-   
-          --2) Validar que tenga una cuenta documentada
-          
-           IF  v_registros.id_movimiento is NULL  THEN     
-              raise exception 'El comprobante no esta relacionado a ningún movimiento de depreciación';
-           END IF;
-           
-           
-           
+
           select
             ic.estado_reg
           INTO

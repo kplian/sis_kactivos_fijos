@@ -21,12 +21,10 @@ class MODTipoProrrateo extends MODbase{
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_tipo_prorrateo','int4');
-		$this->captura('descripcion','varchar');
 		$this->captura('estado_reg','varchar');
-		$this->captura('id_gestion','int4');
 		$this->captura('id_ot','int4');
 		$this->captura('id_activo_fijo','int4');
-		$this->captura('id_centro_costo','int4');
+		$this->captura('id_tipo_cc','int4');
 		$this->captura('id_proyecto','int4');
 		$this->captura('factor','numeric');
 		$this->captura('id_usuario_reg','int4');
@@ -38,8 +36,7 @@ class MODTipoProrrateo extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		
-		$this->captura('desc_gestion','varchar');
-		$this->captura('desc_centro_costo','varchar');
+		$this->captura('desc_tipo_cc','varchar');
 		$this->captura('desc_ot','varchar');
 		
 		//Ejecuta la instruccion
@@ -57,18 +54,12 @@ class MODTipoProrrateo extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('id_gestion','id_gestion','int4');
 		$this->setParametro('id_ot','id_ot','int4');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
-		$this->setParametro('id_centro_costo','id_centro_costo','int4');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('factor','factor','numeric');
-		
-		
-		
-		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -86,12 +77,10 @@ class MODTipoProrrateo extends MODbase{
 				
 		//Define los parametros para la funcion
 		$this->setParametro('id_tipo_prorrateo','id_tipo_prorrateo','int4');
-		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('id_gestion','id_gestion','int4');
 		$this->setParametro('id_ot','id_ot','int4');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
-		$this->setParametro('id_centro_costo','id_centro_costo','int4');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('factor','factor','numeric');
 

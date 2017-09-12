@@ -88,12 +88,13 @@ CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_activos"()
 		"vida_util",
 		"estado",
 		"principal",
-		"monto_rescate"
+		"monto_rescate",
+		"monto_vigente_orig_100"
 	)
 	select
 	1,null,af.id_activo_fijo,af.monto_compra,af.vida_util,
 	af.fecha_ini_dep,0,0,0,af.monto_compra,af.vida_util,
-	'activo','si',af.monto_rescate
+	'activo','si',af.monto_rescate,af.monto_compra
 	from kaf.tactivo_fijo af;
 
 	--Actualiza el correlativo de las clasificaciones

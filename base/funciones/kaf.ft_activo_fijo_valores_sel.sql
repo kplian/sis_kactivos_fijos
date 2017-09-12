@@ -75,7 +75,8 @@ BEGIN
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
 						actval.codigo,
-						actval.fecha_fin
+						actval.fecha_fin,
+						actval.monto_vigente_orig_100
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod
@@ -157,7 +158,8 @@ BEGIN
 						actval.codigo,
 						actval.fecha_fin,
 						''hijo''::varchar as tipo_nodo,
-						actval.monto_vigente as monto_vigente_real_afv
+						actval.monto_vigente as monto_vigente_real_afv,
+						actval.monto_vigente_orig_100
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod

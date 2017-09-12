@@ -49,6 +49,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('codigo','varchar');
 		$this->captura('fecha_fin','date');
+		$this->captura('monto_vigente_orig_100','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -83,6 +84,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('vida_util_orig','vida_util_orig','int4');
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
+		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -118,6 +120,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('vida_util_orig','vida_util_orig','int4');
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
+		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -183,6 +186,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('fecha_fin','date');
 		$this->captura('tipo_nodo','varchar');
 		$this->captura('monto_vigente_real','numeric');
+		$this->captura('monto_vigente_orig_100','numeric');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

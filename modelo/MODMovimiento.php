@@ -18,6 +18,8 @@ class MODMovimiento extends MODbase{
 		$this->procedimiento='kaf.ft_movimiento_sel';
 		$this->transaccion='SKA_MOV_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('por_usuario','por_usuario','varchar');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_movimiento','int4');
@@ -66,6 +68,8 @@ class MODMovimiento extends MODbase{
 		$this->captura('deposito_dest','varchar');
 		$this->captura('funcionario_dest','text');
 		$this->captura('motivo','varchar');
+		$this->captura('id_int_comprobante','int4');
+		$this->captura('id_int_comprobante_aitb','int4');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -184,9 +188,6 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-	
-
-
 
    function listarReporteMovimientoMaestro(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -227,7 +228,6 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-
 
 	function listarReporteMovimientoDetalle(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -309,7 +309,7 @@ class MODMovimiento extends MODbase{
         return $this->respuesta;
     }
 	
-	  function listarDatalleDepreciaconReporte(){
+	function listarDatalleDepreciaconReporte(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_movimiento_sel';
 		$this->transaccion='SKA_REPDETDE_REP';
@@ -347,14 +347,36 @@ class MODMovimiento extends MODbase{
         $this->captura('id_clasificacion_raiz','INTEGER');
 		$this->captura('depreciacion_per_final','NUMERIC'); 
         $this->captura('depreciacion_per_actualiz_final','NUMERIC'); 
-		
-	
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function generarMovimientoRapido(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_movimiento_ime';
+		$this->transaccion='SKA_MOVRAP_INS';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_movimiento','tipo_movimiento','varchar');
+		$this->setParametro('fecha_mov','fecha_mov','date');
+		$this->setParametro('glosa','glosa','varchar');
+		$this->setParametro('id_funcionario','id_funcionario','integer');
+		$this->setParametro('id_funcionario_dest','id_funcionario_dest','integer');
+		$this->setParametro('direccion','direccion','varchar');
+		$this->setParametro('id_oficina','id_oficina','integer');
+		$this->setParametro('ids_af','ids_af','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

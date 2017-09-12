@@ -20,7 +20,7 @@ select pxp.f_insert_testructura_gui ('KAFREP', 'KAF');
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES 
-  (E'kaf_codigo_longitud', E'4', E'Longitud correlativo en el codigo de activos');
+  (E'kaf_codigo_longitud', E'5', E'Longitud correlativo en el codigo de activos');
   
   
   
@@ -143,13 +143,13 @@ select param.f_import_tcatalogo ('insert','KAF','Usado','usado','tactivo_fijo__i
 select param.f_import_tcatalogo_tipo ('insert','tmovimiento__id_cat_movimiento','KAF','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Alta','alta','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Baja','baja','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Mejora/Revalorización','reval','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Revalorización','reval','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Depreciación/Actualización','deprec','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Asignación','asig','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Devolución','devol','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Transferencia','transf','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Incrementos/Decrementos','incdec','tmovimiento__id_cat_movimiento');
-select param.f_import_tcatalogo ('insert','KAF','Desuso temporal','desuso','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Ajustes','ajuste','tmovimiento__id_cat_movimiento');
+select param.f_import_tcatalogo ('insert','KAF','Retiros','retiro','tmovimiento__id_cat_movimiento');
 select param.f_import_tcatalogo ('insert','KAF','Transferencia Deposito','tranfdep','tmovimiento__id_cat_movimiento');
 
 
@@ -257,3 +257,28 @@ select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Intercambio de 
 select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Activos fijos en Transito','transito','');
 
 /***********************************F-DAT-RCM-KAF-1-27/06/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-24/07/2017****************************************/
+select pxp.f_insert_tgui ('Kardex', 'Kardex por activo fijo', 'KAF.REP.01', 'si', 1, 'sis_kactivos_fijos/vista/reportes/ParametrosReportes.php', 3, '', 'ParametrosReportes', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.01', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-24/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-25/07/2017****************************************/
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Registrado','registrado');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Alta','alta');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Tránsito','transito');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Baja','baja');
+select pxp.f_add_catalog('KAF','tactivo_fijo__estado','Retiro','retiro');
+/***********************************F-DAT-RCM-KAF-1-25/07/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-08/08/2017****************************************/
+select pxp.f_insert_tgui ('Pre-Ingreso', 'Pre ingreso al módulo de activos fijos', 'KAFPREI', 'si', 11, 'sis_almacenes/vista/preingreso/PreingresoActV2.php', 3, '', 'PreingresoActV2', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFPREI', 'KAF');
+select pxp.f_insert_tgui ('Mis Activos Fijos', 'Listado de mis activos fijos asignados', 'KAFMIASIG', 'si', 11, 'sis_kactivos_fijos/vista/activo_fijo/ActivoFijoUsuario.php', 3, '', 'ActivoFijoUsuario', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMIASIG', 'KAF');
+/***********************************F-DAT-RCM-KAF-0-08/08/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-15/08/2017****************************************/
+select pxp.f_insert_tgui ('Procesos - Cuentas', 'Configuración de las cuentas por Proceso y Clasificación', 'MOTTIPCAT', 'si', 1, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipoCat.php', 3, '', 'MovimientoTipoCat', 'KAF');
+select pxp.f_insert_testructura_gui ('MOTTIPCAT', 'CONFAF');
+/***********************************F-DAT-RCM-KAF-0-15/08/2017****************************************/

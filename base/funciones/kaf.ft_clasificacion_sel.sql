@@ -76,7 +76,8 @@ BEGIN
                             claf.tipo_activo,
                             claf.depreciable,
                             claf.contabilizar,
-                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final
+                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final,
+                            round(claf.vida_util / 12,2)::numeric as vida_util_anios
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
@@ -167,7 +168,8 @@ BEGIN
                             claf.tipo_activo,
                             claf.depreciable,
                             claf.contabilizar,
-                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final
+                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final,
+                            round(claf.vida_util / 12,2)::numeric as vida_util_anios
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = claf.id_usuario_mod
@@ -182,6 +184,62 @@ BEGIN
 			return v_consulta;
 						
 		end;
+
+    /*********************************    
+    #TRANSACCION:  'SKA_CLAFTREE_SEL'
+    #DESCRIPCION:   Devuelve listado recursivo de toda la clasificación con niveles visuales
+    #AUTOR:         RCM
+    #FECHA:         25/07/2017
+    ***********************************/
+
+    elsif(p_transaccion='SKA_CLAFTREE_SEL')then
+                    
+        begin
+            --Sentencia de la consulta
+            v_consulta:='select
+                            claf.id_clasificacion,
+                            claf.id_clasificacion_fk,
+                            claf.clasificacion,
+                            claf.nivel,
+                            cla.tipo_activo,
+                            cla.depreciable,
+                            cla.vida_util
+                        from kaf.vclasificacion_arbol claf
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = claf.id_clasificacion
+                        where  ';
+            
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+                        
+        end;
+
+    /*********************************    
+    #TRANSACCION:  'SKA_CLAFTREE_CONT'
+    #DESCRIPCION:   Conteo de registros
+    #AUTOR:         RCM
+    #FECHA:         25/07/2017
+    ***********************************/
+
+    elsif(p_transaccion='SKA_CLAFTREE_CONT')then
+
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select count(1)
+                        from kaf.vclasificacion_arbol claf
+                        where  ';
+            
+            --Definicion de la respuesta            
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
 					
 	else
 					     

@@ -227,8 +227,9 @@ class RDetalleDepXls
 					$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(15,$this->fila,'='.$formula);
 					
 					
-					
 					array_push($this->array_detalle, $this->fila);
+					//echo $this->fila;exit;
+
 					
 					//agrupamos celdas inicial y final
 					$this->docexcel->setActiveSheetIndex(0)->mergeCells("C".($this->fila_ini_par).":C".($this->fila_fin_par));
@@ -260,7 +261,7 @@ class RDetalleDepXls
     function cerrarClasificacion($tmp_rec){
     	//si la categoria es distinta insertamos fila agrupadora					
 					//insertamos fila de sumatoria
-					$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$this->fila,$this->cont_clas);
+					/*$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$this->fila,$this->cont_clas);
 					$this->fila_fin = $this->fila;	
 					array_push($this->array_clasificacion, $this->fila);
 									
@@ -334,7 +335,7 @@ class RDetalleDepXls
 					unset($this->array_detalle); // $foo is gone
 					$this->array_detalle = array(); // $foo is here again
 					
-					$this->cont_clas = 0;
+					$this->cont_clas = 0;*/
 		
      }
 
@@ -526,7 +527,6 @@ class RDetalleDepXls
 		
 		
 		
-		
 		foreach($datos as $value) {
 						
 			//validamos agrupadores
@@ -616,7 +616,7 @@ class RDetalleDepXls
 		///////////////////////
 		// CIERRES FINALES
 		/////////////////////
-		
+
 		 $this->cerrarDetalle($tmp_rec);
 		 $this->cerrarClasificacion($tmp_rec);
 		 $this->cerrarTipo($tmp_rec);
@@ -626,6 +626,7 @@ class RDetalleDepXls
 		
 		//ajustar testo en beneficiario y glosa
 		$this->docexcel->setActiveSheetIndex(0)->getStyle("G".($inicio_filas).":H".($fila+1))->getAlignment()->setWrapText(true);
+
 		
 		
 		

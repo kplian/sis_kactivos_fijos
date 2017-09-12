@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
+require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF_v1.php');
 
 class ACTActivoFijo extends ACTbase{    
 			
@@ -35,6 +36,20 @@ class ACTActivoFijo extends ACTbase{
 
 			} else if($colFilter=='id_oficina'){
 				$this->objParam->addFiltro("afij.id_oficina = ".$this->objParam->getParametro('id_filter_panel'));
+			} else if($colFilter=='id_uo'){
+				$this->objParam->addFiltro("uo.id_uo in (
+					WITH RECURSIVE t(id,id_fk,n) AS (
+					SELECT l.id_uo_hijo,l.id_uo_padre,1
+					FROM orga.testructura_uo l
+					WHERE l.id_uo_hijo = ".$this->objParam->getParametro('id_filter_panel')."
+					UNION ALL
+					SELECT l.id_uo_hijo,l.id_uo_padre,n+1
+					FROM orga.testructura_uo l, t
+					WHERE l.id_uo_padre = t.id
+					)
+					SELECT id
+					FROM t)");
+
 			}
 
 			//Por caracteristicas
@@ -64,6 +79,11 @@ class ACTActivoFijo extends ACTbase{
 		//Por caracteristicas
 		if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
 			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
+		}
+
+		//Si es abierto desde link de otra grilla
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("afij.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo'));
 		}
 
 		//Filtro por movimientos
@@ -189,7 +209,7 @@ class ACTActivoFijo extends ACTbase{
 				//parametros basicos
 				
 				$orientacion = 'L';
-				$titulo = 'Código';				
+				$titulo = 'Códigos Activos Fijos';				
 				
 				//$width = 40;  
 		        //$height = 20;
@@ -402,7 +422,12 @@ class ACTActivoFijo extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
-			
+	function consultaQR(){
+		$this->objFunc=$this->create('MODActivoFijo');	
+		$this->res=$this->objFunc->consultaQR($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
 }
 
 ?>

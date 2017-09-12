@@ -43,7 +43,7 @@ BEGIN
     from kaf.tactivo_fijo
     where id_activo_fijo = p_id_activo_fijo;
 
-    v_codigo = v_codigo_af+'-';
+    v_codigo = v_codigo_af || '-';
 
     --Personalización del código por tipo de movimiento
     if p_cod_movimiento = 'alta' then

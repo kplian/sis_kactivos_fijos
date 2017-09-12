@@ -36,8 +36,9 @@ DECLARE
 	v_sep					varchar;   
 	v_nivel					integer;
 	v_rec 					record;
-	v_cod_fin			   varchar;
+	v_cod_fin			    varchar;
 	v_ins 					boolean;
+    v_id_clasificacion_fk   integer;
 			    
 BEGIN
 
@@ -58,13 +59,24 @@ BEGIN
 
         	--Obtiene el código del padre
             v_codigo = v_parametros.codigo;
-			v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
+            v_cod_fin = upper(v_codigo);
+
+            if v_parametros.id_clasificacion_fk <> '' then
+			    v_cod_fin = kaf.f_get_codigo_clasificacion_rec(v_parametros.id_clasificacion_fk)||v_sep||upper(v_codigo);
+            end if;
 
             --Verifica que el nuevo código no exista
             if exists(select 1 from kaf.tclasificacion
 						where codigo_completo_tmp = v_cod_fin)then
 				raise exception 'Código existente: %',v_cod_fin;
 			end if;
+
+            --Verifica el padre
+            if v_parametros.id_clasificacion_fk = 'id' or v_parametros.id_clasificacion_fk = '' then
+                v_id_clasificacion_fk = null;
+            else 
+                v_id_clasificacion_fk = v_parametros.id_clasificacion_fk::integer;
+            end if;
 
         	--Sentencia de la insercion
         	insert into kaf.tclasificacion(
@@ -92,7 +104,7 @@ BEGIN
                 contabilizar,
 				codigo_completo_tmp
           	) values(
-                v_parametros.id_clasificacion_fk,
+                v_id_clasificacion_fk,
                 v_parametros.id_cat_metodo_dep,
                 v_parametros.id_concepto_ingas,
                 upper(v_codigo),
@@ -232,11 +244,18 @@ BEGIN
 						and id_clasificacion != v_parametros.id_clasificacion)then
 				raise exception 'Código existente: %',v_cod_fin;
 			end if;
+
+            --Verifica el padre
+            if v_parametros.id_clasificacion_fk = 'id' then
+                v_id_clasificacion_fk = null;
+            else 
+                v_id_clasificacion_fk = v_parametros.id_clasificacion_fk::integer;
+            end if;
 			
 			
 			--Sentencia de la modificacion
 			update kaf.tclasificacion set
-                id_clasificacion_fk = v_parametros.id_clasificacion_fk,
+                id_clasificacion_fk = v_id_clasificacion_fk,
                 id_cat_metodo_dep = v_parametros.id_cat_metodo_dep,
                 id_concepto_ingas = v_parametros.id_concepto_ingas,
                 codigo  = v_codigo,
