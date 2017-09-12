@@ -544,7 +544,7 @@ WITH RECURSIVE clasificacion(
 
 
 
-/***********************************F-DEP-RAC-KAF-1-20/04/2017****************************************/
+/***********************************I-DEP-RAC-KAF-1-20/04/2017****************************************/
 
 select pxp.f_insert_testructura_gui ('CONFAF', 'KAF');
 select pxp.f_insert_testructura_gui ('MONDEP', 'CONFAF');
@@ -565,10 +565,9 @@ ALTER TABLE kaf.tactivo_fijo_valores
 /***********************************I-DEP-RAC-KAF-1-02/05/2017****************************************/
 
 
-
 --------------- SQL ---------------
 
-CREATE VIEW kaf.vmovimiento_cbte 
+CREATE OR REPLACE VIEW kaf.vmovimiento_cbte 
 AS 
 SELECT 
 mov.id_movimiento,
@@ -763,6 +762,7 @@ AS
          det.id_clasificacion
   WHERE mov.gestion::double precision = det.gestion_final AND
         mov.id_moneda = det.id_moneda;       
+
 
 /***********************************F-DEP-RAC-KAF-1-02/05/2017****************************************/
 
