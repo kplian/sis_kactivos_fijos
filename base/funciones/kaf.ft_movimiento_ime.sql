@@ -929,6 +929,12 @@ BEGIN
                                 from kaf.tmovimiento_af
                                 where id_movimiento = v_movimiento.id_movimiento) loop
                         v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af);
+                        
+                        --Actualiza la respuesta en el movimiento
+                        update kaf.tmovimiento_af set
+                        respuesta = v_resp
+                        where id_movimiento_af = v_rec.id_movimiento_af;
+                        
                     end loop;
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
