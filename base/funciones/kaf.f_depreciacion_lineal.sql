@@ -366,8 +366,8 @@ BEGIN
     end if;
     
     --Verifica si al menos se depreció una vez
-    if v_contador > 0 then
-      v_salida = 'Sin depreciar';
+    if v_contador <= 0 then
+      v_salida = 'Sin depreciar. No corresponde depreciar en este periodo';
     end if;
    
     return v_salida;
