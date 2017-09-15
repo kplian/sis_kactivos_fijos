@@ -128,6 +128,29 @@ class MODReportes extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarDepreciacionDeptoFechas(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.f_reportes_af';
+		$this->transaccion='SKA_DEPDEPTO_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Define los parametros para la funcion
+		$this->setParametro('deptos','deptos','varchar');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_depto','INTEGER');
+		$this->captura('desc_depto','text');
+		$this->captura('fecha_max_dep','date');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
