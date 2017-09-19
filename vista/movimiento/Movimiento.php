@@ -14,6 +14,34 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+
+
+		//funcionalidad para listado de historicos
+        this.historico = 'no';
+        this.tbarItems = ['-',{
+            text: 'Histórico',
+            enableToggle: true,
+            pressed: false,
+            toggleHandler: function(btn, pressed) {
+               
+                if(pressed){
+                    this.historico = 'si';
+                }
+                else{
+                   this.historico = 'no' 
+                }
+                
+                this.store.baseParams.historico = this.historico;
+		this.store.baseParams.cod_movimiento = this.filterMov;
+        	this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
+                //this.reload();
+		this.load({params:{start:0, limit:this.tam_pag}});
+             },
+            scope: this
+           }];
+
+
+
     	//llama al constructor de la clase padre
 		Phx.vista.Movimiento.superclass.constructor.call(this,config);
 		//Add report button
@@ -32,6 +60,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             handler : this.onButtonReportDepreciacion,
             tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
         });
+
 
 	},
 			

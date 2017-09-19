@@ -103,8 +103,8 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
 						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
-						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
-						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+						left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+						left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
 						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
 						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
@@ -160,8 +160,8 @@ BEGIN
 						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
 						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
 						left join segu.vpersona per on per.id_persona = mov.id_persona
-						inner join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
-						inner join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+						left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+						left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
 						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
 						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
@@ -338,7 +338,8 @@ BEGIN
                               daf.id_moneda_dep,   
                               daf.gestion_final, 
                               daf.tipo,   
-                              cr.id_clasificacion, 
+                              cr.id_claificacion_raiz, 
+                              daf.id_clasificacion,
                               id_activo_fijo_valor ,                                
                               daf.fecha_ini_dep';
                           

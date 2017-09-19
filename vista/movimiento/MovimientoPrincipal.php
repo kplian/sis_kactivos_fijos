@@ -133,7 +133,9 @@ Phx.vista.MovimientoPrincipal = {
                 timeout:this.timeout,
                 scope:this
             });         
-        } 
+        }
+
+
 
     },  
     
