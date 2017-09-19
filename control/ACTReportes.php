@@ -201,5 +201,20 @@ class ACTReportes extends ACTbase {
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 
+	function listarDepreciacionDeptoFechas(){
+		$this->objParam->defecto('ordenacion','id_depto');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarDepreciacionDeptoFechas');
+		} else {
+			$this->objFunc=$this->create('MODReportes');
+			$this->res=$this->objFunc->listarDepreciacionDeptoFechas($this->objParam);
+		}
+
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
 }
 ?>

@@ -2640,10 +2640,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var data = this.getSelectedData();
         this.getBoton('btnPhoto').enable();
         if(data.estado=='alta') {
-             this.getBoton('btnImpCodigo').enable(); 
+            this.getBoton('btnImpCodigo').enable(); 
         }
         else{
-             this.getBoton('btnImpCodigo').disable();           
+            this.getBoton('btnImpCodigo').disable();           
         }
         return tb;
     },
@@ -2693,15 +2693,15 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             Ext.getCmp(this.idContenedor+'_id_clasificacion').disable();
             Ext.getCmp(this.idContenedor+'_id_deposito').disable();
         } else {
-          Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
-          Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
-          Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
-          Ext.getCmp(this.idContenedor+'_monto_compra_orig_100').enable();
-          Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
-          Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
-          Ext.getCmp(this.idContenedor+'_id_depto').enable();
-          Ext.getCmp(this.idContenedor+'_id_clasificacion').enable();
-          Ext.getCmp(this.idContenedor+'_id_deposito').enable();
+            Ext.getCmp(this.idContenedor+'_fecha_ini_dep').enable();
+            Ext.getCmp(this.idContenedor+'_id_moneda_orig').enable();
+            Ext.getCmp(this.idContenedor+'_monto_compra_orig').enable();
+            Ext.getCmp(this.idContenedor+'_monto_compra_orig_100').enable();
+            Ext.getCmp(this.idContenedor+'_monto_rescate').enable();
+            Ext.getCmp(this.idContenedor+'_vida_util_original').enable();
+            Ext.getCmp(this.idContenedor+'_id_depto').enable();
+            Ext.getCmp(this.idContenedor+'_id_clasificacion').enable();
+            Ext.getCmp(this.idContenedor+'_id_deposito').enable();
         }
  
     },

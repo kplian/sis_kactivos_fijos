@@ -50,7 +50,7 @@ DECLARE
 BEGIN
     
     v_nombre_funcion = 'kaf.f_depreciacion_lineal';
-    v_salida = 'done';
+    v_salida = 'Depreciado';
     v_sw = false;
     
     --RAC 03/03/2017

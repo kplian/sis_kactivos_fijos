@@ -507,6 +507,40 @@ BEGIN
             return v_consulta;
 
         end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_DEPDEPTO_SEL'
+     #DESCRIPCION:  Reporte de kardex de activo fijo
+     #AUTOR:        RCM
+     #FECHA:        15/09/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_DEPDEPTO_SEL') then
+
+        begin
+
+            v_consulta = 'select
+                        mov.id_depto, dep.codigo || '' - '' || dep.nombre as desc_depto, max(mov.fecha_hasta) as fecha_max_dep
+                        from kaf.tmovimiento mov
+                        inner join param.tcatalogo cat
+                        on cat.id_catalogo = mov.id_cat_movimiento
+                        inner join param.tdepto dep
+                        on dep.id_depto = mov.id_depto
+                        where cat.codigo = ''deprec''
+                        --and mov.estado = ''finalizado''
+                        ';
+
+            if coalesce(v_parametros.deptos,'') <> '' and coalesce(v_parametros.deptos,'') <> '%' then
+                v_consulta = v_consulta || ' and mov.id_depto in ('||v_parametros.deptos||') ';
+            end if;
+
+
+            v_consulta = v_consulta || ' group by mov.id_depto, dep.codigo, dep.nombre';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
      
     else
         raise exception 'Transacción inexistente';  

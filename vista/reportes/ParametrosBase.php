@@ -447,8 +447,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
 			if(this.cmbReporte.getValue()){
+				//Consulta de las fecha de depreciación los departamentos seleccionados
+				this.verificarDepreciacionDepto();
 
-				var win = Phx.CP.loadWindows(
+				/*var win = Phx.CP.loadWindows(
 					this.rutaReporte,
 	                this.titleReporte, {
 	                    width: 870,
@@ -458,7 +460,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 	                },
 	                this.idContenedor,
 	                this.claseReporte
-	            );
+	            );*/
 
 			}
 		}
@@ -522,6 +524,51 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbMoneda.on('select',function(combo,record,index){
 			this.moneda = record.data.moneda
 		}, this);
+	},
+	verificarDepreciacionDepto: function(){
+		var deptos = '%';
+		if(this.cmbDepto.getValue()){
+			deptos = this.cmbDepto.getValue();
+		}
+		var obj = {deptos: deptos};
+
+		Ext.Ajax.request({
+            url: '../../sis_kactivos_fijos/control/Reportes/listarDepreciacionDeptoFechas',
+            params: obj,
+            isUpload: false,
+            success: function(data,b,c){
+            	//console.log('respuesta',data,b,c);
+            	var reg = Ext.util.JSON.decode(Ext.util.Format.trim(data.responseText));
+            	console.log('fass 1',reg);
+            	var mensaje = ''
+            	Ext.iterate(reg.datos, function(obj){
+            		console.log('fass 2',obj);
+            		mensaje+='Depto.: '+obj.desc_depto + ' -> Ultimo periodo depreciación: '+obj.fecha_max_dep+', ';
+            	},this);
+
+            	Ext.MessageBox.confirm('Últimas Depreciaciones realizadas',mensaje+'¿Desea generar el reporte de todas formas?',function(resp){
+            		console.log('fass 3',resp);
+            		if(resp=='yes'){
+            			var win = Phx.CP.loadWindows(
+							this.rutaReporte,
+			                this.titleReporte, {
+			                    width: 870,
+			                    height : 620
+			                }, { 
+			                    paramsRep: this.getParams()
+			                },
+			                this.idContenedor,
+			                this.claseReporte
+			            );
+            		}
+            	},this);
+            	
+            },
+            argument: this.argumentSave,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
 	}
 });
 </script>
