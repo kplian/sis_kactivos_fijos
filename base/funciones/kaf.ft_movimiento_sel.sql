@@ -240,7 +240,6 @@ BEGIN
 
 				
 			
-                  raise notice '%', v_consulta;
 			      --Devuelve la respuesta
 			return v_consulta;
 
@@ -279,7 +278,6 @@ BEGIN
 
 			
 			
-             raise notice '%', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -344,7 +342,6 @@ BEGIN
                               daf.fecha_ini_dep';
                           
 			
-             raise notice '%', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 
