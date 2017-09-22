@@ -47,12 +47,12 @@ Phx.vista.MovimientoPrincipal = {
     	//this.getBoton('btnReporte').show();
     	this.load({params:{start:0, limit:this.tam_pag}});
     },
-    bnewGroups: [0,1,2,3,4,5],
-    beditGroups: [0,1,2,3,4,5],
-    bdelGroups:  [0,1,2,3,4,5],
-    bactGroups:  [0,1,2,3,4,5],
-    btestGroups: [0,1,2,3,4,5],
-    bexcelGroups: [0,1,2,3,4,5],
+    bnewGroups: [0,1,2,3,4,5,6],
+    beditGroups: [0,1,2,3,4,5,6],
+    bdelGroups:  [0,1,2,3,4,5,6],
+    bactGroups:  [0,1,2,3,4,5,6],
+    btestGroups: [0,1,2,3,4,5,6],
+    bexcelGroups: [0,1,2,3,4,5,6],
     
     
     

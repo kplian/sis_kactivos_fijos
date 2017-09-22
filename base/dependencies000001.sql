@@ -1240,3 +1240,45 @@ AS
            ba.id_clasificacion,
            ba.id_centro_costo;
 /***********************************F-DEP-RCM-KAF-1-28/08/2017****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-21/09/2017****************************************/
+ -- object recreation
+DROP VIEW kaf.vclasificacion_arbol;
+
+CREATE VIEW kaf.vclasificacion_arbol
+AS
+WITH RECURSIVE t(
+    id,
+    id_fk,
+    nombre,
+    codigo1,
+    n,
+    orden) AS(
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         1,
+         (replace(l.codigo_completo_tmp,'.','')::bigint *10000000)::bigint
+  FROM kaf.tclasificacion l
+  WHERE l.id_clasificacion_fk IS NULL
+  UNION ALL
+  SELECT l.id_clasificacion,
+         l.id_clasificacion_fk,
+         l.nombre,
+         l.codigo_completo_tmp,
+         t_1.n + 1,
+         t_1.orden + replace(l.codigo,'.','')::bigint
+  FROM kaf.tclasificacion l,
+       t t_1
+  WHERE l.id_clasificacion_fk = t_1.id)
+      SELECT ((((repeat('--->'::text, t.n - 1) || ' '::text) || t.codigo1::text)
+        || ' - '::text) || t.nombre::text)::character varying AS clasificacion,
+             t.n AS nivel,
+             t.id AS id_clasificacion,
+             t.id_fk AS id_clasificacion_fk,
+             t.n,
+             t.orden
+      FROM t
+      ORDER BY t.orden;
+/***********************************F-DEP-RCM-KAF-1-21/09/2017****************************************/      

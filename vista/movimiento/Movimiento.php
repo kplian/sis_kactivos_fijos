@@ -46,6 +46,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.Movimiento.superclass.constructor.call(this,config);
 		//Add report button
         this.addButton('btnReporte',{
+        	grupo: [0,1,2,3,4,5,6],
             text :'Reporte',
             iconCls : 'bpdf32',
             disabled: true,
@@ -54,6 +55,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
         });
         
          this.addButton('btnReporteDep',{
+         	grupo: [0,5],
             text :'Det. Dep',
             iconCls : 'bpdf32',
             disabled: true,
