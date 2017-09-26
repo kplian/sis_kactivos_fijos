@@ -67,7 +67,7 @@ BEGIN
       into
           v_registros
       from  kaf.tmovimiento  mov
-      inner join conta.tint_comprobante  c on c.id_int_comprobante = mov.id_int_comprobante 
+      inner join conta.tint_comprobante  c on c.id_int_comprobante = mov.id_int_comprobante_aitb 
       where  mov.id_int_comprobante_aitb = p_id_int_comprobante; 
 
     --2) Validar que tenga una cuenta documentada

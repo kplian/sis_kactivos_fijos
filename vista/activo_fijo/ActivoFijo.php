@@ -16,11 +16,11 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         collapsed: true,
         width: 250,
         title: 'Filtros',
-        tools: [
+        /*tools: [
             {id:'toggle'},{id:'close'},{id:'minimize'},{id:'maximize'},{id:'restore'},{id:'gear'},{id:'pin'},
             {id:'unpin'},{id:'right'},{id:'left'},{id:'up'},{id:'down'},{id:'refresh'},{id:'minus'},{id:'plus'},
             {id:'help'},{id:'search'},{id:'save'},{id:'print'}
-        ],
+        ],*/
         items: [
             new Ext.Panel({
                 id: 'af_filter_accordion',
