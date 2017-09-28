@@ -29,6 +29,9 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+	v_filtro			varchar;
+	v_id_funcionario	integer;
+	v_tipo_interfaz		varchar;
 			    
 BEGIN
 
@@ -45,6 +48,33 @@ BEGIN
 	if(p_transaccion='SKA_MOV_SEL')then
      				
     	begin
+
+    		--Verificación de existencia de parámetro de interfaz
+    		v_tipo_interfaz = 'normal';
+    		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
+            	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
+            end if;
+
+    		--Inicialización de filtro
+    		v_filtro = '0=0 and ';
+
+    		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
+    			--Obtención del funcionario a partir del usuario recibido
+    			select id_funcionario
+    			into v_id_funcionario
+    			from segu.tusuario usu
+    			inner join orga.tfuncionario fun
+    			on fun.id_persona = usu.id_persona
+    			where usu.id_usuario = p_id_usuario;
+
+    			if v_id_funcionario is null then
+    				raise exception 'El usuario no es funcionario.';
+    			end if;
+
+              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+
+            end if;
+
     		--Sentencia de la consulta
 			v_consulta:='select
 						mov.id_movimiento,
@@ -110,7 +140,7 @@ BEGIN
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
-				        where  ';
+				        where '||v_filtro;
 
 			--Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then
@@ -149,6 +179,33 @@ BEGIN
 	elsif(p_transaccion='SKA_MOV_CONT')then
 
 		begin
+
+			--Verificación de existencia de parámetro de interfaz
+    		v_tipo_interfaz = 'normal';
+    		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
+            	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
+            end if;
+
+    		--Inicialización de filtro
+    		v_filtro = '0=0 and ';
+
+    		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
+    			--Obtención del funcionario a partir del usuario recibido
+    			select id_funcionario
+    			into v_id_funcionario
+    			from segu.tusuario usu
+    			inner join orga.tfuncionario fun
+    			on fun.id_persona = usu.id_persona
+    			where usu.id_usuario = p_id_usuario;
+
+    			if v_id_funcionario is null then
+    				raise exception 'El usuario no es funcionario.';
+    			end if;
+
+              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+
+            end if;
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_movimiento)
 					    from kaf.tmovimiento mov
@@ -167,7 +224,7 @@ BEGIN
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
-					    where ';
+					    where '||v_filtro;
 
 			--Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then

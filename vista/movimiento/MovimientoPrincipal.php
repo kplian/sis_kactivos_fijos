@@ -44,6 +44,7 @@ Phx.vista.MovimientoPrincipal = {
         }
     	this.store.baseParams.cod_movimiento = this.filterMov;
         this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
+        this.store.baseParams.tipo_interfaz = this.nombreVista;
     	//this.getBoton('btnReporte').show();
     	this.load({params:{start:0, limit:this.tam_pag}});
     },
@@ -64,7 +65,8 @@ Phx.vista.MovimientoPrincipal = {
             params:{
                 start:0,
                 limit:this.tam_pag,
-                id_movimiento: this.maestro.lnk_id_movimiento
+                id_movimiento: this.maestro.lnk_id_movimiento,
+                tipo_interfaz: this.nombreVista
             }
         });
 

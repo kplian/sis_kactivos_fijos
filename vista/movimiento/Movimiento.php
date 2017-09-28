@@ -32,10 +32,9 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                 }
                 
                 this.store.baseParams.historico = this.historico;
-		this.store.baseParams.cod_movimiento = this.filterMov;
-        	this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
-                //this.reload();
-		this.load({params:{start:0, limit:this.tam_pag}});
+				this.store.baseParams.cod_movimiento = this.filterMov;
+        		this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
+				this.load({params:{start:0, limit:this.tam_pag}});
              },
             scope: this
            }];
