@@ -102,7 +102,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         limit: 10,
                                         sort: 'codigo',
                                         dir: 'ASC',
-                                        modulo: 'KAF',
+                                        codigo_subsistema: 'KAF',
                                         par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
                                     }
                                 }),
