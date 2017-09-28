@@ -282,3 +282,13 @@ select pxp.f_insert_testructura_gui ('KAFMIASIG', 'KAF');
 select pxp.f_insert_tgui ('Procesos - Cuentas', 'Configuración de las cuentas por Proceso y Clasificación', 'MOTTIPCAT', 'si', 1, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipoCat.php', 3, '', 'MovimientoTipoCat', 'KAF');
 select pxp.f_insert_testructura_gui ('MOTTIPCAT', 'CONFAF');
 /***********************************F-DAT-RCM-KAF-0-15/08/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-27/09/2017****************************************/
+select pxp.f_add_catalog('KAF','tclasificacion_variable__obligatorio','si','si');
+select pxp.f_add_catalog('KAF','tclasificacion_variable__obligatorio','no','no');
+/***********************************F-DAT-RCM-KAF-0-27/09/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-28/09/2017****************************************/
+select pxp.f_insert_tgui ('Visto Bueno Movimientos', 'Visto bueno de los Movimientos de activos fijos', 'KAFMOVVB', 'si', 6, 'sis_kactivos_fijos/vista/movimiento/MovimientoVb.php', 2, '', 'MovimientoVb', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFMOVVB', 'KAF');
+/***********************************F-DAT-RCM-KAF-0-28/09/2017****************************************/

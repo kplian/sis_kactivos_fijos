@@ -643,6 +643,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	onReloadPage : function(m) {
 		this.maestro = m;
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento;
+		console.log('reload page',m);
 
 		//Crear ventana mov esp y componentes
 		if(this.maestro.cod_movimiento=='divis'||this.maestro.cod_movimiento=='desgl'||this.maestro.cod_movimiento=='intpar'){
@@ -703,6 +704,18 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		}
 
 		this.habilitarCampos();
+
+		//Bloquea botones nuevo, edición y eliminación
+		this.getBoton('new').show();
+		this.getBoton('edit').show();
+		this.getBoton('del').show();
+		this.getBoton('save').show();
+		if(this.maestro.estado!='borrador'){
+			this.getBoton('new').hide();
+			this.getBoton('edit').hide();
+			this.getBoton('del').hide();
+			this.getBoton('save').hide();
+		}
 
 		//Hide/show button
 		this.getBoton('btnDetDep').hide();
