@@ -118,7 +118,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'num_tramite',
-				fieldLabel: 'Fecha',
+				fieldLabel: 'Num.Trámite/Fecha',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 210,

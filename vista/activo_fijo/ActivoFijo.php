@@ -1843,7 +1843,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         limit: 10,
                                         sort: 'codigo',
                                         dir: 'ASC',
-                                        modulo: 'KAF',
+                                        codigo_subsistema: 'KAF',
                                         par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
                                     }
                                 }),
@@ -2167,7 +2167,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 },*/
                                 items: [{
                                     xtype: 'label',
-                                    text: '(87%)'
+                                    text: 'Costo AF'
                                 }, {
                                     xtype: 'numberfield',
                                     fieldLabel: 'Monto compra 87',
@@ -2211,7 +2211,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     pageSize: 15
                                 }, {
                                     xtype: 'label',
-                                    text: '(100%)'
+                                    text: 'Valor Compra'
                                 }, {
                                     xtype: 'numberfield',
                                     fieldLabel: 'Monto compra 100',
