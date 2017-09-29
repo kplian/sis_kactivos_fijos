@@ -52,7 +52,7 @@ class RMovimiento2 extends  ReportePDF {
         $this->SetXY($x, $y);
        
 		//$this->Image(dirname(__FILE__).'/../../lib/'.$_SESSION['_DIR_LOGO'], 10,5,35,20);
-		$this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,35,20);
+		$this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,35,16);
 
         $this->SetFontSize(12);
         $this->SetFont('', 'B');
