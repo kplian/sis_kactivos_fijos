@@ -278,20 +278,24 @@ BEGIN
                                 fun.ci,
                                 ofi.nombre as oficina,
                                 mov.direccion,
-                                usu.desc_persona as responsable_depto,
+                                fun1.desc_funcionario2 as responsable_depto,
                                 per.nombre_completo2 as custodio,
                                 per.ci as ci_custodio,
                                 fundes.desc_funcionario2 as responsable_dest,
                                 fundes.nombre_cargo as nombre_cargo_dest,
                                 fundes.ci as ci_dest
-                               
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
-                              left join orga.vfuncionario_cargo fun on fun.id_funcionario =  mov.id_funcionario  and (mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion  or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
-     						  left join orga.vfuncionario_cargo fundes on fundes.id_funcionario = mov.id_funcionario_dest and (mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
+                              left join orga.vfuncionario_cargo fun
+                              on fun.id_funcionario =  mov.id_funcionario
+                              and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
+     						              left join orga.vfuncionario_cargo fundes
+                              on fundes.id_funcionario = mov.id_funcionario_dest
+                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-                              inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+                              --inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+                              inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto
                               left join segu.vpersona per on per.id_persona = mov.id_persona
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
 
