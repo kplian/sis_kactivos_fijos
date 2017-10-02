@@ -974,12 +974,12 @@ BEGIN
                     --Verificar si los comprobantes fueron validados
                     /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante_aitb
-                                  /*and estado_reg = 'validado'*/) then
+                                  and estado_reg = 'validado') then
                       raise exception 'El Comprobante de Actualización por AITB aún no ha sido validado (%)',v_movimiento.id_int_comprobante_aitb;
                     end if;
                     if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
-                                  /*and estado_reg = 'validado'*/) then
+                                  and estado_reg = 'validado') then
                       raise exception 'El Comprobante de depreciación aún no ha sido validado (%)',v_movimiento.id_int_comprobante;
                     end if;*/
 

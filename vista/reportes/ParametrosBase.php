@@ -286,8 +286,12 @@ Ext.define('Phx.vista.ParametrosBase', {
 				fields: ['id_depto', 'nombre', 'codigo'],
 				remoteSort: true,
 				baseParams: {
-					par_filtro: 'DEPPTO.nombre#DEPPTO.codigo',
-					modulo: 'KAF'
+					start: 0,
+                    limit: 10,
+                    sort: 'codigo',
+                    dir: 'ASC',
+                    codigo_subsistema: 'KAF',
+                    par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
 				}
 			}),
 			valueField: 'id_depto',

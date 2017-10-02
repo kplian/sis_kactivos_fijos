@@ -195,8 +195,12 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					fields : ['id_depto', 'nombre', 'codigo'],
 					remoteSort : true,
 					baseParams : {
-						par_filtro : 'DEPPTO.nombre#DEPPTO.codigo',
-						modulo: 'KAF'
+						start: 0,
+                        limit: 10,
+                        sort: 'codigo',
+                        dir: 'ASC',
+                        codigo_subsistema: 'KAF',
+                        par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
 					}
 				}),
 				valueField : 'id_depto',
@@ -462,8 +466,12 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					fields : ['id_depto', 'nombre', 'codigo'],
 					remoteSort : true,
 					baseParams : {
-						par_filtro : 'DEPPTO.nombre#DEPPTO.codigo',
-						modulo: 'KAF'
+						start: 0,
+                        limit: 10,
+                        sort: 'codigo',
+                        dir: 'ASC',
+                        codigo_subsistema: 'KAF',
+                        par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
 					}
 				}),
 				valueField : 'id_depto',
@@ -805,7 +813,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		'id_int_comprobante_aitb'
 	],
 	sortInfo:{
-		field: 'id_movimiento',
+		field: 'fecha_mov',
 		direction: 'DESC'
 	},
 	onButtonReport:function(){
