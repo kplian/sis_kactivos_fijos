@@ -539,15 +539,12 @@ Ext.define('Phx.vista.ParametrosBase', {
             success: function(data,b,c){
             	//console.log('respuesta',data,b,c);
             	var reg = Ext.util.JSON.decode(Ext.util.Format.trim(data.responseText));
-            	console.log('fass 1',reg);
             	var mensaje = ''
             	Ext.iterate(reg.datos, function(obj){
-            		console.log('fass 2',obj);
             		mensaje+='Depto.: '+obj.desc_depto + ' -> Ultimo periodo depreciación: '+obj.fecha_max_dep+', ';
             	},this);
 
             	Ext.MessageBox.confirm('Últimas Depreciaciones realizadas',mensaje+'¿Desea generar el reporte de todas formas?',function(resp){
-            		console.log('fass 3',resp);
             		if(resp=='yes'){
             			var win = Phx.CP.loadWindows(
 							this.rutaReporte,
