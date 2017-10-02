@@ -217,7 +217,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 				baseParams: {par_filtro:'desc_funcionario1#email_empresa#codigo#nombre_cargo'}
 				
 			}),
-			valueField: 'id_uo',
+			valueField: 'id_funcionario',
 			displayField: 'desc_funcionario1',
 			tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario1}</b></p><p>{codigo}</p><p>{nombre_cargo}</p><p>{email_empresa}</p><p>{oficina_nombre} - {lugar_nombre}</p> </div></tpl>',
 			forceSelection: true,
@@ -539,15 +539,16 @@ Ext.define('Phx.vista.ParametrosBase', {
             success: function(data,b,c){
             	//console.log('respuesta',data,b,c);
             	var reg = Ext.util.JSON.decode(Ext.util.Format.trim(data.responseText));
-            	console.log('fass 1',reg);
-            	var mensaje = ''
+            	var mensaje = '';
             	Ext.iterate(reg.datos, function(obj){
-            		console.log('fass 2',obj);
             		mensaje+='Depto.: '+obj.desc_depto + ' -> Ultimo periodo depreciación: '+obj.fecha_max_dep+', ';
             	},this);
 
+            	if(mensaje==''){
+            		mensaje='No se generó ninguna depreciación para el Depto. seleccionado.';
+            	}
+
             	Ext.MessageBox.confirm('Últimas Depreciaciones realizadas',mensaje+'¿Desea generar el reporte de todas formas?',function(resp){
-            		console.log('fass 3',resp);
             		if(resp=='yes'){
             			var win = Phx.CP.loadWindows(
 							this.rutaReporte,
