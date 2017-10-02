@@ -549,11 +549,11 @@ BEGIN
                 elsif v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
                 
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
@@ -671,11 +671,11 @@ BEGIN
                 if v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
@@ -768,11 +768,11 @@ BEGIN
                 if v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                     --------------------------------------------------------------------------------------------------------
                     --  La vida util de un activo es la maxima de activo_fijo_valor
@@ -972,7 +972,7 @@ BEGIN
 
                 elsif v_codigo_estado_siguiente = 'finalizado' then
                     --Verificar si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante_aitb
                                   /*and estado_reg = 'validado'*/) then
                       raise exception 'El Comprobante de Actualización por AITB aún no ha sido validado (%)',v_movimiento.id_int_comprobante_aitb;
@@ -981,7 +981,7 @@ BEGIN
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   /*and estado_reg = 'validado'*/) then
                       raise exception 'El Comprobante de depreciación aún no ha sido validado (%)',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                 end if;
            
@@ -1019,11 +1019,11 @@ BEGIN
                 elsif v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                 end if;
 
@@ -1033,11 +1033,11 @@ BEGIN
                 if v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                     --Finalizar AFV actual colocando fecha_fin
                     v_fun = kaf.f_afv_finalizar(p_id_usuario,
@@ -1115,11 +1115,11 @@ BEGIN
                 if v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                     --Recorrido de los activos fijos de la revalorización
                     for v_registros_af_mov in (select
@@ -1251,11 +1251,11 @@ BEGIN
                 if v_codigo_estado_siguiente = 'finalizado' then
 
                     --Verifica si los comprobantes fueron validados
-                    if not exists(select 1 from conta.tint_comprobante
+                    /*if not exists(select 1 from conta.tint_comprobante
                                   where id_int_comprobante = v_movimiento.id_int_comprobante
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                    end if;
+                    end if;*/
 
                      --Recorrido de los activos fijos de la revalorización
                     for v_registros_af_mov in (select
@@ -1321,11 +1321,11 @@ BEGIN
               if v_codigo_estado_siguiente = 'finalizado' then
 
                   --Verifica si los comprobantes fueron validados
-                  if not exists(select 1 from conta.tint_comprobante
+                  /*if not exists(select 1 from conta.tint_comprobante
                                 where id_int_comprobante = v_movimiento.id_int_comprobante
                                 and estado_reg = 'validado') then
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                  end if;
+                  end if;*/
 
                     --------------------------------------------------------------------------------------------------------
                     --  La vida util de un activo es la maxima de activo_fijo_valor
@@ -1457,11 +1457,11 @@ BEGIN
               if v_codigo_estado_siguiente = 'finalizado' then
 
                   --Verifica si los comprobantes fueron validados
-                  if not exists(select 1 from conta.tint_comprobante
+                  /*if not exists(select 1 from conta.tint_comprobante
                                 where id_int_comprobante = v_movimiento.id_int_comprobante
                                 and estado_reg = 'validado') then
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                  end if;
+                  end if;*/
 
                   --Recorrido de los activos fijos de la mejora
                     for v_registros_af_mov in (select
@@ -1535,11 +1535,11 @@ BEGIN
               if v_codigo_estado_siguiente = 'finalizado' then
 
                   --Verifica si los comprobantes fueron validados
-                  if not exists(select 1 from conta.tint_comprobante
+                  /*if not exists(select 1 from conta.tint_comprobante
                                 where id_int_comprobante = v_movimiento.id_int_comprobante
                                 and estado_reg = 'validado') then
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                  end if;
+                  end if;*/
 
                   --Actualiza estado de activo fijo
                   update kaf.tactivo_fijo set
@@ -1575,11 +1575,11 @@ BEGIN
                if v_codigo_estado_siguiente = 'finalizado' then
 
                   --Verifica si los comprobantes fueron validados
-                  if not exists(select 1 from conta.tint_comprobante
+                  /*if not exists(select 1 from conta.tint_comprobante
                                 where id_int_comprobante = v_movimiento.id_int_comprobante
                                 and estado_reg = 'validado') then
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                  end if;
+                  end if;*/
 
                   --Actualiza estado de activo fijo
                   update kaf.tactivo_fijo set
@@ -1616,11 +1616,11 @@ BEGIN
             if v_codigo_estado_siguiente = 'finalizado' then
 
                 --Verifica si los comprobantes fueron validados
-                if not exists(select 1 from conta.tint_comprobante
+                /*if not exists(select 1 from conta.tint_comprobante
                               where id_int_comprobante = v_movimiento.id_int_comprobante
                               and estado_reg = 'validado') then
                   raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
-                end if;
+                end if;*/
 
                 --Actualiza estado de activo fijo
                 update kaf.tactivo_fijo set
