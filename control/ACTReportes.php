@@ -113,7 +113,7 @@ class ACTReportes extends ACTbase {
 			$this->objParam->addFiltro("afij.id_oficina = ".$this->objParam->getParametro('id_oficina'));
 		}
 		if($this->objParam->getParametro('id_funcionario')!=''){
-			$this->objParam->addFiltro("afij.id_funcionario = '".$this->objParam->getParametro('id_funcionario')."'");
+			$this->objParam->addFiltro("afij.id_funcionario = ''".$this->objParam->getParametro('id_funcionario')."''");
 		}
 		if($this->objParam->getParametro('id_uo')!=''){
 			$this->objParam->addFiltro("uo.id_uo in (

@@ -217,7 +217,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 				baseParams: {par_filtro:'desc_funcionario1#email_empresa#codigo#nombre_cargo'}
 				
 			}),
-			valueField: 'id_uo',
+			valueField: 'id_funcionario',
 			displayField: 'desc_funcionario1',
 			tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario1}</b></p><p>{codigo}</p><p>{nombre_cargo}</p><p>{email_empresa}</p><p>{oficina_nombre} - {lugar_nombre}</p> </div></tpl>',
 			forceSelection: true,

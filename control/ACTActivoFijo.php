@@ -218,7 +218,7 @@ class ACTActivoFijo extends ACTbase{
 		        $height = 80;
 		
 		
-		
+				
 				$this->objParam->addParametro('orientacion',$orientacion);
 				$this->objParam->addParametro('tamano',array($width, $height));		
 				$this->objParam->addParametro('titulo_archivo',$titulo);        
