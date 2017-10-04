@@ -46,6 +46,7 @@ DECLARE
     v_res                   varchar;
     v_salida                varchar;
     v_sw                    boolean;
+    v_id_movimiento_af_dep  integer;
 
 BEGIN
     
@@ -67,6 +68,8 @@ BEGIN
     select id_subsistema into v_id_subsistema
     from segu.tsubsistema
     where codigo = 'KAF';
+
+    raise notice '&&&&&&&&&&&&&&&&&&& Iniciando depreciación activo_fijo_id: % &&&&&&&&&&&&&&&',p_id_activo_fijo;
    
     
    --Lista las monedas configuradas para depreciar
@@ -260,6 +263,7 @@ BEGIN
                                   END IF;
                                   
                                   --Inserción en base de datos
+                                  raise notice '------ Mes: % ',v_mes_dep;
                                   INSERT INTO kaf.tmovimiento_af_dep (
                                       id_usuario_reg,
                                       id_usuario_mod,
@@ -318,7 +322,9 @@ BEGIN
                                       v_ant_monto_actualiz,
                                       v_registros_mod.id_moneda,
                                       v_registros_mod.id_moneda_dep
-                                  );
+                                  ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
+
+                                  raise notice '------------- (%)  ..ok',v_id_movimiento_af_dep;
                                   
                                   v_gestion_previa =   EXTRACT(YEAR FROM v_mes_dep::date);
                                   
