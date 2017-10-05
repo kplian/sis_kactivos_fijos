@@ -58,6 +58,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbClasificacion = new Ext.form.ComboBox({
 			fieldLabel: 'Clasificación',
 			anchor: '100%',
+			emptyText: 'Elija una clasificación...',
 			store: new Ext.data.JsonStore({
                 url: '../../sis_kactivos_fijos/control/Clasificacion/ListarClasificacionTree',
                 id: 'id_clasificacion',
@@ -365,34 +366,63 @@ Ext.define('Phx.vista.ParametrosBase', {
 			minChars: 2,
 			allowBlank: false
 		});
+		//Para el rango de montos
+		this.lblMontoInf = new Ext.form.Label({
+			text: '>= '
+		});
+		this.txtMontoInf = new Ext.form.NumberField({
+			allowDecimals: true,
+			decimalPrecision: 2
+		});
+		this.lblMontoSup = new Ext.form.Label({
+			text: 'y <= '
+		});
+		this.txtMontoSup = new Ext.form.NumberField({
+			allowDecimals: true,
+			decimalPrecision: 2
+		});
+		this.cmpMontos = new Ext.form.CompositeField({
+        	fieldLabel: 'Importe Compra ',
+        	items: [this.lblMontoInf,this.txtMontoInf,this.lblMontoSup,this.txtMontoSup]
+        });
+        //Num. C31
+        this.txtNroCbteAsociado = new Ext.form.TextField({
+			fieldLabel: 'C31',
+			width: '100%'
+		});
 	},
 	layout: function(){
+		//Fieldsets
+		this.fieldSetGeneral = new Ext.form.FieldSet({
+        	collapsible: true,
+        	title: 'General',
+        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.dteFechaCompra,this.cmpMontos,this.txtNroCbteAsociado,
+        		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
+				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito]
+        });
+
+        this.fieldSetIncluir = new Ext.form.FieldSet({
+        	collapsible: true,
+        	title: 'Incluir Activos Fijos',
+        	items: [this.radGroupTangible,this.radGroupTransito,this.radGroupEstadoMov]
+        });
+
+        this.fieldSetCompra = new Ext.form.FieldSet({
+        	xtype: 'fieldset',
+        	collapsible: true,
+        	title: 'Compra',
+        	items: [this.cmbUnidSolic,this.cmbResponsableCompra,this.cmbLugar]
+        });
+
 		//Formulario
 		this.formParam = new Ext.form.FormPanel({
             layout: 'form',
             autoScroll: true,
-            items: [{
+            items: [/*{
             	xtype: 'fieldset',
             	title: 'Reporte',
             	items: [this.cmbReporte]
-            },{
-            	xtype: 'fieldset',
-            	collapsible: true,
-            	title: 'General',
-            	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.dteFechaCompra,
-            		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
-					this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito]
-            }, {
-            	xtype: 'fieldset',
-            	collapsible: true,
-            	title: 'Incluir Activos Fijos',
-            	items: [this.radGroupTangible,this.radGroupTransito,this.radGroupEstadoMov]
-            }, {
-            	xtype: 'fieldset',
-            	collapsible: true,
-            	title: 'Compra',
-            	items: [this.cmbUnidSolic,this.cmbResponsableCompra,this.cmbLugar]
-            }],
+            },*/this.fieldSetGeneral, this.fieldSetIncluir, this.fieldSetCompra],
             tbar: [
                 {xtype:'button', text:'<i class="fa fa-print" aria-hidden="true"></i> Generar', tooltip: 'Generar el reporte', handler: this.onSubmit, scope: this},
                 {xtype:'button', text:'<i class="fa fa-undo" aria-hidden="true"></i> Reset', tooltipo: 'Resetear los parámetros', handler: this.onReset, scope: this}
@@ -510,7 +540,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 			id_depto: this.cmbDepto.getValue(),
 			id_deposito: this.cmbDeposito.getValue(),
 			id_moneda: this.cmbMoneda.getValue(),
-			desc_moneda: this.moneda
+			desc_moneda: this.moneda,
+			monto_inf: this.txtMontoInf.getValue(),
+			monto_sup: this.txtMontoSup.getValue(),
+			nro_cbte_asociado: this.txtNroCbteAsociado.getValue()
 		};
 	},
 	cargaReportes: function(){
@@ -574,6 +607,56 @@ Ext.define('Phx.vista.ParametrosBase', {
             timeout: this.timeout,
             scope: this
         });
-	}
+	},
+	inicializarParametros: function(){
+		this.configElement(this.dteFechaDesde,true,true);
+		this.configElement(this.dteFechaHasta,true,true);
+		this.configElement(this.cmbActivo,true,true);
+		this.configElement(this.cmbClasificacion,true,true);
+		this.configElement(this.txtDenominacion,true,true);
+		this.configElement(this.dteFechaCompra,true,true);
+		this.configElement(this.dteFechaIniDep,true,true);
+		this.configElement(this.cmbEstado,true,true);
+		this.configElement(this.cmbCentroCosto,true,true);
+		this.configElement(this.txtUbicacionFisica,true,true);
+		this.configElement(this.cmbOficina,true,true);
+		this.configElement(this.cmbResponsable,true,true);
+		this.configElement(this.cmbUnidSolic,true,true);
+		this.configElement(this.cmbResponsableCompra,true,true);
+		this.configElement(this.cmbLugar,true,true);
+		this.configElement(this.radGroupTransito,true,true);
+		this.configElement(this.radGroupTangible,true,true);
+		this.configElement(this.cmbDepto,true,true);
+		this.configElement(this.cmbDeposito,true,true);
+		this.configElement(this.lblHasta,true,true);
+		this.configElement(this.cmpFechas,true,true);
+		this.configElement(this.txtMontoInf,true,true);
+		this.configElement(this.txtMontoSup,true,true);
+		this.configElement(this.lblMontoInf,true,true);
+		this.configElement(this.lblMontoSup,true,true);
+		this.configElement(this.txtNroCbteAsociado,true,true);
+		this.configElement(this.cmpMontos,true,true);
+		this.configElement(this.cmbMoneda,true,true);
+		this.configElement(this.radGroupEstadoMov,true,true);
+
+		this.configElement(this.fieldSetGeneral,true,true);
+		this.configElement(this.fieldSetIncluir,true,true);
+		this.configElement(this.fieldSetCompra,true,true);
+	},
+	configElement: function(elm,disable,allowBlank){
+		//elm.setDisabled(disable);
+		elm.setVisible(disable);
+		elm.allowBlank = allowBlank;
+	},
+	successExport: function(resp){
+    	//Método para abrir el archivo generado
+    	Phx.CP.loadingHide();
+        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        var nomRep = objRes.ROOT.detalle.archivo_generado;
+        if(Phx.CP.config_ini.x==1){  			
+        	nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
+        }
+        window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
+    }
 });
 </script>

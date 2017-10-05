@@ -428,6 +428,78 @@ class ACTActivoFijo extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
-}
+	function repCodigoQRVarios(){    	
+		$nombreArchivo = 'CodigoAF'.uniqid(md5(session_id())).'.pdf';
 
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("kaf.id_activo_fijo in (".$this->objParam->getParametro('id_activo_fijo').")");	
+		}
+
+		if($this->objParam->getParametro('id_clasificacion')!=''){
+			$this->objParam->addFiltro("kaf.id_clasificacion in (
+					WITH RECURSIVE t(id,id_fk,nombre,n) AS (
+    				SELECT l.id_clasificacion,l.id_clasificacion_fk, l.nombre,1
+    				FROM kaf.tclasificacion l
+    				WHERE l.id_clasificacion = ".$this->objParam->getParametro('id_clasificacion')."
+    				UNION ALL
+    				SELECT l.id_clasificacion,l.id_clasificacion_fk, l.nombre,n+1
+    				FROM kaf.tclasificacion l, t
+    				WHERE l.id_clasificacion_fk = t.id
+					)
+					SELECT id
+					FROM t)");	
+		}
+
+		$dataSource = $this->listarCodigoQRVarios();
+
+		//parametros basicos
+		$orientacion = 'L';
+		$titulo = 'Códigos Activos Fijos';				
+		
+		//$width = 40;  
+        //$height = 20;
+        
+        $width = 160;  
+        $height = 80;
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',array($width, $height));		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		//var_dump($dataSource->getDatos());
+		//exit;
+		$clsRep = $dataSource->getDatos();
+		
+		$reporte = new RCodigoQRAF_v1($this->objParam);
+
+		
+		//eval('$reporte = new '.$clsRep[0]['v_clase_reporte'].'($this->objParam);');
+		
+		$reporte->datosHeader( 'varios', $dataSource->getDatos());
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');  
+         
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
+    function listarCodigoQRVarios(){
+		$this->objFunc = $this->create('MODActivoFijo');
+
+		$datos = $this->objFunc->listarCodigoQRVarios($this->objParam);
+
+		if($datos->getTipo() == 'EXITO'){				
+			return $datos;
+		} else
+		{
+		    $datos->imprimirRespuesta($datos->generarJson());
+			exit;
+		}
+	}
+		
+
+}
 ?>

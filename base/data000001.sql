@@ -292,3 +292,8 @@ select pxp.f_add_catalog('KAF','tclasificacion_variable__obligatorio','no','no')
 select pxp.f_insert_tgui ('Visto Bueno Movimientos', 'Visto bueno de los Movimientos de activos fijos', 'KAFMOVVB', 'si', 6, 'sis_kactivos_fijos/vista/movimiento/MovimientoVb.php', 2, '', 'MovimientoVb', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMOVVB', 'KAF');
 /***********************************F-DAT-RCM-KAF-0-28/09/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-04/10/2017****************************************/
+select pxp.f_insert_tgui ('Códigos QR', 'Códigos QR por Activos Fijos o Clasificación', 'KAF.REP.02', 'si', 2, 'sis_kactivos_fijos/vista/reportes/ParametrosRepCodigosQR.php', 3, '', 'ParametrosRepCodigosQR', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.02', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-04/10/2017****************************************/

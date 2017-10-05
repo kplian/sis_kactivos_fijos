@@ -347,7 +347,8 @@ BEGIN
               kaf.codigo_ant,
               kaf.denominacion,
               COALESCE(dep.nombre_corto, '') as nombre_depto,
-              COALESCE(ent.nombre, '') as nombre_entidad
+              COALESCE(ent.nombre, '') as nombre_entidad,
+              kaf.descripcion
              into
                v_rec_af
             from kaf.tactivo_fijo  kaf
@@ -367,6 +368,7 @@ BEGIN
             v_resp = pxp.f_agrega_clave(v_resp,'nombre_depto',v_rec_af.nombre_depto::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'nombre_entidad',v_rec_af.nombre_entidad::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
 
             --Devuelve la respuesta
             return v_resp;

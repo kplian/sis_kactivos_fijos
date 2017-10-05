@@ -124,7 +124,8 @@ Phx.vista.ParametrosReportes = {
 		}	
 	},
 	configElement: function(elm,disable,allowBlank){
-		elm.setDisabled(disable);
+		//elm.setDisabled(disable);
+		elm.setVisible(disable);
 		elm.allowBlank = allowBlank;
 	}
 

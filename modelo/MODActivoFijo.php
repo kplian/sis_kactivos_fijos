@@ -569,6 +569,32 @@ class MODActivoFijo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarCodigoQRVarios(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_sel';
+		$this->transaccion='SKA_QRVARIOS_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','int4');
+        $this->captura('codigo','varchar');
+        $this->captura('codigo_ant','varchar');
+        $this->captura('denominacion','varchar');
+        $this->captura('nombre_depto','varchar');
+        $this->captura('nombre_entidad','varchar');
+        $this->captura('descripcion','varchar');
+        $this->captura('clase_rep','varchar');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
