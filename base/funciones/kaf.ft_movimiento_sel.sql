@@ -123,7 +123,8 @@ BEGIN
 			            fundest.desc_funcionario2,
 			            movmot.motivo,
 			            mov.id_int_comprobante,
-			            mov.id_int_comprobante_aitb
+			            mov.id_int_comprobante_aitb,
+                        funwf.desc_funcionario2 as resp_wf
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -140,6 +141,7 @@ BEGIN
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
+                        left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
 				        where '||v_filtro;
 
 			--Verifica si la consulta es por usuario
@@ -224,6 +226,7 @@ BEGIN
 						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
 						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
 						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
+                        left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
 					    where '||v_filtro;
 
 			--Verifica si la consulta es por usuario

@@ -258,6 +258,22 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'resp_wf',
+				fieldLabel: 'Flujo con',
+				allowBlank: false,
+				anchor: '95%',
+				gwidth: 150,
+				maxLength:200
+			},
+			type:'TextArea',
+			filters:{pfiltro:'funwf.desc_funcionario2',type:'string'},
+			id_grupo:0,
+			grid:true,
+			form:false,
+			bottom_filter:true
+		},
+		{
+			config:{
 				name: 'fecha_hasta',
 				fieldLabel: 'Fecha Hasta',
 				allowBlank: true,
@@ -810,7 +826,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'motivo', type: 'string'},
 		{name:'desc_funcionario2', type: 'string'},
 		'id_int_comprobante',
-		'id_int_comprobante_aitb'
+		'id_int_comprobante_aitb',
+		{name:'resp_wf', type: 'string'}
 	],
 	sortInfo:{
 		field: 'fecha_mov',
