@@ -80,16 +80,19 @@ class RMovimiento2 extends  ReportePDF {
 
         $this->SetXY($x, $y);
         $this->setCellPaddings(2);
-        $this->Cell($width1-4, $height, 'FORM:', "B", 0, '', false, '', 0, false, 'T', 'C');
+        $this->Cell($width1-4, $height, 'CODIGO:', "B", 0, '', false, '', 0, false, 'T', 'C');
         $this->SetFont('', 'B');
-        $this->Cell($width2+8, $height,$this->dataMaster[0]['formulario'], "B", 0, 'L', false, '', 0, false, 'T', 'C');
+        $this->SetFontSize(6);
+        $this->Cell($width2+8, $height,$this->dataMaster[0]['num_tramite'], "B", 0, 'L', false, '', 0, false, 'T', 'C');
+        $this->SetFontSize(7);
         $this->setCellPaddings(2);
         $this->Ln();
         $this->SetX($x);
         $this->SetFont('', '');
         $this->Cell($width1-4, $height, 'FECHA:', "B", 0, '', false, '', 0, false, 'T', 'C');
         $this->SetFont('', 'B');
-        $this->Cell($width2+8, $height,$this->dataMaster[0]['fecha_mov'], "B", 0, 'L', false, '', 0, false, 'T', 'C');
+        $cab_fecha = date("d/m/Y",strtotime($this->dataMaster[0]['fecha_mov']));
+        $this->Cell($width2+8, $height,$cab_fecha, "B", 0, 'L', false, '', 0, false, 'T', 'C');
         $this->setCellPaddings(2);
         $this->Ln();
         $this->SetX($x);
@@ -161,7 +164,7 @@ class RMovimiento2 extends  ReportePDF {
 
 
 	function Firmas() {
-		 $this->SetFontSize(8);
+		 $this->SetFontSize(7);
         
         $_firma100='';
         $_firma110=$this->dataMaster[0]['responsable_depto'];
@@ -198,57 +201,68 @@ class RMovimiento2 extends  ReportePDF {
 		
 		
 		 if($this->tipoMov=='transf'){
-            $_firma100=$this->dataMaster[0]['responsable_depto'];
+            $_firma100=$this->cortar_texto($this->dataMaster[0]['responsable_depto']);
             $_firma110='RESPONSABLE ACTIVOS FIJOS';
             $_firma111='SUPERVISOR';
             
-            $_firma200=strtoupper($this->dataMaster[0]['responsable']);
-            $_firma210=strtoupper($this->dataMaster[0]['nombre_cargo']);
+            $_firma200=$this->cortar_texto(strtoupper($this->dataMaster[0]['responsable']));
+            $_firma210=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo']));
             $_firma211='ENTREGUE CONFORME';
             
-            $_firma300=strtoupper($this->dataMaster[0]['responsable_dest']);
-            $_firma310=strtoupper($this->dataMaster[0]['nombre_cargo_dest']);
+            $_firma300=$this->cortar_texto(strtoupper($this->dataMaster[0]['responsable_dest']));
+            $_firma310=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo_dest']));
             $_firma311='RECIBÍ CONFORME';  
         }
 
 
-        $this->Cell(63, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, '', 'LRT', 1, 'C', false, '', 0, false, 'T', 'C');
          
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
         
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(63, $midHeight, $_firma100, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma200, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma300, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma100, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma200, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma300, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, $_firma400, 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(63, $midHeight, $_firma110, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma210, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma310, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma110, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma210, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma310, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, $_firma410, 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
         
-        $this->Cell(63, $midHeight, $_firma111, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma211, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma311, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma111, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma211, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma311, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
         $this->Cell(63, $midHeight, $_firma411, 'LRBT', 1, 'C', false, '', 0, false, 'T', 'C');
 		
 		
 	}
+
+    function cortar_texto($texto){
+        $lim=39;
+        $len = strlen($texto);
+        //echo 'LLL: '.$len;exit;
+        $cad = $texto;
+        if($len > $lim){
+            $cad = substr($texto, 0, $lim).' ...';
+        }
+        return $cad;
+    }
    
    function generarReporte() {
    	      $this->setFontSubsetting(false);

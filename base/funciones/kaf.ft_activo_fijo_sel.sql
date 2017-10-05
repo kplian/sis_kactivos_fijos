@@ -556,6 +556,43 @@ BEGIN
             return v_consulta;
 
         end;
+
+    /*********************************    
+    #TRANSACCION:  'SKA_QRVARIOS_SEL'
+    #DESCRIPCION:   Listado para imprimir varios códigos de barra
+    #AUTOR:         RCM
+    #FECHA:         04/10/2017
+    ***********************************/
+
+    elsif(p_transaccion='SKA_QRVARIOS_SEL')then
+
+        begin
+
+            --Recuperar configuracion del reporte de codigo de barrar por defecto de variable global
+             v_clase_reporte = pxp.f_get_variable_global('kaf_clase_reporte_codigo');
+
+            --Sentencia de la consulta
+            v_consulta:='select 
+                        kaf.id_activo_fijo,
+                        kaf.codigo,
+                        kaf.codigo_ant,
+                        kaf.denominacion,
+                        coalesce(dep.nombre_corto, '''') as nombre_depto,
+                        coalesce(ent.nombre, '''') as nombre_entidad,
+                        kaf.descripcion,'''
+                        ||v_clase_reporte||'''::varchar as clase_rep
+                        from kaf.tactivo_fijo  kaf
+                        inner join param.tdepto dep on dep.id_depto = kaf.id_depto 
+                        left join param.tentidad ent on ent.id_entidad = dep.id_entidad
+                        where ';
+            
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+        
+        end;
     
     				
 	else

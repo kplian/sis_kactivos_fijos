@@ -292,7 +292,7 @@ BEGIN
                               and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
      						              left join orga.vfuncionario_cargo fundes
                               on fundes.id_funcionario = mov.id_funcionario_dest
-                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
+                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
                               --inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
                               inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto

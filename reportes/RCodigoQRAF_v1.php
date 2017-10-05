@@ -51,7 +51,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 			//para imprimir un solo codigo
 			$this->cod = array('id'  => $detalle['id_activo_fijo'],
 					     'cod' => $detalle['codigo'],
-					     'desc' => $detalle['denominacion']);
+					     'desc' => $detalle['descripcion']);
 			
 			//formatea el codigo con el conteido requrido
 			$this->codigo_qr = json_encode($this->cod);	
@@ -88,13 +88,15 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		}
 		else{
 			//imprime varios codigos ....
-			
+			/*echo 'antes de imprimir';
+			var_dump($this->detalle);
+			exit;*/
 			
 			foreach ($this->detalle as $val) {
 				
 				$this->cod = array('id'  => $val['id_activo_fijo'],
 						     'cod' => $val['codigo'],
-						     'desc' => $val['denominacion']);
+						     'desc' => $val['descripcion']);
 				
 				//formatea el codigo con el conteido requrido
 				$this->codigo_qr = json_encode($this->cod);
@@ -106,7 +108,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 	} 
    
    function imprimirCodigo($style){
-   	
+   		
 	    $this->AddPage();
    	    $this->write2DBarcode($this->codigo_qr, 'QRCODE,L', 1, 1,80,0, $style,'T',true);
 		$this->SetFont('','',20);
@@ -118,6 +120,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		$this->cell(75, 5, $this->cod['cod'], 0, 1, 'C',false,'',0);
 		$this->SetFont('','',20);
 		$this->SetXY(80,38);
+
 		//Descripcion
 		$maxLength=80;
 		$maxLengthLinea=16;
@@ -127,13 +130,13 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		if(strlen($this->cod['desc'])>$maxLength){
 			$codAux = substr($this->cod['desc'],0,$maxLength-4).'...';
 		}
+
 		while (strlen($codAux)>0) {
 			$tmp = substr($codAux, 0, $maxLengthLinea);
 			$this->Text($x, $y, strtoupper($tmp), false, false, true, 0, 5,'',false,'',0);
 			$codAux = substr($codAux, $maxLengthLinea,$maxLength);
 			$y=$y+7;
 		}
-
 		
 
 		//$this->Text(80, 43, $tt, false, false, true, 0,5,'',false,'',0);
