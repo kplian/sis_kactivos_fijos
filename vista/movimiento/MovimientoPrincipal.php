@@ -377,19 +377,24 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('sig_estado').enable();
         if(data.estado=='borrador'){
         	this.getBoton('ant_estado').disable();
+        } else {
+            //Deshabilita el botón siguiente cuando no está en borrador para la vista transaccional, porque las aprobaciones se deben hacer por la interfaz de VoBo
+            if(this.nombreVista=='MovimientoPrincipal'){
+                this.getBoton('sig_estado').disable();
+            }
         }
+
         if(data.estado=='finalizado'||data.estado=='cancelado'){
         	this.getBoton('ant_estado').disable();
         	this.getBoton('sig_estado').disable();
         }
+
         if(data.cod_movimiento=='deprec'  || data.cod_movimiento=='actua'){
         	this.getBoton('btnReporteDep').enable();
         }
         else{
         	this.getBoton('btnReporteDep').disable();
         }
-        
-     
 
         return tb;
     },

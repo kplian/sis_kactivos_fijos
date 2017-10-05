@@ -71,6 +71,7 @@ class MODMovimiento extends MODbase{
 		$this->captura('motivo','varchar');
 		$this->captura('id_int_comprobante','int4');
 		$this->captura('id_int_comprobante_aitb','int4');
+		$this->captura('resp_wf','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
