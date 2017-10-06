@@ -715,7 +715,10 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = mov.id_persona
+                    id_persona = mov.id_persona,
+                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = mov.direccion
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov
                     on mov.id_movimiento = movaf.id_movimiento
@@ -738,7 +741,10 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = mov.id_persona
+                    id_persona = mov.id_persona,
+                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = mov.direccion
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
@@ -754,7 +760,9 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'si',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = null
+                    id_persona = null,
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = 'Depósito'
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov
                     on mov.id_movimiento = movaf.id_movimiento

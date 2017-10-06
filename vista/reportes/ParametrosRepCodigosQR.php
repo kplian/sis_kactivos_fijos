@@ -12,7 +12,6 @@ Phx.vista.ParametrosRepCodigosQR = {
 
 		//Eventos
 		this.definirEventos();
-		
 	},
 	definirEventos: function(){
 		this.cmbActivo.on('select',function(){
@@ -26,7 +25,6 @@ Phx.vista.ParametrosRepCodigosQR = {
 		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/RCodigoQRAFVarios.php';
 		this.claseReporte = 'RCodigoQRAFVarios';
 		this.titleReporte = 'Código QR';
-
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();

@@ -61,19 +61,31 @@ BEGIN
 						ofiant.codigo || '' - '' || ofiant.nombre as desc_oficina_ant,
 						case 
 							when kafmod.id_oficina is not null and kafmod.ubicacion is not null then 1::integer
-							when kafmod.observaciones is not null and kafmod.id_oficina is null then 2::integer
+							when kafmod.observaciones is not null and kafmod.id_oficina is null and kafmod.id_moneda is null then 2::integer
+							when kafmod.id_moneda is not null and kafmod.id_oficina is null then 3::integer
 							else 0::integer
 						end as tipo,
 						case 
 							when kafmod.id_oficina is not null and kafmod.ubicacion is not null then ''Dirección''::varchar
-							when kafmod.observaciones is not null and kafmod.id_oficina is null then ''Notas''::varchar
+							when kafmod.observaciones is not null and kafmod.id_oficina is null and kafmod.id_moneda is null then ''Notas''::varchar
+							when kafmod.id_moneda is not null and kafmod.id_oficina is null then ''Modificación de Monto Compra Antes de Depreciarse''::varchar
 							else 0::varchar
-						end as desc_tipo
+						end as desc_tipo,
+						kafmod.id_moneda_ant,
+						kafmod.monto_compra_orig_ant,
+						kafmod.monto_compra_orig_100_ant,
+						kafmod.id_moneda,
+						kafmod.monto_compra_orig,
+						kafmod.monto_compra_orig_100,
+						mon.codigo as desc_moneda_ant,
+						mon1.codigo as desc_moneda
 						from kaf.tactivo_fijo_modificacion kafmod
 						inner join segu.tusuario usu1 on usu1.id_usuario = kafmod.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = kafmod.id_usuario_mod
 						left join orga.toficina ofi on ofi.id_oficina = kafmod.id_oficina
 						left join orga.toficina ofiant on ofiant.id_oficina = kafmod.id_oficina_ant
+						left join param.tmoneda mon on mon.id_moneda = kafmod.id_moneda_ant
+						left join param.tmoneda mon1 on mon1.id_moneda = kafmod.id_moneda
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -102,6 +114,8 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = kafmod.id_usuario_mod
 						left join orga.toficina ofi on ofi.id_oficina = kafmod.id_oficina
 						left join orga.toficina ofiant on ofiant.id_oficina = kafmod.id_oficina_ant
+						left join param.tmoneda mon on mon.id_moneda = kafmod.id_moneda_ant
+						left join param.tmoneda mon1 on mon1.id_moneda = kafmod.id_moneda
 					    where ';
 			
 			--Definicion de la respuesta		    

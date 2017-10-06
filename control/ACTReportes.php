@@ -152,6 +152,7 @@ class ACTReportes extends ACTbase {
 			$this->objParam->addFiltro("afij.id_deposito = ".$this->objParam->getParametro('id_deposito'));
 		}
 
+
 		//Verifica si la petición es para elk reporte en excel o de grilla
 		if($this->objParam->getParametro('tipo_salida')=='reporte'){
 			$this->objFunc=$this->create('MODReportes');
@@ -161,9 +162,14 @@ class ACTReportes extends ACTbase {
 			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 				$this->objReporte = new Reporte($this->objParam,$this);
 				$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
-			} else{
+			} else {
 				$this->objFunc=$this->create('MODReportes');
-				$this->res=$this->objFunc->reporteGralAF($this->objParam);
+
+				eval('$this->res=$this->objFunc->'.$this->objParam->getParametro('rep_metodo_list').'($this->objParam);');
+
+
+
+				//$this->res=$this->objFunc->reporteGralAF($this->objParam);
 			}
 			$this->res->imprimirRespuesta($this->res->generarJson());		
 		}

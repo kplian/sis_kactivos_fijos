@@ -425,7 +425,7 @@ Ext.define('Phx.vista.ParametrosBase', {
             },*/this.fieldSetGeneral, this.fieldSetIncluir, this.fieldSetCompra],
             tbar: [
                 {xtype:'button', text:'<i class="fa fa-print" aria-hidden="true"></i> Generar', tooltip: 'Generar el reporte', handler: this.onSubmit, scope: this},
-                {xtype:'button', text:'<i class="fa fa-undo" aria-hidden="true"></i> Reset', tooltipo: 'Resetear los parámetros', handler: this.onReset, scope: this}
+                {xtype:'button', text:'<i class="fa fa-undo" aria-hidden="true"></i> Reset', tooltip: 'Resetear los parámetros', handler: this.onReset, scope: this}
             ]
         });
 
@@ -477,6 +477,9 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbMoneda.setValue('');
 		this.moneda='';
 
+		this.cmbClasificacion.selectedIndex=-1;
+
+		console.log('clasifi',this.cmbClasificacion.getValue())
 	},
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
@@ -508,6 +511,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 			_id_clasificacion;
 
 		//Clasificación (por el problema de que getvalue devuelve la descripción y no el valor ¡?¡??)
+		console.log('aaaa',this.cmbClasificacion.selectedIndex);
 		if(this.cmbClasificacion.selectedIndex!=-1){
 			_id_clasificacion = this.cmbClasificacion.store.getAt(this.cmbClasificacion.selectedIndex).id;
 		}

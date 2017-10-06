@@ -297,3 +297,10 @@ select pxp.f_insert_testructura_gui ('KAFMOVVB', 'KAF');
 select pxp.f_insert_tgui ('Códigos QR', 'Códigos QR por Activos Fijos o Clasificación', 'KAF.REP.02', 'si', 2, 'sis_kactivos_fijos/vista/reportes/ParametrosRepCodigosQR.php', 3, '', 'ParametrosRepCodigosQR', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.02', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-1-04/10/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-05/10/2017****************************************/
+select pxp.f_insert_tgui ('Activos Fijos Asignados', 'Activos Fijos asignados a funcionarios de la institución', 'KAF.REP.03', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAsignados.php', 3, '', 'ParametrosRepAsignados', 'KAF');
+select pxp.f_insert_tgui ('Activos Fijos en Depósito', 'Activos Fijos en depósito disponibles para asignación', 'KAF.REP.04', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepSinAsignar.php', 3, '', 'ParametrosRepSinAsignar', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.03', 'KAFREP');
+select pxp.f_insert_testructura_gui ('KAF.REP.04', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-05/10/2017****************************************/
