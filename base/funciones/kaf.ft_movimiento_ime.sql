@@ -1,4 +1,6 @@
-CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime (
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime ( 
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -936,6 +938,13 @@ BEGIN
                         where id_movimiento_af = v_rec.id_movimiento_af;
                         
                     end loop;
+                    
+                --RAC 06/10/2017 , adciona estado para revision de costeo
+                elseif v_codigo_estado_siguiente = 'costeo' then
+
+                      --genera costeo por defecto
+                      v_resp = kaf.f_generar_costeo_defecto(p_id_usuario, v_movimiento.id_movimiento);
+                    
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
                 

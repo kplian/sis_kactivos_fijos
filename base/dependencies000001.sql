@@ -1281,4 +1281,62 @@ WITH RECURSIVE t(
              t.orden
       FROM t
       ORDER BY t.orden;
-/***********************************F-DEP-RCM-KAF-1-21/09/2017****************************************/      
+/***********************************F-DEP-RCM-KAF-1-21/09/2017****************************************/
+
+
+
+
+
+/***********************************I-DEP-RCM-KAF-1-06/10/2017****************************************/
+
+CREATE OR REPLACE  VIEW kaf.vdetalle_depreciacion_activo
+AS
+  SELECT af.id_activo_fijo,
+         af.id_clasificacion,
+         afv.id_activo_fijo_valor,
+         maf.id_movimiento_af,
+         maf.id_movimiento,
+         ud.gestion AS gestion_inicial,
+         ud.gestion AS gestion_final,
+         afv.tipo,
+         af.fecha_compra,
+         af.fecha_ini_dep,
+         af.codigo,
+         af.descripcion,
+         afv.monto_vigente_orig,
+         pd.monto_vigente_ant AS monto_vigente_inicial,
+         ud.monto_vigente AS monto_vigente_final,
+         pd.monto_actualiz_ant AS monto_actualiz_inicial,
+         ud.monto_actualiz AS monto_actualiz_final,
+         ud.monto_actualiz - pd.monto_actualiz_ant AS aitb_activo,
+         afv.vida_util_orig,
+         pd.vida_util_ant AS vida_util_inicial,
+         ud.vida_util AS vida_util_final,
+         pd.depreciacion_per_ant AS depreciacion_per_inicial,
+         ud.depreciacion_per AS depreciacion_per_final,
+         pd.depreciacion_per_actualiz AS depreciacion_per_actualiz_inicial,
+         ud.depreciacion_per_actualiz AS depreciacion_per_actualiz_final,
+         pd.depreciacion_acum_ant AS depreciacion_acum_inicial,
+         ud.depreciacion_acum AS depreciacion_acum_final,
+         ud.depreciacion_acum - pd.depreciacion_acum_ant - ud.depreciacion_per
+           AS aitb_depreciacion_acumulada,
+         ud.depreciacion_acum_actualiz AS depreciacion_acum_actualiz_final,
+         pd.tipo_cambio_ini AS tipo_cabio_inicial,
+         ud.tipo_cambio_fin AS tipo_cabio_final,
+         ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor,
+         afv.id_moneda,
+         afv.id_moneda_dep,
+         af.id_proyecto,
+         afv.deducible
+  FROM kaf.tactivo_fijo_valores afv
+       JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
+       JOIN kaf.vprimero_movimiento_af_dep_gestion pd ON pd.id_activo_fijo_valor
+         = afv.id_activo_fijo_valor
+       JOIN kaf.vultimo_movimiento_af_dep_gestion ud ON ud.id_activo_fijo_valor
+         = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pd.id_movimiento_af
+         AND maf.id_movimiento_af = ud.id_movimiento_af;
+
+/***********************************F-DEP-RCM-KAF-1-06/10/2017****************************************/
+
+      
