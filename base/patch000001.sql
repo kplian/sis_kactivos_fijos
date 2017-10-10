@@ -946,7 +946,48 @@ COMMENT ON COLUMN kaf.tmovimiento_motivo.plantilla_cbte
 IS 'Código de la Plantilla de Comprobante';
 /***********************************F-SCP-RCM-KAF-1-25/08/2017****************************************/
 
+/***********************************I-SCP-RCM-KAF-1-05/10/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN fecha_asignacion date;
+/***********************************F-SCP-RCM-KAF-1-05/10/2017****************************************/
 
+/***********************************I-SCP-RCM-KAF-1-06/10/2017****************************************/
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.id_moneda
+IS 'Moneda para el caso de modificación de importe de compra antes de depreciar';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN id_moneda_ant INTEGER;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.id_moneda_ant
+IS 'Moneda anterior en el caso de modificación de importe de compra antes de depreciar';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN monto_compra_orig NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig
+IS 'Monto de compra (87) para el caso de modificación de importe de compra antes de depreciar';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN monto_compra_orig_100 NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig_100
+IS 'Monto de compra (100) para el caso de modificación de importe de compra antes de depreciar';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN monto_compra_orig_ant NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig_ant
+IS 'Monto de compra (87) anterior en el caso de modificación de importe de compra antes de depreciar';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  ADD COLUMN monto_compra_orig_100_ant NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig_100_ant
+IS 'Monto de compra (100) anterior en el caso de modificación de importe de compra antes de depreciar';
+/***********************************F-SCP-RCM-KAF-1-06/10/2017****************************************/
 
 /***********************************I-SCP-RAC-KAF-1-06/10/2017****************************************/
 CREATE TABLE kaf.tprorrateo_af (
@@ -970,11 +1011,5 @@ ALTER TABLE kaf.tprorrateo_af
 COMMENT ON COLUMN kaf.tprorrateo_af.id_centro_costo
 IS 'usamos centro de costos para  el csoteo, la gestion del movimiento asumimos que todo proceso de depreciacion solo se hace por una gestion';
 
-
-
-
 /***********************************F-SCP-RAC-KAF-1-06/10/2017****************************************/
-
-
-
 

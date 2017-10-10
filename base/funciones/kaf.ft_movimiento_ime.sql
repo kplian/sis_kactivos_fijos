@@ -1,6 +1,4 @@
---------------- SQL ---------------
-
-CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime ( 
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_ime (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -717,7 +715,10 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = mov.id_persona
+                    id_persona = mov.id_persona,
+                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = mov.direccion
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov
                     on mov.id_movimiento = movaf.id_movimiento
@@ -740,7 +741,10 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = mov.id_persona
+                    id_persona = mov.id_persona,
+                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = mov.direccion
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov on mov.id_movimiento = movaf.id_movimiento
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
@@ -756,7 +760,9 @@ BEGIN
                     update kaf.tactivo_fijo set
                     en_deposito = 'si',
                     id_funcionario = mov.id_funcionario_dest,
-                    id_persona = null
+                    id_persona = null,
+                    fecha_asignacion = mov.fecha_mov,
+                    ubicacion = 'Depósito'
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov
                     on mov.id_movimiento = movaf.id_movimiento
@@ -938,13 +944,6 @@ BEGIN
                         where id_movimiento_af = v_rec.id_movimiento_af;
                         
                     end loop;
-                    
-                --RAC 06/10/2017 , adciona estado para revision de costeo
-                elseif v_codigo_estado_siguiente = 'costeo' then
-
-                      --genera costeo por defecto
-                      v_resp = kaf.f_generar_costeo_defecto(p_id_usuario, v_movimiento.id_movimiento);
-                    
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
                 

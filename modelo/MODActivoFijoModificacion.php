@@ -40,6 +40,14 @@ class MODActivoFijoModificacion extends MODbase{
 		$this->captura('desc_oficina_ant','text');
 		$this->captura('tipo','int4');
 		$this->captura('desc_tipo','varchar');
+		$this->captura('id_moneda_ant','int4');
+		$this->captura('monto_compra_orig_ant','numeric');
+		$this->captura('monto_compra_orig_100_ant','numeric');
+		$this->captura('id_moneda','int4');
+		$this->captura('monto_compra_orig','numeric');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('desc_moneda_ant','varchar');
+		$this->captura('desc_moneda','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -63,6 +71,13 @@ class MODActivoFijoModificacion extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('ubicacion_ant','ubicacion_ant','varchar');
 		$this->setParametro('observaciones','observaciones','varchar');
+		$this->setParametro('tipo','tipo','integer');
+		$this->setParametro('id_moneda_ant','id_moneda_ant','int4');
+		$this->setParametro('id_moneda','id_moneda','int4');
+		$this->setParametro('monto_compra_orig_ant','monto_compra_orig_ant','numeric');
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
+		$this->setParametro('monto_compra_orig_100_ant','monto_compra_orig_100_ant','numeric');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -87,6 +102,13 @@ class MODActivoFijoModificacion extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('ubicacion_ant','ubicacion_ant','varchar');
 		$this->setParametro('observaciones','observaciones','varchar');
+		$this->setParametro('tipo','tipo','integer');
+		$this->setParametro('id_moneda_ant','id_moneda_ant','int4');
+		$this->setParametro('id_moneda','id_moneda','int4');
+		$this->setParametro('monto_compra_orig_ant','monto_compra_orig_ant','numeric');
+		$this->setParametro('monto_compra_orig','monto_compra_orig','numeric');
+		$this->setParametro('monto_compra_orig_100_ant','monto_compra_orig_100_ant','numeric');
+		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

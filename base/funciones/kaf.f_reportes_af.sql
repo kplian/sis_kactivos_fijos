@@ -541,6 +541,308 @@ BEGIN
             return v_consulta;
 
         end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RASIG_SEL'
+     #DESCRIPCION:  Reporte Gral de activos fijos con el filtro general
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RASIG_SEL') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            afij.codigo,
+                            cla.nombre as desc_clasificacion,
+                            afij.denominacion,
+                            afij.descripcion,
+                            afij.estado,
+                            afij.observaciones,
+                            afij.ubicacion,
+                            afij.fecha_asignacion,
+                            ofi.nombre,
+                            fun.desc_funcionario2 as responsable
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            ';
+
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RASIG_CONT'
+     #DESCRIPCION:  Reporte Gral de activos fijos con el filtro general
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RASIG_CONT') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            count(1) as total
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            ';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RSINASIG_SEL'
+     #DESCRIPCION:  Reporte de Activos Fijos sin Asignar
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RSINASIG_SEL') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            afij.codigo,
+                            cla.nombre as desc_clasificacion,
+                            afij.denominacion,
+                            afij.descripcion,
+                            afij.estado,
+                            afij.observaciones,
+                            afij.ubicacion,
+                            afij.fecha_asignacion,
+                            ofi.nombre,
+                            fun.desc_funcionario2 as responsable
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''si''
+                            ';
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RSINASIG_CONT'
+     #DESCRIPCION:  Reporte de Activos Fijos en Depósito
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RSINASIG_CONT') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            count(1) as total
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''si''
+                            ';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RENDEP_SEL'
+     #DESCRIPCION:  Reporte activos fijos asignados en Depósito
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RENDEP_SEL') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            afij.codigo,
+                            cla.nombre as desc_clasificacion,
+                            afij.denominacion,
+                            afij.descripcion,
+                            afij.estado,
+                            afij.observaciones,
+                            afij.ubicacion,
+                            afij.fecha_asignacion,
+                            ofi.nombre,
+                            fun.desc_funcionario2 as responsable
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            ';
+
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RENDEP_CONT'
+     #DESCRIPCION:  Reporte activos fijos asignados en Depósito
+     #AUTOR:        RCM
+     #FECHA:        05/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RENDEP_CONT') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta = 'select
+                            count(1) as total
+                            from kaf.tactivo_fijo afij
+                            inner join kaf.tclasificacion cla
+                            on cla.id_clasificacion = afij.id_clasificacion
+                            left join orga.vfuncionario fun
+                            on fun.id_funcionario = afij.id_funcionario
+                            inner join orga.toficina ofi
+                            on ofi.id_oficina = afij.id_oficina
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                            and afij.en_deposito = ''no''
+                            ';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
      
     else
         raise exception 'Transacción inexistente';  

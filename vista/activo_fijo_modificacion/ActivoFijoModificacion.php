@@ -22,6 +22,13 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 
 		//Se oculta componentes
 		this.Cmp.id_oficina_ant.setVisible(false);
+		this.Cmp.id_moneda_ant.setVisible(false);
+		this.Cmp.id_oficina.setVisible(false);
+		this.Cmp.ubicacion.setVisible(false);
+		this.Cmp.observaciones.setVisible(false);
+		this.Cmp.id_moneda.setVisible(false);
+		this.Cmp.monto_compra_orig.setVisible(false);
+		this.Cmp.monto_compra_orig_100.setVisible(false);
 
 		//Eventos
 		this.Cmp.tipo.on('select',this.onSelectTipo,this);
@@ -76,11 +83,12 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 			            'key',
 			            'value'
 			        ],
-			        data: [[1, 'Dirección'], [2, 'Notas']]
+			        data: [[1, 'Dirección'], [2, 'Notas'], [3, 'Modificación de Monto Compra Antes de Depreciarse']]
 			    }),
 			    valueField: 'key',
 			    displayField: 'value',
-			    gdisplayField: 'desc_tipo'
+			    gdisplayField: 'desc_tipo',
+			    anchor: '97%'
 			},
 			type: 'ComboBox',
 			id_grupo: 1,
@@ -93,15 +101,16 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 350,
 				renderer: function(value,p,record){
 					var resp;
-					console.log('xxxx 111',record);
 					if(record.data.tipo==1){
 						//Dirección
 						resp=String.format('<tpl for="."><div class="x-combo-list-item"><b>Oficina:</b> {0}<br><b>Ubicación:</b> {1}<br><b>Obervaciones:</b> {2}</div></tpl>',record.data['desc_oficina'],record.data['ubicacion'],record.data['observaciones']);
 					} else if(record.data.tipo==2){
 						//Notas
 						resp=String.format('<tpl for="."><div class="x-combo-list-item"><b>Nota:</b> {0}</div></tpl>',record.data['observaciones']);
+					} else if(record.data.tipo==3){
+						//Modificación de importes
+						resp=String.format('<tpl for="."><div class="x-combo-list-item"><b>Moneda:</b> {0}<br><b>Costo AF:</b> {1}<br><b>Valor Compra:</b> {2}<br><b>Obervaciones:</b> {3}</div></tpl>',record.data['desc_moneda'],record.data['monto_compra_orig'],record.data['monto_compra_orig_100'],record.data['observaciones']);
 					}
-					console.log('xxxx 222',resp);
 					return resp;
 					
 				}
@@ -122,7 +131,10 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 					} else if(record.data.tipo==2){
 						//Notas
 						resp='';
-					}
+					} else if(record.data.tipo==3){
+						//Modificación de importes
+						resp=String.format('<tpl for="."><div class="x-combo-list-item"><b>Moneda:</b> {0}<br><b>Costo AF:</b> {1}<br><b>Valor Compra:</b> {2}</div></tpl>',record.data['desc_moneda_ant'],record.data['monto_compra_orig_ant'],record.data['monto_compra_orig_100_ant']);
+					} 
 					return resp;
 					
 				}
@@ -165,8 +177,7 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 				minChars: 2,
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['desc_oficina']);
-				},
-				disabled: true
+				}
 			},
 			type: 'ComboBox',
 			id_grupo: 1,
@@ -181,8 +192,7 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Ubicación',
 				anchor: '100%',
 				gwidth: 100,
-				maxLength:1000,
-				disabled: true
+				maxLength:1000
 			},
 			type:'TextArea',
 			filters:{pfiltro:'kafmod.ubicacion',type:'string'},
@@ -190,15 +200,62 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 			grid:false,
 			form:true
 		},
-	    {
+		{
+            config:{
+                name: 'id_moneda',
+                origen: 'MONEDA',
+                allowBlank: true,
+                fieldLabel: 'Moneda',
+                anchor: '97%',
+                gdisplayField: 'desc_moneda',//mapea al store del grid
+                gwidth: 50,
+                //baseParams: { 'filtrar_base': 'si' },
+                renderer: function (value, p, record){return String.format('{0}', record.data['desc_moneda']);}
+             },
+            type: 'ComboRec',
+            id_grupo: 1,
+            filters: { pfiltro:'mon.codigo',type:'string'},
+            grid: false,
+            form: true
+        },
+        {
+			config:{
+				name: 'monto_compra_orig',
+				fieldLabel: 'Costo AF',
+				allowBlank: true,
+				anchor: '60%',
+				gwidth: 100
+			},
+			type:'NumberField',
+			filters:{pfiltro:'kafmod.monto_compra_orig',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:true,
+			bottom_filter: true
+		},
+		{
+			config:{
+				name: 'monto_compra_orig_100',
+				fieldLabel: 'Valor Compra',
+				allowBlank: true,
+				anchor: '60%',
+				gwidth: 100
+			},
+			type:'NumberField',
+			filters:{pfiltro:'kafmod.monto_compra_orig_100',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:true,
+			bottom_filter: true
+		},
+		{
 			config:{
 				name: 'observaciones',
-				fieldLabel: 'Notas',
+				fieldLabel: 'Observaciones',
 				allowBlank: true,
 				anchor: '100%',
 				gwidth: 100,
-				maxLength:5000,
-				disabled: true
+				maxLength:5000
 			},
 			type:'TextArea',
 			filters:{pfiltro:'kafmod.observaciones',type:'string'},
@@ -211,18 +268,9 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'id_oficina_ant',
 				fieldLabel: 'Oficina',
-				allowBlank: true,
-				gdisplayField: 'desc_oficina_ant',
-				gwidth: 150,
-				width: '100%',
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_oficina_ant']);
-				}
 			},
-			type: 'TextField',
+			type: 'Field',
 			id_grupo: 0,
-			filters: {pfiltro: 'ofi.codigo#ofi.nombre',type: 'string'},
 			grid: false,
 			form: true
 		},
@@ -257,9 +305,58 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 			form:false
 		},
 		{
+			config:{
+				name: 'id_moneda_ant',
+				fieldLabel: 'Moneda Ant'
+			},
+			type:'Field',
+			id_grupo:0,
+			grid:false,
+			form:true
+		},
+		{
 			config: {
 				name: 'ubicacion_ant_tmp',
 				fieldLabel: 'Ubicación',
+				style: 'background-color: #ddd; background-image: none;',
+				readOnly: true,
+				width:'100%'
+			},
+			type: 'TextField',
+			id_grupo: 0,
+			grid: false,
+			form: true
+		},
+		{
+			config: {
+				name: 'id_moneda_ant_tmp',
+				fieldLabel: 'Moneda Compra',
+				style: 'background-color: #ddd; background-image: none;',
+				readOnly: true,
+				width:'100%'
+			},
+			type: 'TextField',
+			id_grupo: 0,
+			grid: false,
+			form: true
+		},
+		{
+			config: {
+				name: 'monto_compra_orig_ant_tmp',
+				fieldLabel: 'Costo AF',
+				style: 'background-color: #ddd; background-image: none;',
+				readOnly: true,
+				width:'100%'
+			},
+			type: 'TextField',
+			id_grupo: 0,
+			grid: false,
+			form: true
+		},
+		{
+			config: {
+				name: 'monto_compra_orig_100_ant_tmp',
+				fieldLabel: 'Valor Compra',
 				style: 'background-color: #ddd; background-image: none;',
 				readOnly: true,
 				width:'100%'
@@ -387,7 +484,15 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_oficina', type: 'string'},
 		{name:'desc_oficina_ant', type: 'string'},
 		{name:'tipo', type: 'numeric'},
-		{name:'desc_tipo', type: 'string'}
+		{name:'desc_tipo', type: 'string'},
+		{name:'desc_moneda_ant', type: 'string'},
+		{name:'desc_moneda', type: 'string'},
+		{name:'id_moneda_ant', type: 'numeric'},
+		{name:'id_moneda', type: 'numeric'},
+		{name:'monto_compra_orig', type: 'numeric'},
+		{name:'monto_compra_orig_100', type: 'numeric'},
+		{name:'monto_compra_orig_ant', type: 'numeric'},
+		{name:'monto_compra_orig_100_ant', type: 'numeric'}
 	],
 	sortInfo:{
 		field: 'id_activo_fijo_modificacion',
@@ -414,35 +519,59 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.ActivoFijoModificacion.superclass.onButtonNew.call(this);
 		this.Cmp.oficina_ant.setValue(this.maestro.oficina);
 		this.Cmp.ubicacion_ant_tmp.setValue(this.maestro.ubicacion);
+		this.Cmp.id_moneda_ant_tmp.setValue(this.maestro.desc_moneda_orig);
+		this.Cmp.monto_compra_orig_ant_tmp.setValue(this.maestro.monto_compra_orig);
+		this.Cmp.monto_compra_orig_100_ant_tmp.setValue(this.maestro.monto_compra_orig_100);
+		console.log('qqqqqq',this.maestro);
     },
     onSelectTipo: function(combo,record,index){
     	//Por defecto se permite nulo a todos los componentes
 		this.Cmp.id_oficina.allowBlank=true;
 		this.Cmp.ubicacion.allowBlank=true;
 		this.Cmp.observaciones.allowBlank=true;
+		this.Cmp.id_moneda.allowBlank=true;
+		this.Cmp.monto_compra_orig.allowBlank=true;
+		this.Cmp.monto_compra_orig_100.allowBlank=true;
+
+		this.Cmp.id_oficina.setVisible(false);
+		this.Cmp.ubicacion.setVisible(false);
+		this.Cmp.observaciones.setVisible(false);
+		this.Cmp.id_moneda.setVisible(false);
+		this.Cmp.monto_compra_orig.setVisible(false);
+		this.Cmp.monto_compra_orig_100.setVisible(false);
 
 		this.Cmp.id_oficina.setValue('');
 		this.Cmp.ubicacion.setValue('');
 		this.Cmp.observaciones.setValue('');
+		this.Cmp.id_moneda.setValue('');
+		this.Cmp.monto_compra_orig.setValue('');
+		this.Cmp.monto_compra_orig_100.setValue('');
 
     	//Habilita/deshabilita componentes en función de la selección realizada
     	if(record.id==1){
     		//Dirección
-    		this.Cmp.id_oficina.setDisabled(false);
-    		this.Cmp.ubicacion.setDisabled(false);
-    		this.Cmp.observaciones.setDisabled(false);
+    		this.Cmp.id_oficina.setVisible(true);
+    		this.Cmp.ubicacion.setVisible(true);
+    		this.Cmp.observaciones.setVisible(true);
 
     		this.Cmp.id_oficina.allowBlank=false;
 			this.Cmp.ubicacion.allowBlank=false;
 
     	} else if(record.id==2){
     		//Notas
-    		this.Cmp.id_oficina.setDisabled(true);
-    		this.Cmp.ubicacion.setDisabled(true);
-    		this.Cmp.observaciones.setDisabled(false);
+    		this.Cmp.observaciones.setVisible(true);
 
 			this.Cmp.observaciones.allowBlank=false;
 
+    	} else if(record.id==3){
+    		this.Cmp.id_moneda.setVisible(true);
+			this.Cmp.monto_compra_orig.setVisible(true);
+			this.Cmp.monto_compra_orig_100.setVisible(true);
+			this.Cmp.observaciones.setVisible(true);
+
+			this.Cmp.id_moneda.allowBlank=false;
+			this.Cmp.monto_compra_orig.allowBlank=false;
+			this.Cmp.monto_compra_orig_100.allowBlank=false;
     	}
     },
     agregarArgsExtraSubmit: function(){
@@ -456,7 +585,11 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 			//Dirección
 			this.argumentExtraSubmit.id_oficina_ant = this.maestro.id_oficina;
 			this.argumentExtraSubmit.ubicacion_ant = this.maestro.ubicacion;
-		} 
+		} else if(tipo==3) {
+			this.argumentExtraSubmit.id_moneda_ant = this.maestro.id_moneda_orig;
+			this.argumentExtraSubmit.monto_compra_orig_ant = this.maestro.monto_compra_orig;
+			this.argumentExtraSubmit.monto_compra_orig_100_ant = this.maestro.monto_compra_orig_100;
+		}
 	},
 	Grupos: [{
         layout: 'anchor',
