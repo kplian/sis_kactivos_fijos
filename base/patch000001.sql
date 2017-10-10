@@ -946,7 +946,6 @@ COMMENT ON COLUMN kaf.tmovimiento_motivo.plantilla_cbte
 IS 'Código de la Plantilla de Comprobante';
 /***********************************F-SCP-RCM-KAF-1-25/08/2017****************************************/
 
-
 /***********************************I-SCP-RCM-KAF-1-05/10/2017****************************************/
 ALTER TABLE kaf.tactivo_fijo
   ADD COLUMN fecha_asignacion date;
@@ -989,3 +988,28 @@ ALTER TABLE kaf.tactivo_fijo_modificacion
 COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig_100_ant
 IS 'Monto de compra (100) anterior en el caso de modificación de importe de compra antes de depreciar';
 /***********************************F-SCP-RCM-KAF-1-06/10/2017****************************************/
+
+/***********************************I-SCP-RAC-KAF-1-06/10/2017****************************************/
+CREATE TABLE kaf.tprorrateo_af (
+  id_prorrateo_af BIGSERIAL,
+  id_movimiento_af INTEGER NOT NULL,
+  id_activo_fijo_valor VARCHAR(20) NOT NULL,
+  id_centro_costo INTEGER,
+  id_ot INTEGER,
+  id_cuenta INTEGER,
+  id_partida INTEGER,
+  id_auxiliar INTEGER,
+  depreciacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
+  actualizacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
+  CONSTRAINT table_pkey PRIMARY KEY(id_prorrateo_af)
+) 
+WITH (oids = false);
+
+ALTER TABLE kaf.tprorrateo_af
+  ALTER COLUMN id_activo_fijo_valor SET STATISTICS 0;
+
+COMMENT ON COLUMN kaf.tprorrateo_af.id_centro_costo
+IS 'usamos centro de costos para  el csoteo, la gestion del movimiento asumimos que todo proceso de depreciacion solo se hace por una gestion';
+
+/***********************************F-SCP-RAC-KAF-1-06/10/2017****************************************/
+
