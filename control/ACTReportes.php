@@ -84,7 +84,7 @@ class ACTReportes extends ACTbase {
 			$this->objParam->addFiltro("afij.denominacion ilike ''%".$this->objParam->getParametro('denominacion')."%''");
 		}
 		if($this->objParam->getParametro('fecha_compra')!=''){
-			$this->objParam->addFiltro("afij.fecha_compra = ''".$this->objParam->getParametro('fecha_compra')."''");
+			$this->objParam->addFiltro("afij.fecha_compra >= ''".$this->objParam->getParametro('fecha_compra')."''");
 		}
 		if($this->objParam->getParametro('fecha_ini_dep')!=''){
 			$this->objParam->addFiltro("afij.fecha_ini_dep = ''".$this->objParam->getParametro('fecha_ini_dep')."''");
@@ -151,6 +151,16 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('id_deposito')!=''){
 			$this->objParam->addFiltro("afij.id_deposito = ".$this->objParam->getParametro('id_deposito'));
 		}
+		if($this->objParam->getParametro('monto_inf')!=''){
+			$this->objParam->addFiltro("afij.monto_compra >= ".$this->objParam->getParametro('monto_inf'));
+		}
+		if($this->objParam->getParametro('monto_sup')!=''){
+			$this->objParam->addFiltro("afij.monto_compra <= ".$this->objParam->getParametro('monto_sup'));
+		}
+		if($this->objParam->getParametro('fecha_compra_max')!=''){
+			$this->objParam->addFiltro("afij.fecha_compra <= ''".$this->objParam->getParametro('fecha_compra_max')."''");
+		}
+
 
 
 		//Verifica si la petición es para elk reporte en excel o de grilla
@@ -161,7 +171,23 @@ class ACTReportes extends ACTbase {
 		} else {
 			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 				$this->objReporte = new Reporte($this->objParam,$this);
-				$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
+				
+				//$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
+				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
+				//$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepAsignados')
+
+				//$this->objReporte = new Reporte($this->objParam,$this);
+				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
+
+
+
+				//$aux = '$this->res = $this->objReporte->generarReporteListado(\'MODReportes\',\''.$this->objParam->getParametro('rep_metodo_list')."')";
+
+				//var_dump($aux);exit;
+				//eval($aux);
+
+				$metodo=$this->objParam->getParametro('rep_metodo_list');
+				$this->res = $this->objReporte->generarReporteListado('MODReportes',$metodo);
 			} else {
 				$this->objFunc=$this->create('MODReportes');
 

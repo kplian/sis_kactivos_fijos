@@ -2,11 +2,11 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ParametrosRepAsignados = {
+Phx.vista.ParametrosRepEnDeposito = {
 	require: '../../../sis_kactivos_fijos/vista/reportes/ParametrosBase.php',
 	requireclase: 'Phx.vista.ParametrosBase',
 	constructor: function(config){
-		Phx.vista.ParametrosRepAsignados.superclass.constructor.call(this,config);
+		Phx.vista.ParametrosRepEnDeposito.superclass.constructor.call(this,config);
 		this.definicionRutareporte();
 		this.definirParametros();
 
@@ -38,11 +38,16 @@ Phx.vista.ParametrosRepAsignados = {
 		this.cmbOficina.on('select',function(combo,record,index){
 			this.repOficina = record.data['nombre'];
 		}, this);
+
+		//Depósito
+		this.cmbDeposito.on('select',function(combo,record,index){
+			this.repDeposito = record.data['nombre'];
+		}, this);
 	},
 	definicionRutareporte: function(report){
-		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteAsignados.php';
-		this.claseReporte = 'ReporteAsignados';
-		this.titleReporte = 'Reportes asignados';
+		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteEnDeposito.php';
+		this.claseReporte = 'ReporteEnDeposito';
+		this.titleReporte = 'Reporte Activos Fijos asignados por Depósito';
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();
@@ -54,19 +59,19 @@ Phx.vista.ParametrosRepAsignados = {
 		this.configElement(this.cmbClasificacion,true,true);
 		this.configElement(this.txtDenominacion,true,true);
 		this.configElement(this.dteFechaCompra,true,true);
-		this.configElement(this.dteFechaIniDep,true,true);
-		this.configElement(this.cmbEstado,true,true);
+		this.configElement(this.dteFechaIniDep,false,true);
+		this.configElement(this.cmbEstado,false,true);
 		this.configElement(this.cmbCentroCosto,false,true);
-		this.configElement(this.txtUbicacionFisica,true,true);
-		this.configElement(this.cmbOficina,true,true);
-		this.configElement(this.cmbResponsable,true,false);
+		this.configElement(this.txtUbicacionFisica,false,true);
+		this.configElement(this.cmbOficina,false,true);
+		this.configElement(this.cmbResponsable,false,true);
 		this.configElement(this.cmbUnidSolic,false,true);
 		this.configElement(this.cmbResponsableCompra,false,true);
 		this.configElement(this.cmbLugar,false,true);
 		this.configElement(this.radGroupTransito,false,true);
-		this.configElement(this.radGroupTangible,true,true);
-		this.configElement(this.cmbDepto,true,true);
-		this.configElement(this.cmbDeposito,false,true);
+		this.configElement(this.radGroupTangible,false,true);
+		this.configElement(this.cmbDepto,false,true);
+		this.configElement(this.cmbDeposito,true,false);
 		this.configElement(this.lblHasta,false,true);
 		this.configElement(this.cmpFechas,false,true);
 		this.configElement(this.txtMontoInf,true,true);
@@ -78,8 +83,9 @@ Phx.vista.ParametrosRepAsignados = {
 		this.configElement(this.cmbMoneda,false,true);
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,true,true);
+		this.configElement(this.txtNroCbteAsociado,false,true);
 
-		this.configElement(this.fieldSetIncluir,true,true);
+		this.configElement(this.fieldSetIncluir,false,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
 	onSubmit: function(){
@@ -104,7 +110,8 @@ Phx.vista.ParametrosRepAsignados = {
 			repResponsable: this.repResponsable,
 			repCargo: this.repCargo,
 			repDepto: this.repDepto,
-			repOficina: this.repOficina
+			repOficina: this.repOficina,
+			repDeposito: this.repDeposito
 		}
 		return params;
 	}

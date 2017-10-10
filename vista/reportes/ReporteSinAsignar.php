@@ -1,7 +1,7 @@
 <?php
 /**
 *@package pXP
-*@file ReporteAsignados.php
+*@file ReporteSinAsignar.php
 *@author  RCM
 *@date 06/10/2017
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
@@ -9,18 +9,18 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ReporteAsignados=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ReporteSinAsignar=Ext.extend(Phx.gridInterfaz,{
 	bnew: false,
 	bedit: false,
 	bdel: false,
 	bsave: false,
-	metodoList: 'listarRepAsignados',
+	metodoList: 'listarRepSinAsignar',
 
 	constructor:function(config){
 		this.maestro=config;
 		console.log('data',this.maestro);
     	//llama al constructor de la clase padre
-		Phx.vista.ReporteAsignados.superclass.constructor.call(this,config);
+		Phx.vista.ReporteSinAsignar.superclass.constructor.call(this,config);
 		this.init();
 		this.store.baseParams = {
 			start: 0, 
@@ -181,21 +181,6 @@ Phx.vista.ReporteAsignados=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},
-		{
-			config:{
-				name: 'responsable',
-				fieldLabel: 'Responsable',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:50
-			},
-				type:'TextField',
-				filters:{pfiltro:'fun.desc_funcionario2',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
 		}
 	],
 	tam_pag:50,	
@@ -217,24 +202,15 @@ Phx.vista.ReporteAsignados=Ext.extend(Phx.gridInterfaz,{
 		field: 'codigo',
 		direction: 'ASC'
 	},
-	title2: 'DETALLE DE ACTIVOS FIJOS  POR RESPONSABLE',
+	title2: 'DETALLE DE ACTIVOS FIJOS SIN ASIGNACIÓN',
 	desplegarMaestro: 'si',
-	repFilaInicioEtiquetas: 45,
+	repFilaInicioEtiquetas: 30,
 	repFilaInicioDatos: 3,
 	pdfOrientacion: 'L',
 	definiirReporteCabecera: function(){
 		this.colMaestro= [{
-			label: 'RESPONSABLE',
-			value: this.maestro.paramsRep.repResponsable
-		}, {
-			label: 'OFICINA',
-			value: this.maestro.paramsRep.repOficina
-		}, {
-			label: 'CARGO',
-			value: this.maestro.paramsRep.repCargo
-		}, {
-			label: 'DEPTO.',
-			value: this.maestro.paramsRep.repDepto
+			label: 'DEPÓSITO',
+			value: this.maestro.paramsRep.repDeposito
 		}]
 	}
 })

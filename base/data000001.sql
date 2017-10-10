@@ -9,7 +9,7 @@ select pxp.f_insert_tgui ('K - ACTIVOS FIJOS', '', 'KAF', 'si',1 , '', 1, '../..
 select pxp.f_insert_tgui ('Clasificación', 'Clasificación de activos fijos', 'KAFCLA', 'si', 1, 'sis_kactivos_fijos/vista/clasificacion/Clasificacion.php', 2, '', 'ClasificacionAF', 'KAF');
 select pxp.f_insert_tgui ('Principal', 'Interfaz principal', 'KAFACF', 'si', 2, 'sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php', 2, '', 'ActivoFijo', 'KAF');
 select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/Movimiento.php', 2, '', 'Movimiento', 'KAF');
-select pxp.f_insert_tgui ('Reportes', 'Reportes', 'KAFREP', 'si', 4, '', 2, '', '', 'ALM');
+select pxp.f_insert_tgui ('Reportes', 'Reportes', 'KAFREP', 'si', 4, '', 2, '', '', 'KAF');
 
 select pxp.f_insert_testructura_gui ('KAF', 'SISTEMA');
 select pxp.f_insert_testructura_gui ('KAFCLA', 'KAF');
@@ -299,8 +299,12 @@ select pxp.f_insert_testructura_gui ('KAF.REP.02', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-1-04/10/2017****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-05/10/2017****************************************/
-select pxp.f_insert_tgui ('Activos Fijos Asignados', 'Activos Fijos asignados a funcionarios de la institución', 'KAF.REP.03', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAsignados.php', 3, '', 'ParametrosRepAsignados', 'KAF');
-select pxp.f_insert_tgui ('Activos Fijos en Depósito', 'Activos Fijos en depósito disponibles para asignación', 'KAF.REP.04', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepSinAsignar.php', 3, '', 'ParametrosRepSinAsignar', 'KAF');
-select pxp.f_insert_testructura_gui ('KAF.REP.03', 'KAFREP');
-select pxp.f_insert_testructura_gui ('KAF.REP.04', 'KAFREP');
+select pxp.f_insert_tgui ('Asignación Activos Fijos', 'Reportes sobre la asignación de activos fijos', 'KAFREP.1', 'si', 4, '', 2, '', '', 'KAF');
+select pxp.f_insert_tgui ('Asignados', 'Activos Fijos asignados a funcionarios de la institución', 'KAF.REP.03', 'si', 1, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAsignados.php', 3, '', 'ParametrosRepAsignados', 'KAF');
+select pxp.f_insert_tgui ('Asignados por Depósito', 'Activos Fijos asignados por Depósito', 'KAF.REP.04', 'si', 2, 'sis_kactivos_fijos/vista/reportes/ParametrosRepEnDeposito.php', 3, '', 'ParametrosRepEnDeposito', 'KAF');
+select pxp.f_insert_tgui ('Sin Asignar', 'Activos Fijos en depósito disponibles para asignación', 'KAF.REP.05', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepSinAsignar.php', 3, '', 'ParametrosRepSinAsignar', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFREP.1', 'KAFREP');
+select pxp.f_insert_testructura_gui ('KAF.REP.03', 'KAFREP.1');
+select pxp.f_insert_testructura_gui ('KAF.REP.04', 'KAFREP.1');
+select pxp.f_insert_testructura_gui ('KAF.REP.05', 'KAFREP.1');
 /***********************************F-DAT-RCM-KAF-1-05/10/2017****************************************/

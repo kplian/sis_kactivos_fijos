@@ -122,10 +122,25 @@ Ext.define('Phx.vista.ParametrosBase', {
 			width: '100%'
 		});
 		this.dteFechaCompra = new Ext.form.DateField({
-			fieldLabel: 'Fecha Compra',
+			fieldLabel: 'Fecha Compra Inf.',
 			//format: 'd/m/Y', 
 			dateFormat:'Y-m-d'
 		});
+		this.dteFechaCompraMax = new Ext.form.DateField({
+			fieldLabel: 'Fecha Compra Sup.',
+			//format: 'd/m/Y', 
+			dateFormat:'Y-m-d'
+		});
+		this.lblFechaCompraInf = new Ext.form.Label({
+			text: '>= '
+		});
+		this.lblFechaCompraSup = new Ext.form.Label({
+			text: '<= '
+		});
+		this.cmpFechaCompra = new Ext.form.CompositeField({
+        	fieldLabel: 'Fecha Compra ',
+        	items: [this.lblFechaCompraInf,this.dteFechaCompra,this.lblFechaCompraSup,this.dteFechaCompraMax]
+        });
 		this.dteFechaIniDep = new Ext.form.DateField({
 			fieldLabel: 'Fecha Ini.Dep.',
 			format: 'd/m/Y', 
@@ -396,7 +411,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.fieldSetGeneral = new Ext.form.FieldSet({
         	collapsible: true,
         	title: 'General',
-        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.dteFechaCompra,this.cmpMontos,this.txtNroCbteAsociado,
+        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
 				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito]
         });
@@ -437,7 +452,7 @@ Ext.define('Phx.vista.ParametrosBase', {
             items: [{
             	region: 'west',
             	collapsible: true,
-            	width: '30%',
+            	width: '70%',
             	split: true,
             	title: 'Parámetros',
             	items: this.formParam
@@ -476,10 +491,13 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbDeposito.setValue('');
 		this.cmbMoneda.setValue('');
 		this.moneda='';
+		this.dteFechaCompraMax.setValue('');
+		this.txtMontoInf.setValue('');
+		this.txtMontoSup.setValue('');
+		this.txtNroCbteAsociado.setValue('');
 
 		this.cmbClasificacion.selectedIndex=-1;
 
-		console.log('clasifi',this.cmbClasificacion.getValue())
 	},
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
@@ -504,14 +522,14 @@ Ext.define('Phx.vista.ParametrosBase', {
 	},
 	getParams: function(){
 		//Fechas
-		var _fecha_desde = this.dteFechaDesde.getValue(),
-			_fecha_hasta = this.dteFechaHasta.getValue(),
-			_fecha_compra = this.dteFechaCompra.getValue(),
-			_fecha_ini_dep = this.dteFechaIniDep.getValue(),
-			_id_clasificacion;
+		var _fecha_desde,
+			_fecha_hasta,
+			_fecha_compra,
+			_fecha_ini_dep,
+			_id_clasificacion,
+			_fecha_compra_max;
 
 		//Clasificación (por el problema de que getvalue devuelve la descripción y no el valor ¡?¡??)
-		console.log('aaaa',this.cmbClasificacion.selectedIndex);
 		if(this.cmbClasificacion.selectedIndex!=-1){
 			_id_clasificacion = this.cmbClasificacion.store.getAt(this.cmbClasificacion.selectedIndex).id;
 		}
@@ -520,7 +538,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 		if(this.dteFechaHasta.getValue()) _fecha_hasta = this.dteFechaHasta.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaCompra.getValue()) _fecha_compra = this.dteFechaCompra.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaIniDep.getValue()) _fecha_ini_dep = this.dteFechaIniDep.getValue().dateFormat('Y-m-d');
-		return {
+		if(this.dteFechaCompraMax.getValue()) _fecha_compra_max = this.dteFechaCompraMax.getValue().dateFormat('Y-m-d');
+
+		//Parametros
+		var params = {
 			titleReporte: this.titleReporte,
 			reporte: this.cmbReporte.getValue(),
 			fecha_desde: _fecha_desde,
@@ -547,8 +568,15 @@ Ext.define('Phx.vista.ParametrosBase', {
 			desc_moneda: this.moneda,
 			monto_inf: this.txtMontoInf.getValue(),
 			monto_sup: this.txtMontoSup.getValue(),
-			nro_cbte_asociado: this.txtNroCbteAsociado.getValue()
+			nro_cbte_asociado: this.txtNroCbteAsociado.getValue(),
+			fecha_compra_max: _fecha_compra_max
 		};
+
+		Ext.apply(params,this.getExtraParams());
+
+		console.log('qqqqqqq',this.getExtraParams());
+
+		return params;
 	},
 	cargaReportes: function(){
 
@@ -642,6 +670,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.configElement(this.cmpMontos,true,true);
 		this.configElement(this.cmbMoneda,true,true);
 		this.configElement(this.radGroupEstadoMov,true,true);
+		this.configElement(this.cmpFechaCompra,true,true);
 
 		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,true,true);

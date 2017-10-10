@@ -1,7 +1,7 @@
 <?php
 /**
 *@package pXP
-*@file ReporteAsignados.php
+*@file ReporteEnDeposito.php
 *@author  RCM
 *@date 06/10/2017
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
@@ -9,18 +9,17 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ReporteAsignados=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ReporteEnDeposito=Ext.extend(Phx.gridInterfaz,{
 	bnew: false,
 	bedit: false,
 	bdel: false,
 	bsave: false,
-	metodoList: 'listarRepAsignados',
+	metodoList: 'listarRepEnDeposito',
 
 	constructor:function(config){
 		this.maestro=config;
-		console.log('data',this.maestro);
     	//llama al constructor de la clase padre
-		Phx.vista.ReporteAsignados.superclass.constructor.call(this,config);
+		Phx.vista.ReporteEnDeposito.superclass.constructor.call(this,config);
 		this.init();
 		this.store.baseParams = {
 			start: 0, 
@@ -217,24 +216,15 @@ Phx.vista.ReporteAsignados=Ext.extend(Phx.gridInterfaz,{
 		field: 'codigo',
 		direction: 'ASC'
 	},
-	title2: 'DETALLE DE ACTIVOS FIJOS  POR RESPONSABLE',
+	title2: 'DETALLE DE ACTIVOS FIJOS ASIGNADOS POR DEPÓSITO',
 	desplegarMaestro: 'si',
-	repFilaInicioEtiquetas: 45,
+	repFilaInicioEtiquetas: 30,
 	repFilaInicioDatos: 3,
 	pdfOrientacion: 'L',
 	definiirReporteCabecera: function(){
 		this.colMaestro= [{
-			label: 'RESPONSABLE',
-			value: this.maestro.paramsRep.repResponsable
-		}, {
-			label: 'OFICINA',
-			value: this.maestro.paramsRep.repOficina
-		}, {
-			label: 'CARGO',
-			value: this.maestro.paramsRep.repCargo
-		}, {
-			label: 'DEPTO.',
-			value: this.maestro.paramsRep.repDepto
+			label: 'DEPÓSITO',
+			value: this.maestro.paramsRep.repDeposito
 		}]
 	}
 })
