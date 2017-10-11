@@ -1002,8 +1002,8 @@ CREATE TABLE kaf.tprorrateo_af (
   depreciacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
   actualizacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
   CONSTRAINT table_pkey PRIMARY KEY(id_prorrateo_af)
-) 
-WITH (oids = false);
+) inherits (pxp.tbase) without oids;
+
 
 ALTER TABLE kaf.tprorrateo_af
   ALTER COLUMN id_activo_fijo_valor SET STATISTICS 0;

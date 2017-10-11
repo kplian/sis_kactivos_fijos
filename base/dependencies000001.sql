@@ -1340,3 +1340,102 @@ AS
 /***********************************F-DEP-RCM-KAF-1-06/10/2017****************************************/
 
       
+
+/***********************************I-DEP-RAC-KAF-1-11/10/2017****************************************/
+
+CREATE OR REPLACE VIEW kaf.v_cbte_depreciacion_haber(
+    id_fila,
+    id_cuenta_dep_acum,
+    id_partida_dep_acum,
+    id_auxiliar_dep_aucm,
+    depreciacion_acum,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_dep_acum,
+         pa.id_partida_dep_acum,
+         pa.id_auxiliar_dep_aucm,
+         sum(pa.depreciacion_acum) AS depreciacion_acum,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_dep_acum IS NOT NULL
+  GROUP BY pa.id_cuenta_dep_acum,
+           pa.id_partida_dep_acum,
+           pa.id_auxiliar_dep_aucm,
+           maf.id_movimiento;
+           
+CREATE OR REPLACE VIEW kaf.v_cbte_depreciacion_debe(
+    id_fila,
+    id_centro_costo,
+    id_ot,
+    id_cuenta_dep,
+    id_partida_dep,
+    id_auxiliar_dep,
+    depreciacion,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_centro_costo,
+         pa.id_ot,
+         pa.id_cuenta_dep,
+         pa.id_partida_dep,
+         pa.id_auxiliar_dep,
+         sum(pa.depreciacion) AS depreciacion,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  GROUP BY pa.id_centro_costo,
+           pa.id_ot,
+           pa.id_cuenta_dep,
+           pa.id_partida_dep,
+           pa.id_auxiliar_dep,
+           maf.id_movimiento;           
+
+CREATE OR REPLACE VIEW kaf.v_cbte_aitb_haber(
+    id_fila,
+    id_cuenta_act_dep,
+    id_partida_act_dep,
+    id_auxiliar_act_dep,
+    aitb_dep_acum,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_act_dep,
+         pa.id_partida_act_dep,
+         pa.id_auxiliar_act_dep,
+         sum(pa.aitb_dep_acum) AS aitb_dep_acum,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_act_dep IS NOT NULL
+  GROUP BY pa.id_cuenta_act_dep,
+           pa.id_partida_act_dep,
+           pa.id_auxiliar_act_dep,
+           maf.id_movimiento;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_aitb_debe(
+    id_fila,
+    id_cuenta_act_activo,
+    id_partida_act_activo,
+    id_auxiliar_act_activo,
+    aitb_activo,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_act_activo,
+         pa.id_partida_act_activo,
+         pa.id_auxiliar_act_activo,
+         sum(pa.aitb_activo) AS aitb_activo,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_act_activo IS NOT NULL
+  GROUP BY pa.id_cuenta_act_activo,
+           pa.id_partida_act_activo,
+           pa.id_auxiliar_act_activo,
+           maf.id_movimiento;
+           
+           
+/***********************************F-DEP-RAC-KAF-1-11/10/2017****************************************/
+
