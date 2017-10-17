@@ -996,20 +996,30 @@ CREATE TABLE kaf.tprorrateo_af (
   id_activo_fijo_valor VARCHAR(20) NOT NULL,
   id_centro_costo INTEGER,
   id_ot INTEGER,
-  id_cuenta INTEGER,
-  id_partida INTEGER,
-  id_auxiliar INTEGER,
+  id_cuenta_dep INTEGER,
+  id_partida_dep INTEGER,
+  id_auxiliar_dep INTEGER,
+  id_cuenta_dep_acum INTEGER,
+  id_partida_dep_acum INTEGER,
+  id_auxiliar_dep_aucm INTEGER,
+  id_cuenta_act_activo INTEGER,
+  id_partida_act_activo INTEGER,
+  id_auxiliar_act_activo INTEGER,
+  id_cuenta_act_dep INTEGER,
+  id_partida_act_dep INTEGER,
+  id_auxiliar_act_dep INTEGER,
   depreciacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
-  actualizacion NUMERIC(8,2) DEFAULT 0 NOT NULL,
+  depreciacion_acum NUMERIC(8,2) DEFAULT 0 NOT NULL,
+  aitb_activo NUMERIC(8,2) DEFAULT 0 NOT NULL,
+  aitb_dep_acum NUMERIC(8,2) NOT NULL,
   CONSTRAINT table_pkey PRIMARY KEY(id_prorrateo_af)
-) inherits (pxp.tbase) without oids;
-
+) 
+WITH (oids = false);
 
 ALTER TABLE kaf.tprorrateo_af
   ALTER COLUMN id_activo_fijo_valor SET STATISTICS 0;
 
 COMMENT ON COLUMN kaf.tprorrateo_af.id_centro_costo
-IS 'usamos centro de costos para  el csoteo, la gestion del movimiento asumimos que todo proceso de depreciacion solo se hace por una gestion';
-
+IS 'usamos centro de costos apr ala gestion del movimeino, asumimos que odo procesos de depreicacion solo se hace por una gestion';
 /***********************************F-SCP-RAC-KAF-1-06/10/2017****************************************/
 
