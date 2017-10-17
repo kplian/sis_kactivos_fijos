@@ -168,7 +168,7 @@ BEGIN
                             claf.tipo_activo,
                             claf.depreciable,
                             claf.contabilizar,
-                            (select kaf.f_get_codigo_clasificacion_rec(claf.id_clasificacion)) as codigo_final,
+                            claf.codigo_completo_tmp as codigo_final,
                             round(claf.vida_util / 12,2)::numeric as vida_util_anios
 						from kaf.tclasificacion claf
 						inner join segu.tusuario usu1 on usu1.id_usuario = claf.id_usuario_reg

@@ -989,3 +989,26 @@ ALTER TABLE kaf.tactivo_fijo_modificacion
 COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig_100_ant
 IS 'Monto de compra (100) anterior en el caso de modificación de importe de compra antes de depreciar';
 /***********************************F-SCP-RCM-KAF-1-06/10/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-16/10/2017****************************************/
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN prestamo varchar(2);
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN fecha_dev_prestamo date;
+
+COMMENT ON COLUMN kaf.tmovimiento.prestamo
+IS 'Bandera que indica si la asignación es de tipo Préstamo';
+COMMENT ON COLUMN kaf.tmovimiento.fecha_dev_prestamo
+IS 'Fecha en la que se debería devolver el préstamos realizado';
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN prestamo varchar(2);
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN fecha_dev_prestamo date;
+
+COMMENT ON COLUMN kaf.tmovimiento.prestamo
+IS 'Bandera que indica si la asignación es de tipo Préstamo';
+COMMENT ON COLUMN kaf.tmovimiento.fecha_dev_prestamo
+IS 'Fecha en la que se debería devolver el préstamos realizado';
+
+/***********************************F-SCP-RCM-KAF-1-16/10/2017****************************************/

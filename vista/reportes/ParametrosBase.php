@@ -38,9 +38,12 @@ Ext.define('Phx.vista.ParametrosBase', {
 		});
 		this.dteFechaDesde = new Ext.form.DateField({
 			id: this.idContenedor+'_dteFechaDesde',
-			fieldLabel: 'Desde',
+			fieldLabel: 'Fecha',
 			vtype: 'daterange',
 			endDateField: this.idContenedor+'_dteFechaHasta'
+		});
+		this.lblDesde = new Ext.form.Label({
+			text: 'Desde: '
 		});
 		this.dteFechaHasta = new Ext.form.DateField({
 			id: this.idContenedor+'_dteFechaHasta',
@@ -52,8 +55,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			text: 'Hasta: '
 		});
 		this.cmpFechas = new Ext.form.CompositeField({
-        	fieldLabel: 'Desde',
-        	items: [this.dteFechaDesde,this.lblHasta,this.dteFechaHasta]
+        	fieldLabel: 'Fechas',
+        	items: [this.lblDesde,this.dteFechaDesde,this.lblHasta,this.dteFechaHasta]
         });
 		this.cmbClasificacion = new Ext.form.ComboBox({
 			fieldLabel: 'Clasificación',
@@ -660,6 +663,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.configElement(this.radGroupTangible,true,true);
 		this.configElement(this.cmbDepto,true,true);
 		this.configElement(this.cmbDeposito,true,true);
+		this.configElement(this.lblDesde,true,true);
 		this.configElement(this.lblHasta,true,true);
 		this.configElement(this.cmpFechas,true,true);
 		this.configElement(this.txtMontoInf,true,true);

@@ -156,7 +156,7 @@ Phx.vista.MovimientoPrincipal = {
     },
 
     habilitarCampos: function(mov){
-    	var swDireccion=false,swFechaHasta=false,swFuncionario=false,swOficina=false,swPersona=false,h=130,w=450,swDeptoDest=false,swDepositoDest=false,swFuncionarioDest=false,swCatMovMotivo=false;
+    	var swDireccion=false,swFechaHasta=false,swFuncionario=false,swOficina=false,swPersona=false,h=130,w=450,swDeptoDest=false,swDepositoDest=false,swFuncionarioDest=false,swCatMovMotivo=false,swPrestamo=false,swTipoAsig=false;
 
     	//Muesta y habilita los campos basicos
     	this.Cmp.fecha_mov.setVisible(true);
@@ -187,6 +187,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDepositoDest=false;
     		swFuncionarioDest=false;
     		swCatMovMotivo=true;
+            swPrestamo=true;
     		h=381;
     	} else if(mov=='baja'||mov=='retiro'){
     		swDireccion=false;
@@ -231,6 +232,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDepositoDest=false;
     		swFuncionarioDest=false;
     		swCatMovMotivo=true;
+            swTipoAsig=true;
     		h=298;
     	} else if(mov=='ajuste'){
     		swDireccion=false;
@@ -264,6 +266,7 @@ Phx.vista.MovimientoPrincipal = {
     		swDepositoDest=false;
     		swFuncionarioDest=true;
     		swCatMovMotivo=true;
+            swTipoAsig=true;
     		h=415;
     	} else if(mov=='tranfdep'){
     		swDireccion=false;
@@ -321,6 +324,9 @@ Phx.vista.MovimientoPrincipal = {
     	this.Cmp.id_deposito_dest.setVisible(swDepositoDest);
     	this.Cmp.id_funcionario_dest.setVisible(swFuncionarioDest);
     	this.Cmp.id_movimiento_motivo.setVisible(swCatMovMotivo);
+        this.Cmp.prestamo.setVisible(swPrestamo);
+        this.Cmp.fecha_dev_prestamo.setVisible(swPrestamo);
+        this.Cmp.tipo_asig.setVisible(swTipoAsig);
 
     	//Set required or not
     	this.Cmp.direccion.allowBlank=!swDireccion;
@@ -332,6 +338,7 @@ Phx.vista.MovimientoPrincipal = {
     	this.Cmp.id_deposito_dest.allowBlank=!swDepositoDest;
     	this.Cmp.id_funcionario_dest.allowBlank=!swFuncionarioDest;
     	this.Cmp.id_movimiento_motivo.allowBlank=!swCatMovMotivo;
+        this.Cmp.tipo_asig.allowBlank=!swTipoAsig;
 
     	//Resize window
     	this.window.setSize(w,h);
@@ -516,6 +523,9 @@ Phx.vista.MovimientoPrincipal = {
     	this.Cmp.id_deposito_dest.hide();
     	this.Cmp.id_funcionario_dest.hide();
     	this.Cmp.id_movimiento_motivo.hide();
+        this.Cmp.prestamo.hide();
+        this.Cmp.fecha_dev_prestamo.hide();
+        this.Cmp.tipo_asig.hide();
     }  ,
     arrayDefaultColumHidden:['fecha_reg','usr_reg','fecha_mod','usr_mod','fecha_hasta','id_proceso_wf','id_estado_wf','id_funcionario','estado_reg','id_usuario_ai','usuario_ai','direccion','id_oficina'],
 	rowExpander: new Ext.ux.grid.RowExpander({
