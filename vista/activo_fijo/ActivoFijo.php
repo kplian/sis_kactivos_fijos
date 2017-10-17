@@ -11,6 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     dblclickEdit: true,
+    nombreVista: 'ActivoFijo',
     mainRegionPanel: {
         region:'west',
         collapsed: true,
