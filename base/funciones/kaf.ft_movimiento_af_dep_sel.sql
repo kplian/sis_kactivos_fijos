@@ -369,12 +369,15 @@ BEGIN
                                  afd.id_moneda,
                                  afd.id_moneda_dep
                           FROM kaf.tmovimiento_af_dep afd
-                          WHERE  afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
+                          inner join kaf.tactivo_fijo_valores afv on afv.id_activo_fijo_valor = afd.id_activo_fijo_valor
+                          WHERE       afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
+                                 and afv.id_activo_fijo = '||v_parametros.id_activo_fijo||' 
                           ORDER BY afd.id_activo_fijo_valor,
                                    afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
                         inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
                         WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)  
                                and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
+                               and  actval.id_activo_fijo = '||v_parametros.id_activo_fijo||'
                                and ';
 			
 			--Definicion de la respuesta
