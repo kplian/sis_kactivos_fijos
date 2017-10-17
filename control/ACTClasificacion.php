@@ -71,7 +71,7 @@ class ACTClasificacion extends ACTbase{
 
 		array_push($arreglo, array('nombre' => 'id', 'valor' => 'id_clasificacion'));
         array_push($arreglo, array('nombre' => 'id_p', 'valor' => 'id_clasificacion_fk'));
-        array_push($arreglo, array('nombre' => 'text', 'valores' => '[#codigo_final#]-#nombre# #descripcion#'));
+        array_push($arreglo, array('nombre' => 'text', 'valores' => '[#codigo_final#]-#nombre#'));
         array_push($arreglo, array('nombre' => 'cls', 'valor' => 'descripcion'));
         array_push($arreglo, array('nombre' => 'qtip', 'valores' => '<b>#codigo_final#</b><br/>#nombre# #descripcion#'));
 	

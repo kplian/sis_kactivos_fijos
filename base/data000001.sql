@@ -308,3 +308,13 @@ select pxp.f_insert_testructura_gui ('KAF.REP.03', 'KAFREP.1');
 select pxp.f_insert_testructura_gui ('KAF.REP.04', 'KAFREP.1');
 select pxp.f_insert_testructura_gui ('KAF.REP.05', 'KAFREP.1');
 /***********************************F-DAT-RCM-KAF-1-05/10/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-16/10/2017****************************************/
+select pxp.f_insert_tgui ('Detalle Depreciación', 'Detalle Activos Fijos', 'KAF.REP.06', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepDetalleDep.php', 3, '', 'ParametrosRepDetalleDep', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.06', 'KAFREP');
+
+select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Todos los Activos','todos','');
+select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Seleccionar','seleccionar','');
+/***********************************F-DAT-RCM-KAF-1-16/10/2017****************************************/
+
+

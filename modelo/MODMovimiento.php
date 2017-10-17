@@ -72,6 +72,8 @@ class MODMovimiento extends MODbase{
 		$this->captura('id_int_comprobante','int4');
 		$this->captura('id_int_comprobante_aitb','int4');
 		$this->captura('resp_wf','text');
+		$this->captura('prestamo','varchar');
+		$this->captura('fecha_prestamo','date');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -110,6 +112,10 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('id_funcionario_dest','id_funcionario_dest','int4');
 		$this->setParametro('id_movimiento_motivo','id_movimiento_motivo','int4');
 
+		$this->setParametro('tipo_asig','tipo_asig','varchar');
+		$this->setParametro('prestamo','prestamo','varchar');
+		$this->setParametro('fecha_dev_prestamo','fecha_dev_prestamo','date');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -147,6 +153,10 @@ class MODMovimiento extends MODbase{
 		$this->setParametro('id_deposito_dest','id_deposito_dest','int4');
 		$this->setParametro('id_funcionario_dest','id_funcionario_dest','int4');
 		$this->setParametro('id_movimiento_motivo','id_movimiento_motivo','int4');
+
+		$this->setParametro('tipo_asig','tipo_asig','varchar');
+		$this->setParametro('prestamo','prestamo','varchar');
+		$this->setParametro('fecha_dev_prestamo','fecha_dev_prestamo','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

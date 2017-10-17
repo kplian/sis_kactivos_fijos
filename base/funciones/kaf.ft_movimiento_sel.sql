@@ -124,7 +124,9 @@ BEGIN
 			            movmot.motivo,
 			            mov.id_int_comprobante,
 			            mov.id_int_comprobante_aitb,
-                        funwf.desc_funcionario2 as resp_wf
+                        funwf.desc_funcionario2 as resp_wf,
+            mov.prestamo,
+            mov.fecha_dev_prestamo
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod

@@ -86,7 +86,8 @@ DECLARE
     v_registros                   record;
     v_id_movimiento_af            integer;
     v_monto_compra_100            numeric; 
-    v_id_conf                     integer;      
+    v_id_conf                     integer;
+    v_reg_masivo                  boolean;
           
 BEGIN
 
@@ -108,37 +109,46 @@ BEGIN
   if(p_transaccion='SKA_MOV_INS')then
           
     begin
+        --Verificar bandera para registro masivo de Transferencias y Devoluciones
+        v_reg_masivo = false;
+        if coalesce(v_parametros.tipo_asig,'seleccionar') = 'todos' then
+            v_reg_masivo = true;
+        end if;
 
-      select
-      coalesce(v_parametros.direccion,null) as direccion,
-      coalesce(v_parametros.fecha_hasta,null) as fecha_hasta,
-      coalesce(v_parametros.id_cat_movimiento,null) as id_cat_movimiento,
-      coalesce(v_parametros.fecha_mov,null) as fecha_mov,
-      coalesce(v_parametros.id_depto,null) as id_depto,
-      coalesce(v_parametros.glosa,null) as glosa,
-      coalesce(v_parametros.id_funcionario,null) as id_funcionario,
-      coalesce(v_parametros.id_oficina,null) as id_oficina,
-      coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
-      coalesce(p_id_usuario,null) as id_usuario,
-      coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
-      coalesce(v_parametros.id_persona,null) as id_persona,
-      coalesce(v_parametros.codigo,null) as codigo,
-      coalesce(v_parametros.id_deposito,null) as id_deposito,
-      coalesce(v_parametros.id_depto_dest,null) as id_depto_dest,
-      coalesce(v_parametros.id_deposito_dest,null) as id_deposito_dest,
-      coalesce(v_parametros.id_funcionario_dest,null) as id_funcionario_dest,
-      coalesce(v_parametros.id_movimiento_motivo,null) as id_movimiento_motivo
-      into v_rec_af;
+        select
+        coalesce(v_parametros.direccion,null) as direccion,
+        coalesce(v_parametros.fecha_hasta,null) as fecha_hasta,
+        coalesce(v_parametros.id_cat_movimiento,null) as id_cat_movimiento,
+        coalesce(v_parametros.fecha_mov,null) as fecha_mov,
+        coalesce(v_parametros.id_depto,null) as id_depto,
+        coalesce(v_parametros.glosa,null) as glosa,
+        coalesce(v_parametros.id_funcionario,null) as id_funcionario,
+        coalesce(v_parametros.id_oficina,null) as id_oficina,
+        coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
+        coalesce(p_id_usuario,null) as id_usuario,
+        coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
+        coalesce(v_parametros.id_persona,null) as id_persona,
+        coalesce(v_parametros.codigo,null) as codigo,
+        coalesce(v_parametros.id_deposito,null) as id_deposito,
+        coalesce(v_parametros.id_depto_dest,null) as id_depto_dest,
+        coalesce(v_parametros.id_deposito_dest,null) as id_deposito_dest,
+        coalesce(v_parametros.id_funcionario_dest,null) as id_funcionario_dest,
+        coalesce(v_parametros.id_movimiento_motivo,null) as id_movimiento_motivo,
+        coalesce(v_parametros.prestamo,null) as prestamo,
+        coalesce(v_parametros.fecha_dev_prestamo,null) as fecha_dev_prestamo,
+        coalesce(v_parametros.tipo_asig,null) as tipo_asig,
+        v_reg_masivo as reg_masivo
+        into v_rec_af;
 
-      --Inserción del movimiento
-      v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
+        --Inserción del movimiento
+        v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
 
-      --Definicion de la respuesta
-      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
-      v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_id_movimiento::varchar);
+        --Definicion de la respuesta
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Movimiento de Activos Fijos almacenado(a) con exito (id_movimiento'||v_id_movimiento||')'); 
+        v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento',v_id_movimiento::varchar);
 
-      --Devuelve la respuesta
-      return v_resp;
+        --Devuelve la respuesta
+        return v_resp;
 
   end;
 
@@ -152,6 +162,12 @@ BEGIN
   elsif(p_transaccion='SKA_MOV_MOD')then
 
     begin
+
+        --Verificar bandera para registro masivo de Transferencias y Devoluciones
+        v_reg_masivo = false;
+        if coalesce(v_parametros.tipo_asig,'seleccionar') = 'todos' then
+            v_reg_masivo = true;
+        end if;
             
         --Edicion solo para estado borrador
         if not exists(select 1 from kaf.tmovimiento
@@ -239,7 +255,9 @@ BEGIN
                 id_depto_dest=v_parametros.id_depto_dest,
                 id_deposito_dest=v_parametros.id_deposito_dest,
                 id_funcionario_dest=v_parametros.id_funcionario_dest,
-                id_movimiento_motivo=v_parametros.id_movimiento_motivo
+                id_movimiento_motivo=v_parametros.id_movimiento_motivo,
+                prestamo = v_parametros.prestamo,
+                fecha_dev_prestamo = v_parametros.fecha_dev_prestamo
             where id_movimiento=v_parametros.id_movimiento;
 
             --Verifica el tipo de movimiento para aplicar reglas
@@ -289,28 +307,70 @@ BEGIN
                     
                     delete from kaf.tmovimiento_af where id_movimiento = v_parametros.id_movimiento;
 
-                    --Registra todos los activos del funcionario origen
-                    insert into kaf.tmovimiento_af(
-                        id_movimiento,
-                        id_activo_fijo,
-                        id_cat_estado_fun,
-                        estado_reg,
-                        fecha_reg,
-                        id_usuario_reg,
-                        fecha_mod
-                    )
-                    select
-                    v_id_movimiento,
-                    afij.id_activo_fijo,
-                    afij.id_cat_estado_fun,
-                    'activo',
-                    now(),
-                    p_id_usuario,
-                    null
-                    from kaf.tactivo_fijo afij
-                    where afij.id_funcionario = v_parametros.id_funcionario
-                    and afij.estado = 'alta'
-                    and afij.en_deposito = 'no';
+                    if v_reg_masivo then
+
+                        --Registra todos los activos del funcionario origen
+                        insert into kaf.tmovimiento_af(
+                            id_movimiento,
+                            id_activo_fijo,
+                            id_cat_estado_fun,
+                            estado_reg,
+                            fecha_reg,
+                            id_usuario_reg,
+                            fecha_mod
+                        )
+                        select
+                        v_parametros.id_movimiento,
+                        afij.id_activo_fijo,
+                        afij.id_cat_estado_fun,
+                        'activo',
+                        now(),
+                        p_id_usuario,
+                        null
+                        from kaf.tactivo_fijo afij
+                        where afij.id_funcionario = v_parametros.id_funcionario
+                        and afij.estado = 'alta'
+                        and afij.en_deposito = 'no';
+
+                    end if;
+
+                    
+
+                end if;
+
+
+            elsif v_cod_movimiento = 'devol' then
+
+                if v_rec.id_funcionario != v_parametros.id_funcionario then
+
+                    delete from kaf.tmovimiento_af where id_movimiento = v_parametros.id_movimiento;
+
+                    if v_reg_masivo then
+
+                        --Registra todos los activos del funcionario origen
+                        insert into kaf.tmovimiento_af(
+                            id_movimiento,
+                            id_activo_fijo,
+                            id_cat_estado_fun,
+                            estado_reg,
+                            fecha_reg,
+                            id_usuario_reg,
+                            fecha_mod
+                        )
+                        select
+                        v_parametros.id_movimiento,
+                        afij.id_activo_fijo,
+                        afij.id_cat_estado_fun,
+                        'activo',
+                        now(),
+                        p_id_usuario,
+                        null
+                        from kaf.tactivo_fijo afij
+                        where afij.id_funcionario = v_parametros.id_funcionario
+                        and afij.estado = 'alta'
+                        and afij.en_deposito = 'no';
+
+                    end if;
 
                 end if;
 
@@ -355,6 +415,10 @@ BEGIN
             where id_movimiento = v_parametros.id_movimiento;
 
             if v_rec.estado = 'borrador' then
+                if exists(select 1 from kaf.tmovimiento_af
+                    where id_movimiento = v_parametros.id_movimiento) then
+                  raise exception 'Elimine el detalle del Movimiento previamente y vuelva a intentarlo';
+                end if;
                 --Sentencia de la eliminacion
                 delete from kaf.tmovimiento
                 where id_movimiento=v_parametros.id_movimiento;
@@ -714,11 +778,13 @@ BEGIN
                     --Actualiza estado de activo fijo
                     update kaf.tactivo_fijo set
                     en_deposito = 'no',
-                    id_funcionario = mov.id_funcionario_dest,
+                    id_funcionario = coalesce(mov.id_funcionario_dest,mov.id_funcionario),
                     id_persona = mov.id_persona,
-                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    id_oficina = coalesce(mov.id_oficina,kaf.tactivo_fijo.id_oficina),
                     fecha_asignacion = mov.fecha_mov,
-                    ubicacion = mov.direccion
+                    ubicacion = mov.direccion,
+                    prestamo = mov.prestamo,
+                    fecha_dev_prestamo = mov.fecha_dev_prestamo
                     from kaf.tmovimiento_af movaf
                     inner join kaf.tmovimiento mov
                     on mov.id_movimiento = movaf.id_movimiento

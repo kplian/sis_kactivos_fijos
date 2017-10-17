@@ -843,6 +843,129 @@ BEGIN
             return v_consulta;
 
         end;
+
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RDETDEP_SEL'
+     #DESCRIPCION:  Reporte del Detalle de depreciación
+     #AUTOR:        RCM
+     #FECHA:        16/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RDETDEP_SEL') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+
+            --Consulta
+            v_consulta:=' SELECT 
+                              daf.id_moneda_dep,
+                              mod.descripcion as desc_moneda,
+                              daf.gestion_final::INTEGER,
+                              daf.tipo,
+                              cr.nombre_raiz,
+                              daf.fecha_ini_dep, 
+                              daf.id_movimiento,
+                              daf.id_movimiento_af,
+                              daf.id_activo_fijo_valor,
+                              daf.id_activo_fijo,
+                              daf.codigo,
+                              daf.id_clasificacion,  
+                              daf.descripcion,  
+                              daf.monto_vigente_orig,
+                              daf.monto_vigente_inicial,
+                              daf.monto_vigente_final,  
+                              daf.monto_actualiz_inicial,
+                              daf.monto_actualiz_final,
+                              daf.depreciacion_acum_inicial,
+                              daf.depreciacion_acum_final,  
+                              daf.aitb_activo,
+                              daf.aitb_depreciacion_acumulada,
+                              daf.vida_util_orig,
+                              daf.vida_util_inicial,
+                              daf.vida_util_final,
+                              daf.vida_util_orig - daf.vida_util_final as vida_util_trans,  
+                              cr.codigo_raiz,
+                              cr.id_claificacion_raiz,                              
+                              daf.depreciacion_per_final,
+                              daf.depreciacion_per_actualiz_final
+                            
+                          FROM kaf.vdetalle_depreciacion_activo daf
+                          INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
+                          INNER JOIN kaf.tmoneda_dep mod on mod.id_moneda_dep = daf.id_moneda_dep
+                          WHERE daf.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                        and daf.id_moneda = ' ||v_parametros.id_moneda||'
+                          ORDER BY 
+                              daf.id_moneda_dep,   
+                              daf.gestion_final, 
+                              daf.tipo,   
+                              cr.id_claificacion_raiz, 
+                              daf.id_clasificacion,
+                              id_activo_fijo_valor ,                                
+                              daf.fecha_ini_dep';
+
+
+            v_consulta:=v_consulta||' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RDETDEP_CONT'
+     #DESCRIPCION:  Reporte Detalle de depreciación
+     #AUTOR:        RCM
+     #FECHA:        16/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RDETDEP_CONT') then
+
+        begin
+
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
+            --Consulta
+            v_consulta:=' SELECT count(1) as total
+                          FROM kaf.vdetalle_depreciacion_activo daf
+                          INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
+                          INNER JOIN kaf.tmoneda_dep mod on mod.id_moneda_dep = daf.id_moneda_dep
+                          WHERE daf.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)
+                        and daf.id_moneda = ' ||v_parametros.id_moneda;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
      
     else
         raise exception 'Transacción inexistente';  

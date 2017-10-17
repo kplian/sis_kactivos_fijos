@@ -126,7 +126,10 @@ BEGIN
                             afij.nro_cbte_asociado,
                             afij.fecha_cbte_asociado,
                             round(afij.vida_util_original/12,2)::numeric as vida_util_original_anios,
-                            uo.nombre_cargo
+                            uo.nombre_cargo,
+                            afij.fecha_asignacion,
+                            afij.prestamo,
+                            afij.fecha_dev_prestamo
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun

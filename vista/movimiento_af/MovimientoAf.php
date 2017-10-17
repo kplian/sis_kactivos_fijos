@@ -117,7 +117,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			filters:{pfiltro:'af.codigo',type:'string'},
 			id_grupo:0,
 			grid:true,
-			form:false
+			form:false,
+			bottom_filter:true
 		},
 		{
 			config: {
@@ -161,7 +162,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			id_grupo: 0,
 			filters: {pfiltro: 'af.denominacion',type: 'string'},
 			grid: true,
-			form: true
+			form: true,
+			bottom_filter:true
 		},
 		{
 			config: {
