@@ -1057,6 +1057,19 @@ BEGIN
                       raise exception 'El Comprobante de depreciación aún no ha sido validado (%)',v_movimiento.id_int_comprobante;
                     end if;*/
 
+                    --raise exception 'aqui era el error';
+                    --Actualiza la última fecha de depreciación
+                    update kaf.tactivo_fijo_valores set
+                    fecha_ult_dep = mov.fecha_hasta
+                    from kaf.tmovimiento_af maf
+                    inner join kaf.tmovimiento_af_dep mdep
+                    on mdep.id_movimiento_af = maf.id_movimiento_af
+                    inner join kaf.tmovimiento mov
+                    on mov.id_movimiento = maf.id_movimiento
+                    where maf.id_movimiento = v_movimiento.id_movimiento
+                    and kaf.tactivo_fijo_valores.id_activo_fijo_valor = mdep.id_activo_fijo_valor;
+
+
                 end if;
            
             --RAC 04/04/2017 nuevo tipo de movimeinto
@@ -1098,6 +1111,16 @@ BEGIN
                                   and estado_reg = 'validado') then
                       raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
                     end if;*/
+                    --Actualiza la última fecha de actualización
+                    update kaf.tactivo_fijo_valores set
+                    fecha_ult_dep = mov.fecha_hasta
+                    from kaf.tmovimiento_af maf
+                    inner join kaf.tmovimiento_af_dep mdep
+                    on mdep.id_movimiento_af = maf.id_movimiento_af
+                    inner join kaf.tmovimiento mov
+                    on mov.id_movimiento = maf.id_movimiento
+                    where maf.id_movimiento = v_movimiento.id_movimiento
+                    and kaf.tactivo_fijo_valores.id_activo_fijo_valor = mdep.id_activo_fijo_valor;
 
                 end if;
 

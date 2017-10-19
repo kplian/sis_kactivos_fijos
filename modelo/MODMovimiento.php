@@ -231,6 +231,7 @@ class MODMovimiento extends MODbase{
 		$this->captura('responsable_dest','text');
 		$this->captura('nombre_cargo_dest','varchar');
 		$this->captura('ci_dest','varchar');
+		$this->captura('lugar','varchar');
 			
 		//Ejecuta la instruccion
 		$this->armarConsulta();

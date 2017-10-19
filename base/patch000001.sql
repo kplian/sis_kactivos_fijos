@@ -1035,3 +1035,9 @@ COMMENT ON COLUMN kaf.tmovimiento.fecha_dev_prestamo
 IS 'Fecha en la que se debería devolver el préstamos realizado';
 
 /***********************************F-SCP-RCM-KAF-1-16/10/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-17/10/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD CONSTRAINT uq_tmovimiento_af_dep__id_activo_fijo_valor__id_moneda_dep__fecha
+    UNIQUE (id_activo_fijo_valor, id_moneda_dep, fecha) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-17/10/2017****************************************/  

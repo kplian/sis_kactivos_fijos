@@ -69,7 +69,7 @@ BEGIN
     from segu.tsubsistema
     where codigo = 'KAF';
 
-    raise notice '&&&&&&&&&&&&&&&&&&& Iniciando depreciación activo_fijo_id: % &&&&&&&&&&&&&&&',p_id_activo_fijo;
+    --raise notice '&&&&&&&&&&&&&&&&&&& Iniciando depreciación activo_fijo_id: % &&&&&&&&&&&&&&&',p_id_activo_fijo;
    
     
    --Lista las monedas configuradas para depreciar
@@ -177,7 +177,7 @@ BEGIN
                           
                          
                           --Determinar la cantidad de meses a depreciar
-                          v_meses_dep =  kaf.f_months_between(v_mes_dep, p_hasta);
+                          v_meses_dep =  kaf.f_months_between(v_mes_dep, p_hasta)+1;
                           
                           --si las gestion anterior y ultima son diferentes resetear la depreciacion de la gestion                
                           v_gestion_previa =   EXTRACT(YEAR FROM v_rec_ant.fecha_ult_dep_real::date);
@@ -263,7 +263,7 @@ BEGIN
                                   END IF;
                                   
                                   --Inserción en base de datos
-                                  raise notice '------ Mes: % ',v_mes_dep;
+                                  --raise notice '------ Mes: % ',v_mes_dep;
                                   INSERT INTO kaf.tmovimiento_af_dep (
                                       id_usuario_reg,
                                       id_usuario_mod,
@@ -324,7 +324,7 @@ BEGIN
                                       v_registros_mod.id_moneda_dep
                                   ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
 
-                                  raise notice '------------- (%)  ..ok',v_id_movimiento_af_dep;
+                                  --raise notice '------------- (%)  ..ok',v_id_movimiento_af_dep;
                                   
                                   v_gestion_previa =   EXTRACT(YEAR FROM v_mes_dep::date);
                                   
