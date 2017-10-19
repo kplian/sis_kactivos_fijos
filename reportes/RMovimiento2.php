@@ -109,7 +109,7 @@ class RMovimiento2 extends  ReportePDF {
        
             $this->SetFontSize(10);
             $this->Ln(5);
-            if($tipo=='asig'||$tipo=='devol'){
+            if($tipo=='asig'){
                 $this->Ln();
                 $this->SetFont('', 'B');
                 $this->Cell(35, $height,'Responsable:', "", 0, 'L', false, '', 0, false, 'T', 'C');
@@ -122,9 +122,14 @@ class RMovimiento2 extends  ReportePDF {
                 $this->Cell(25, $height,'Ciudad:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['lugar'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-                 //Custodio
+                 
+                //Custodio
                 $this->SetFont('', 'B');
-                $this->Cell(35, $height,'Custodio:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $lblCust = '';
+                if($this->dataMaster[0]['custodio']!=''){
+                    $lblCust='Custodio:';
+                }
+                $this->Cell(35, $height,$lblCust, "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['custodio'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
 
@@ -133,6 +138,7 @@ class RMovimiento2 extends  ReportePDF {
                 $this->Cell(25, $height,'Oficina:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['oficina'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                
                 //Dirección
                 $this->SetFont('', 'B');
                 $this->Cell(135, $height,'', "", 0, 'L', false, '', 0, false, 'T', 'C');
@@ -140,12 +146,55 @@ class RMovimiento2 extends  ReportePDF {
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['direccion'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
                 
+            } else if($tipo=='devol'){
+                $this->Ln();
+                $this->SetFont('', 'B');
+                $this->Cell(35, $height,'Responsable:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['responsable'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                $this->SetFont('', 'B');
+
+                
+                
             } else if ($tipo=='deprec'){
                 $this->Ln();
                 $this->SetFont('', 'B');
                 $this->Cell(35, $height,'Depreciacion hasta:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['fecha_hasta'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            } else if($tipo=='transf'){
+                $this->Ln();
+                $this->SetFont('', 'B');
+                $this->Cell(35, $height,'Origen:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['responsable'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                $this->SetFont('', 'B');
+
+                //Ciudad
+                $this->SetFont('', 'B');
+                $this->Cell(25, $height,'Ciudad:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['lugar'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                 
+                //Custodio
+                $this->SetFont('', 'B');
+                $this->Cell(35, $height,'Destino:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['responsable_dest'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+
+                //Oficina
+                $this->SetFont('', 'B');
+                $this->Cell(25, $height,'Oficina:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['oficina'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                
+                //Dirección
+                $this->SetFont('', 'B');
+                $this->Cell(135, $height,'', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->Cell(25, $height,'Direccion:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['direccion'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                
             }
 
             //Estado
@@ -219,6 +268,20 @@ class RMovimiento2 extends  ReportePDF {
             $_firma310=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo_dest']));
             $_firma311='RECIBÍ CONFORME';  
         }
+
+        if($this->tipoMov=='devol'){
+           $_firma100=$this->dataMaster[0]['responsable_depto'];
+            $_firma110='RESPONSABLE ACTIVOS FIJOS';
+            $_firma111='RECIBÍ CONFORME';
+            
+            $_firma200=$this->cortar_texto(strtoupper($this->dataMaster[0]['responsable']));
+            $_firma210=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo']));
+            $_firma211='ENTREGUÉ CONFORME';
+
+        }
+
+
+        //Bordes
         $border1='';//'LRT';
         $border2='';//'LR';
         $border3='';//'LRBT';
@@ -287,7 +350,17 @@ class RMovimiento2 extends  ReportePDF {
 		  $tipo = $this->tipoMov;
 		  
 		  $this->SetFontSize(7);
-          $this->Ln(5.3);
+
+          //Definición de la fila donde empezar a desplegar los datos
+          if($this->tipoMov=='asig'){
+            $this->Ln(5.3);
+          } else if($this->tipoMov=='devol'){
+            $this->Ln();
+          } else if($this->tipoMov=='transf'){
+            $this->Ln(18);
+          }else {
+            $this->Ln(); 
+          }
       
 		  		
 		 foreach ($this->getDataSource() as $datarow) {
@@ -502,7 +575,6 @@ class RMovimiento2 extends  ReportePDF {
 		/////////////////////////////////	                         
         $this-> MultiRowHeader($RowArray,false,1);
 		$this->tablewidths = $this->tablewidthsHD;
-		
 		
     }
 
