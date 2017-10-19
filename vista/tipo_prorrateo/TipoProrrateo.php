@@ -17,7 +17,13 @@ Phx.vista.TipoProrrateo=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.TipoProrrateo.superclass.constructor.call(this,config);
 		this.init();
-		this.bloquearMenus();		
+		this.bloquearMenus();
+		var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        if(dataPadre){
+            this.onEnablePanel(this, dataPadre);
+        } else {
+           this.bloquearMenus();
+        }		
 	},
 			
 	Atributos:[

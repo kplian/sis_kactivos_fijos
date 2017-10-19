@@ -32,6 +32,13 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 
 		//Eventos
 		this.Cmp.tipo.on('select',this.onSelectTipo,this);
+
+		var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        if(dataPadre){
+            this.onEnablePanel(this, dataPadre);
+        } else {
+           this.bloquearMenus();
+        }
 	},
 			
 	Atributos:[
