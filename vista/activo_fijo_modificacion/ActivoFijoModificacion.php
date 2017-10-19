@@ -32,6 +32,13 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 
 		//Eventos
 		this.Cmp.tipo.on('select',this.onSelectTipo,this);
+
+		var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        if(dataPadre){
+            this.onEnablePanel(this, dataPadre);
+        } else {
+           this.bloquearMenus();
+        }
 	},
 			
 	Atributos:[
@@ -517,12 +524,35 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 	},
 	onButtonNew: function(){
 		Phx.vista.ActivoFijoModificacion.superclass.onButtonNew.call(this);
+
+		//Por defecto se permite nulo a todos los componentes
+		this.Cmp.id_oficina.allowBlank=true;
+		this.Cmp.ubicacion.allowBlank=true;
+		this.Cmp.observaciones.allowBlank=true;
+		this.Cmp.id_moneda.allowBlank=true;
+		this.Cmp.monto_compra_orig.allowBlank=true;
+		this.Cmp.monto_compra_orig_100.allowBlank=true;
+
+		this.Cmp.id_oficina.setVisible(false);
+		this.Cmp.ubicacion.setVisible(false);
+		this.Cmp.observaciones.setVisible(false);
+		this.Cmp.id_moneda.setVisible(false);
+		this.Cmp.monto_compra_orig.setVisible(false);
+		this.Cmp.monto_compra_orig_100.setVisible(false);
+
+		this.Cmp.id_oficina.setValue('');
+		this.Cmp.ubicacion.setValue('');
+		this.Cmp.observaciones.setValue('');
+		this.Cmp.id_moneda.setValue('');
+		this.Cmp.monto_compra_orig.setValue('');
+		this.Cmp.monto_compra_orig_100.setValue('');
+
+
 		this.Cmp.oficina_ant.setValue(this.maestro.oficina);
 		this.Cmp.ubicacion_ant_tmp.setValue(this.maestro.ubicacion);
 		this.Cmp.id_moneda_ant_tmp.setValue(this.maestro.desc_moneda_orig);
 		this.Cmp.monto_compra_orig_ant_tmp.setValue(this.maestro.monto_compra_orig);
 		this.Cmp.monto_compra_orig_100_ant_tmp.setValue(this.maestro.monto_compra_orig_100);
-		console.log('qqqqqq',this.maestro);
     },
     onSelectTipo: function(combo,record,index){
     	//Por defecto se permite nulo a todos los componentes
@@ -581,6 +611,9 @@ Phx.vista.ActivoFijoModificacion=Ext.extend(Phx.gridInterfaz,{
 		//Añade los parámetros para los valores anteriores según corresponda
 		var tipo = this.Cmp.tipo.getValue();
 		this.argumentExtraSubmit.ubicacion_ant = '';
+		this.argumentExtraSubmit.monto_compra_orig_ant = '';
+		this.argumentExtraSubmit.monto_compra_orig_100_ant = '';
+		
 		if(tipo==1){
 			//Dirección
 			this.argumentExtraSubmit.id_oficina_ant = this.maestro.id_oficina;
