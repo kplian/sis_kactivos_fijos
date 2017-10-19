@@ -18,7 +18,6 @@ class RMovimiento2 extends  ReportePDF {
 		return  $this->datos_detalle;		
 	}
 	
-	
 	function datosHeader  ( $maestro, $detalle ) {
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
 		$this->datos_detalle = $detalle;
@@ -34,15 +33,9 @@ class RMovimiento2 extends  ReportePDF {
 		else{
 			$this->SetMargins(7, 52, 5);
 		}	
-		
-		
-		
 	}
 	
 	function Header() {
-		
-		
-		
 		$height = 6;
         $midHeight = 9;
         $longHeight = 18;
@@ -97,9 +90,11 @@ class RMovimiento2 extends  ReportePDF {
         $this->Ln();
         $this->SetX($x);
         $this->SetFont('', '');
-        $this->Cell($width1-4, $height, 'PAGINA:', "B", 0, '', false, '', 0, false, 'T', 'C');
+        //$this->Cell($width1-4, $height, 'PAGINA:', "B", 0, '', false, '', 0, false, 'T', 'C');
+        $this->Cell($width1-4, $height, '', "B", 0, '', false, '', 0, false, 'T', 'C');
         $this->SetFont('', 'B');
-        $this->Cell($w = $width2, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+        //$this->Cell($w = $width2, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+        $this->Cell($w = $width2, $h = $height, $txt = '', $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         $this->setCellPaddings(2);
 		
 		
@@ -113,6 +108,7 @@ class RMovimiento2 extends  ReportePDF {
     public function fieldsHeader($tipo){
        
             $this->SetFontSize(10);
+            $this->Ln(5);
             if($tipo=='asig'||$tipo=='devol'){
                 $this->Ln();
                 $this->SetFont('', 'B');
@@ -120,18 +116,30 @@ class RMovimiento2 extends  ReportePDF {
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['responsable'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
                 $this->SetFont('', 'B');
-                $this->Cell(25, $height,'Custodio:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+
+                //Ciudad
+                $this->SetFont('', 'B');
+                $this->Cell(25, $height,'Ciudad:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['lugar'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                 //Custodio
+                $this->SetFont('', 'B');
+                $this->Cell(35, $height,'Custodio:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['custodio'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
-                $this->Ln();
+
+                //Oficina
                 $this->SetFont('', 'B');
-                $this->Cell(35, $height,'Oficina:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->Cell(25, $height,'Oficina:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
-                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['oficina'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['oficina'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                //Dirección
                 $this->SetFont('', 'B');
+                $this->Cell(135, $height,'', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->Cell(25, $height,'Direccion:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['direccion'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                
             } else if ($tipo=='deprec'){
                 $this->Ln();
                 $this->SetFont('', 'B');
@@ -143,10 +151,10 @@ class RMovimiento2 extends  ReportePDF {
             //Estado
             $this->Ln();
             $this->SetFont('', 'B');
-            $this->Cell($width2+18, $height,'Estado:', "", 0, 'L', false, '', 0, false, 'T', 'C');
+            //$this->Cell($width2+18, $height,'Estado:', "", 0, 'L', false, '', 0, false, 'T', 'C');
             //$this->Ln();
             $this->SetFont('', '');
-            $this->MultiCell($w = 0, $h = $hLong, $txt = $this->dataMaster[0]['estado'], $border = 0, $align = 'L', $fill = false, $ln = 1, $x = '', $y = '', $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = $hMedium, $valign = 'M', $fitcell = false);
+            //$this->MultiCell($w = 0, $h = $hLong, $txt = $this->dataMaster[0]['estado'], $border = 0, $align = 'L', $fill = false, $ln = 1, $x = '', $y = '', $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = $hMedium, $valign = 'M', $fitcell = false);
 
             //Glosa
             //$this->Ln();
@@ -156,15 +164,13 @@ class RMovimiento2 extends  ReportePDF {
             $this->SetFont('', '');
             $this->MultiCell($w = 0, $h = $hLong, $txt = $this->dataMaster[0]['glosa'], $border = 0, $align = 'L', $fill = false, $ln = 0, $x = '', $y = '', $reseth = true, $stretch = 0, $ishtml = false, $autopadding = true, $maxh = $hMedium, $valign = 'M', $fitcell = false);
             $this->firstPage++;
-           $this->Ln();   
+           $this->Ln(10.5);
+
        
     }
 
-
-
-
 	function Firmas() {
-		 $this->SetFontSize(7);
+		$this->SetFontSize(7);
         
         $_firma100='';
         $_firma110=$this->dataMaster[0]['responsable_depto'];
@@ -194,7 +200,7 @@ class RMovimiento2 extends  ReportePDF {
             if($this->dataMaster[0]['custodio']!=''){
                 $_firma300=strtoupper($this->dataMaster[0]['custodio']);
                 $_firma310='CI. '.strtoupper($this->dataMaster[0]['ci_custodio']);
-                $_firma311='CUSTODIO';    
+                $_firma311='* CUSTODIO';    
             }
 
         }
@@ -213,42 +219,53 @@ class RMovimiento2 extends  ReportePDF {
             $_firma310=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo_dest']));
             $_firma311='RECIBÍ CONFORME';  
         }
+        $border1='';//'LRT';
+        $border2='';//'LR';
+        $border3='';//'LRBT';
 
-
-        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LRT', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border1, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border1, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border1, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, '', $border1, 1, 'C', false, '', 0, false, 'T', 'C');
          
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, '', $border2, 1, 'C', false, '', 0, false, 'T', 'C');
         
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, '', $border2, 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, '', 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, '', 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, '', $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, '', $border2, 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(64, $midHeight, $_firma100, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma200, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma300, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma400, 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma100, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma200, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma300, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, $_firma400, $border2, 1, 'C', false, '', 0, false, 'T', 'C');
 
-        $this->Cell(64, $midHeight, $_firma110, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma210, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma310, 'LR', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma410, 'LR', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma110, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma210, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma310, $border2, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, $_firma410, $border2, 1, 'C', false, '', 0, false, 'T', 'C');
         
-        $this->Cell(64, $midHeight, $_firma111, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma211, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(64, $midHeight, $_firma311, 'LRBT', 0, 'C', false, '', 0, false, 'T', 'C');
-        $this->Cell(63, $midHeight, $_firma411, 'LRBT', 1, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma111, $border3, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma211, $border3, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(64, $midHeight, $_firma311, $border3, 0, 'C', false, '', 0, false, 'T', 'C');
+        $this->Cell(63, $midHeight, $_firma411, $border3, 1, 'C', false, '', 0, false, 'T', 'C');
+
+        //Nota a pie
+        $this->Ln(5);
+        if($this->tipoMov=='asig'){
+            if($this->dataMaster[0]['custodio']!=''){
+                $this->Cell(130, $midHeight, '* Esta casilla será firmada por personal que trabaja en la empresa pero no figura en planillas', $border1, 0, 'L', false, '', 0, false, 'T', 'C');
+            }
+            
+        }
 		
 		
 	}
@@ -270,6 +287,7 @@ class RMovimiento2 extends  ReportePDF {
 		  $tipo = $this->tipoMov;
 		  
 		  $this->SetFontSize(7);
+          $this->Ln(5.3);
       
 		  		
 		 foreach ($this->getDataSource() as $datarow) {
@@ -340,11 +358,12 @@ class RMovimiento2 extends  ReportePDF {
 				$RowArray = array(
 	            			's0'  => $i+1,
 	            			's1' => $datarow['codigo'],   
-	                        's2' => $datarow['descripcion'],       
-	                        's4' => $datarow['marca'],
-	                        's5' => $datarow['nro_serie'],
-	                        's6' => $datarow['estado_fun'] ,           
-	                        's7' => ''
+                            's2' => $datarow['denominacion'],
+	                        's3' => $datarow['descripcion'],
+	                        //'s4' => $datarow['marca'],
+	                        //'s5' => $datarow['nro_serie'],
+	                        's4' => $datarow['estado_fun'] ,           
+	                        's5' => ''
 	                        );
 				
 				
@@ -375,7 +394,7 @@ class RMovimiento2 extends  ReportePDF {
 			
         }
 		
-		$this->Ln(3);	
+		$this->Ln(10);	
 		
 		$this->Firmas();
 		
@@ -440,20 +459,21 @@ class RMovimiento2 extends  ReportePDF {
 				
         } else if($tipo=='asig'||$tipo=='devol'){
             	
-              $this->tablewidthsHD=array(8,35,75,32,26,20,60);
+              $this->tablewidthsHD=array(8,25,50,90,26,57);
 			   //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
 	          $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
 		      $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-		      $this->tablebordersHD=array('TB','TB','TB','TB','TB','TB','TB','TB');
+		      $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
 	          $this->tabletextcolorHD=array();
 			  $RowArray = array(
 	            			's0'  => 'Nro',
 	            			's1' => 'Código',   
-	                        's2' => 'Descripcion',        
-	                        's3' => 'Marca',
-	                        's4' => 'Nro. Serie',            
-	                        's5' => 'Estado Fun.',           
-	                        's8' => 'Observaciones');
+	                        's2' => 'Denominación',
+                            's3' => 'Descripción',
+	                        //'s3' => 'Marca',
+	                        //'s4' => 'Nro. Serie',            
+	                        's4' => 'Estado Fun.',           
+	                        's5' => 'Observaciones');
 			
 			
             
