@@ -208,6 +208,9 @@ class RMovimiento2 extends ReportePDF {
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['custodio'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
                 
+            } else if($tipo=='alta'){
+                $this->Ln(4.8);
+                
             }
 
             //Estado
@@ -392,7 +395,9 @@ class RMovimiento2 extends ReportePDF {
             $this->Ln();
           } else if($this->tipoMov=='transf'){
             $this->Ln(12.8);
-          }else {
+          } else if($this->tipoMov=='alta'){
+            $this->Ln();
+          } else {
             $this->Ln(); 
           }
       
@@ -490,9 +495,29 @@ class RMovimiento2 extends ReportePDF {
                             );
                 
                 
+            } else if($tipo=='alta'){
+                    
+                            
+                $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
+                $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
+                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+                $this->tabletextcolor=array();
+                
+                $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],
+                            's2' => $datarow['desc_clasificacion'],
+                            's3' => $datarow['denominacion'],
+                            's4' => $datarow['descripcion'],
+                            's5' => date("d/m/Y",strtotime($datarow['fecha_ini_dep'])),
+                            's6' => $datarow['monto_compra_orig'],
+                            's7' => $datarow['monto_compra_orig_100'],
+                            's8' => $datarow['nro_cbte_asociado'],
+                            's9' => ''
+                            );
+                
+                
             } else {
-                //Alta      
-				
 			  $this->tablealigns=array('L','L','L','L','L','L','L');
 		      $this->tablenumbers=array(0,0,0,0,0,0,0);
 		      $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
@@ -615,6 +640,29 @@ class RMovimiento2 extends ReportePDF {
                             's3' => 'Descripción',
                             's4' => 'Estado Fun.',           
                             's5' => 'Observaciones');
+            
+            
+            
+        }  else if($tipo=='alta'){
+                
+              $this->tablewidthsHD=array(8,23,23,35,60,19,25,25,20,30);
+               //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
+              $this->tablealignsHD=array('C','C','C','C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',
+                            's2' => 'Clasificación',
+                            's3' => 'Denominación',
+                            's4' => 'Descripción',
+                            's5' => 'Inicio.Dep.',           
+                            's6' => 'Costo AF',
+                            's7' => 'Valor Compra',
+                            's8' => 'C31',
+                            's9' => 'Observaciones'
+                        );
             
             
             
