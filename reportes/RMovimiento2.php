@@ -5,7 +5,7 @@
  * Fecha: 16/03/2017
  * 
  * */
-class RMovimiento2 extends  ReportePDF {
+class RMovimiento2 extends ReportePDF {
 	var $dataMaster;
 	var $datos_detalle;
 	var $ancho_hoja;
@@ -97,8 +97,6 @@ class RMovimiento2 extends  ReportePDF {
         $this->Cell($w = $width2, $h = $height, $txt = '', $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         $this->setCellPaddings(2);
 		
-		
-		
 		//$this->Ln();
 		$this->fieldsHeader($this->tipoMov);
 		$this->generarCabecera($this->tipoMov);
@@ -153,6 +151,11 @@ class RMovimiento2 extends  ReportePDF {
                 $this->SetFont('', '');
                 $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['responsable'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
                 $this->SetFont('', 'B');
+                 $this->SetFont('', 'B');
+                $lblCust='Custodio:';
+                $this->Cell(35, $height,$lblCust, "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['custodio'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
 
                 
                 
@@ -193,7 +196,17 @@ class RMovimiento2 extends  ReportePDF {
                 $this->Cell(135, $height,'', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->Cell(25, $height,'Direccion:', "", 0, 'L', false, '', 0, false, 'T', 'C');
                 $this->SetFont('', '');
-                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['direccion'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['direccion'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+
+                //Custodio
+                $this->SetFont('', 'B');
+                $lblCust = '';
+                //if($this->dataMaster[0]['custodio']!=''){
+                    $lblCust='Custodio:';
+                //}
+                $this->Cell(35, $height,$lblCust, "", 0, 'L', false, '', 0, false, 'T', 'C');
+                $this->SetFont('', '');
+                $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['custodio'], $border = 0, $ln = 0, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
                 
             }
 
@@ -251,11 +264,10 @@ class RMovimiento2 extends  ReportePDF {
                 $_firma310='CI. '.strtoupper($this->dataMaster[0]['ci_custodio']);
                 $_firma311='* CUSTODIO';    
             }
-
         }
 		
 		
-		 if($this->tipoMov=='transf'){
+		if($this->tipoMov=='transf'){
             $_firma100=$this->cortar_texto($this->dataMaster[0]['responsable_depto']);
             $_firma110='RESPONSABLE ACTIVOS FIJOS';
             $_firma111='SUPERVISOR';
@@ -266,17 +278,29 @@ class RMovimiento2 extends  ReportePDF {
             
             $_firma300=$this->cortar_texto(strtoupper($this->dataMaster[0]['responsable_dest']));
             $_firma310=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo_dest']));
-            $_firma311='RECIBÍ CONFORME';  
+            $_firma311='RECIBÍ CONFORME';
+
+            if($this->dataMaster[0]['custodio']!=''){
+                $_firma400=strtoupper($this->dataMaster[0]['custodio']);
+                $_firma410='CI. '.strtoupper($this->dataMaster[0]['ci_custodio']);
+                $_firma411='* CUSTODIO';    
+            }
         }
 
         if($this->tipoMov=='devol'){
-           $_firma100=$this->dataMaster[0]['responsable_depto'];
+            $_firma100=$this->dataMaster[0]['responsable_depto'];
             $_firma110='RESPONSABLE ACTIVOS FIJOS';
             $_firma111='RECIBÍ CONFORME';
             
             $_firma200=$this->cortar_texto(strtoupper($this->dataMaster[0]['responsable']));
             $_firma210=$this->cortar_texto(strtoupper($this->dataMaster[0]['nombre_cargo']));
             $_firma211='ENTREGUÉ CONFORME';
+
+            if($this->dataMaster[0]['custodio']!=''){
+                $_firma300=strtoupper($this->dataMaster[0]['custodio']);
+                $_firma310='CI. '.strtoupper($this->dataMaster[0]['ci_custodio']);
+                $_firma311='* CUSTODIO';    
+            }
 
         }
 
@@ -328,6 +352,16 @@ class RMovimiento2 extends  ReportePDF {
                 $this->Cell(130, $midHeight, '* Esta casilla será firmada por personal que trabaja en la empresa pero no figura en planillas', $border1, 0, 'L', false, '', 0, false, 'T', 'C');
             }
             
+        } else if($this->tipoMov=='transf'){
+            if($this->dataMaster[0]['custodio']!=''){
+                $this->Cell(130, $midHeight, '* Esta casilla será firmada por personal que trabaja en la empresa pero no figura en planillas', $border1, 0, 'L', false, '', 0, false, 'T', 'C');
+            }
+             
+        } else if($this->tipoMov=='devol'){
+            if($this->dataMaster[0]['custodio']!=''){
+                $this->Cell(130, $midHeight, '* Esta casilla será firmada por personal que trabaja en la empresa pero no figura en planillas', $border1, 0, 'L', false, '', 0, false, 'T', 'C');
+            }
+            
         }
 		
 		
@@ -357,7 +391,7 @@ class RMovimiento2 extends  ReportePDF {
           } else if($this->tipoMov=='devol'){
             $this->Ln();
           } else if($this->tipoMov=='transf'){
-            $this->Ln(18);
+            $this->Ln(12.8);
           }else {
             $this->Ln(); 
           }
@@ -433,13 +467,29 @@ class RMovimiento2 extends  ReportePDF {
 	            			's1' => $datarow['codigo'],   
                             's2' => $datarow['denominacion'],
 	                        's3' => $datarow['descripcion'],
-	                        //'s4' => $datarow['marca'],
-	                        //'s5' => $datarow['nro_serie'],
 	                        's4' => $datarow['estado_fun'] ,           
 	                        's5' => ''
 	                        );
 				
 				
+            } else if($tipo=='transf'){
+                    
+                            
+                $this->tablealigns=array('L','L','L','L','L','L','L');
+                $this->tablenumbers=array(0,0,0,0,0,0,0);
+                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+                $this->tabletextcolor=array();
+                
+                $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
+                            's2' => $datarow['denominacion'],
+                            's3' => $datarow['descripcion'],
+                            's4' => $datarow['estado_fun'] ,           
+                            's5' => $datarow['observaciones']
+                            );
+                
+                
             } else {
                 //Alta      
 				
@@ -549,6 +599,24 @@ class RMovimiento2 extends  ReportePDF {
 	                        's5' => 'Observaciones');
 			
 			
+            
+        } else if($tipo=='transf'){
+                
+              $this->tablewidthsHD=array(8,25,50,90,26,57);
+               //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
+              $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',   
+                            's2' => 'Denominación',
+                            's3' => 'Descripción',
+                            's4' => 'Estado Fun.',           
+                            's5' => 'Observaciones');
+            
+            
             
         } else {
             //Alta, transf
