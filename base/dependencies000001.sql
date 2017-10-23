@@ -1723,6 +1723,109 @@ AS
 
 
 
+
+CREATE OR REPLACE VIEW kaf.vprimero_movimiento_af_dep_gestion(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part
+    ('year'::text, afd.fecha)), afd.id_moneda_dep) date_part('year'::text,
+    afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini,
+         maf.id_movimiento,
+         afd.id_moneda_dep
+  FROM kaf.tmovimiento_af_dep afd
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           (date_part('year'::text, afd.fecha)),
+           afd.id_moneda_dep,
+           afd.fecha;
+         
+ CREATE OR REPLACE VIEW kaf.vultimo_movimiento_af_dep_gestion (
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+ SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part(
+   'year'::text, afd.fecha)), afd.id_moneda_dep) date_part('year'::text,
+   afd.fecha) AS gestion,
+        afd.id_activo_fijo_valor,
+        afd.id_movimiento_af,
+        afd.vida_util_ant,
+        afd.vida_util,
+        afd.fecha,
+        afd.monto_vigente,
+        afd.monto_vigente_ant,
+        afd.monto_actualiz,
+        afd.monto_actualiz_ant,
+        afd.depreciacion_acum,
+        afd.depreciacion_acum_ant,
+        afd.depreciacion_acum_actualiz,
+        afd.depreciacion_per,
+        afd.depreciacion_per_ant,
+        afd.depreciacion_per_actualiz,
+        afd.tipo_cambio_fin,
+        afd.tipo_cambio_ini,
+        maf.id_movimiento,
+    afd.id_moneda_dep
+   FROM kaf.tmovimiento_af_dep afd
+     JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part('year'::text, afd.fecha)), afd.id_moneda_dep, afd.fecha DESC;        
+         
+  
 CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo_por_gestion(
     id_activo_fijo,
     id_clasificacion,
@@ -1801,12 +1904,13 @@ AS
   FROM kaf.tactivo_fijo_valores afv
        JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
        JOIN kaf.vprimero_movimiento_af_dep_gestion pd ON pd.id_activo_fijo_valor
-         = afv.id_activo_fijo_valor
+         = afv.id_activo_fijo_valor AND pd.id_moneda_dep = afv.id_moneda_dep
        JOIN kaf.vultimo_movimiento_af_dep_gestion ud ON ud.id_activo_fijo_valor
-         = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion
+         = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion AND
+         ud.id_moneda_dep = pd.id_moneda_dep
        JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pd.id_movimiento_af
-         AND maf.id_movimiento_af = ud.id_movimiento_af;
-         
+         AND maf.id_movimiento_af = ud.id_movimiento_af;  
+  
          
 /***********************************F-DEP-RAC-KAF-1-19/10/2017****************************************/
                   
