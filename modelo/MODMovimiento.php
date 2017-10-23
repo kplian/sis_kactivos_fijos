@@ -231,6 +231,7 @@ class MODMovimiento extends MODbase{
 		$this->captura('responsable_dest','text');
 		$this->captura('nombre_cargo_dest','varchar');
 		$this->captura('ci_dest','varchar');
+		$this->captura('lugar','varchar');
 			
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -263,6 +264,13 @@ class MODMovimiento extends MODbase{
 		$this->captura('fecha_compra','date');
 		$this->captura('monto_compra','numeric');
 		$this->captura('tipo_activo','varchar');
+
+		$this->captura('desc_clasificacion','text');
+		$this->captura('fecha_ini_dep','date');
+		$this->captura('monto_compra_orig','numeric');
+		$this->captura('monto_compra_orig_100','numeric');
+		$this->captura('nro_cbte_asociado','varchar');
+		$this->captura('observaciones','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

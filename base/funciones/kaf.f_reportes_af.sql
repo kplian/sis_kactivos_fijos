@@ -966,6 +966,169 @@ BEGIN
 
         end;
 
+
+    /*********************************   
+     #TRANSACCION:  'SKA_RDEPREC_SEL'
+     #DESCRIPCION:  Reporte del Detalle de depreciación
+     #AUTOR:        RCM
+     #FECHA:        18/10/2017
+    ***********************************/
+  
+    elsif(p_transaccion='SKA_RDEPREC_SEL') then
+
+        begin
+
+            --Creación de la tabla con los datos de la depreciación
+            create temp table tt_detalle_depreciacion (
+                codigo varchar(50),
+                denominacion varchar(500),
+                fecha_ini_dep date,
+                monto_vigente_orig_100 numeric(18,2),
+                monto_vigente_orig numeric(18,2),
+                inc_actualiz numeric(18,2),
+                monto_actualiz numeric(18,2),
+                vida_util_orig integer,
+                vida_util integer,
+                depreciacion_acum_gest_ant numeric(18,2),
+                depreciacion_acum_actualiz_gest_ant numeric(18,2),
+                depreciacion_per numeric(18,2),
+                depreciacion_acum numeric(18,2),
+                monto_vigente numeric(18,2),
+                codigo_padre varchar(15),
+                denominacion_padre varchar(100)
+            ) on commit drop;
+
+            --Carga los datos en la tabla temporal
+            insert into tt_detalle_depreciacion
+            select
+            afv.codigo,
+            af.denominacion,
+            afv.fecha_ini_dep,
+            afv.monto_vigente_orig_100,
+            afv.monto_vigente_orig,
+            (coalesce(mdep.monto_actualiz,0) - coalesce(afv.monto_vigente_orig,0)) as inc_actualiz,
+            mdep.monto_actualiz,
+            afv.vida_util_orig, afv.vida_util,
+            coalesce((select depreciacion_acum
+                    from kaf.tmovimiento_af_dep
+                    where id_activo_fijo_valor = afv.id_activo_fijo_valor
+                    and id_moneda_dep = mdep.id_moneda_dep
+                    and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta)::integer -1 )::date)),0) as depreciacion_acum_gest_ant,
+            coalesce((select depreciacion_acum_actualiz
+                    from kaf.tmovimiento_af_dep
+                    where id_activo_fijo_valor = afv.id_activo_fijo_valor
+                    and id_moneda_dep = mdep.id_moneda_dep
+                    and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta)::integer -1 )::date)),0) as depreciacion_acum_actualiz_gest_ant,
+            mdep.depreciacion_per,
+            mdep.depreciacion_acum,
+            mdep.monto_vigente,
+            substr(afv.codigo,1, position('.' in afv.codigo)-1) as codigo_padre,
+            (select nombre from kaf.tclasificacion where codigo_completo_tmp = substr(afv.codigo,1, position('.' in afv.codigo)-1)) as denominacion_padre
+            from kaf.tmovimiento_af_dep mdep
+            inner join kaf.tactivo_fijo_valores afv
+            on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+            inner join kaf.tactivo_fijo af
+            on af.id_activo_fijo = afv.id_activo_fijo
+            where date_trunc('month',mdep.fecha) = date_trunc('month',v_parametros.fecha_hasta)
+            and mdep.id_moneda_dep = v_parametros.id_moneda;
+
+            --Creación de la tabla con la agrupación y totales
+            create temp table tt_detalle_depreciacion_totales (
+                codigo varchar(50),
+                denominacion varchar(500),
+                fecha_ini_dep date,
+                monto_vigente_orig_100 numeric(18,2),
+                monto_vigente_orig numeric(18,2),
+                inc_actualiz numeric(18,2),
+                monto_actualiz numeric(18,2),
+                vida_util_orig integer,
+                vida_util integer,
+                depreciacion_acum_gest_ant numeric(18,2),
+                depreciacion_acum_actualiz_gest_ant numeric(18,2),
+                depreciacion_per numeric(18,2),
+                depreciacion_acum numeric(18,2),
+                monto_vigente numeric(18,2),
+                nivel integer,
+                orden bigint,
+                tipo varchar(10)
+            ) on commit drop;
+
+            --Inserta los totales por clasificacióm
+            insert into tt_detalle_depreciacion_totales
+            select
+            codigo_padre,
+            denominacion_padre,
+            null,
+            sum(monto_vigente_orig_100),
+            sum(monto_vigente_orig),
+            sum(inc_actualiz),
+            sum(monto_actualiz),
+            null,
+            null,
+            sum(depreciacion_acum_gest_ant),
+            sum(depreciacion_acum_actualiz_gest_ant),
+            sum(depreciacion_per),
+            sum(depreciacion_acum),
+            sum(monto_vigente),
+            codigo_padre::integer,
+            0,
+            'clasif'
+            from tt_detalle_depreciacion
+            group by codigo_padre, denominacion_padre;
+
+            --Inserta el detalle
+            insert into tt_detalle_depreciacion_totales
+            select
+            codigo,
+            denominacion,
+            fecha_ini_dep,
+            monto_vigente_orig_100,
+            monto_vigente_orig,
+            inc_actualiz,
+            monto_actualiz,
+            vida_util_orig,
+            vida_util,
+            depreciacion_acum_gest_ant,
+            depreciacion_acum_actualiz_gest_ant,
+            depreciacion_per,
+            depreciacion_acum,
+            monto_vigente,
+            codigo_padre::integer,
+            replace(codigo,'.','')::bigint,
+            'detalle'
+            from tt_detalle_depreciacion;
+
+            --Inserta los totales finales
+            insert into tt_detalle_depreciacion_totales
+            select
+            'TOTAL FINAL',
+            null,
+            null,
+            sum(monto_vigente_orig_100),
+            sum(monto_vigente_orig),
+            sum(inc_actualiz),
+            sum(monto_actualiz),
+            null,
+            null,
+            sum(depreciacion_acum_gest_ant),
+            sum(depreciacion_acum_actualiz_gest_ant),
+            sum(depreciacion_per),
+            sum(depreciacion_acum),
+            sum(monto_vigente),
+            999,
+            0,
+            'total'
+            from tt_detalle_depreciacion;
+
+            v_consulta = 'select
+                        *
+                        from tt_detalle_depreciacion_totales order by nivel, orden';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
      
     else
         raise exception 'Transacción inexistente';  

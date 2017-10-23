@@ -332,6 +332,51 @@ class MODReportes extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarRepDepreciacion(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.f_reportes_af';
+		$this->transaccion='SKA_RDEPREC_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida','tipo_salida','varchar');
+		$this->setParametro('fecha_hasta','fecha_hasta','date');
+		$this->setParametro('id_moneda','id_moneda','integer');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('codigo','varchar(50)');
+        $this->captura('denominacion','varchar(500)');
+        $this->captura('fecha_ini_dep','date');
+        $this->captura('monto_vigente_orig_100','numeric(18,2)');
+        $this->captura('monto_vigente_orig','numeric(18,2)');
+        $this->captura('inc_actualiz','numeric(18,2)');
+        $this->captura('monto_actualiz','numeric(18,2)');
+        $this->captura('vida_util_orig','integer');
+        $this->captura('vida_util','integer');
+        $this->captura('depreciacion_acum_gest_ant','numeric(18,2)');
+        $this->captura('depreciacion_acum_actualiz_gest_ant','numeric(18,2)');
+        $this->captura('depreciacion_per','numeric(18,2)');
+        $this->captura('depreciacion_acum','numeric(18,2)');
+        $this->captura('monto_vigente','numeric(18,2)');
+        $this->captura('nivel','integer');
+        $this->captura('orden','bigint');
+        $this->captura('tipo','varchar(10)');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//echo $this->consulta;exit;
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
