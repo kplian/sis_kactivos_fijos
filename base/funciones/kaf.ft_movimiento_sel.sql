@@ -346,7 +346,7 @@ BEGIN
                             af.observaciones
                      from kaf.tmovimiento_af maf
                           inner join kaf.tactivo_fijo af on af.id_activo_fijo = maf.id_activo_fijo
-                          inner join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun
+                          left join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun
                           left join kaf.tmovimiento_motivo mmot on mmot.id_movimiento_motivo =  maf.id_movimiento_motivo
                           inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
                      where maf.id_movimiento = '||v_parametros.id_movimiento;

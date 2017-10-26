@@ -751,6 +751,16 @@ BEGIN
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
 
+                    --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                    for v_registros_af_mov in (select id_activo_fijo
+                                            from kaf.tmovimiento_af
+                                            where id_movimiento = v_movimiento.id_movimiento) loop
+
+                        v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                                  v_registros_af_mov.id_activo_fijo,
+                                                  v_movimiento.fecha_mov);
+                    end loop;
+
                 elsif v_codigo_estado_siguiente = 'cbte' then
 
                     --Obtencion dela plantilla de comprobante
@@ -999,7 +1009,7 @@ BEGIN
                 if v_codigo_estado_siguiente = 'generado' then
 
                     --Generación de la depreciación
-                    for v_rec in (select id_movimiento_af, id_activo_fijo
+                    /*for v_rec in (select id_movimiento_af, id_activo_fijo
                                 from kaf.tmovimiento_af
                                 where id_movimiento = v_movimiento.id_movimiento) loop
                         v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af);
@@ -1009,7 +1019,8 @@ BEGIN
                         respuesta = v_resp
                         where id_movimiento_af = v_rec.id_movimiento_af;
                         
-                    end loop;
+                    end loop;*/
+                    v_resp = kaf.f_depreciacion_lineal_v2(p_id_usuario,v_movimiento.id_movimiento);
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
                 
@@ -1079,11 +1090,12 @@ BEGIN
                 if v_codigo_estado_siguiente = 'generado' then
 
                     --Generacion de la depreciacion
-                    for v_rec in (select id_movimiento_af, id_activo_fijo
+                    /*for v_rec in (select id_movimiento_af, id_activo_fijo
                                 from kaf.tmovimiento_af
                                 where id_movimiento = v_movimiento.id_movimiento) loop
                         v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af,'NO'); --el ultimo parametro indi
-                    end loop;
+                    end loop;*/
+                    v_resp = kaf.f_depreciacion_lineal_v2(p_id_usuario,v_movimiento.id_movimiento);
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
 
@@ -1638,14 +1650,24 @@ BEGIN
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
                   end if;*/
 
-                  --Actualiza estado de activo fijo
-                  update kaf.tactivo_fijo set
-                  estado = 'retiro'
-                  from kaf.tmovimiento_af movaf
-                  inner join kaf.tmovimiento mov
-                  on mov.id_movimiento = movaf.id_movimiento
-                  where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
-                  and movaf.id_movimiento = v_movimiento.id_movimiento;
+                --Actualiza estado de activo fijo
+                update kaf.tactivo_fijo set
+                estado = 'retiro'
+                from kaf.tmovimiento_af movaf
+                inner join kaf.tmovimiento mov
+                on mov.id_movimiento = movaf.id_movimiento
+                where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
+                and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                --Finalización de AFV(s) vigentes (seteando fecha_fin)
+                for v_registros_af_mov in (select id_activo_fijo
+                                        from kaf.tmovimiento_af
+                                        where id_movimiento = v_movimiento.id_movimiento) loop
+
+                    v_fun = kaf.f_afv_finalizar(p_id_usuario,
+                                              v_registros_af_mov.id_activo_fijo,
+                                              v_movimiento.fecha_mov);
+                end loop;
 
               elsif v_codigo_estado_siguiente = 'cbte' then
 
