@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel (
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel ( 
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -403,7 +403,7 @@ BEGIN
                               daf.depreciacion_per_final,
                               daf.depreciacion_per_actualiz_final
                             
-                          FROM kaf.vdetalle_depreciacion_activo daf
+                          FROM kaf.vdetalle_depreciacion_activo_por_gestion daf
                           INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
                           INNER JOIN kaf.tmoneda_dep mod on mod.id_moneda_dep = daf.id_moneda_dep
                           WHERE daf.id_movimiento = '||v_parametros.id_movimiento||'
