@@ -241,6 +241,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
 		$this->setParametro('fecha_hasta','fecha_hasta','date');
+		$this->setParametro('id_activo_fijo','id_activo_fijo','integer');
 		
 		
 		$this->capturaCount('total_monto_actualiz_real','numeric');

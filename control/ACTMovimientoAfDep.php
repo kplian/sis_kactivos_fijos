@@ -133,9 +133,7 @@ class ACTMovimientoAfDep extends ACTbase{
 			$this->objParam->defecto('ordenacion','id_movimiento_af_dep');
 			$this->objParam->defecto('dir_ordenacion','asc');
 	
-			if($this->objParam->getParametro('id_activo_fijo')!=''){
-				$this->objParam->addFiltro("actval.id_activo_fijo = ".$this->objParam->getParametro('id_activo_fijo'));
-			}
+			
 			
 			if($this->objParam->getParametro('id_moneda_dep')!=''){
 				$this->objParam->addFiltro("actval.id_moneda_dep = ".$this->objParam->getParametro('id_moneda_dep'));	

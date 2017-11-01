@@ -1340,3 +1340,577 @@ AS
 /***********************************F-DEP-RCM-KAF-1-06/10/2017****************************************/
 
       
+
+/***********************************I-DEP-RAC-KAF-1-11/10/2017****************************************/
+
+CREATE OR REPLACE VIEW kaf.v_cbte_depreciacion_haber(
+    id_fila,
+    id_cuenta_dep_acum,
+    id_partida_dep_acum,
+    id_auxiliar_dep_aucm,
+    depreciacion_acum,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_dep_acum,
+         pa.id_partida_dep_acum,
+         pa.id_auxiliar_dep_aucm,
+         sum(pa.depreciacion_acum) AS depreciacion_acum,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_dep_acum IS NOT NULL
+  GROUP BY pa.id_cuenta_dep_acum,
+           pa.id_partida_dep_acum,
+           pa.id_auxiliar_dep_aucm,
+           maf.id_movimiento;
+           
+CREATE OR REPLACE VIEW kaf.v_cbte_depreciacion_debe(
+    id_fila,
+    id_centro_costo,
+    id_ot,
+    id_cuenta_dep,
+    id_partida_dep,
+    id_auxiliar_dep,
+    depreciacion,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_centro_costo,
+         pa.id_ot,
+         pa.id_cuenta_dep,
+         pa.id_partida_dep,
+         pa.id_auxiliar_dep,
+         sum(pa.depreciacion) AS depreciacion,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  GROUP BY pa.id_centro_costo,
+           pa.id_ot,
+           pa.id_cuenta_dep,
+           pa.id_partida_dep,
+           pa.id_auxiliar_dep,
+           maf.id_movimiento;           
+
+CREATE OR REPLACE VIEW kaf.v_cbte_aitb_haber(
+    id_fila,
+    id_cuenta_act_dep,
+    id_partida_act_dep,
+    id_auxiliar_act_dep,
+    aitb_dep_acum,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_act_dep,
+         pa.id_partida_act_dep,
+         pa.id_auxiliar_act_dep,
+         sum(pa.aitb_dep_acum) AS aitb_dep_acum,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_act_dep IS NOT NULL
+  GROUP BY pa.id_cuenta_act_dep,
+           pa.id_partida_act_dep,
+           pa.id_auxiliar_act_dep,
+           maf.id_movimiento;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_aitb_debe(
+    id_fila,
+    id_cuenta_act_activo,
+    id_partida_act_activo,
+    id_auxiliar_act_activo,
+    aitb_activo,
+    id_movimiento)
+AS
+  SELECT row_number() OVER() AS id_fila,
+         pa.id_cuenta_act_activo,
+         pa.id_partida_act_activo,
+         pa.id_auxiliar_act_activo,
+         sum(pa.aitb_activo) AS aitb_activo,
+         maf.id_movimiento
+  FROM kaf.tprorrateo_af pa
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pa.id_movimiento_af
+  WHERE pa.id_cuenta_act_activo IS NOT NULL
+  GROUP BY pa.id_cuenta_act_activo,
+           pa.id_partida_act_activo,
+           pa.id_auxiliar_act_activo,
+           maf.id_movimiento;
+           
+           
+/***********************************F-DEP-RAC-KAF-1-11/10/2017****************************************/
+
+
+
+/***********************************I-DEP-RAC-KAF-1-19/10/2017****************************************/
+
+--RAC, las consultas estaba error para el bte de activos fijos
+
+CREATE OR REPLACE VIEW kaf.vultimo_movimiento_af_dep_movimiento(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af,
+    afd.id_moneda_dep) date_part('year'::text, afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini,
+         maf.id_movimiento,
+         afd.id_moneda_dep
+  FROM kaf.tmovimiento_af_dep afd
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           afd.id_moneda_dep,
+           afd.fecha DESC;
+           
+           
+ CREATE OR REPLACE VIEW kaf.vprimero_movimiento_af_dep_movimiento(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af,
+    afd.id_moneda_dep) date_part('year'::text, afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini,
+         maf.id_movimiento,
+         afd.id_moneda_dep
+  FROM kaf.tmovimiento_af_dep afd
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           afd.id_moneda_dep,
+           afd.fecha;   
+           
+ --------------- SQL ---------------
+
+CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo(
+    id_activo_fijo,
+    id_clasificacion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    id_movimiento,
+    gestion_inicial,
+    gestion_final,
+    tipo,
+    fecha_compra,
+    fecha_ini_dep,
+    codigo,
+    descripcion,
+    monto_vigente_orig,
+    monto_vigente_inicial,
+    monto_vigente_final,
+    monto_actualiz_inicial,
+    monto_actualiz_final,
+    aitb_activo,
+    vida_util_orig,
+    vida_util_inicial,
+    vida_util_final,
+    depreciacion_per_inicial,
+    depreciacion_per_final,
+    depreciacion_per_actualiz_inicial,
+    depreciacion_per_actualiz_final,
+    depreciacion_acum_inicial,
+    depreciacion_acum_final,
+    aitb_depreciacion_acumulada,
+    depreciacion_acum_actualiz_final,
+    tipo_cabio_inicial,
+    tipo_cabio_final,
+    factor,
+    id_moneda,
+    id_moneda_dep,
+    id_proyecto,
+    deducible)
+AS
+   SELECT af.id_activo_fijo,
+         af.id_clasificacion,
+         afv.id_activo_fijo_valor,
+         maf.id_movimiento_af,
+         maf.id_movimiento,
+         ud.gestion AS gestion_inicial,
+         ud.gestion AS gestion_final,
+         afv.tipo,
+         af.fecha_compra,
+         af.fecha_ini_dep,
+         af.codigo,
+         af.descripcion,
+         afv.monto_vigente_orig,
+         pd.monto_vigente_ant AS monto_vigente_inicial,
+         ud.monto_vigente AS monto_vigente_final,
+         pd.monto_actualiz_ant AS monto_actualiz_inicial,
+         ud.monto_actualiz AS monto_actualiz_final,
+         ud.monto_actualiz - pd.monto_actualiz_ant AS aitb_activo,
+         afv.vida_util_orig,
+         pd.vida_util_ant AS vida_util_inicial,
+         ud.vida_util AS vida_util_final,
+         pd.depreciacion_per_ant AS depreciacion_per_inicial,
+         ud.depreciacion_per AS depreciacion_per_final,
+         pd.depreciacion_per_actualiz AS depreciacion_per_actualiz_inicial,
+         ud.depreciacion_per_actualiz AS depreciacion_per_actualiz_final,
+         pd.depreciacion_acum_ant AS depreciacion_acum_inicial,
+         ud.depreciacion_acum AS depreciacion_acum_final,
+         ud.depreciacion_acum - pd.depreciacion_acum_ant - ud.depreciacion_per
+           AS aitb_depreciacion_acumulada,
+         ud.depreciacion_acum_actualiz AS depreciacion_acum_actualiz_final,
+         pd.tipo_cambio_ini AS tipo_cabio_inicial,
+         ud.tipo_cambio_fin AS tipo_cabio_final,
+         ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor,
+         afv.id_moneda,
+         afv.id_moneda_dep, 
+         af.id_proyecto,
+         afv.deducible
+  FROM kaf.tactivo_fijo_valores afv
+       JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
+       JOIN kaf.vprimero_movimiento_af_dep_movimiento pd ON pd.id_activo_fijo_valor  = afv.id_activo_fijo_valor  and pd.id_moneda_dep = afv.id_moneda_dep
+       JOIN kaf.vultimo_movimiento_af_dep_movimiento ud ON ud.id_activo_fijo_valor  = afv.id_activo_fijo_valor AND ud.id_movimiento_af = pd.id_movimiento_af and ud.id_moneda_dep = pd.id_moneda_dep
+       JOIN kaf.tmovimiento_af maf ON 
+              maf.id_movimiento_af = pd.id_movimiento_af
+         AND  maf.id_movimiento_af = ud.id_movimiento_af;   
+         
+         
+ CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep_estado(
+    id_activo_fijo_valor,
+    monto_vigente,
+    vida_util,
+    fecha,
+    depreciacion_acum,
+    depreciacion_per,
+    depreciacion_acum_ant,
+    monto_actualiz,
+    depreciacion_acum_actualiz,
+    depreciacion_per_actualiz,
+    id_moneda,
+    id_moneda_dep,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    estado)
+AS
+WITH maximo AS(
+  SELECT z.id_activo_fijo_valor,
+         max(z.id_movimiento_af_dep) AS id_movimiento_af_dep
+  FROM kaf.tmovimiento_af_dep z
+  GROUP BY z.id_activo_fijo_valor)
+    SELECT afd.id_activo_fijo_valor,
+           afd.monto_vigente,
+           afd.vida_util,
+           afd.fecha,
+           afd.depreciacion_acum,
+           afd.depreciacion_per,
+           afd.depreciacion_acum_ant,
+           afd.monto_actualiz,
+           afd.depreciacion_acum_actualiz,
+           afd.depreciacion_per_actualiz,
+           afd.id_moneda,
+           afd.id_moneda_dep,
+           afd.tipo_cambio_fin,
+           afd.tipo_cambio_ini,
+           mov.estado
+    FROM kaf.tmovimiento_af_dep afd
+         JOIN maximo m ON afd.id_movimiento_af_dep = m.id_movimiento_af_dep
+         JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+           afd.id_movimiento_af
+         JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento;               
+
+
+
+--------------- SQL ---------------
+
+CREATE OR REPLACE VIEW kaf.vminimo_movimiento_af_dep (
+    id_activo_fijo_valor,
+    monto_vigente,
+    vida_util,
+    fecha,
+    depreciacion_acum,
+    depreciacion_per,
+    depreciacion_acum_ant,
+    monto_actualiz,
+    depreciacion_acum_actualiz,
+    depreciacion_per_actualiz,
+    id_moneda,
+    id_moneda_dep,
+    tipo_cambio_fin,
+    tipo_cambio_ini)
+AS
+
+   
+ WITH maximo AS(
+  SELECT z.id_activo_fijo_valor,
+         max(z.id_movimiento_af_dep) AS id_movimiento_af_dep
+  FROM kaf.tmovimiento_af_dep z
+  GROUP BY z.id_activo_fijo_valor)
+    SELECT afd.id_activo_fijo_valor,
+           afd.monto_vigente,
+           afd.vida_util,
+           afd.fecha,
+           afd.depreciacion_acum,
+           afd.depreciacion_per,
+           afd.depreciacion_acum_ant,
+           afd.monto_actualiz,
+           afd.depreciacion_acum_actualiz,
+           afd.depreciacion_per_actualiz,
+           afd.id_moneda,
+           afd.id_moneda_dep,
+           afd.tipo_cambio_fin,
+           afd.tipo_cambio_ini
+    FROM kaf.tmovimiento_af_dep afd
+         JOIN maximo m ON afd.id_movimiento_af_dep = m.id_movimiento_af_dep;
+
+
+
+
+CREATE OR REPLACE VIEW kaf.vprimero_movimiento_af_dep_gestion(
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+  SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part
+    ('year'::text, afd.fecha)), afd.id_moneda_dep) date_part('year'::text,
+    afd.fecha) AS gestion,
+         afd.id_activo_fijo_valor,
+         afd.id_movimiento_af,
+         afd.vida_util_ant,
+         afd.vida_util,
+         afd.fecha,
+         afd.monto_vigente,
+         afd.monto_vigente_ant,
+         afd.monto_actualiz,
+         afd.monto_actualiz_ant,
+         afd.depreciacion_acum,
+         afd.depreciacion_acum_ant,
+         afd.depreciacion_acum_actualiz,
+         afd.depreciacion_per,
+         afd.depreciacion_per_ant,
+         afd.depreciacion_per_actualiz,
+         afd.tipo_cambio_fin,
+         afd.tipo_cambio_ini,
+         maf.id_movimiento,
+         afd.id_moneda_dep
+  FROM kaf.tmovimiento_af_dep afd
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af =
+         afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor,
+           afd.id_movimiento_af,
+           (date_part('year'::text, afd.fecha)),
+           afd.id_moneda_dep,
+           afd.fecha;
+         
+ CREATE OR REPLACE VIEW kaf.vultimo_movimiento_af_dep_gestion (
+    gestion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    vida_util_ant,
+    vida_util,
+    fecha,
+    monto_vigente,
+    monto_vigente_ant,
+    monto_actualiz,
+    monto_actualiz_ant,
+    depreciacion_acum,
+    depreciacion_acum_ant,
+    depreciacion_acum_actualiz,
+    depreciacion_per,
+    depreciacion_per_ant,
+    depreciacion_per_actualiz,
+    tipo_cambio_fin,
+    tipo_cambio_ini,
+    id_movimiento,
+    id_moneda_dep)
+AS
+ SELECT DISTINCT ON (afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part(
+   'year'::text, afd.fecha)), afd.id_moneda_dep) date_part('year'::text,
+   afd.fecha) AS gestion,
+        afd.id_activo_fijo_valor,
+        afd.id_movimiento_af,
+        afd.vida_util_ant,
+        afd.vida_util,
+        afd.fecha,
+        afd.monto_vigente,
+        afd.monto_vigente_ant,
+        afd.monto_actualiz,
+        afd.monto_actualiz_ant,
+        afd.depreciacion_acum,
+        afd.depreciacion_acum_ant,
+        afd.depreciacion_acum_actualiz,
+        afd.depreciacion_per,
+        afd.depreciacion_per_ant,
+        afd.depreciacion_per_actualiz,
+        afd.tipo_cambio_fin,
+        afd.tipo_cambio_ini,
+        maf.id_movimiento,
+    afd.id_moneda_dep
+   FROM kaf.tmovimiento_af_dep afd
+     JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = afd.id_movimiento_af
+  ORDER BY afd.id_activo_fijo_valor, afd.id_movimiento_af, (date_part('year'::text, afd.fecha)), afd.id_moneda_dep, afd.fecha DESC;        
+         
+  
+CREATE OR REPLACE VIEW kaf.vdetalle_depreciacion_activo_por_gestion(
+    id_activo_fijo,
+    id_clasificacion,
+    id_activo_fijo_valor,
+    id_movimiento_af,
+    id_movimiento,
+    gestion_inicial,
+    gestion_final,
+    tipo,
+    fecha_compra,
+    fecha_ini_dep,
+    codigo,
+    descripcion,
+    monto_vigente_orig,
+    monto_vigente_inicial,
+    monto_vigente_final,
+    monto_actualiz_inicial,
+    monto_actualiz_final,
+    aitb_activo,
+    vida_util_orig,
+    vida_util_inicial,
+    vida_util_final,
+    depreciacion_per_inicial,
+    depreciacion_per_final,
+    depreciacion_per_actualiz_inicial,
+    depreciacion_per_actualiz_final,
+    depreciacion_acum_inicial,
+    depreciacion_acum_final,
+    aitb_depreciacion_acumulada,
+    depreciacion_acum_actualiz_final,
+    tipo_cabio_inicial,
+    tipo_cabio_final,
+    factor,
+    id_moneda,
+    id_moneda_dep,
+    id_proyecto,
+    deducible)
+AS
+  SELECT af.id_activo_fijo,
+         af.id_clasificacion,
+         afv.id_activo_fijo_valor,
+         maf.id_movimiento_af,
+         maf.id_movimiento,
+         ud.gestion AS gestion_inicial,
+         ud.gestion AS gestion_final,
+         afv.tipo,
+         af.fecha_compra,
+         af.fecha_ini_dep,
+         af.codigo,
+         af.descripcion,
+         afv.monto_vigente_orig,
+         pd.monto_vigente_ant AS monto_vigente_inicial,
+         ud.monto_vigente AS monto_vigente_final,
+         pd.monto_actualiz_ant AS monto_actualiz_inicial,
+         ud.monto_actualiz AS monto_actualiz_final,
+         ud.monto_actualiz - pd.monto_actualiz_ant AS aitb_activo,
+         afv.vida_util_orig,
+         pd.vida_util_ant AS vida_util_inicial,
+         ud.vida_util AS vida_util_final,
+         pd.depreciacion_per_ant AS depreciacion_per_inicial,
+         ud.depreciacion_per AS depreciacion_per_final,
+         pd.depreciacion_per_actualiz AS depreciacion_per_actualiz_inicial,
+         ud.depreciacion_per_actualiz AS depreciacion_per_actualiz_final,
+         pd.depreciacion_acum_ant AS depreciacion_acum_inicial,
+         ud.depreciacion_acum AS depreciacion_acum_final,
+         ud.depreciacion_acum - pd.depreciacion_acum_ant - ud.depreciacion_per
+           AS aitb_depreciacion_acumulada,
+         ud.depreciacion_acum_actualiz AS depreciacion_acum_actualiz_final,
+         pd.tipo_cambio_ini AS tipo_cabio_inicial,
+         ud.tipo_cambio_fin AS tipo_cabio_final,
+         ud.tipo_cambio_fin - pd.tipo_cambio_ini AS factor,
+         afv.id_moneda,
+         afv.id_moneda_dep,
+         af.id_proyecto,
+         afv.deducible
+  FROM kaf.tactivo_fijo_valores afv
+       JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
+       JOIN kaf.vprimero_movimiento_af_dep_gestion pd ON pd.id_activo_fijo_valor
+         = afv.id_activo_fijo_valor AND pd.id_moneda_dep = afv.id_moneda_dep
+       JOIN kaf.vultimo_movimiento_af_dep_gestion ud ON ud.id_activo_fijo_valor
+         = afv.id_activo_fijo_valor AND ud.gestion = pd.gestion AND
+         ud.id_moneda_dep = pd.id_moneda_dep
+       JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = pd.id_movimiento_af
+         AND maf.id_movimiento_af = ud.id_movimiento_af;  
+  
+         
+/***********************************F-DEP-RAC-KAF-1-19/10/2017****************************************/
+                  
