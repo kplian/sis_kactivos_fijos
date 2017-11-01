@@ -978,6 +978,20 @@ BEGIN
 
         begin
 
+            --Creacion de tabla temporal de los actios fijos a filtrar
+            create temp table tt_af_filtro (
+                id_activo_fijo integer
+            ) on commit drop;
+
+            v_consulta = 'insert into tt_af_filtro
+                        select afij.id_activo_fijo
+                        from kaf.tactivo_fijo afij
+                        inner join kaf.tclasificacion cla
+                        on cla.id_clasificacion = afij.id_clasificacion
+                        where '||v_parametros.filtro;
+
+            execute(v_consulta);
+
             --Creación de la tabla con los datos de la depreciación
             create temp table tt_detalle_depreciacion (
                 codigo varchar(50),
@@ -1030,7 +1044,8 @@ BEGIN
             inner join kaf.tactivo_fijo af
             on af.id_activo_fijo = afv.id_activo_fijo
             where date_trunc('month',mdep.fecha) = date_trunc('month',v_parametros.fecha_hasta)
-            and mdep.id_moneda_dep = v_parametros.id_moneda;
+            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro);
 
             --Creación de la tabla con la agrupación y totales
             create temp table tt_detalle_depreciacion_totales (
@@ -1094,7 +1109,7 @@ BEGIN
             depreciacion_acum,
             monto_vigente,
             codigo_padre::integer,
-            replace(codigo,'.','')::bigint,
+            replace(replace(codigo,'.',''),'-','')::bigint,
             'detalle'
             from tt_detalle_depreciacion;
 
@@ -1120,9 +1135,16 @@ BEGIN
             'total'
             from tt_detalle_depreciacion;
 
+            v_where = '(''total'',''detalle'',''clasif'')';
+            if v_parametros.af_deprec = 'clasif' then
+                v_where = '(''total'',''clasif'')';
+            end if;
+
             v_consulta = 'select
                         *
-                        from tt_detalle_depreciacion_totales order by nivel, orden';
+                        from tt_detalle_depreciacion_totales
+                        where tipo in '||v_where||'
+                        order by nivel, orden';
 
             --Devuelve la respuesta
             return v_consulta;
