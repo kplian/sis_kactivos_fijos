@@ -37,6 +37,7 @@ DECLARE
     v_mes_aux               integer;
     v_mes_dep               date;
     v_mensaje               varchar;
+    v_sw_control_dep        boolean = false;
 
 BEGIN
     
@@ -123,6 +124,9 @@ BEGIN
                     else
                         0=0
                     end) loop
+
+        --Bandera de control de depreciación
+        v_sw_control_dep= true;
 
         v_mes_dep = v_rec.mes_dep;
 
@@ -307,9 +311,51 @@ BEGIN
         respuesta = v_mensaje
         where id_movimiento_af = v_rec.id_movimiento_af;
 
-        
-
     end loop;
+
+    --Verifica si entró al bucle al menos una vez. Caso contrario recorre bucle para registrar que no depreció
+    if v_sw_control_dep = false then
+
+        --Actualiza mensaje de que la vida util ya es cero
+        update kaf.tmovimiento_af set
+        respuesta = 'No Depreciado. Vida útil igual a cero'
+        from kaf.tmovimiento_af maf
+        inner join kaf.vactivo_fijo_valor afv
+        on afv.id_activo_fijo = maf.id_activo_fijo
+        inner join kaf.tmoneda_dep mon
+        on mon.id_moneda_dep = afv.id_moneda_dep
+        inner join kaf.tactivo_fijo af
+        on af.id_activo_fijo = maf.id_activo_fijo
+        inner join kaf.tclasificacion cla
+        on cla.id_clasificacion = af.id_clasificacion
+        inner join kaf.tactivo_fijo_valores afv1
+        on afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor
+        where maf.id_movimiento = p_id_movimiento
+        and cla.depreciable = 'si'
+        and afv.vida_util_real = 0
+        and kaf.tmovimiento_af.id_movimiento_af = maf.id_movimiento_af;
+
+        --Actualiza mensaje de que la vida util ya es cero
+        update kaf.tmovimiento_af set
+        respuesta = 'No Depreciado. Fecha Últ.Dep/Ini.Dep ('||afv.fecha_ult_dep_real::varchar||') es posterior a la fecha Hasta'
+        from kaf.tmovimiento_af maf
+        inner join kaf.vactivo_fijo_valor afv
+        on afv.id_activo_fijo = maf.id_activo_fijo
+        inner join kaf.tmoneda_dep mon
+        on mon.id_moneda_dep = afv.id_moneda_dep
+        inner join kaf.tactivo_fijo af
+        on af.id_activo_fijo = maf.id_activo_fijo
+        inner join kaf.tclasificacion cla
+        on cla.id_clasificacion = af.id_clasificacion
+        inner join kaf.tactivo_fijo_valores afv1
+        on afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor
+        where maf.id_movimiento = p_id_movimiento
+        and cla.depreciable = 'si'
+        and afv.fecha_ult_dep_real >= v_fecha_hasta
+        and kaf.tmovimiento_af.id_movimiento_af = maf.id_movimiento_af;
+
+
+    end if;
 
     return 'hecho';
 

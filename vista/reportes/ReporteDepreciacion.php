@@ -59,7 +59,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			rep_metodo_list: this.metodoList,
 			monto_inf: this.maestro.paramsRep.monto_inf,
 			monto_sup: this.maestro.paramsRep.monto_sup,
-			fecha_compra_max: this.maestro.paramsRep.fecha_compra_max
+			fecha_compra_max: this.maestro.paramsRep.fecha_compra_max,
+			af_deprec: this.maestro.paramsRep.af_deprec
 		};
 		this.load();
 
@@ -158,7 +159,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -183,7 +184,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+
 		        }
 			},
 			type:'TextField',
@@ -208,7 +210,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -233,7 +235,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -308,7 +310,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -333,7 +335,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -358,7 +360,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -383,7 +385,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',
@@ -408,7 +410,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		            	metadata.style="background-color:"+COLOR2;
 		            	mask = '<b>{0}</b>';
 		            }
-		            return value?String.format(mask, value):'';
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
 		        }
 			},
 			type:'TextField',

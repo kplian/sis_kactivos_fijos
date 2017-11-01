@@ -59,6 +59,107 @@ class ACTReportes extends ACTbase {
 	}
 
 	function ReporteGralAF(){
+		$this->definirFiltros();
+		//Verifica si la petición es para elk reporte en excel o de grilla
+		if($this->objParam->getParametro('tipo_salida')=='reporte'){
+			$this->objFunc=$this->create('MODReportes');
+			$datos=$this->objFunc->reporteGralAF($this->objParam);
+			$this->reporteGralAFXls($datos);
+		} else {
+			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+				$this->objReporte = new Reporte($this->objParam,$this);
+				
+				//$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
+				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
+				//$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepAsignados')
+
+				//$this->objReporte = new Reporte($this->objParam,$this);
+				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
+
+
+
+				//$aux = '$this->res = $this->objReporte->generarReporteListado(\'MODReportes\',\''.$this->objParam->getParametro('rep_metodo_list')."')";
+
+				//var_dump($aux);exit;
+				//eval($aux);
+
+				$metodo=$this->objParam->getParametro('rep_metodo_list');
+				$this->res = $this->objReporte->generarReporteListado('MODReportes',$metodo);
+			} else {
+				$this->objFunc=$this->create('MODReportes');
+
+				eval('$this->res=$this->objFunc->'.$this->objParam->getParametro('rep_metodo_list').'($this->objParam);');
+
+
+
+				//$this->res=$this->objFunc->reporteGralAF($this->objParam);
+			}
+			$this->res->imprimirRespuesta($this->res->generarJson());		
+		}
+
+	}
+
+	function reporteGralAFXls($datos){
+		$nombreArchivo = uniqid(md5(session_id()).'ReporteGralAF').'.xls';
+
+		//Recuperar datos
+		$this->objFunc = $this->create('MODReportes');
+		
+		//Parámetros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Reporte Activos Fijos';
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		//Generación de reporte
+		$reporte = new RReporteGralAFXls($this->objParam); 
+		$reporte->setTipoReporte($this->objParam->getParametro('reporte'));
+		$reporte->setTituloReporte($this->objParam->getParametro('titulo_reporte'));
+		$reporte->setMoneda($this->objParam->getParametro('desc_moneda'));
+		$reporte->setDataSet($datos->getDatos());
+
+  	    $reporte->generarReporte(); 
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function listarDepreciacionDeptoFechas(){
+		$this->objParam->defecto('ordenacion','id_depto');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarDepreciacionDeptoFechas');
+		} else {
+			$this->objFunc=$this->create('MODReportes');
+			$this->res=$this->objFunc->listarDepreciacionDeptoFechas($this->objParam);
+		}
+
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function listarRepDepreciacion(){
+		$this->definirFiltros();
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacion');
+		} else {
+			$this->objFunc=$this->create('MODReportes');
+			$this->res=$this->objFunc->listarRepDepreciacion($this->objParam);
+		}
+
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function definirFiltros() {
 		$this->objParam->defecto('ordenacion','codigo');
 		$this->objParam->defecto('dir_ordenacion','asc');
 
@@ -160,107 +261,6 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('fecha_compra_max')!=''){
 			$this->objParam->addFiltro("afij.fecha_compra <= ''".$this->objParam->getParametro('fecha_compra_max')."''");
 		}
-
-
-
-		//Verifica si la petición es para elk reporte en excel o de grilla
-		if($this->objParam->getParametro('tipo_salida')=='reporte'){
-			$this->objFunc=$this->create('MODReportes');
-			$datos=$this->objFunc->reporteGralAF($this->objParam);
-			$this->reporteGralAFXls($datos);
-		} else {
-			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-				$this->objReporte = new Reporte($this->objParam,$this);
-				
-				//$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
-				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
-				//$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepAsignados')
-
-				//$this->objReporte = new Reporte($this->objParam,$this);
-				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
-
-
-
-				//$aux = '$this->res = $this->objReporte->generarReporteListado(\'MODReportes\',\''.$this->objParam->getParametro('rep_metodo_list')."')";
-
-				//var_dump($aux);exit;
-				//eval($aux);
-
-				$metodo=$this->objParam->getParametro('rep_metodo_list');
-				$this->res = $this->objReporte->generarReporteListado('MODReportes',$metodo);
-			} else {
-				$this->objFunc=$this->create('MODReportes');
-
-				eval('$this->res=$this->objFunc->'.$this->objParam->getParametro('rep_metodo_list').'($this->objParam);');
-
-
-
-				//$this->res=$this->objFunc->reporteGralAF($this->objParam);
-			}
-			$this->res->imprimirRespuesta($this->res->generarJson());		
-		}
-
-	}
-
-	function reporteGralAFXls($datos){
-		$nombreArchivo = uniqid(md5(session_id()).'ReporteGralAF').'.xls';
-
-		//Recuperar datos
-		$this->objFunc = $this->create('MODReportes');
-		
-		//Parámetros básicos
-		$tamano = 'LETTER';
-		$orientacion = 'L';
-		$titulo = 'Reporte Activos Fijos';
-		
-		$this->objParam->addParametro('orientacion',$orientacion);
-		$this->objParam->addParametro('tamano',$tamano);		
-		$this->objParam->addParametro('titulo_archivo',$titulo);        
-		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-		
-		//Generación de reporte
-		$reporte = new RReporteGralAFXls($this->objParam); 
-		$reporte->setTipoReporte($this->objParam->getParametro('reporte'));
-		$reporte->setTituloReporte($this->objParam->getParametro('titulo_reporte'));
-		$reporte->setMoneda($this->objParam->getParametro('desc_moneda'));
-		$reporte->setDataSet($datos->getDatos());
-
-  	    $reporte->generarReporte(); 
-		
-		$this->mensajeExito=new Mensaje();
-		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
-		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-	}
-
-	function listarDepreciacionDeptoFechas(){
-		$this->objParam->defecto('ordenacion','id_depto');
-		$this->objParam->defecto('dir_ordenacion','asc');
-
-		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarDepreciacionDeptoFechas');
-		} else {
-			$this->objFunc=$this->create('MODReportes');
-			$this->res=$this->objFunc->listarDepreciacionDeptoFechas($this->objParam);
-		}
-
-		$this->res->imprimirRespuesta($this->res->generarJson());
-	}
-
-	function listarRepDepreciacion(){
-		$this->objParam->defecto('ordenacion','id_depto');
-		$this->objParam->defecto('dir_ordenacion','asc');
-
-		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacion');
-		} else {
-			$this->objFunc=$this->create('MODReportes');
-			$this->res=$this->objFunc->listarRepDepreciacion($this->objParam);
-		}
-
-		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
 }

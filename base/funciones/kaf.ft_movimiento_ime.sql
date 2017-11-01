@@ -889,7 +889,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -921,8 +921,7 @@ BEGIN
                                                     v_registros_af_mov.fecha_mov,
                                                     v_monto_inc_dec_real,
                                                     v_registros_af_mov.vida_util,
-                                                    v_registros_af_mov.codigo,
-                                                    v_registros_af_mov.cantidad_revaloriz,
+                                                    kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                     'no');
 
                         else
@@ -952,8 +951,7 @@ BEGIN
                                                         v_registros_af_mov.fecha_mov,
                                                         v_monto_inc_dec_real,
                                                         v_registros_af_mov.vida_util,
-                                                        v_registros_af_mov.codigo,
-                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                         'no');
 
                             else
@@ -974,8 +972,7 @@ BEGIN
                                                         v_registros_af_mov.fecha_mov,
                                                         v_monto_inc_dec_real,
                                                         v_registros_af_mov.vida_util,
-                                                        v_registros_af_mov.codigo,
-                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                         'si');
 
                             end if;
@@ -1172,7 +1169,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -1192,7 +1189,7 @@ BEGIN
                                                     v_registros_af_mov.fecha_mov,
                                                     v_rec_mov_esp.importe,
                                                     v_registros_af_mov.vida_util_real_af,
-                                                    kaf.f_get_numero_siguiente_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
+                                                    kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                     'si');
 
                         end loop;
@@ -1249,7 +1246,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -1385,7 +1382,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -1460,7 +1457,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -1492,8 +1489,7 @@ BEGIN
                                                     v_registros_af_mov.fecha_mov,
                                                     v_monto_inc_dec_real,
                                                     v_registros_af_mov.vida_util,
-                                                    v_registros_af_mov.codigo,
-                                                    v_registros_af_mov.cantidad_revaloriz,
+                                                    kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                     'no');
 
                             --TODO: ¿¿Matar depreciación??
@@ -1525,8 +1521,7 @@ BEGIN
                                                         v_registros_af_mov.fecha_mov,
                                                         v_monto_inc_dec_real,
                                                         v_registros_af_mov.vida_util,
-                                                        v_registros_af_mov.codigo,
-                                                        v_registros_af_mov.cantidad_revaloriz,
+                                                        kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                         'no');
 
                             else
@@ -1590,7 +1585,7 @@ BEGIN
                                               on mov.id_movimiento = maf.id_movimiento
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = maf.id_activo_fijo
-                                              inner join kaf.f_activo_fijo_vigente() av
+                                              inner join kaf.vactivo_fijo_vigente av
                                               on av.id_activo_fijo = maf.id_activo_fijo
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
@@ -1613,8 +1608,7 @@ BEGIN
                                                 v_registros_af_mov.fecha_mov,
                                                 v_monto_inc_dec_real,
                                                 v_registros_af_mov.vida_util,
-                                                v_registros_af_mov.codigo,
-                                                v_registros_af_mov.cantidad_revaloriz,
+                                                kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
                                                 'si');
 
                     end loop;
