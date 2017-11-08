@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -126,7 +128,10 @@ BEGIN
                             afij.nro_cbte_asociado,
                             afij.fecha_cbte_asociado,
                             round(afij.vida_util_original/12,2)::numeric as vida_util_original_anios,
-                            uo.nombre_cargo
+                            uo.nombre_cargo,
+                            afij.fecha_asignacion,
+                            afij.prestamo,
+                            afij.fecha_dev_prestamo
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -136,13 +141,13 @@ BEGIN
 						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
                         left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto 
                         left  join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
-                        /*left join kaf.vactivo_fijo_vigente_estado afvi on afvi.id_activo_fijo = afij.id_activo_fijo
+                        left join kaf.vactivo_fijo_vigente_estado afvi on afvi.id_activo_fijo = afij.id_activo_fijo
                         and afvi.id_moneda = afij.id_moneda_orig
-                        and (afvi.estado_mov_dep = ''finalizado'' or afvi.estado_mov_dep is null) */
+                        and (afvi.estado_mov_dep = ''finalizado'' or afvi.estado_mov_dep is null) 
 
-                        left join kaf.f_activo_fijo_vigente() afvi
-                        on afvi.id_activo_fijo = afij.id_activo_fijo
-                        and afvi.id_moneda = afij.id_moneda_orig
+                        --left join kaf.f_activo_fijo_vigente() afvi
+                        --on afvi.id_activo_fijo = afij.id_activo_fijo
+                        --and afvi.id_moneda = afij.id_moneda_orig
 
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod						
@@ -200,14 +205,20 @@ BEGIN
 						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
 						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto                        
+						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
 						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
                         left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto 
-                        left join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
-                        /*left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo*/
-                        left join kaf.f_activo_fijo_vigente() afvi
-                        on afvi.id_activo_fijo = afij.id_activo_fijo
+                        left  join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+                        
+                        /*
+                        left join kaf.vactivo_fijo_vigente_estado afvi on afvi.id_activo_fijo = afij.id_activo_fijo
                         and afvi.id_moneda = afij.id_moneda_orig
+                        and (afvi.estado_mov_dep = ''finalizado'' or afvi.estado_mov_dep is null) */
+
+                        --left join kaf.f_activo_fijo_vigente() afvi
+                        --on afvi.id_activo_fijo = afij.id_activo_fijo
+                        --and afvi.id_moneda = afij.id_moneda_orig
+
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod						
 						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario

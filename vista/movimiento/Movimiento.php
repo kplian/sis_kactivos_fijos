@@ -667,6 +667,69 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			form:false
 		},
 		{
+			config: {
+				name: 'prestamo',
+				fieldLabel: 'Préstamo',
+				anchor: '95%',
+				tinit: false,
+				allowBlank: true,
+				origen: 'CATALOGO',
+				gdisplayField: 'prestamo',
+				hiddenName: 'prestamo',
+				gwidth: 55,
+				baseParams:{
+					cod_subsistema:'KAF',
+					catalogo_tipo:'tclasificacion_variable__obligatorio'
+				},
+				valueField: 'codigo',
+				hidden: true
+			},
+			type: 'ComboRec',
+			id_grupo: 0,
+			filters:{pfiltro:'mov.prestamo',type:'string'},
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'fecha_dev_prestamo',
+				fieldLabel: 'Fecha Dev.Préstamo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 70,
+				format: 'd/m/Y', 
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+			type:'DateField',
+			filters:{pfiltro:'mov.fecha_dev_prestamo',type:'date'},
+			id_grupo:0,
+			grid:false,
+			form:true
+		},
+		{
+			config: {
+				name: 'tipo_asig',
+				fieldLabel: 'Tipo',
+				anchor: '95%',
+				tinit: false,
+				allowBlank: true,
+				origen: 'CATALOGO',
+				gdisplayField: 'tipo_asig',
+				hiddenName: 'tipo_asig',
+				gwidth: 55,
+				baseParams:{
+					cod_subsistema:'KAF',
+					catalogo_tipo:'tmovimiento__tipo_asig'
+				},
+				valueField: 'codigo',
+				hidden: true
+			},
+			type: 'ComboRec',
+			id_grupo: 0,
+			grid: false,
+			form: true
+		},
+		{
 			config:{
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
@@ -827,7 +890,9 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_funcionario2', type: 'string'},
 		'id_int_comprobante',
 		'id_int_comprobante_aitb',
-		{name:'resp_wf', type: 'string'}
+		{name:'resp_wf', type: 'string'},
+		{name:'prestamo', type: 'string'},
+		{name:'fecha_dev_prestamo', type: 'date',dateFormat:'Y-m-d H:i:s.u'}
 	],
 	sortInfo:{
 		field: 'fecha_mov',

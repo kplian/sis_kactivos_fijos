@@ -11,6 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     dblclickEdit: true,
+    nombreVista: 'ActivoFijo',
     mainRegionPanel: {
         region:'west',
         collapsed: true,
@@ -438,6 +439,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             disabled : true,
             handler : this.impCodigo,
             tooltip : '<b>Código</b><br/>Imprimir el código del activo fijo'
+        });
+
+        this.addButton('btnHistorialDep', {
+            text : 'Detalle Deprec.',
+            iconCls : 'bgear',
+            disabled : true,
+            handler : this.abrirDetalleDep,
+            tooltip : '<b>Detalle Depreciación</b><br/>Detalle completo de las depreciaciones mensuales realizadas'
         });
         
 
@@ -1735,6 +1744,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'nro_cbte_asociado',type:'string'},
              {name:'fecha_cbte_asociado',type:'date',dateFormat: 'Y-m-d'},
              {name:'vida_util_original_anios',type:'numeric'},
+             {name:'prestamo',type:'string'},
+             {name:'fecha_dev_prestamo',type:'date',dateFormat: 'Y-m-d'},
+             {name:'fecha_asignacion',type:'date',dateFormat: 'Y-m-d'}
              ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original', 'id_centro_costo', 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -2039,6 +2051,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 name: 'fecha_asignacion',
                                 disabled: true,
                                 id: this.idContenedor+'_fecha_asignacion'
+                            }, {
+                                xtype: 'textfield',
+                                fieldLabel: 'Préstamo',
+                                name: 'prestamo',
+                                disabled: true,
+                                id: this.idContenedor+'_prestamo'
+                            }, {
+                                xtype: 'datefield',
+                                fieldLabel: 'Fecha Devolución Préstamo',
+                                name: 'fecha_dev_prestamo',
+                                disabled: true,
+                                id: this.idContenedor+'_fecha_dev_prestamo'
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Depósito',
@@ -2414,7 +2438,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('exception',this.conexionFailure,this);
             
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
-                console.log('aa',Ext.getCmp(this.idContenedor+'_id_clasificacion').getValue())
                 if(rec.data.depreciable == 'si'){
                     Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
                     Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
@@ -2639,6 +2662,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var tb = Phx.vista.ActivoFijo.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
         this.getBoton('btnPhoto').enable();
+        this.getBoton('btnHistorialDep').enable();
         if(data.estado=='alta') {
             this.getBoton('btnImpCodigo').enable(); 
         }
@@ -2650,8 +2674,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
     liberaMenu : function() {
         var tb = Phx.vista.ActivoFijo.superclass.liberaMenu.call(this);
-         this.getBoton('btnImpCodigo').disable();      
+        this.getBoton('btnImpCodigo').disable();      
         this.getBoton('btnPhoto').disable();
+        this.getBoton('btnHistorialDep').disable();
         return tb;
     },
     
@@ -2872,6 +2897,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             valor = Ext.util.Format.round(cantidad / 12,2);
         }
         return valor;
+    },
+    abrirDetalleDep: function(){
+        var rec = this.sm.getSelections();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresHist.php',
+            'Detalle depreciación', {
+                width: '80%',
+                height: '70%'
+            }, rec,
+            this.idContenedor,
+            'ActivoFijoValoresHist'
+        );
     }
     
 })

@@ -1023,3 +1023,31 @@ COMMENT ON COLUMN kaf.tprorrateo_af.id_centro_costo
 IS 'usamos centro de costos apr ala gestion del movimeino, asumimos que odo procesos de depreicacion solo se hace por una gestion';
 /***********************************F-SCP-RAC-KAF-1-06/10/2017****************************************/
 
+/***********************************I-SCP-RCM-KAF-1-16/10/2017****************************************/
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN prestamo varchar(2);
+ALTER TABLE kaf.tmovimiento
+  ADD COLUMN fecha_dev_prestamo date;
+
+COMMENT ON COLUMN kaf.tmovimiento.prestamo
+IS 'Bandera que indica si la asignación es de tipo Préstamo';
+COMMENT ON COLUMN kaf.tmovimiento.fecha_dev_prestamo
+IS 'Fecha en la que se debería devolver el préstamos realizado';
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN prestamo varchar(2);
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN fecha_dev_prestamo date;
+
+COMMENT ON COLUMN kaf.tmovimiento.prestamo
+IS 'Bandera que indica si la asignación es de tipo Préstamo';
+COMMENT ON COLUMN kaf.tmovimiento.fecha_dev_prestamo
+IS 'Fecha en la que se debería devolver el préstamos realizado';
+
+/***********************************F-SCP-RCM-KAF-1-16/10/2017****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-17/10/2017****************************************/
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD CONSTRAINT uq_tmovimiento_af_dep__id_activo_fijo_valor__id_moneda_dep__fecha
+    UNIQUE (id_activo_fijo_valor, id_moneda_dep, fecha) NOT DEFERRABLE;
+/***********************************F-SCP-RCM-KAF-1-17/10/2017****************************************/  

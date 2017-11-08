@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel (
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel ( 
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -32,6 +32,8 @@ DECLARE
 	v_filtro			varchar;
 	v_id_funcionario	integer;
 	v_tipo_interfaz		varchar;
+    v_depto_ids         varchar;
+    v_aux               varchar;
 			    
 BEGIN
 
@@ -49,14 +51,36 @@ BEGIN
      				
     	begin
 
+            --Inicialización de filtro
+            v_filtro = '0=0 and ';
+
+            --Filtro por departamento cuando no son administradores
+            if p_administrador !=1 then
+
+                select
+                pxp.list(distinct dep.id_depto::varchar)
+                into v_depto_ids
+                from param.tdepto_usuario depu
+                inner join param.tdepto dep
+                on dep.id_depto = depu.id_depto
+                inner join segu.tsubsistema sis
+                on sis.id_subsistema = dep.id_subsistema
+                where sis.codigo = 'KAF'
+                and depu.id_usuario = p_id_usuario;
+
+                if v_depto_ids is null then
+                    v_filtro = v_filtro || ' mov.id_depto = -1 and ';    
+                else
+                    v_filtro = v_filtro || ' mov.id_depto in ('||v_depto_ids||') and ';    
+                end if;
+
+            end if;
+
     		--Verificación de existencia de parámetro de interfaz
     		v_tipo_interfaz = 'normal';
     		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
             	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
-
-    		--Inicialización de filtro
-    		v_filtro = '0=0 and ';
 
     		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
     			--Obtención del funcionario a partir del usuario recibido
@@ -71,7 +95,7 @@ BEGIN
     				raise exception 'El usuario no es funcionario.';
     			end if;
 
-              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 
@@ -124,7 +148,9 @@ BEGIN
 			            movmot.motivo,
 			            mov.id_int_comprobante,
 			            mov.id_int_comprobante_aitb,
-                        funwf.desc_funcionario2 as resp_wf
+                        funwf.desc_funcionario2 as resp_wf,
+            mov.prestamo,
+            mov.fecha_dev_prestamo
 						from kaf.tmovimiento mov
 						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -182,14 +208,36 @@ BEGIN
 
 		begin
 
+            --Inicialización de filtro
+            v_filtro = '0=0 and ';
+
+            --Filtro por departamento cuando no son administradores
+            if p_administrador !=1 then
+
+                select
+                pxp.list(distinct dep.id_depto::varchar)
+                into v_depto_ids
+                from param.tdepto_usuario depu
+                inner join param.tdepto dep
+                on dep.id_depto = depu.id_depto
+                inner join segu.tsubsistema sis
+                on sis.id_subsistema = dep.id_subsistema
+                where sis.codigo = 'KAF'
+                and depu.id_usuario = p_id_usuario;
+
+                if v_depto_ids is null then
+                    v_filtro = v_filtro || ' mov.id_depto = -1 and ';    
+                else
+                    v_filtro = v_filtro || ' mov.id_depto in ('||v_depto_ids||') and ';    
+                end if;
+
+            end if;
+
 			--Verificación de existencia de parámetro de interfaz
     		v_tipo_interfaz = 'normal';
     		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
             	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
-
-    		--Inicialización de filtro
-    		v_filtro = '0=0 and ';
 
     		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
     			--Obtención del funcionario a partir del usuario recibido
@@ -204,7 +252,7 @@ BEGIN
     				raise exception 'El usuario no es funcionario.';
     			end if;
 
-              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 
@@ -294,6 +342,7 @@ BEGIN
                                 fundes.lugar_nombre as lugar_destino,
                                 fundes.oficina_nombre as oficina_destino,
                                 fundes.oficina_direccion as dir_destino
+
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
@@ -307,6 +356,7 @@ BEGIN
                               inner join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
                               inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto
                               left join segu.vpersona per on per.id_persona = mov.id_persona
+                              left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
 
 			      --Devuelve la respuesta
@@ -338,11 +388,18 @@ BEGIN
                             af.nro_serie,
                             af.fecha_compra,
                             af.monto_compra,
-                            kaf.f_get_tipo_activo(af.id_activo_fijo) as tipo_activo
+                            kaf.f_get_tipo_activo(af.id_activo_fijo) as tipo_activo,
+                            cla.codigo_completo_tmp||'' - ''|| cla.nombre as desc_clasificacion,
+                            af.fecha_ini_dep,
+                            af.monto_compra_orig,
+                            af.monto_compra_orig_100,
+                            af.nro_cbte_asociado,
+                            af.observaciones
                      from kaf.tmovimiento_af maf
                           inner join kaf.tactivo_fijo af on af.id_activo_fijo = maf.id_activo_fijo
-                          inner join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun
+                          left join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun
                           left join kaf.tmovimiento_motivo mmot on mmot.id_movimiento_motivo =  maf.id_movimiento_motivo
+                          inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
                      where maf.id_movimiento = '||v_parametros.id_movimiento;
 
 			
@@ -397,7 +454,7 @@ BEGIN
                               daf.depreciacion_per_final,
                               daf.depreciacion_per_actualiz_final
                             
-                          FROM kaf.vdetalle_depreciacion_activo daf
+                          FROM kaf.vdetalle_depreciacion_activo_por_gestion daf
                           INNER  JOIN kaf.vclaificacion_raiz cr on cr.id_clasificacion = daf.id_clasificacion
                           INNER JOIN kaf.tmoneda_dep mod on mod.id_moneda_dep = daf.id_moneda_dep
                           WHERE daf.id_movimiento = '||v_parametros.id_movimiento||'

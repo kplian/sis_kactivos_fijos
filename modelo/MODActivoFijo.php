@@ -101,6 +101,9 @@ class MODActivoFijo extends MODbase{
 		$this->captura('fecha_cbte_asociado','date');
 		$this->captura('vida_util_original_anios','numeric');
 		$this->captura('nombre_cargo','varchar');
+		$this->captura('fecha_asignacion','date');
+		$this->captura('prestamo','varchar');
+		$this->captura('fecha_dev_prestamo','date');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

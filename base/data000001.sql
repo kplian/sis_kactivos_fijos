@@ -1,4 +1,4 @@
-/***********************************I-DAT-RCM-KAF-1-02/09/2015****************************************/
+I-DAT-RCM-KAF-1-02/09/2015****************************************/
 INSERT INTO segu.tsubsistema ("codigo", "nombre", "fecha_reg", "prefijo", "estado_reg", "nombre_carpeta", "id_subsis_orig")
 VALUES (E'KAF', E'Sistema de Activos Fijos', E'2015-09-03', E'SKA', E'activo', E'ACTIVOS FIJOS', NULL);
 
@@ -308,3 +308,17 @@ select pxp.f_insert_testructura_gui ('KAF.REP.03', 'KAFREP.1');
 select pxp.f_insert_testructura_gui ('KAF.REP.04', 'KAFREP.1');
 select pxp.f_insert_testructura_gui ('KAF.REP.05', 'KAFREP.1');
 /***********************************F-DAT-RCM-KAF-1-05/10/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-16/10/2017****************************************/
+select pxp.f_insert_tgui ('Detalle Depreciación', 'Detalle Activos Fijos', 'KAF.REP.06', 'si', 3, 'sis_kactivos_fijos/vista/reportes/ParametrosRepDetalleDep.php', 3, '', 'ParametrosRepDetalleDep', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.06', 'KAFREP');
+
+select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Todos los Activos','todos','');
+select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Seleccionar','seleccionar','');
+/***********************************F-DAT-RCM-KAF-1-16/10/2017****************************************/
+
+
+/***********************************I-DAT-RCM-KAF-1-04/11/2017****************************************/
+select pxp.f_insert_tgui ('Activos Fijos por Responsable - Inventario', 'Activos Fijos por Responsable - Inventario', 'KAF.REP.07', 'si', 4, 'sis_kactivos_fijos/vista/reportes/ParametrosRepRespInventario.php', 3, '', 'ParametrosRepRespInventario', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.07', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-04/11/2017****************************************/

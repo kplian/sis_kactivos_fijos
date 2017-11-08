@@ -38,9 +38,12 @@ Ext.define('Phx.vista.ParametrosBase', {
 		});
 		this.dteFechaDesde = new Ext.form.DateField({
 			id: this.idContenedor+'_dteFechaDesde',
-			fieldLabel: 'Desde',
+			fieldLabel: 'Fecha',
 			vtype: 'daterange',
 			endDateField: this.idContenedor+'_dteFechaHasta'
+		});
+		this.lblDesde = new Ext.form.Label({
+			text: 'Desde: '
 		});
 		this.dteFechaHasta = new Ext.form.DateField({
 			id: this.idContenedor+'_dteFechaHasta',
@@ -52,8 +55,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			text: 'Hasta: '
 		});
 		this.cmpFechas = new Ext.form.CompositeField({
-        	fieldLabel: 'Desde',
-        	items: [this.dteFechaDesde,this.lblHasta,this.dteFechaHasta]
+        	fieldLabel: 'Fechas',
+        	items: [this.lblDesde,this.dteFechaDesde,this.lblHasta,this.dteFechaHasta]
         });
 		this.cmbClasificacion = new Ext.form.ComboBox({
 			fieldLabel: 'Clasificación',
@@ -357,19 +360,19 @@ Ext.define('Phx.vista.ParametrosBase', {
 			anchor: '100%',
 			emptyText: 'Elija una moneda...',
 			store: new Ext.data.JsonStore({
-                url: '../../sis_parametros/control/Moneda/listarMoneda',
-                id: 'id_moneda',
+                url: '../../sis_kactivos_fijos/control/MonedaDep/listarMonedaDep',
+                id: 'id_moneda_dep',
                 root: 'datos',
-                fields: ['id_moneda','codigo','moneda'],
+                fields: ['id_moneda_dep','desc_moneda','descripcion'],
                 totalProperty: 'total',
                 sortInfo: {
-                    field: 'codigo',
+                    field: 'descripcion',
                     direction: 'ASC'
                 },
-                baseParams:{par_filtro:'moneda.codigo#moneda.moneda'}
+                baseParams:{par_filtro:'mod.descripcion'}
             }),
-			valueField: 'id_moneda',
-			displayField: 'moneda',
+			valueField: 'id_moneda_dep',
+			displayField: 'desc_moneda',
 			forceSelection: false,
 			typeAhead: false,
 			triggerAction: 'all',
@@ -405,6 +408,14 @@ Ext.define('Phx.vista.ParametrosBase', {
 			fieldLabel: 'C31',
 			width: '100%'
 		});
+		//Depreciación: totales o totales + detalle
+		this.radGroupDeprec = new Ext.form.RadioGroup({
+			fieldLabel: 'Nivel',
+			items: [
+				{boxLabel: 'Sólo Totales', name: 'rb-auto3', inputValue: 'clasif'},
+                {boxLabel: 'Detallado', name: 'rb-auto3', inputValue: 'completo', checked: true}
+            ]
+		});
 	},
 	layout: function(){
 		//Fieldsets
@@ -413,7 +424,7 @@ Ext.define('Phx.vista.ParametrosBase', {
         	title: 'General',
         	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
-				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito]
+				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.radGroupDeprec]
         });
 
         this.fieldSetIncluir = new Ext.form.FieldSet({
@@ -495,6 +506,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.txtMontoInf.setValue('');
 		this.txtMontoSup.setValue('');
 		this.txtNroCbteAsociado.setValue('');
+		this.radGroupDeprec.setValue('completo');
 
 		this.cmbClasificacion.selectedIndex=-1;
 
@@ -569,12 +581,11 @@ Ext.define('Phx.vista.ParametrosBase', {
 			monto_inf: this.txtMontoInf.getValue(),
 			monto_sup: this.txtMontoSup.getValue(),
 			nro_cbte_asociado: this.txtNroCbteAsociado.getValue(),
-			fecha_compra_max: _fecha_compra_max
+			fecha_compra_max: _fecha_compra_max,
+			af_deprec: this.radGroupDeprec.getValue().inputValue
 		};
 
 		Ext.apply(params,this.getExtraParams());
-
-		console.log('qqqqqqq',this.getExtraParams());
 
 		return params;
 	},
@@ -641,40 +652,42 @@ Ext.define('Phx.vista.ParametrosBase', {
         });
 	},
 	inicializarParametros: function(){
-		this.configElement(this.dteFechaDesde,true,true);
-		this.configElement(this.dteFechaHasta,true,true);
-		this.configElement(this.cmbActivo,true,true);
-		this.configElement(this.cmbClasificacion,true,true);
-		this.configElement(this.txtDenominacion,true,true);
-		this.configElement(this.dteFechaCompra,true,true);
-		this.configElement(this.dteFechaIniDep,true,true);
-		this.configElement(this.cmbEstado,true,true);
-		this.configElement(this.cmbCentroCosto,true,true);
-		this.configElement(this.txtUbicacionFisica,true,true);
-		this.configElement(this.cmbOficina,true,true);
-		this.configElement(this.cmbResponsable,true,true);
-		this.configElement(this.cmbUnidSolic,true,true);
-		this.configElement(this.cmbResponsableCompra,true,true);
-		this.configElement(this.cmbLugar,true,true);
-		this.configElement(this.radGroupTransito,true,true);
-		this.configElement(this.radGroupTangible,true,true);
-		this.configElement(this.cmbDepto,true,true);
-		this.configElement(this.cmbDeposito,true,true);
-		this.configElement(this.lblHasta,true,true);
-		this.configElement(this.cmpFechas,true,true);
-		this.configElement(this.txtMontoInf,true,true);
-		this.configElement(this.txtMontoSup,true,true);
-		this.configElement(this.lblMontoInf,true,true);
-		this.configElement(this.lblMontoSup,true,true);
-		this.configElement(this.txtNroCbteAsociado,true,true);
-		this.configElement(this.cmpMontos,true,true);
-		this.configElement(this.cmbMoneda,true,true);
-		this.configElement(this.radGroupEstadoMov,true,true);
-		this.configElement(this.cmpFechaCompra,true,true);
+		this.configElement(this.dteFechaDesde,false,true);
+		this.configElement(this.dteFechaHasta,false,true);
+		this.configElement(this.cmbActivo,false,true);
+		this.configElement(this.cmbClasificacion,false,true);
+		this.configElement(this.txtDenominacion,false,true);
+		this.configElement(this.dteFechaCompra,false,true);
+		this.configElement(this.dteFechaIniDep,false,true);
+		this.configElement(this.cmbEstado,false,true);
+		this.configElement(this.cmbCentroCosto,false,true);
+		this.configElement(this.txtUbicacionFisica,false,true);
+		this.configElement(this.cmbOficina,false,true);
+		this.configElement(this.cmbResponsable,false,true);
+		this.configElement(this.cmbUnidSolic,false,true);
+		this.configElement(this.cmbResponsableCompra,false,true);
+		this.configElement(this.cmbLugar,false,true);
+		this.configElement(this.radGroupTransito,false,true);
+		this.configElement(this.radGroupTangible,false,true);
+		this.configElement(this.cmbDepto,false,true);
+		this.configElement(this.cmbDeposito,false,true);
+		this.configElement(this.lblDesde,false,true);
+		this.configElement(this.lblHasta,false,true);
+		this.configElement(this.cmpFechas,false,true);
+		this.configElement(this.txtMontoInf,false,true);
+		this.configElement(this.txtMontoSup,false,true);
+		this.configElement(this.lblMontoInf,false,true);
+		this.configElement(this.lblMontoSup,false,true);
+		this.configElement(this.txtNroCbteAsociado,false,true);
+		this.configElement(this.cmpMontos,false,true);
+		this.configElement(this.cmbMoneda,false,true);
+		this.configElement(this.radGroupEstadoMov,false,true);
+		this.configElement(this.cmpFechaCompra,false,true);
+		this.configElement(this.radGroupDeprec,false,true);
 
-		this.configElement(this.fieldSetGeneral,true,true);
-		this.configElement(this.fieldSetIncluir,true,true);
-		this.configElement(this.fieldSetCompra,true,true);
+		this.configElement(this.fieldSetGeneral,false,true);
+		this.configElement(this.fieldSetIncluir,false,true);
+		this.configElement(this.fieldSetCompra,false,true);
 	},
 	configElement: function(elm,disable,allowBlank){
 		//elm.setDisabled(disable);

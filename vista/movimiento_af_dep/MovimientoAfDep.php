@@ -72,7 +72,9 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Acum.Ant',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum_ant',type:'string'},
@@ -86,7 +88,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Periodo Ant.',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per_ant',type:'string'},
@@ -100,7 +105,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Monto Vigente Ant.',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_vigente_ant',type:'string'},
@@ -127,7 +135,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Acum.Actualiz.',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum_actualiz',type:'string'},
@@ -141,7 +152,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Per.Actualiz',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per_actualiz',type:'string'},
@@ -155,7 +169,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Monto Vigente Actualiz.',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_actualiz',type:'string'},
@@ -169,7 +186,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Mes',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion',type:'string'},
@@ -183,7 +203,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Acum.',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_acum',type:'string'},
@@ -197,7 +220,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Dep.Periodo',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.depreciacion_per',type:'string'},
@@ -211,7 +237,10 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Monto Vigente',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.monto_vigente',type:'string'},
@@ -238,7 +267,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'T/C Ini.',
 				gwidth: 80,
 				maxLength:10,
-				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0,000.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_ini',type:'string'},
@@ -252,7 +281,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'T/C Fin',
 				gwidth: 80,
 				maxLength:10,
-				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0.00');}
+				//renderer: function(value,p,record){return Ext.util.Format.number(value,'0,000.00');}
 			},
 			type:'TextField',
 			filters:{pfiltro:'res.tipo_cambio_fin',type:'string'},

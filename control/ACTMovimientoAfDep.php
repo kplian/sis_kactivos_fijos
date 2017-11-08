@@ -17,12 +17,10 @@ class ACTMovimientoAfDep extends ACTbase{
 			$this->objParam->addFiltro("mafdep.id_movimiento_af = ".$this->objParam->getParametro('id_movimiento_af'));
 		}
 		
+		if($this->objParam->getParametro('id_activo_fijo_valor')!=''){
+			$this->objParam->addFiltro("mafdep.id_activo_fijo_valor = ".$this->objParam->getParametro('id_activo_fijo_valor'));
+		}
 		
-		
-		
-		
-
-
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODMovimientoAfDep','listarMovimientoAfDep');

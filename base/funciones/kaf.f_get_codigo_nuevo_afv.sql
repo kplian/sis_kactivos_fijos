@@ -31,11 +31,14 @@ BEGIN
     v_nombre_funcion = 'kaf.f_get_codigo_nuevo_afv';
 
     --Conteo de la cantidad de registros del movimiento definido
-    select count(1) + 1
+    select count(distinct 1) + 1
     into v_numero
     from kaf.tactivo_fijo_valores
     where id_activo_fijo = p_id_activo_fijo
-    and tipo = p_cod_movimiento;
+    and tipo = p_cod_movimiento
+    group by id_activo_fijo;
+
+    v_numero = coalesce(v_numero, 1);
 
     --Obtención del código del activo fijo
     select codigo
@@ -43,23 +46,23 @@ BEGIN
     from kaf.tactivo_fijo
     where id_activo_fijo = p_id_activo_fijo;
 
-    v_codigo = v_codigo_af || '-';
+    v_codigo = v_codigo_af;
 
     --Personalización del código por tipo de movimiento
     if p_cod_movimiento = 'alta' then
-        v_codigo = v_codigo||'AL';
-    elsif p_cod_movimiento 'reval' then
-        v_codigo = v_codigo||'RE'||v_numero::varchar;
-    elsif p_cod_movimiento 'mejora' then
-        v_codigo = v_codigo||'ME'||v_numero::varchar;
-    elsif p_cod_movimiento 'ajuste' then
-        v_codigo = v_codigo||'AJ'||v_numero::varchar;
-    elsif p_cod_movimiento 'divis' then
-        v_codigo = v_codigo||'DI'||v_numero::varchar;
-    elsif p_cod_movimiento 'desgl' then
-        v_codigo = v_codigo||'DES'||v_numero::varchar;
-    elsif p_cod_movimiento 'intpar' then
-        v_codigo = v_codigo||'PAR'||v_numero::varchar;
+        v_codigo = v_codigo;
+    elsif p_cod_movimiento = 'reval' then
+        v_codigo = v_codigo||'-RE'||v_numero::varchar;
+    elsif p_cod_movimiento = 'mejora' then
+        v_codigo = v_codigo||'-ME'||v_numero::varchar;
+    elsif p_cod_movimiento = 'ajuste' then
+        v_codigo = v_codigo||'-AJ'||v_numero::varchar;
+    elsif p_cod_movimiento = 'divis' then
+        v_codigo = v_codigo||'-DI'||v_numero::varchar;
+    elsif p_cod_movimiento = 'desgl' then
+        v_codigo = v_codigo||'-DES'||v_numero::varchar;
+    elsif p_cod_movimiento = 'intpar' then
+        v_codigo = v_codigo||'-PAR'||v_numero::varchar;
     end if;
     
     --Respuesta

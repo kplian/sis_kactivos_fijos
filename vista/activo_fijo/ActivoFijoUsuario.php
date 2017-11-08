@@ -10,6 +10,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
+	pos_usuario: 'si',
 	constructor: function(config){
 		this.maestro = config.maestro;
 		Phx.vista.ActivoFijoUsuario.superclass.constructor.call(this,config);
@@ -45,7 +46,7 @@ Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
 			config:{
 				name: 'denominacion',
 				fieldLabel: 'Denominación',
-				gwidth: 100
+				gwidth: 250
 			},
 			type: 'TextField',
 			filters: {pfiltro:'afij.denominacion',type:'string'},
@@ -67,7 +68,7 @@ Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
 			config:{
 				name: 'id_clasificacion',
 				fieldLabel: 'Clasificación',
-				gwidth: 100,
+				gwidth: 250,
 				renderer:function (value, p, record){return String.format('{0}', record.data['clasificacion']);}
 			},
 			type: 'TextField',
@@ -188,14 +189,13 @@ Phx.vista.ActivoFijoUsuario = Ext.extend(Phx.gridInterfaz, {
              {name:'fecha_cbte_asociado',type:'date',dateFormat: 'Y-m-d'},
              {name:'vida_util_original_anios',type:'numeric'},
     ],
-    east: {
+    /*east: {
         url: '../../../sis_kactivos_fijos/vista/movimiento/MovimientoPorActivo.php',
         title: 'Movimientos',
         cls: 'MovimientoPorActivo',
         width: '300'
-    },
+    },*/
     onButtonAct: function() {
-    	console.log('sssssssss 111');
     	//this.store.rejectChanges();
 		//Phx.CP.varLog=false;
 		this.load({

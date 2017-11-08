@@ -21,30 +21,32 @@ Phx.vista.MovimientoPorActivo = {
 	bedit:false,
     
     constructor: function(config) {
+    	console.log('seeeee');
         this.modificarAtributo();
         Phx.vista.MovimientoPorActivo.superclass.constructor.call(this,config);
         this.init();
 
-        this.store.baseParams={por_usuario: 'si'};
-        this.load({
+        //this.store.baseParams={por_usuario: 'si'};
+        /*this.load({
 			params: {
 				start: 0,
 				limit: this.tam_pag,
-				por_usuario: 'si'
+				//por_usuario: 'si'
 			}
-		});
+		});*/
         
-        /*var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
         if(dataPadre){
             this.onEnablePanel(this, dataPadre);
         } else {
            this.bloquearMenus();
-        }*/
+        }
 
         //Grid
        	this.grid.on('cellclick', this.abrirEnlace, this);
     }, 
     onReloadPage:function(m){
+    	console.log('aqui',m)
 		this.maestro=m;
 		this.store.baseParams={id_activo_fijo:this.maestro.id_activo_fijo};
 		this.load({params:{start:0, limit:50}})

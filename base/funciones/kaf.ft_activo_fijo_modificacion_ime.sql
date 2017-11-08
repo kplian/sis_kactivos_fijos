@@ -170,21 +170,21 @@ BEGIN
                         v_monto_compra_afv = param.f_convertir_moneda(v_id_moneda_base, --moneda origen para conversion
 																	v_rec.id_moneda,   --moneda a la que sera convertido
 																	v_monto_compra, --este monto siemrpe estara en moenda base
-																	v_registros_af_mov.fecha_ini_dep, 
+																	now()::date, 
 																	'O',-- tipo oficial, venta, compra 
 																	NULL);--defecto dos decimales   
 
                         v_monto_compra_100 = param.f_convertir_moneda(v_parametros.id_moneda, --moneda origen para conversion
 																	v_rec.id_moneda,   --moneda a la que sera convertido
 																	v_parametros.monto_compra_orig_100, --este monto siemrpe estara en moenda base
-																	v_rec_af.fecha_ini_dep, 
+																	now()::date, 
 																	'O',-- tipo oficial, venta, compra 
 																	NULL);--defecto dos decimales   
                                                                              
                         v_monto_rescate = param.f_convertir_moneda(v_id_moneda_base, --moneda origen para conversion
                                                                    v_rec.id_moneda,   --moneda a la que sera convertido
                                                                    v_rec_af.monto_rescate, --este monto siemrpe estara en moenda base
-                                                                   v_rec_af.fecha_ini_dep, 
+                                                                   now()::date, 
                                                                    'O',-- tipo oficial, venta, compra 
                                                                    NULL);--defecto dos decimales                                                        
                                                   

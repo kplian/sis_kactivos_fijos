@@ -2,11 +2,11 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ParametrosRepAsignados = {
+Phx.vista.ParametrosRepDetalleDep = {
 	require: '../../../sis_kactivos_fijos/vista/reportes/ParametrosBase.php',
 	requireclase: 'Phx.vista.ParametrosBase',
 	constructor: function(config){
-		Phx.vista.ParametrosRepAsignados.superclass.constructor.call(this,config);
+		Phx.vista.ParametrosRepDetalleDep.superclass.constructor.call(this,config);
 		this.definicionRutareporte();
 		this.definirParametros();
 
@@ -40,15 +40,15 @@ Phx.vista.ParametrosRepAsignados = {
 		}, this);
 	},
 	definicionRutareporte: function(report){
-		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteAsignados.php';
-		this.claseReporte = 'ReporteAsignados';
-		this.titleReporte = 'Reportes asignados';
+		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteDetalleDep.php';
+		this.claseReporte = 'ReporteDetalleDep';
+		this.titleReporte = 'Reporte Detalle Depreciación';
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();
 
 		this.configElement(this.dteFechaDesde,false,true);
-		this.configElement(this.dteFechaHasta,false,true);
+		this.configElement(this.dteFechaHasta,true,false);
 		this.configElement(this.cmbActivo,false,true);
 
 		this.configElement(this.cmbClasificacion,true,true);
@@ -57,9 +57,9 @@ Phx.vista.ParametrosRepAsignados = {
 		this.configElement(this.dteFechaIniDep,true,true);
 		this.configElement(this.cmbEstado,true,true);
 		this.configElement(this.cmbCentroCosto,false,true);
-		this.configElement(this.txtUbicacionFisica,true,true);
+		this.configElement(this.txtUbicacionFisica,false,true);
 		this.configElement(this.cmbOficina,true,true);
-		this.configElement(this.cmbResponsable,true,false);
+		this.configElement(this.cmbResponsable,false,true);
 		this.configElement(this.cmbUnidSolic,false,true);
 		this.configElement(this.cmbResponsableCompra,false,true);
 		this.configElement(this.cmbLugar,false,true);
@@ -67,15 +67,16 @@ Phx.vista.ParametrosRepAsignados = {
 		this.configElement(this.radGroupTangible,true,true);
 		this.configElement(this.cmbDepto,true,true);
 		this.configElement(this.cmbDeposito,false,true);
-		this.configElement(this.lblHasta,false,true);
-		this.configElement(this.cmpFechas,false,true);
+		this.configElement(this.lblDesde,false,true);
+		this.configElement(this.lblHasta,true,true);
+		this.configElement(this.cmpFechas,true,true);
 		this.configElement(this.txtMontoInf,true,true);
 		this.configElement(this.txtMontoSup,true,true);
 		this.configElement(this.lblMontoInf,true,true);
 		this.configElement(this.lblMontoSup,true,true);
 		this.configElement(this.txtNroCbteAsociado,true,true);
 		this.configElement(this.cmpMontos,true,true);
-		this.configElement(this.cmbMoneda,false,true);
+		this.configElement(this.cmbMoneda,true,false);
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,true,true);
 
