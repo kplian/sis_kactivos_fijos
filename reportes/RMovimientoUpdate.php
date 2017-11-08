@@ -451,6 +451,10 @@ class RMovimientoUpdate extends  ReportePDF {
 
         $i = 0;
         if($tipo=='asig' || $tipo=='transf') {
+            if($tipo=='transf'){
+                $this->Ln(12);
+            }
+
             foreach ($this->getDataSource() as $datarow) {
 
 
@@ -476,7 +480,7 @@ class RMovimientoUpdate extends  ReportePDF {
 
             }
         }else if($tipo=='devol'){
-            $this->Ln(10);
+            $this->Ln(12);
             foreach ($this->getDataSource() as $datarow){
                 $this->tablealigns = array('L', 'C', 'L', 'L', 'L', 'L');
                 $this->tablenumbers = array(0, 0, 0, 0, 0, 0);

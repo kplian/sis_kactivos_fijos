@@ -178,7 +178,7 @@ Phx.vista.MovimientoPrincipal = {
 			var rec=this.sm.getSelected();
 			Phx.CP.loadingShow();
 			Ext.Ajax.request({
-				url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteAsignacionAFXls',
+				url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteAsig_Trans_DevAFXls',
 				params:{'id_movimiento':rec.data.id_movimiento},
 				success: this.successExport,
 				failure: this.conexionFailure,
