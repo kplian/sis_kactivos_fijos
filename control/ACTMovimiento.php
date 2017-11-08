@@ -8,8 +8,10 @@
 */
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/ReportWriter.php');
 require_once (dirname(__FILE__) . '/../reportes/RMovimiento2.php');
+require_once (dirname(__FILE__) . '/../reportes/RMovimientoUpdate.php');
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__).'/../reportes/RDetalleDepXls.php');
+require_once(dirname(__FILE__).'/../reportes/RAsig_Trans_DevAFXls.php');
 
 class ACTMovimiento extends ACTbase{    
 			
@@ -147,7 +149,7 @@ class ACTMovimiento extends ACTbase{
 		
 		
 
-		$reporte = new RMovimiento();		
+		$reporte = new RMovimiento();
 		$reporte->setDataMaster($dataMaestro);
 		$reporte->setDataDetalle($dataDetalle);
 		$nombreArchivo = 'movimiento_af.pdf';
@@ -222,6 +224,72 @@ class ACTMovimiento extends ACTbase{
 		$this->res=$this->objFunc->generarMovimientoRapido($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+	function generarReporteAsig_Trans_DevAFXls(){
+
+		$nombreArchivo = uniqid(md5(session_id()).'RAsig_Trans_DevAFXls').'.xls';
+
+		$obj = $this->listarReporteMovimientoMaestro();
+		$objDetalle = $this->listarReporteMovimientoDetalle();
+
+		$dataMaestro = $obj->getDatos();
+		$dataDetalle = $objDetalle->getDatos();
+
+		//parametros basicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'AsignacionAF';
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+
+		$reporte = new RAsig_Trans_DevAFXls($this->objParam);
+		$reporte->datosHeader($dataMaestro, $dataDetalle);
+		$reporte->generarReporte();
+
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+	}
+
+    function generarReporteMovimientoUpdate(){
+
+        $nombreArchivo = 'Movimientos'.uniqid(md5(session_id())).'.pdf';
+
+        $obj = $this->listarReporteMovimientoMaestro();
+        $objDetalle = $this->listarReporteMovimientoDetalle();
+
+        $dataMaestro = $obj->getDatos();
+        $dataDetalle = $objDetalle->getDatos();
+
+
+        //parametros basicos
+        $tamano = 'LETTER';
+        $orientacion = 'L';
+        $titulo = 'Consolidado';
+
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+        //Instancia la clase de pdf
+        $reporte = new RMovimientoUpdate($this->objParam);
+        $reporte->datosHeader($obj->getDatos(),  $objDetalle->getDatos());
+        $reporte->generarReporte();
+        $reporte->output($reporte->url_archivo,'F');
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
 			
 }
 

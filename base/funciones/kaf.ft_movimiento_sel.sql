@@ -286,7 +286,14 @@ BEGIN
                                 per.ci as ci_custodio,
                                 fundes.desc_funcionario2 as responsable_dest,
                                 fundes.nombre_cargo as nombre_cargo_dest,
-                                fundes.ci as ci_dest
+                                fundes.ci as ci_dest,
+                                tlu.nombre as lugar,
+                                coalesce((select tcar.nombre
+                                from orga.tcargo tcar
+                                where tcar.id_cargo = any (orga.f_get_cargo_x_funcionario(fun1.id_funcionario,now()::date))),''''SIN CARGO'''')	as cargo_jefe,
+                                fundes.lugar_nombre as lugar_destino,
+                                fundes.oficina_nombre as oficina_destino,
+                                fundes.oficina_direccion as dir_destino
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
@@ -297,13 +304,11 @@ BEGIN
                               on fundes.id_funcionario = mov.id_funcionario_dest
                               and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-                              --inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
+                              inner join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
                               inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto
                               left join segu.vpersona per on per.id_persona = mov.id_persona
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
 
-				
-			
 			      --Devuelve la respuesta
 			return v_consulta;
 
