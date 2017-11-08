@@ -440,6 +440,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             handler : this.impCodigo,
             tooltip : '<b>Código</b><br/>Imprimir el código del activo fijo'
         });
+
+        this.addButton('btnHistorialDep', {
+            text : 'Detalle Deprec.',
+            iconCls : 'bgear',
+            disabled : true,
+            handler : this.abrirDetalleDep,
+            tooltip : '<b>Detalle Depreciación</b><br/>Detalle completo de las depreciaciones mensuales realizadas'
+        });
         
 
         //Add context menu
@@ -2430,7 +2438,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('exception',this.conexionFailure,this);
             
             Ext.getCmp(this.idContenedor+'_id_clasificacion').on('select',function(cmp,rec,index){
-                console.log('aa',Ext.getCmp(this.idContenedor+'_id_clasificacion').getValue())
                 if(rec.data.depreciable == 'si'){
                     Ext.getCmp(this.idContenedor+'_vida_util_original').setValue(rec.data.vida_util);
                     Ext.getCmp(this.idContenedor+'_vida_util_real_af').setValue(rec.data.vida_util);
@@ -2655,6 +2662,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         var tb = Phx.vista.ActivoFijo.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
         this.getBoton('btnPhoto').enable();
+        this.getBoton('btnHistorialDep').enable();
         if(data.estado=='alta') {
             this.getBoton('btnImpCodigo').enable(); 
         }
@@ -2666,8 +2674,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
 
     liberaMenu : function() {
         var tb = Phx.vista.ActivoFijo.superclass.liberaMenu.call(this);
-         this.getBoton('btnImpCodigo').disable();      
+        this.getBoton('btnImpCodigo').disable();      
         this.getBoton('btnPhoto').disable();
+        this.getBoton('btnHistorialDep').disable();
         return tb;
     },
     
@@ -2888,6 +2897,18 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             valor = Ext.util.Format.round(cantidad / 12,2);
         }
         return valor;
+    },
+    abrirDetalleDep: function(){
+        var rec = this.sm.getSelections();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresHist.php',
+            'Detalle depreciación', {
+                width: '80%',
+                height: '70%'
+            }, rec,
+            this.idContenedor,
+            'ActivoFijoValoresHist'
+        );
     }
     
 })

@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__).'/../reportes/RKardexAFxls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteGralAFXls.php');
+require_once(dirname(__FILE__).'/../reportes/RRespInventario.php');
 
 class ACTReportes extends ACTbase {
 
@@ -261,6 +262,41 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('fecha_compra_max')!=''){
 			$this->objParam->addFiltro("afij.fecha_compra <= ''".$this->objParam->getParametro('fecha_compra_max')."''");
 		}
+	}
+
+	function ReporteRespInventario(){
+		$nombreArchivo = 'RespInventario'.uniqid(md5(session_id())).'.pdf';
+
+		$this->definirFiltros();
+
+		$this->objFunc=$this->create('MODReportes');
+		$dataSource=$this->objFunc->listarRepAsignados($this->objParam);
+//var_dump($dataSource);exit;
+
+		//parametros basicos
+		$orientacion = 'L';
+		$titulo = 'Responsable-Inventario';				
+        
+        $width = 160;  
+        $height = 80;
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		//$this->objParam->addParametro('tamano',array($width, $height));		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+		$clsRep = $dataSource->getDatos();
+		$reporte = new RRespInventario($this->objParam);
+		
+		$reporte->setOficina($this->objParam->getParametro('nombre_oficina'));
+		$reporte->datosHeader($dataSource->getDatos());
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');  
+         
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 
 }

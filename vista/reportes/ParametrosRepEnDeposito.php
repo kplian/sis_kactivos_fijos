@@ -85,6 +85,7 @@ Phx.vista.ParametrosRepEnDeposito = {
 		this.configElement(this.cmpFechaCompra,true,true);
 		this.configElement(this.txtNroCbteAsociado,false,true);
 
+		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,false,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},

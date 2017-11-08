@@ -1,4 +1,4 @@
-/***********************************I-DAT-RCM-KAF-1-02/09/2015****************************************/
+I-DAT-RCM-KAF-1-02/09/2015****************************************/
 INSERT INTO segu.tsubsistema ("codigo", "nombre", "fecha_reg", "prefijo", "estado_reg", "nombre_carpeta", "id_subsis_orig")
 VALUES (E'KAF', E'Sistema de Activos Fijos', E'2015-09-03', E'SKA', E'activo', E'ACTIVOS FIJOS', NULL);
 
@@ -318,3 +318,7 @@ select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Seleccionar','seleccion
 /***********************************F-DAT-RCM-KAF-1-16/10/2017****************************************/
 
 
+/***********************************I-DAT-RCM-KAF-1-04/11/2017****************************************/
+select pxp.f_insert_tgui ('Activos Fijos por Responsable - Inventario', 'Activos Fijos por Responsable - Inventario', 'KAF.REP.07', 'si', 4, 'sis_kactivos_fijos/vista/reportes/ParametrosRepRespInventario.php', 3, '', 'ParametrosRepRespInventario', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.07', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-04/11/2017****************************************/

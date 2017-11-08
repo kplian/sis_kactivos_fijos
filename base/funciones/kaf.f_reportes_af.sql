@@ -578,7 +578,8 @@ BEGIN
                             afij.ubicacion,
                             afij.fecha_asignacion,
                             ofi.nombre,
-                            fun.desc_funcionario2 as responsable
+                            fun.desc_funcionario2 as responsable,
+                            orga.f_get_cargo_x_funcionario_str(afij.id_funcionario,now()::date,''oficial'') as cargo
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
