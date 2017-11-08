@@ -32,6 +32,8 @@ DECLARE
 	v_filtro			varchar;
 	v_id_funcionario	integer;
 	v_tipo_interfaz		varchar;
+    v_depto_ids         varchar;
+    v_aux               varchar;
 			    
 BEGIN
 
@@ -49,14 +51,36 @@ BEGIN
      				
     	begin
 
+            --Inicialización de filtro
+            v_filtro = '0=0 and ';
+
+            --Filtro por departamento cuando no son administradores
+            if p_administrador !=1 then
+
+                select
+                pxp.list(distinct dep.id_depto::varchar)
+                into v_depto_ids
+                from param.tdepto_usuario depu
+                inner join param.tdepto dep
+                on dep.id_depto = depu.id_depto
+                inner join segu.tsubsistema sis
+                on sis.id_subsistema = dep.id_subsistema
+                where sis.codigo = 'KAF'
+                and depu.id_usuario = p_id_usuario;
+
+                if v_depto_ids is null then
+                    v_filtro = v_filtro || ' mov.id_depto = -1 and ';    
+                else
+                    v_filtro = v_filtro || ' mov.id_depto in ('||v_depto_ids||') and ';    
+                end if;
+
+            end if;
+
     		--Verificación de existencia de parámetro de interfaz
     		v_tipo_interfaz = 'normal';
     		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
             	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
-
-    		--Inicialización de filtro
-    		v_filtro = '0=0 and ';
 
     		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
     			--Obtención del funcionario a partir del usuario recibido
@@ -71,7 +95,7 @@ BEGIN
     				raise exception 'El usuario no es funcionario.';
     			end if;
 
-              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 
@@ -184,14 +208,36 @@ BEGIN
 
 		begin
 
+            --Inicialización de filtro
+            v_filtro = '0=0 and ';
+
+            --Filtro por departamento cuando no son administradores
+            if p_administrador !=1 then
+
+                select
+                pxp.list(distinct dep.id_depto::varchar)
+                into v_depto_ids
+                from param.tdepto_usuario depu
+                inner join param.tdepto dep
+                on dep.id_depto = depu.id_depto
+                inner join segu.tsubsistema sis
+                on sis.id_subsistema = dep.id_subsistema
+                where sis.codigo = 'KAF'
+                and depu.id_usuario = p_id_usuario;
+
+                if v_depto_ids is null then
+                    v_filtro = v_filtro || ' mov.id_depto = -1 and ';    
+                else
+                    v_filtro = v_filtro || ' mov.id_depto in ('||v_depto_ids||') and ';    
+                end if;
+
+            end if;
+
 			--Verificación de existencia de parámetro de interfaz
     		v_tipo_interfaz = 'normal';
     		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
             	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
-
-    		--Inicialización de filtro
-    		v_filtro = '0=0 and ';
 
     		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
     			--Obtención del funcionario a partir del usuario recibido
@@ -206,7 +252,7 @@ BEGIN
     				raise exception 'El usuario no es funcionario.';
     			end if;
 
-              	v_filtro = 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 

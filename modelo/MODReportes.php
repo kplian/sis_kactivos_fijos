@@ -157,18 +157,9 @@ class MODReportes extends MODbase{
 		$this->procedimiento='kaf.f_reportes_af';
 		$this->transaccion='SKA_RASIG_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-		
 		if($this->objParam->getParametro('tipo_salida')!='grid'){
 			$this->setCount(false);
 		}
-
-		//Define los parametros para la funcion
-		$this->setParametro('reporte','reporte','varchar');
-		$this->setParametro('tipo_salida','tipo_salida','varchar');
-		$this->setParametro('fecha_desde','fecha_desde','date');
-		$this->setParametro('fecha_hasta','fecha_hasta','date');
-		$this->setParametro('id_moneda','id_moneda','integer');
-		$this->setParametro('af_estado_mov','af_estado_mov','varchar');
 
 		//Definicion de la lista del resultado del query
 		$this->captura('codigo','VARCHAR');
@@ -181,12 +172,14 @@ class MODReportes extends MODbase{
         $this->captura('fecha_asignacion','date');
         $this->captura('desc_oficina','VARCHAR');
         $this->captura('responsable','text');
+        $this->captura('cargo','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
-		//echo $this->consulta;exit;
+		
 		
 		//Devuelve la respuesta
 		return $this->respuesta;
@@ -203,12 +196,12 @@ class MODReportes extends MODbase{
 		}
 
 		//Define los parametros para la funcion
-		$this->setParametro('reporte','reporte','varchar');
+		/*$this->setParametro('reporte','reporte','varchar');
 		$this->setParametro('tipo_salida','tipo_salida','varchar');
 		$this->setParametro('fecha_desde','fecha_desde','date');
 		$this->setParametro('fecha_hasta','fecha_hasta','date');
 		$this->setParametro('id_moneda','id_moneda','integer');
-		$this->setParametro('af_estado_mov','af_estado_mov','varchar');
+		$this->setParametro('af_estado_mov','af_estado_mov','varchar');*/
 
 		//Definicion de la lista del resultado del query
 		$this->captura('codigo','VARCHAR');

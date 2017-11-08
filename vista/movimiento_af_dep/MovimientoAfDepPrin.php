@@ -30,7 +30,6 @@ Phx.vista.MovimientoAfDepPrin = {
 	
 	onReloadPage : function(m) {
 		this.maestro = m;
-		console.log('TRES',this.maestro);
 		this.store.baseParams = {			
 			id_activo_fijo_valor: this.maestro.id_activo_fijo_valor
 		};
