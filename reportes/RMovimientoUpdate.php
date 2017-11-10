@@ -234,8 +234,7 @@ class RMovimientoUpdate extends  ReportePDF {
                    </tr>
                    <tr>
                         <td width="11%"><b>DIRECCIÓN: </b></td>
-<<<<<<< HEAD
-=======
+
                         <td width="39%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
                         <td width="11%" ><b>DIRECCIÓN: </b></td>
                         <td width="40%" >'.$this->dataMaster[0]['direccion'].'</td>
@@ -273,10 +272,9 @@ class RMovimientoUpdate extends  ReportePDF {
                    </tr>
                    <tr>
                         <td width="11%"><b>DIRECCIÓN: </b></td>
->>>>>>> b622b240ebc7b0afcd69e0e6e60bfa28341cb229
                         <td width="39%" >'.$this->dataMaster[0]['direccion_funcionario'].'</td>
                         <td width="11%" ><b>DIRECCIÓN: </b></td>
-                        <td width="40%" >'.$this->dataMaster[0]['direccion'].'</td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
                    </tr>
                    </table>
                    ';
