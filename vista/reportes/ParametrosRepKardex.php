@@ -38,20 +38,20 @@ Phx.vista.ParametrosRepKardex = {
 		}, this);
 	},
 	definicionRutareporte: function(report){
-		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteEnDeposito.php';
-		this.claseReporte = 'ReporteEnDeposito';
-		this.titleReporte = 'Reporte Activos Fijos asignados por Depósito';
+		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteKardex.php';
+		this.claseReporte = 'ReporteKardex';
+		this.titleReporte = 'Kardex Activos Fijos';
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();
 
-		this.configElement(this.dteFechaDesde,false,true);
-		this.configElement(this.dteFechaHasta,false,true);
-		this.configElement(this.cmbActivo,false,true);
+		this.configElement(this.dteFechaDesde,true,false);
+		this.configElement(this.dteFechaHasta,true,false);
+		this.configElement(this.cmbActivo,true,false);
 
 		this.configElement(this.cmbClasificacion,true,true);
-		this.configElement(this.txtDenominacion,true,false);
-		this.configElement(this.dteFechaCompra,true,true);
+		this.configElement(this.txtDenominacion,false,true);
+		this.configElement(this.dteFechaCompra,false,true);
 		this.configElement(this.dteFechaIniDep,false,true);
 		this.configElement(this.cmbEstado,false,true);
 		this.configElement(this.cmbCentroCosto,false,true);
@@ -64,22 +64,22 @@ Phx.vista.ParametrosRepKardex = {
 		this.configElement(this.radGroupTransito,false,true);
 		this.configElement(this.radGroupTangible,false,true);
 		this.configElement(this.cmbDepto,false,true);
-		this.configElement(this.cmbDeposito,true,false);
+		this.configElement(this.cmbDeposito,false,true);
 		this.configElement(this.lblHasta,false,true);
-		this.configElement(this.cmpFechas,false,true);
-		this.configElement(this.txtMontoInf,true,true);
-		this.configElement(this.txtMontoSup,true,true);
-		this.configElement(this.lblMontoInf,true,true);
-		this.configElement(this.lblMontoSup,true,true);
-		this.configElement(this.txtNroCbteAsociado,true,true);
-		this.configElement(this.cmpMontos,true,true);
-		this.configElement(this.cmbMoneda,false,true);
-		this.configElement(this.radGroupEstadoMov,false,true);
-		this.configElement(this.cmpFechaCompra,true,true);
+		this.configElement(this.cmpFechas,true,true);
+		this.configElement(this.txtMontoInf,false,true);
+		this.configElement(this.txtMontoSup,false,true);
+		this.configElement(this.lblMontoInf,false,true);
+		this.configElement(this.lblMontoSup,false,true);
+		this.configElement(this.txtNroCbteAsociado,false,true);
+		this.configElement(this.cmpMontos,false,true);
+		this.configElement(this.cmbMoneda,true,false);
+		this.configElement(this.radGroupEstadoMov,true,false);
+		this.configElement(this.cmpFechaCompra,false,true);
 		this.configElement(this.txtNroCbteAsociado,false,true);
 
 		this.configElement(this.fieldSetGeneral,true,true);
-		this.configElement(this.fieldSetIncluir,false,true);
+		this.configElement(this.fieldSetIncluir,true,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
 	onSubmit: function(){

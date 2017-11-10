@@ -122,9 +122,9 @@ class RRespInventario extends ReportePDF {
 
         //Oficina
         $this->SetFont('', 'B');
-        $this->Cell(25, $height,'', "", 0, 'L', false, '', 0, false, 'T', 'C');
+        $this->Cell(40, $height,'DEPTO.:', "", 0, 'L', false, '', 0, false, 'T', 'C');
         $this->SetFont('', '');
-        $this->Cell($w = 100,$h = $hGlobal, $txt = $this->dataMaster[0]['ubicacion'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+        $this->Cell($w = 50,$h = $hGlobal, $txt = $this->dataMaster['desc_depto'], $border = 0, $ln = 1, $align = 'L', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         
         //Dirección
         $this->SetFont('', 'B');

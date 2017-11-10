@@ -579,7 +579,8 @@ BEGIN
                             afij.fecha_asignacion,
                             ofi.nombre,
                             fun.desc_funcionario2 as responsable,
-                            orga.f_get_cargo_x_funcionario_str(afij.id_funcionario,now()::date,''oficial'') as cargo
+                            orga.f_get_cargo_x_funcionario_str(afij.id_funcionario,now()::date,''oficial'') as cargo,
+                            dep.codigo ||'' - ''||dep.nombre
                             from kaf.tactivo_fijo afij
                             inner join kaf.tclasificacion cla
                             on cla.id_clasificacion = afij.id_clasificacion
@@ -587,6 +588,8 @@ BEGIN
                             on fun.id_funcionario = afij.id_funcionario
                             inner join orga.toficina ofi
                             on ofi.id_oficina = afij.id_oficina
+                            inner join param.tdepto dep
+                            on dep.id_depto = afij.id_depto
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''no''
@@ -634,6 +637,8 @@ BEGIN
                             on fun.id_funcionario = afij.id_funcionario
                             inner join orga.toficina ofi
                             on ofi.id_oficina = afij.id_oficina
+                            inner join param.tdepto dep
+                            on dep.id_depto = afij.id_depto
                             where afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''no''

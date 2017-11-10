@@ -64,7 +64,7 @@ Phx.vista.ParametrosRepRespInventario = {
 		this.configElement(this.cmbLugar,false,true);
 		this.configElement(this.radGroupTransito,false,true);
 		this.configElement(this.radGroupTangible,false,true);
-		this.configElement(this.cmbDepto,false,true);
+		this.configElement(this.cmbDepto,true,false);
 		this.configElement(this.cmbDeposito,false,true);
 		this.configElement(this.lblDesde,false,true);
 		this.configElement(this.lblHasta,false,true);
@@ -93,6 +93,7 @@ Phx.vista.ParametrosRepRespInventario = {
 	                params: {
 	                	id_funcionario: this.cmbResponsable.getValue(),
 	                	id_oficina: this.cmbOficina.getValue(),
+	                	id_depto: this.cmbDepto.getValue(),
 	                	nombre_oficina: this.repOficina,
 	                	sort: 'afij.codigo',
 	                	dir: 'ASC',
