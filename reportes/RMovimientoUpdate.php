@@ -173,7 +173,7 @@ class RMovimientoUpdate extends  ReportePDF {
                    </table>
                    ';
             $this->writeHTML ($tbl);
-        }else if($tipo=='transf' || $tipo=='devol'){
+        }else if($tipo=='transf'){
             $tbl.='<tr>
                         <td width="11%"><b>ORIGEN: </b></td>
                         <td width="39%">'.$this->dataMaster[0]['responsable'].'</td>
@@ -194,9 +194,46 @@ class RMovimientoUpdate extends  ReportePDF {
                    </tr>
                    <tr>
                         <td width="11%"><b>DIRECCIÓN: </b></td>
-                        <td width="39%" >'.$this->dataMaster[0]['direccion'].'</td>
+                        <td width="39%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
                         <td width="11%" ><b>DIRECCIÓN: </b></td>
-                        <td width="40%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
+                        <td width="40%" >'.$this->dataMaster[0]['direccion'].'</td>
+                   </tr>
+                   </table>
+                   ';
+            $this->writeHTML ($tbl);
+            $tbl = '<table border="1" style="font-size: 8pt;" >
+                       <tr>
+                            <td width="101%" align="center" style="font-size: 9pt;"><b>GLOSA</b></td>
+                       </tr>
+                       <tr>
+                            <td width="101%">'.$this->dataMaster[0]['glosa'].'</td>
+                       </tr>
+                   </table>';
+            $this->writeHTML ($tbl);
+        }else if($tipo=='devol'){
+            $tbl.='<tr>
+                        <td width="11%"><b>ORIGEN: </b></td>
+                        <td width="39%">'.$this->dataMaster[0]['responsable'].'</td>
+                        <td width="11%"><b>DESTINO: </b></td>
+                        <td width="40%">'.$this->dataMaster[0]['responsable_dest'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%" ><b>LUGAR: </b></td>
+                        <td width="39%" align="left">'.$this->dataMaster[0]['lugar_funcionario'].'</td>
+                        <td width="11%" align="left"><b>LUGAR: </b></td>
+                        <td width="40%" align="left" >'.$this->dataMaster[0]['lugar_destino'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%" ><b>OFICINA: </b></td>
+                        <td width="39%" >'.$this->dataMaster[0]['oficina_funcionario'].'</td>
+                        <td width="11%" ><b>OFICINA: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina_destino'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%"><b>DIRECCIÓN: </b></td>
+                        <td width="39%" >'.$this->dataMaster[0]['direccion_funcionario'].'</td>
+                        <td width="11%" ><b>DIRECCIÓN: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['direccion'].'</td>
                    </tr>
                    </table>
                    ';
