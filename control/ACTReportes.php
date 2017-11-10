@@ -69,21 +69,6 @@ class ACTReportes extends ACTbase {
 		} else {
 			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 				$this->objReporte = new Reporte($this->objParam,$this);
-				
-				//$this->res = $this->objReporte->generarReporteListado('MODReportes','reporteGralAF');
-				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
-				//$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepAsignados')
-
-				//$this->objReporte = new Reporte($this->objParam,$this);
-				//$this->res = $this->objReporte->generarReporteListado('MODDeposito','listarDeposito');
-
-
-
-				//$aux = '$this->res = $this->objReporte->generarReporteListado(\'MODReportes\',\''.$this->objParam->getParametro('rep_metodo_list')."')";
-
-				//var_dump($aux);exit;
-				//eval($aux);
-
 				$metodo=$this->objParam->getParametro('rep_metodo_list');
 				$this->res = $this->objReporte->generarReporteListado('MODReportes',$metodo);
 			} else {

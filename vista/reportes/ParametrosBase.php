@@ -16,6 +16,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cargaReportes();
 		this.layout();
 		this.render();
+
+		//Eventos
+		var date = new Date();
+		this.cmbResponsable.store.baseParams.fecha = date.dateFormat('d/m/Y');
 	},
 	createComponents: function(){
 		this.cmbReporte = new Ext.form.ComboBox({

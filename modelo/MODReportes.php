@@ -173,6 +173,7 @@ class MODReportes extends MODbase{
         $this->captura('desc_oficina','VARCHAR');
         $this->captura('responsable','text');
         $this->captura('cargo','varchar');
+        $this->captura('desc_depto','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
