@@ -120,15 +120,10 @@ class RAsig_Trans_DevAFXls
 
             $i = 11;
             $cont = 1;
+            if(count($this->datos_detalle)==0){
+                $i = 13;
+            }
 
-            /*$styleArray = array(
-                'borders' => array(
-                    'inside' => array(
-                        'style' => PHPExcel_Style_Border::BORDER_THIN
-                    )
-                )
-            );
-            $this->docexcel->getDefaultStyle()->applyFromArray($styleArray);*/
 
             $styleArray = array(
                 'borders' => array(
@@ -159,59 +154,10 @@ class RAsig_Trans_DevAFXls
                 $i++;
                 $cont++;
             }
-
-            $this->docexcel->getActiveSheet()->getRowDimension($i+1)->setRowHeight(50);
-
-            /*$pie = $fin+2;
-            $this->docexcel->getActiveSheet()->getStyle('B'.($pie).':H'.($pie+3))->applyFromArray($styleArray);
-            //$this->docexcel->getActiveSheet()->getStyle('B'.($fin+1).':H'.($fin+5))->getAlignment()->setWrapText(true);
-            //$this->docexcel->getActiveSheet(0)->getColumnDimensionByColumn(1)->setAutoSize(true);
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$pie.':D'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$pie,'');
-            //$this->docexcel->getActiveSheet(0)->getColumnDimensionByColumn(4)->setAutoSize(true);
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$pie.':F'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$pie,'');
-            //$this->docexcel->getActiveSheet(0)->getColumnDimensionByColumn(6)->setAutoSize(true);
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$pie.':H'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$pie,'');
-
-            $pie ++;
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$pie.':D'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$pie,$detalle['responsable_depto']);
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$pie.':F'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$pie,'HERLAN ROJAS');
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$pie.':H'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$pie,'');
-
-            $pie ++;
-            $this->docexcel->getActiveSheet()->getStyle('B'.$pie)->getAlignment()->applyFromArray(
-                array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-            );
-            $this->docexcel->getActiveSheet()->getStyle('E'.$pie)->getAlignment()->applyFromArray(
-                array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-            );
-            $this->docexcel->getActiveSheet()->getStyle('G'.$pie)->getAlignment()->applyFromArray(
-                array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-            );
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$pie.':D'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$pie,'JEFE DE ACTIVOS FIJOS');
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$pie.':F'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$pie,'AUXILIAR DE ACTIVOS FIJOS');
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$pie.':H'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$pie,'');
-
-            $pie ++;
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$pie.':D'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$pie,'RESPONSABLE');
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$pie.':F'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$pie,'RECIBI CONFORME');
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$pie.':H'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$pie,'* CUSTODIO');
-
-            $pie = $pie + 2;
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$pie.':H'.$pie);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$pie,'* Esta casilla sera firmada por personal que trabaja en la empresa pero no figura en las planillas de BOA');*/
-
+            $i = $i + 1;
+            $this->docexcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
+            //firmas
+            $this->firmas($i+1);
 
         }else if($this->datos_maestro[0]['cod_movimiento'] == 'transf'){
             $this->docexcel = $objReader->load(dirname(__FILE__)."/Transferencia.xlsx");
@@ -324,7 +270,18 @@ class RAsig_Trans_DevAFXls
 
 
     }
+    function firmas($fila){
+        var_dump($this->datos_maestro[0]['responsable']);exit;
+        $filas = $fila;
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,$this->datos_maestro[0]['responsable_depto']);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$filas,$this->datos_maestro[0]['responsable']);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,$this->datos_maestro[0]['custodio']);
+        $filas++;
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,strtoupper($this->dataMaster[0]['cargo_jefe']));
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$filas,strtoupper($this->dataMaster[0]['nombre_cargo']));
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']));
 
+    }
     /*function currencyFormat($currency) {
         if($currency == 'THB'):
             $currencyFormat = "#,#0.## \à¸¿;[Red]-#,#0.## \à¸¿";

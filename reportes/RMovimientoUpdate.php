@@ -94,6 +94,46 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetFont('', '', 7);
             $this->Cell($w = $width2+9, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->setCellPaddings(2);
+        }else if($this->tipoMov=='devol'){
+            $this->Cell(157.5, $midHeight, 'FORMULARIO DE '.strtoupper($this->dataMaster[0]['movimiento']).' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+
+            $x = $this->GetX();
+            $y = $this->GetY();
+            $this->Ln();
+            $this->SetFontSize(10);
+            $this->SetFont('', 'B');
+            $this->Cell(44, $midHeight, '', 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
+            $this->Cell(157.5, $midHeight, strtoupper($this->dataMaster[0]['depto']), 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
+
+            $this->SetFontSize(7);
+
+            $width1 = 15;
+            $width2 = 25;
+            $this->SetXY($x, $y);
+
+            $this->SetFont('', 'B',7);
+
+            $this->SetXY($x, $y);
+            $this->setCellPaddings(2);
+            $this->Cell($width1+4, $height, 'PROCESO:', 1, 0, '', false, '', 0, false, 'T', 'C');
+            $this->SetFont('', '', 7);
+            $this->Cell($width2+9, $height,$this->dataMaster[0]['num_tramite'], 1, 0, 'L', false, '', 0, false, 'T', 'C');
+            $this->setCellPaddings(2);
+            $this->Ln();
+            $this->SetX($x);
+            $this->SetFont('', 'B', 7);
+            $this->Cell($width1+4, $height, 'FECHA:', 1, 0, '', false, '', 0, false, 'T', 'C');
+            $this->SetFont('', '', 7);
+            $cab_fecha = date("d/m/Y",strtotime($this->dataMaster[0]['fecha_mov']));
+            $this->Cell($width2+9, $height,$cab_fecha, 1, 0, 'L', false, '', 0, false, 'T', 'C');
+            $this->setCellPaddings(2);
+            $this->Ln();
+            $this->SetX($x);
+            $this->SetFont('', 'B', 7);
+            $this->Cell($width1+4, $height, 'PAGINA:', 1, 0, '', false, '', 0, false, 'T', 'C');
+            $this->SetFont('', '', 7);
+            $this->Cell($w = $width2+9, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
+            $this->setCellPaddings(2);
         }else {
             $this->Cell(166, $midHeight, 'FORMULARIO DE ' . strtoupper($this->dataMaster[0]['movimiento']) . ' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
             $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
@@ -173,7 +213,7 @@ class RMovimientoUpdate extends  ReportePDF {
                    </table>
                    ';
             $this->writeHTML ($tbl);
-        }else if($tipo=='transf' || $tipo=='devol'){
+        }else if($tipo=='transf'){
             $tbl.='<tr>
                         <td width="11%"><b>ORIGEN: </b></td>
                         <td width="39%">'.$this->dataMaster[0]['responsable'].'</td>
@@ -194,9 +234,9 @@ class RMovimientoUpdate extends  ReportePDF {
                    </tr>
                    <tr>
                         <td width="11%"><b>DIRECCIÓN: </b></td>
-                        <td width="39%" >'.$this->dataMaster[0]['direccion'].'</td>
+                        <td width="39%" >'.$this->dataMaster[0]['direccion_funcionario'].'</td>
                         <td width="11%" ><b>DIRECCIÓN: </b></td>
-                        <td width="40%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
+                        <td width="40%" >'.$this->dataMaster[0]['direccion'].'</td>
                    </tr>
                    </table>
                    ';
@@ -207,6 +247,43 @@ class RMovimientoUpdate extends  ReportePDF {
                        </tr>
                        <tr>
                             <td width="101%">'.$this->dataMaster[0]['glosa'].'</td>
+                       </tr>
+                   </table>';
+            $this->writeHTML ($tbl);
+        }else if($tipo=='devol'){
+            $tbl.='<tr>
+                        <td width="11%"><b>ORIGEN: </b></td>
+                        <td width="40%">'.$this->dataMaster[0]['responsable'].'</td>
+                        <td width="11%"><b>DESTINO: </b></td>
+                        <td width="40%">'.$this->dataMaster[0]['responsable_dest'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%" ><b>LUGAR: </b></td>
+                        <td width="40%" align="left">'.$this->dataMaster[0]['lugar_funcionario'].'</td>
+                        <td width="11%" align="left"><b>LUGAR: </b></td>
+                        <td width="40%" align="left" >'.$this->dataMaster[0]['lugar_destino'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%" ><b>OFICINA: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina_funcionario'].'</td>
+                        <td width="11%" ><b>OFICINA: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina_destino'].'</td>
+                   </tr>
+                   <tr>
+                        <td width="11%"><b>DIRECCIÓN: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['direccion_funcionario'].'</td>
+                        <td width="11%" ><b>DIRECCIÓN: </b></td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina_direccion'].'</td>
+                   </tr>
+                   </table>
+                   ';
+            $this->writeHTML ($tbl);
+            $tbl = '<table border="1" style="font-size: 8pt;" >
+                       <tr>
+                            <td width="102%" align="center" style="font-size: 9pt;"><b>GLOSA</b></td>
+                       </tr>
+                       <tr>
+                            <td width="102%">'.$this->dataMaster[0]['glosa'].'</td>
                        </tr>
                    </table>';
             $this->writeHTML ($tbl);

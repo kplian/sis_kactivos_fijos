@@ -222,6 +222,9 @@ class MODMovimiento extends MODbase{
 		$this->captura('depto','varchar');
 		$this->captura('responsable','text');
 		$this->captura('nombre_cargo','varchar');
+		$this->captura('lugar_funcionario','varchar');
+		$this->captura('oficina_funcionario','varchar');
+		$this->captura('direccion_funcionario','varchar');
 		$this->captura('ci','varchar');
 		$this->captura('oficina','varchar');
 		$this->captura('direccion','varchar');
