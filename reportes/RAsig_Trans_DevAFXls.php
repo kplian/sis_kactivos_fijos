@@ -271,15 +271,15 @@ class RAsig_Trans_DevAFXls
 
     }
     function firmas($fila){
-        var_dump($this->datos_maestro[0]['responsable']);exit;
+
         $filas = $fila;
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,$this->datos_maestro[0]['responsable_depto']);
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$filas,$this->datos_maestro[0]['responsable']);
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,$this->datos_maestro[0]['custodio']);
-        $filas++;
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,$this->datos_maestro[0]['responsable']);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,$this->datos_maestro[0]['custodio']);
+        $filas = $filas + 1;
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,strtoupper($this->dataMaster[0]['cargo_jefe']));
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$filas,strtoupper($this->dataMaster[0]['nombre_cargo']));
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']));
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,strtoupper($this->dataMaster[0]['nombre_cargo']));
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']));
 
     }
     /*function currencyFormat($currency) {
