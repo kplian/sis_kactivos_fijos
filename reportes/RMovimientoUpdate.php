@@ -342,15 +342,24 @@ class RMovimientoUpdate extends  ReportePDF {
                                         <br>
                                         <br>
                                         <br>
+                                        <br>
+                                        <br>
+                                        <br>
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
                                         <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                 </tr>
@@ -390,10 +399,16 @@ class RMovimientoUpdate extends  ReportePDF {
                                         <br>
                                         <br>
                                         <br>
+                                        <br>
+                                        <br>
+                                        <br>
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br>
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                 </tr>
@@ -432,20 +447,32 @@ class RMovimientoUpdate extends  ReportePDF {
                                         <br>
                                         <br>
                                         <br>
+                                        <br>
+                                        <br>
+                                        <br>
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
                                         <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                 </tr>
@@ -490,15 +517,24 @@ class RMovimientoUpdate extends  ReportePDF {
                                         <br>
                                         <br>
                                         <br>
+                                        <br>
+                                        <br>
+                                        <br>
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
                                         <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                 </tr>
@@ -538,15 +574,24 @@ class RMovimientoUpdate extends  ReportePDF {
                                         <br>
                                         <br>
                                         <br>
+                                        <br>
+                                        <br>
+                                        <br>
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
                                         <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                     </td>
                                     <td align="center" >
                                         <br>
                                         <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
                                         <br> 
                                     </td>
                                 </tr>
@@ -686,6 +731,7 @@ class RMovimientoUpdate extends  ReportePDF {
         //$this->Ln();
     }
     function revisarfinPagina(){
+        //var_dump('llega a este punto');exit;
         $dimensions = $this->getPageDimensions();
         $hasBorder = false; //flag for fringe case
         $startY = $this->GetY();
@@ -693,6 +739,7 @@ class RMovimientoUpdate extends  ReportePDF {
         if (($startY + 4 * 3) + $dimensions['bm'] > ($dimensions['hk'])) {
             if($this->total!= 0){
                 $this->AddPage();
+                $this->Ln(12);
             }
         }
     }

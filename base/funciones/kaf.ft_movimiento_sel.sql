@@ -344,7 +344,11 @@ BEGIN
                                 where tcar.id_cargo = any (orga.f_get_cargo_x_funcionario(fun1.id_funcionario,now()::date))),''SIN CARGO'')	as cargo_jefe,
                                 fundes.lugar_nombre as lugar_destino,
                                 fundes.oficina_nombre as oficina_destino,
-                                fundes.oficina_direccion as oficina_direccion
+                                fundes.oficina_direccion as oficina_direccion,
+                                mov.id_funcionario_dest,
+                                fun1.lugar_nombre as lugar_responsable,
+                                fun1.oficina_nombre as oficina_responsable,
+                                fun1.oficina_direccion as direccion_responsable
 
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
@@ -357,7 +361,7 @@ BEGIN
                               and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
                               left join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
-                              inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto
+                              inner join orga.vfuncionario_cargo_lugar fun1 on fun1.id_funcionario = mov.id_responsable_depto
                               left join segu.vpersona per on per.id_persona = mov.id_persona
                               left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
