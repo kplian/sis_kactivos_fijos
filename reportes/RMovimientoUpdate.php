@@ -15,6 +15,7 @@ class RMovimientoUpdate extends  ReportePDF {
     var $numeracion;
     var $ancho_sin_totales;
     var $tipoMov;
+    var $numPag;
 
     function getDataSource(){
         return  $this->datos_detalle;
@@ -25,7 +26,7 @@ class RMovimientoUpdate extends  ReportePDF {
         $this->datos_detalle = $detalle;
         $this->dataMaster = $maestro;
         $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
-        //var_dump($maestro);exit;
+        $this->numPag = 1;
         if($this->tipoMov=='asig' || $this->tipoMov=='devol' || $this->tipoMov=='transf'){
             $this->SetMargins(15, 55, 15);
         }else if ($this->tipoMov=='deprec'){
@@ -182,7 +183,6 @@ class RMovimientoUpdate extends  ReportePDF {
         $this->Ln();
         $this->fieldsHeader($this->tipoMov);
         $this->generarCabecera($this->tipoMov);
-
     }
 
     public function fieldsHeader($tipo){
@@ -725,13 +725,16 @@ class RMovimientoUpdate extends  ReportePDF {
                 's4' => 'ESTADO FUNCIONAL',
                 's5' => 'OBSERVACIONES');
         }
-        $this->tablewidths = $this->tablewidthsHD;
         /////////////////////////////////
         $this-> MultiRowHeader($RowArray,false,1);
-        //$this->Ln();
+        $this->tablewidths = $this->tablewidthsHD;
+        if($this->numPag>1){
+            $this->SetMargins(15, $this->GetY()+5, 15);
+        }
+        $this->numPag = $this->numPag + 1;
+
     }
     function revisarfinPagina(){
-        //var_dump('llega a este punto');exit;
         $dimensions = $this->getPageDimensions();
         $hasBorder = false; //flag for fringe case
         $startY = $this->GetY();
@@ -739,7 +742,6 @@ class RMovimientoUpdate extends  ReportePDF {
         if (($startY + 4 * 3) + $dimensions['bm'] > ($dimensions['hk'])) {
             if($this->total!= 0){
                 $this->AddPage();
-                $this->Ln(12);
             }
         }
     }
