@@ -37,6 +37,7 @@ Phx.vista.MovimientoPrincipal = {
     		this.filterMov='reval,ajuste,mejora,transito';
     	} else if(indice==4){
     		this.filterMov='asig,devol,transf,tranfdep';
+            this.getBoton('btnReporte').setVisible(false);
     	} else if(indice==5){
     		this.filterMov='deprec,actua';
     	} else if(indice==6){

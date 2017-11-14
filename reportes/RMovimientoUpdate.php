@@ -96,7 +96,8 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->Cell($w = $width2+9, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->setCellPaddings(2);
         }else if($this->tipoMov=='devol'){
-            $this->Cell(157.5, $midHeight, 'FORMULARIO DE '.strtoupper($this->dataMaster[0]['movimiento']).' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+            $formulario = strtr(strtoupper($this->dataMaster[0]['movimiento']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
+            $this->Cell(157.5, $midHeight, 'FORMULARIO DE '.$formulario.' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
 
             $x = $this->GetX();
             $y = $this->GetY();
@@ -136,7 +137,8 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->Cell($w = $width2+9, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = 1, $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->setCellPaddings(2);
         }else {
-            $this->Cell(166, $midHeight, 'FORMULARIO DE ' . strtoupper($this->dataMaster[0]['movimiento']) . ' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+            $formulario = strtr(strtoupper($this->dataMaster[0]['movimiento']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
+            $this->Cell(166, $midHeight, 'FORMULARIO DE ' .$formulario. ' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
             $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
 
             $x = $this->GetX();
@@ -145,7 +147,8 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetFontSize(10);
             $this->SetFont('', 'B');
             $this->Cell(44, $midHeight, '', 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
-            $depto = strtr(strtoupper($this->dataMaster[0]['depto']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
+
+            $depto = strtr(mb_strtoupper($this->dataMaster[0]['depto']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
             $this->Cell(166, $midHeight, $depto, 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
 
             $this->SetFontSize(7);
@@ -436,7 +439,76 @@ class RMovimientoUpdate extends  ReportePDF {
             }
         }else if($this->tipoMov == 'transf' ||$this->tipoMov == 'devol'){
             if($this->dataMaster[0]['custodio']!='') {
-                $tbl = '<table>
+                if($this->dataMaster[0]['id_funcionario_dest']==null){
+                    $tbl = '<table>
+                        <tr>
+                        <td style="width: 15%"></td>
+                        <td style="width: 70%">
+                            <table cellspacing="0" cellpadding="1" border="1">
+                                
+                                <tr>
+                                    <td align="center" > 
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                    </td>
+                                    <td align="center" >
+                                        <br>
+                                        <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                    </td>
+                                    <td align="center" >
+                                        <br>
+                                        <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                    </td>
+                                    <td align="center" >
+                                        <br>
+                                        <br>
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                        <br> 
+                                    </td>
+                                </tr>
+                                 
+                                <tr>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['custodio'] . '</td>
+                                </tr>
+                                 
+                                <tr>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . 'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']) . '</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>ENTREGUE CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>CUSTODIO</b></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="width:15%;"></td>
+                        </tr>
+                    </table>      
+                    ';
+                }else{
+                    $tbl = '<table>
                         <tr>
                         <td style="width: 15%"></td>
                         <td style="width: 70%">
@@ -503,6 +575,8 @@ class RMovimientoUpdate extends  ReportePDF {
                         </tr>
                     </table>      
                     ';
+                }
+
             }else{
 
                 if($this->dataMaster[0]['id_funcionario_dest']==null) {
