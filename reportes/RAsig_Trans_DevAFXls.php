@@ -199,8 +199,8 @@ class RAsig_Trans_DevAFXls
             $this->docexcel->getActiveSheet()->SetCellValue('C8',  $this->datos_maestro[0]['direccion_funcionario']);
 
             $this->docexcel->getActiveSheet()->SetCellValue('F5',  $this->datos_maestro[0]['responsable_dest']);
-            $this->docexcel->getActiveSheet()->SetCellValue('F6',  $this->datos_maestro[0]['lugar_destino']);
-            $this->docexcel->getActiveSheet()->SetCellValue('F7',  $this->datos_maestro[0]['oficina_destino']);
+            $this->docexcel->getActiveSheet()->SetCellValue('F6',  $this->datos_maestro[0]['lugar']);
+            $this->docexcel->getActiveSheet()->SetCellValue('F7',  $this->datos_maestro[0]['oficina']);
             $this->docexcel->getActiveSheet()->SetCellValue('F8',  $this->datos_maestro[0]['direccion']);
 
 

@@ -227,13 +227,13 @@ class RMovimientoUpdate extends  ReportePDF {
                         <td width="11%" ><b>LUGAR: </b></td>
                         <td width="39%" align="left">'.$this->dataMaster[0]['lugar_funcionario'].'</td>
                         <td width="11%" align="left"><b>LUGAR: </b></td>
-                        <td width="40%" align="left" >'.$this->dataMaster[0]['lugar_destino'].'</td>
+                        <td width="40%" align="left" >'.$this->dataMaster[0]['lugar'].'</td>
                    </tr>
                    <tr>
                         <td width="11%" ><b>OFICINA: </b></td>
                         <td width="39%" >'.$this->dataMaster[0]['oficina_funcionario'].'</td>
                         <td width="11%" ><b>OFICINA: </b></td>
-                        <td width="40%" >'.$this->dataMaster[0]['oficina_destino'].'</td>
+                        <td width="40%" >'.$this->dataMaster[0]['oficina'].'</td>
                    </tr>
                    <tr>
                         <td width="11%"><b>DIRECCIÓN: </b></td>
