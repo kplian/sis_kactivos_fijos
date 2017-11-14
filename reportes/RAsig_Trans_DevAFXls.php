@@ -61,22 +61,9 @@ class RAsig_Trans_DevAFXls
 
 
         $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-        //$this->docexcel = $objReader->load(dirname(__FILE__)."/Asignacion.xlsx");
         $this->docexcel->setActiveSheetIndex(0);
         $this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('titulo_archivo'));
-        //$this->docexcel->getActiveSheet()->SetCellValue('B11', 'Hola mundo');
 
-        /*$this->equivalencias=array(0=>'A',1=>'B',2=>'C',3=>'D',4=>'E',5=>'F',6=>'G',7=>'H',8=>'I',
-            9=>'J',10=>'K',11=>'L',12=>'M',13=>'N',14=>'O',15=>'P',16=>'Q',17=>'R',
-            18=>'S',19=>'T',20=>'U',21=>'V',22=>'W',23=>'X',24=>'Y',25=>'Z',
-            26=>'AA',27=>'AB',28=>'AC',29=>'AD',30=>'AE',31=>'AF',32=>'AG',33=>'AH',
-            34=>'AI',35=>'AJ',36=>'AK',37=>'AL',38=>'AM',39=>'AN',40=>'AO',41=>'AP',
-            42=>'AQ',43=>'AR',44=>'AS',45=>'AT',46=>'AU',47=>'AV',48=>'AW',49=>'AX',
-            50=>'AY',51=>'AZ',
-            52=>'BA',53=>'BB',54=>'BC',55=>'BD',56=>'BE',57=>'BF',58=>'BG',59=>'BH',
-            60=>'BI',61=>'BJ',62=>'BK',63=>'BL',64=>'BM',65=>'BN',66=>'BO',67=>'BP',
-            68=>'BQ',69=>'BR',70=>'BS',71=>'BT',72=>'BU',73=>'BV',74=>'BW',75=>'BX',
-            76=>'BY',77=>'BZ');*/
 
     }
 
@@ -176,9 +163,19 @@ class RAsig_Trans_DevAFXls
             //$this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
 
             $i = $i + 1;
-            $this->docexcel->getActiveSheet()->getStyle('B'.$i.':G'.$i)->applyFromArray($styleArray);
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':D'.$i);
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':G'.$i);
+
+                if($this->datos_maestro[0]['custodio']!=''){
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$i.':H'.$i)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':D'.$i);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
+                }else{
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$i.':G'.$i)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':D'.$i);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':G'.$i);
+                }
+
+
             $this->docexcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
             //firmas
             $this->firmas($i+1);
@@ -230,9 +227,7 @@ class RAsig_Trans_DevAFXls
 
 
             $this->docexcel->getActiveSheet()->getStyle('B14:H'.$fin)->applyFromArray($styleArray);
-            //$this->docexcel->getActiveSheet()->setShowGridlines(true);
             $this->docexcel->getActiveSheet()->getStyle('B14:H'.$fin)->getAlignment()->setWrapText(true);
-            $this->docexcel->getActiveSheet()->insertNewRowBefore(15, $limit-1);
             $this->docexcel->getActiveSheet()->mergeCells('G13:H13');
             foreach ($this->datos_detalle as $detalle){
                 $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
@@ -249,10 +244,25 @@ class RAsig_Trans_DevAFXls
                 $i++;
                 $cont++;
             }
+
+            $styleArray = array(
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
             $i = $i + 1;
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
+            if($this->datos_maestro[0]['custodio']!=''){
+                $this->docexcel->getActiveSheet()->getStyle('B'.$i.':H'.$i)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
+            }else{
+                $this->docexcel->getActiveSheet()->getStyle('B'.$i.':F'.$i)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
+            }
             $this->docexcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
             //firmas
             $this->firmas($i+1);
@@ -307,20 +317,16 @@ class RAsig_Trans_DevAFXls
             );
 
             $limit = count($this->datos_detalle);
-            //echo "{$limit}.\n";
             $fin = (14+$limit)-1;
-            //echo "$fin.\n";exit;
+
             $this->docexcel->getActiveSheet()->getStyle('B14:H'.$fin)->applyFromArray($styleArray);
-            //$this->docexcel->getActiveSheet()->setShowGridlines(true);
             $this->docexcel->getActiveSheet()->getStyle('B14:H'.$fin)->getAlignment()->setWrapText(true);
-            $this->docexcel->getActiveSheet()->insertNewRowBefore($fin+1, $limit);
             $this->docexcel->getActiveSheet()->mergeCells('G13:H13');
             foreach ($this->datos_detalle as $detalle){
                 $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
                 $this->docexcel->getActiveSheet()->getStyle('B13')->getAlignment()->applyFromArray(
                     array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
                 );
-                //$this->docexcel->getActiveSheet()->getStyle('B'.$i.':H'.$i)->getAlignment()->setWrapText(true);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$i,$cont);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$i,$detalle['codigo']);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$i,$detalle['denominacion']);
@@ -331,20 +337,21 @@ class RAsig_Trans_DevAFXls
                 $cont++;
             }
             $i = $i + 1;
-            $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
-            $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
-            $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
+            if($this->datos_maestro[0]['custodio']!=''){
+                $this->docexcel->getActiveSheet()->getStyle('B'.$i.':H'.$i)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('G'.$i.':H'.$i);
+            }else{
+                $this->docexcel->getActiveSheet()->getStyle('B'.$i.':F'.$i)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$i.':C'.$i);
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$i.':F'.$i);
+            }
             $this->docexcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
             //firmas
             $this->firmas($i+1);
         }
 
-
-       /* header('Content-Type: application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet');
-        header('Content-Disposition:attachment;filename="'.$this->url_archivo.'"');
-        header('Cache-Control:max-age=0');*/
-
-        //$this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);
 
@@ -354,27 +361,123 @@ class RAsig_Trans_DevAFXls
         //$this->docexcel->getActiveSheet()->getStyle('B'.$fila.':H'.$fila)->getAlignment()->setWrapText(true);
         $filas = $fila;
         if($this->datos_maestro[0]['cod_movimiento'] == 'transf' || $this->datos_maestro[0]['cod_movimiento'] == 'devol'){
+            $styleArray = array(
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => PHPExcel_Style_Border::BORDER_THIN
+                    )
+                ),
+                'alignment' => array(
+                    'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+                )
+            );
 
-            if($this->datos_maestro[0]['id_funcionario_dest']==null) {
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, $this->datos_maestro[0]['responsable_depto']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, $this->datos_maestro[0]['responsable']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, $this->datos_maestro[0]['responsable_depto']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, $this->datos_maestro[0]['custodio']);
-                $filas = $filas + 1;
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, 'CI. ' . strtoupper($this->datos_maestro[0]['ci_custodio']));
+            //$this->docexcel->getActiveSheet()->getStyle('B'.$filas.':G'.$filas+2)->getAlignment()->setWrapText(true);
+            if($this->datos_maestro[0]['custodio']!='') {
+                $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas+2)->getAlignment()->setWrapText(true);
+                if ($this->datos_maestro[0]['id_funcionario_dest'] == null) {
+
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, $this->datos_maestro[0]['responsable']);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, $this->datos_maestro[0]['custodio']);
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo']));
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, 'CI. ' . strtoupper($this->datos_maestro[0]['ci_custodio']));
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,'ENTREGUE CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CUSTODIO');
+                } else {
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, $this->datos_maestro[0]['responsable']);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, $this->datos_maestro[0]['responsable_dest']);
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, $this->datos_maestro[0]['custodio']);
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo']));
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo_dest']));
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6, $filas, 'CI. ' . strtoupper($this->datos_maestro[0]['ci_custodio']));
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,'ENTREGUE CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CUSTODIO');
+                }
             }else{
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,$this->datos_maestro[0]['responsable_depto']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,$this->datos_maestro[0]['responsable']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,$this->datos_maestro[0]['responsable_dest']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,$this->datos_maestro[0]['custodio']);
-                $filas = $filas + 1;
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,strtoupper($this->datos_maestro[0]['cargo_jefe']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,strtoupper($this->datos_maestro[0]['nombre_cargo']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,strtoupper($this->datos_maestro[0]['nombre_cargo_dest']));
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CI. ' . strtoupper($this->datos_maestro[0]['ci_custodio']));
+                $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas+2)->getAlignment()->setWrapText(true);
+                if ($this->datos_maestro[0]['id_funcionario_dest'] == null) {
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, $this->datos_maestro[0]['responsable']);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo']));
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'ENTREGUE CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
+                }else{
+                    //$this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas+2)->getAlignment()->setWrapText(true);
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, $this->datos_maestro[0]['responsable_depto']);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, $this->datos_maestro[0]['responsable']);
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, $this->datos_maestro[0]['responsable_dest']);
+                    $filas = $filas + 1;
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $filas, strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo']));
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4, $filas, strtoupper($this->datos_maestro[0]['nombre_cargo_dest']));
+                    $filas = $filas + 1;
+
+                    $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':F'.$filas)->applyFromArray($styleArray);
+                    $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':C'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$filas,'ENTREGUE CONFORME');
+                    $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
+                    $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
+                }
             }
         }else{
 
@@ -383,70 +486,68 @@ class RAsig_Trans_DevAFXls
                     'allborders' => array(
                         'style' => PHPExcel_Style_Border::BORDER_THIN
                     )
+                ),
+                'alignment' => array(
+                    'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
                 )
             );
 
-            //$this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
-
             $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':G'.$filas+2)->getAlignment()->setWrapText(true);
-            if($this->dataMaster[0]['custodio']!='') {
+            if($this->datos_maestro[0]['custodio']!='') {
+
+
+                $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
                 $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,$this->datos_maestro[0]['responsable_depto']);
+
                 $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,$this->datos_maestro[0]['responsable']);
                 $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,$this->datos_maestro[0]['custodio']);
                 $filas = $filas + 1;
+
                 $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,strtoupper($this->datos_maestro[0]['cargo_jefe']));
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,strtoupper($this->datos_maestro[0]['nombre_cargo']));
+                $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CI. ' . strtoupper($this->datos_maestro[0]['ci_custodio']));
 
                 $filas = $filas + 1;
                 $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':H'.$filas)->applyFromArray($styleArray);
+                $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
+                $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':F'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
+
+                $this->docexcel->getActiveSheet()->mergeCells('G'.$filas.':H'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$filas,'CUSTODIO');
             }else{
-                $this->docexcel->getActiveSheet()->getStyle('B'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
+
                 $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':G'.$filas)->applyFromArray($styleArray);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,$this->datos_maestro[0]['responsable_depto']);
                 $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':G'.$filas);
-                $this->docexcel->getActiveSheet()->getStyle('E'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
+
                 //$this->docexcel->getActiveSheet()->getStyle('C'.$filas.':F'.$filas)->applyFromArray($styleArray);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,$this->datos_maestro[0]['responsable']);
 
                 $filas = $filas + 1;
-                $this->docexcel->getActiveSheet()->getStyle('B'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
+
                 $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':G'.$filas)->applyFromArray($styleArray);
                 $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,strtoupper($this->datos_maestro[0]['cargo_jefe']));
                 $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':G'.$filas);
-                $this->docexcel->getActiveSheet()->getStyle('E'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
+
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,strtoupper($this->datos_maestro[0]['nombre_cargo']));
                 $filas = $filas + 1;
-                $this->docexcel->getActiveSheet()->getStyle('B'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
+
                 $this->docexcel->getActiveSheet()->getStyle('B'.$filas.':G'.$filas)->applyFromArray($styleArray);
                 $this->docexcel->getActiveSheet()->mergeCells('B'.$filas.':D'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$filas,'RESPONSABLE');
-                $this->docexcel->getActiveSheet()->getStyle('E'.$filas)->getAlignment()->applyFromArray(
-                    array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,)
-                );
                 $this->docexcel->getActiveSheet()->mergeCells('E'.$filas.':G'.$filas);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$filas,'RECIBI CONFORME');
-
-
             }
 
         }

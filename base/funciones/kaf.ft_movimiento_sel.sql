@@ -353,12 +353,10 @@ BEGIN
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
-                              left join orga.vfuncionario_cargo_lugar fun
-                              on fun.id_funcionario =  mov.id_funcionario
-                              and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
-     						              left join orga.vfuncionario_cargo_lugar fundes
-                              on fundes.id_funcionario = mov.id_funcionario_dest
-                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
+                              left join orga.vfuncionario_cargo_lugar fun on fun.id_funcionario =  mov.id_funcionario
+                              /*and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))*/
+     						              left join orga.vfuncionario_cargo_lugar fundes on fundes.id_funcionario = mov.id_funcionario_dest
+                              /*and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))*/
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
                               left join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
                               inner join orga.vfuncionario_cargo_lugar fun1 on fun1.id_funcionario = mov.id_responsable_depto
