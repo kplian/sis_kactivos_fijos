@@ -150,20 +150,21 @@ class RRespInventario extends ReportePDF {
 		  $this->SetFontSize(7);
 
 		 foreach ($this->getDataSource() as $datarow) {
-			$this->tablealigns=array('R','C','L','L','C','L','L','L');
-	        $this->tablenumbers=array(0,0,0,0,0,0,0);
-	        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+			$this->tablealigns=array('R','C','L','L','C','L','L','L','L');
+	        $this->tablenumbers=array(0,0,0,0,0,0,0,0,0);
+	        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
             $this->tabletextcolor=array();
 			
 			$RowArray = array(
             			's0'  => $i+1,
             			's1' => $datarow['codigo'],   
                         's2' => $datarow['descripcion'],
-                        's3' => '',
-                        's4' => date("d/m/Y",strtotime($datarow['fecha_asignacion'])),
+                        's3' => date("d/m/Y",strtotime($datarow['fecha_asignacion'])),
+                        's4' => '',
                         's5' => '',
-                        's6' => $datarow['desc_oficina'],
-                        's7' => '',
+                        's6' => '',
+                        's7' => $datarow['desc_oficina'],
+                        's8' => ''
                         );
             $i++;
 			
@@ -171,27 +172,35 @@ class RRespInventario extends ReportePDF {
 			$this->revisarfinPagina();
 			
         }
-		
+       $this->Ln();
+       $this->setFont('helvetica', 'B', 10);
+       $this->Cell(15, 5, "(1)  ", 0, 0, 'L', false, '', 0, false, 'T', 'C');
+       $this->Cell(100, 5,"Bueno, Malo, Regular", 0, 0, 'L', false, '', 0, false, 'T', 'C');
+       $this->Ln();
+       $this->Cell(15, 5, "(2)  ", 0, 0, 'L', false, '', 0, false, 'T', 'C');
+       $this->Cell(100, 5,"SI, NO", 0, 0, 'L', false, '', 0, false, 'T', 'C');
+
    } 
    
    function generarCabecera(){
     	
 		$this->SetFontSize(9);
         $this->SetFont('', 'B');
-        $this->tablewidthsHD=array(8,25,59,45,20,45,30,45);
-        $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
-        $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-        $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
+        $this->tablewidthsHD=array(8,25,51,25,25,25,30,43,50);
+        $this->tablealignsHD=array('C','C','C','C','C','C','C','C','C');
+        $this->tablenumbersHD=array(0,0,0,0,0,0,0,0,0);
+        $this->tablebordersHD=array('LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');
         $this->tabletextcolorHD=array();
         $RowArray = array(
         		's0'  => 'Nro',
         		's1' => 'Código',   
                 's2' => 'Descripción',
-                's3' => 'Estado (Llenado a Mano)',
-                's4' => 'Fecha Asig.',
-                's5' => 'Observaciones (Llenado a Mano)',
-                's6' => 'Lugar  Asig.',
-                's7' => 'Verificación Física (Llenado a Mano)'
+                's3' => 'Fecha Asig.',
+                's4' => 'Estado '."\n".'del Activo (1)',
+                's5' => 'Verificación'."\n".' Física (2)',
+                's6' => 'Ubicación Física',
+                's7' => 'Oficina  Asignada',
+                's8' => 'Observaciones'
         );
 
 		/////////////////////////////////	                         
