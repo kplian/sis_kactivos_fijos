@@ -818,7 +818,7 @@ BEGIN
                     en_deposito = 'no',
                     id_funcionario = mov.id_funcionario_dest,
                     id_persona = mov.id_persona,
-                    id_oficina = coalesce(mov.id_oficina,id_oficina),
+                    id_oficina = coalesce(mov.id_oficina,kaf.tactivo_fijo.id_oficina),
                     fecha_asignacion = mov.fecha_mov,
                     ubicacion = mov.direccion
                     from kaf.tmovimiento_af movaf
