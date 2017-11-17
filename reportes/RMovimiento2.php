@@ -411,7 +411,8 @@ class RMovimiento2 extends ReportePDF {
             $this->SetY($this->posY+8.2);
           }
       
-		  		
+         $totalAF = 0;
+         $totalCompra = 0;
 		 foreach ($this->getDataSource() as $datarow) {
             if($tipo=='baja'){
                
@@ -512,7 +513,10 @@ class RMovimiento2 extends ReportePDF {
                 $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
                 $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
                 $this->tabletextcolor=array();
-                
+                //totales de montos
+                $totalAF += $datarow['monto_compra_orig'];
+                $totalCompra += $datarow['monto_compra_orig_100'];
+
                 $RowArray = array(
                             's0'  => $i+1,
                             's1' => $datarow['codigo'],
@@ -569,7 +573,25 @@ class RMovimiento2 extends ReportePDF {
 			$this->revisarfinPagina();
 			
         }
-		
+		if($tipo=='alta'){
+            $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
+            $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
+            $this->tableborders=array('','','','','','','RLTB','RLTB','','');
+            $this->tabletextcolor=array();
+            $RowArray = array(
+                's0'  => '',
+                's1' => '',
+                's2' => '',
+                's3' => '',
+                's4' => '',
+                's5' => 'TOTALES:',
+                's6' => $totalAF,
+                's7' => $totalCompra,
+                's8' => '',
+                's9' => ''
+            );
+            $this-> MultiRow($RowArray,false,1);
+        }
 		$this->Ln(10);	
 		
 		$this->Firmas();

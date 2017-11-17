@@ -326,6 +326,11 @@ BEGIN
                                 dpto.nombre as depto,
                                 fun.desc_funcionario2 as responsable,
                                 fun.nombre_cargo,
+                                fun.lugar_nombre as lugar_funcionario,
+                                fun.oficina_nombre oficina_funcionario,
+                                 case when (length(fun.oficina_direccion) > 0 and position(''Tel'' in fun.oficina_direccion) > 0) then
+                                		substring(fun.oficina_direccion,1,position(''Tel'' in fun.oficina_direccion)-1)::varchar
+                                    else  case when length(fun.oficina_direccion)>0 then fun.oficina_direccion::varchar else ''No tiene dirección''::varchar end end as direccion_funcionario,
                                 fun.ci,
                                 ofi.nombre as oficina,
                                 mov.direccion,
@@ -335,25 +340,36 @@ BEGIN
                                 fundes.desc_funcionario2 as responsable_dest,
                                 fundes.nombre_cargo as nombre_cargo_dest,
                                 fundes.ci as ci_dest,
-                                lug.nombre as lugar
+                                tlu.nombre as lugar,
+                                coalesce((select tcar.nombre
+                                from orga.tcargo tcar
+                                where tcar.id_cargo = any (orga.f_get_cargo_x_funcionario(fun1.id_funcionario,now()::date))),''SIN CARGO'')	as cargo_jefe,
+                                fundes.lugar_nombre as lugar_destino,
+                                fundes.oficina_nombre as oficina_destino,
+                                case when (length(fundes.oficina_direccion)>0 and position(''Tel'' in fundes.oficina_direccion) > 0) then
+                                	substring(fundes.oficina_direccion,1,position(''Tel'' in fundes.oficina_direccion)-1)::varchar
+                                else case when length(fundes.oficina_direccion)>0 then fundes.oficina_direccion::varchar else ''No tiene dirección''::varchar end end as oficina_direccion,
+                                mov.id_funcionario_dest,
+                                fun1.lugar_nombre as lugar_responsable,
+                                fun1.oficina_nombre as oficina_responsable,
+                                case when (length(fun1.oficina_direccion)>0 and position(''Tel'' in fun1.oficina_direccion) > 0) then
+                                		substring(fun1.oficina_direccion,1,position(''Tel'' in fun1.oficina_direccion)-1)::varchar
+                                    else case when length(fun1.oficina_direccion)>0 then fun1.oficina_direccion else ''No tiene dirección''::varchar end end as direccion_responsable
+
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
-                              left join orga.vfuncionario_cargo fun
-                              on fun.id_funcionario =  mov.id_funcionario
+                              left join orga.vfuncionario_cargo_lugar fun on fun.id_funcionario =  mov.id_funcionario
                               and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
-     						              left join orga.vfuncionario_cargo fundes
-                              on fundes.id_funcionario = mov.id_funcionario_dest
+     						              left join orga.vfuncionario_cargo_lugar fundes on fundes.id_funcionario = mov.id_funcionario_dest
                               and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-                              --inner join segu.vusuario usu on usu.id_usuario = mov.id_responsable_depto
-                              inner join orga.vfuncionario fun1 on fun1.id_funcionario = mov.id_responsable_depto
+                              left join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
+                              inner join orga.vfuncionario_cargo_lugar fun1 on fun1.id_funcionario = mov.id_responsable_depto
                               left join segu.vpersona per on per.id_persona = mov.id_persona
                               left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
 
-				
-			
 			      --Devuelve la respuesta
 			return v_consulta;
 
@@ -398,7 +414,7 @@ BEGIN
                      where maf.id_movimiento = '||v_parametros.id_movimiento;
 
 			
-			
+			v_consulta = v_consulta||' order by af.codigo asc';
 			--Devuelve la respuesta
 			return v_consulta;
 

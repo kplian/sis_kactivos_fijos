@@ -37,6 +37,7 @@ Phx.vista.MovimientoPrincipal = {
     		this.filterMov='reval,ajuste,mejora,transito';
     	} else if(indice==4){
     		this.filterMov='asig,devol,transf,tranfdep';
+            this.getBoton('btnReporte').setVisible(false);
     	} else if(indice==5){
     		this.filterMov='deprec,actua';
     	} else if(indice==6){
@@ -58,6 +59,7 @@ Phx.vista.MovimientoPrincipal = {
     
     
     constructor: function(config) {
+
         Phx.vista.MovimientoPrincipal.superclass.constructor.call(this,config);
         this.maestro = config;
         this.init();
@@ -70,14 +72,44 @@ Phx.vista.MovimientoPrincipal = {
             }
         });
 
-		/*this.addButton('btnMovGral',
+
+
+
+        me = this;
+        this.addButton('btnAsignacion',
             {
-                text: 'Movimientos',
-                iconCls: 'bchecklist',
-                disabled: false,
-                handler: this.openMovimientos
+                iconCls: 'bexcel',
+                xtype: 'splitbutton',
+                grupo: [0,4],
+                tooltip: '<b>Reporte de Asig./Trans./Devol. A.F.</b><br>Reporte de Asignación, Transferencia, Devolución de Activos Fijos.',
+                text: 'Reporte A/T/D',
+                //handler: this.onButtonExcel,
+                argument: {
+                    'news': true,
+                    def: 'reset'
+                },
+                scope: me,
+                menu: [{
+                    text: 'Reporte CSV',
+                    iconCls: 'bexcel',
+                    argument: {
+                        'news': true,
+                        def: 'csv'
+                    },
+                    handler: me.onButtonATDExcel,
+                    scope: me
+                }, {
+                    text: 'Reporte PDF',
+                    iconCls: 'bpdf',
+                    argument: {
+                        'news': true,
+                        def: 'pdf'
+                    },
+                    handler: me.onButtonATDPdf,
+                    scope: me
+                }]
             }
-        );*/
+        );
 
         //Evento para store de motivos
         this.Cmp.id_movimiento_motivo.getStore().on('load', function(store, records, options){
@@ -140,9 +172,38 @@ Phx.vista.MovimientoPrincipal = {
 
 
 
-    },  
-    
-     openMovimientos: function(){
+    },
+
+	onButtonATDExcel: function () {
+
+			var rec=this.sm.getSelected();
+			Phx.CP.loadingShow();
+			Ext.Ajax.request({
+				url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteAsig_Trans_DevAFXls',
+				params:{'id_movimiento':rec.data.id_movimiento},
+				success: this.successExport,
+				failure: this.conexionFailure,
+				timeout:this.timeout,
+				scope:this
+			});
+
+	},
+
+    onButtonATDPdf:function(){
+        var rec=this.sm.getSelected();
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimientoUpdate',
+            params:{'id_movimiento':rec.data.id_movimiento},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    },
+
+
+    openMovimientos: function(){
     	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoGral.php',
             'Movimientos',
             {
@@ -367,6 +428,7 @@ Phx.vista.MovimientoPrincipal = {
 	        this.getBoton('sig_estado').disable();
 	        this.getBoton('btnChequeoDocumentosWf').disable();
 	        this.getBoton('diagrama_gantt').disable();
+	        this.getBoton('btnAsignacion').disable();
         }
        return tb
     },
@@ -375,11 +437,17 @@ Phx.vista.MovimientoPrincipal = {
       	var data = this.getSelectedData();
       	var tb = this.tbar;
 
-        this.getBoton('btnReporte').enable();        
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
+        if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
+            this.getBoton('btnReporte').enable();
+        }
+		if(data.cod_movimiento == 'asig' || data.cod_movimiento == 'transf' || data.cod_movimiento == 'devol'){
+            this.getBoton('btnAsignacion').enable();
+        }
 
-        //Enable/disable WF buttons by status
+
+		//Enable/disable WF buttons by status
         this.getBoton('ant_estado').enable();
         this.getBoton('sig_estado').enable();
         if(data.estado=='borrador'){

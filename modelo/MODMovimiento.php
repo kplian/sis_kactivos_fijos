@@ -222,6 +222,9 @@ class MODMovimiento extends MODbase{
 		$this->captura('depto','varchar');
 		$this->captura('responsable','text');
 		$this->captura('nombre_cargo','varchar');
+		$this->captura('lugar_funcionario','varchar');
+		$this->captura('oficina_funcionario','varchar');
+		$this->captura('direccion_funcionario','varchar');
 		$this->captura('ci','varchar');
 		$this->captura('oficina','varchar');
 		$this->captura('direccion','varchar');
@@ -232,7 +235,16 @@ class MODMovimiento extends MODbase{
 		$this->captura('nombre_cargo_dest','varchar');
 		$this->captura('ci_dest','varchar');
 		$this->captura('lugar','varchar');
-			
+		$this->captura('cargo_jefe','varchar');
+		$this->captura('lugar_destino','varchar');
+		$this->captura('oficina_destino','varchar');
+		$this->captura('oficina_direccion','varchar');
+		$this->captura('id_funcionario_dest','int4');
+		$this->captura('lugar_responsable','varchar');
+		$this->captura('oficina_responsable','varchar');
+		$this->captura('direccion_responsable','varchar');
+
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->consulta;exit;
