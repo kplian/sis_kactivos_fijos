@@ -69,13 +69,13 @@ BEGIN
                 afv.id_moneda_dep,
                 afv.fecha_ult_dep_real,
                 case
-                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep then ('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date
+                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep and afv1.fecha_ult_dep is not null then ('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date
                 else
                     afv.fecha_ult_dep_real
                 end as mes_dep,
                 cla.depreciable,
                 case
-                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep then kaf.f_months_between(('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date, v_fecha_hasta) + 1
+                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep and afv1.fecha_ult_dep is not null then kaf.f_months_between(('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date, v_fecha_hasta) + 1
                 else
                     kaf.f_months_between(afv.fecha_ult_dep_real, v_fecha_hasta) + 1
                 end as meses_dep,
