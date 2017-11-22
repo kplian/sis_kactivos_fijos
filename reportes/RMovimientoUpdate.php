@@ -16,11 +16,9 @@ class RMovimientoUpdate extends  ReportePDF {
     var $ancho_sin_totales;
     var $tipoMov;
     var $numPag;
-
     function getDataSource(){
         return  $this->datos_detalle;
     }
-
     function datosHeader  ( $maestro, $detalle ) {
         $this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
         $this->datos_detalle = $detalle;
@@ -35,29 +33,20 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetMargins(7, 52, 5);
         }
     }
-
     function Header() {
-
         $height = 6;
         $midHeight = 9;
         $longHeight = 18;
-
         $x = $this->GetX();
         $y = $this->GetY();
         $this->SetXY($x, $y);
-
-
         $this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 20,5,35,16);
-
         $this->SetFontSize(12);
         $this->SetFont('', 'B');
         $this->Cell(44, $midHeight, '', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-
         $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
-
         if($this->tipoMov=='transf'){
             $this->Cell(159, $midHeight, 'FORMULARIO DE '.strtoupper($this->dataMaster[0]['movimiento']).' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $x = $this->GetX();
             $y = $this->GetY();
             $this->Ln();
@@ -65,15 +54,11 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetFont('', 'B');
             $this->Cell(44, $midHeight, '', 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
             $this->Cell(159, $midHeight, strtoupper($this->dataMaster[0]['depto']), 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $this->SetFontSize(7);
-
             $width1 = 15;
             $width2 = 25;
             $this->SetXY($x, $y);
-
             $this->SetFont('', 'B',7);
-
             $this->SetXY($x, $y);
             $this->setCellPaddings(2);
             $this->Cell($width1, $height, 'PROCESO:', 1, 0, '', false, '', 0, false, 'T', 'C');
@@ -98,7 +83,6 @@ class RMovimientoUpdate extends  ReportePDF {
         }else if($this->tipoMov=='devol'){
             $formulario = strtr(strtoupper($this->dataMaster[0]['movimiento']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
             $this->Cell(157.5, $midHeight, 'FORMULARIO DE '.$formulario.' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $x = $this->GetX();
             $y = $this->GetY();
             $this->Ln();
@@ -106,15 +90,11 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetFont('', 'B');
             $this->Cell(44, $midHeight, '', 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
             $this->Cell(157.5, $midHeight, strtoupper($this->dataMaster[0]['depto']), 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $this->SetFontSize(7);
-
             $width1 = 15;
             $width2 = 25;
             $this->SetXY($x, $y);
-
             $this->SetFont('', 'B',7);
-
             $this->SetXY($x, $y);
             $this->setCellPaddings(2);
             $this->Cell($width1+4, $height, 'PROCESO:', 1, 0, '', false, '', 0, false, 'T', 'C');
@@ -138,28 +118,27 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->setCellPaddings(2);
         }else {
             $formulario = strtr(strtoupper($this->dataMaster[0]['movimiento']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
-            $this->Cell(166, $midHeight, 'FORMULARIO DE ' .$formulario. ' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
-            $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
+            if($this->dataMaster[0]['prestamo']=='si'){
+                $this->Cell(166, $midHeight, 'FORMULARIO DE PRESTAMO DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+            }else{
+                $this->Cell(166, $midHeight, 'FORMULARIO DE ' .$formulario. ' DE ACTIVOS FIJOS', 'LRT', 0, 'C', false, '', 0, false, 'T', 'C');
+            }
 
+            $this->tipoMov = $this->dataMaster[0]['cod_movimiento'];
             $x = $this->GetX();
             $y = $this->GetY();
             $this->Ln();
             $this->SetFontSize(10);
             $this->SetFont('', 'B');
             $this->Cell(44, $midHeight, '', 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $depto = strtr(mb_strtoupper($this->dataMaster[0]['depto']), "àáâãäåæçèéêëìíîïðñòóôõöøùüú", "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÜÚ");
             $this->Cell(166, $midHeight, $depto, 'LRB', 0, 'C', false, '', 0, false, 'T', 'C');
-
             $this->SetFontSize(7);
-
             $width1 = 15;
             $width2 = 25;
             $this->SetXY($x, $y);
-
             $this->SetFont('', 'B',7);
             $this->Cell(44, $longHeight, '', 1, 0, 'C', false, '', 0, false, 'T', 'C');
-
             $this->SetXY($x, $y);
             $this->setCellPaddings(2);
             $this->Cell($width1, $height, 'PROCESO:', 1, 0, '', false, '', 0, false, 'T', 'C');
@@ -182,17 +161,14 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->Cell($w = $width2+1, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
             $this->setCellPaddings(2);
         }
-
         $this->Ln();
         $this->fieldsHeader($this->tipoMov);
         $this->generarCabecera($this->tipoMov);
     }
-
     public function fieldsHeader($tipo){
         $this->SetFont('', '');
         $this->SetFontSize(10);
         $this->Ln();
-
         $tbl = '<table border="1" style="font-size: 8pt;">';
         if($tipo=='asig'){
             $tbl.='<tr>
@@ -321,15 +297,11 @@ class RMovimientoUpdate extends  ReportePDF {
                        </table>';
             $this->writeHTML($tbl);
         }
-
         $this->firstPage++;
-
     }
-
     function Firmas() {
         //<img  style="width: 110px; height: 110px;" src="' . $this->generarImagen($this->dataMaster[0]['responsable_depto'], 'RESPONSABLE ACTIVOS FIJOS') . '" alt="Logo">
         //<img  style="width: 110px; height: 110px;" src="' . $this->generarImagen($this->dataMaster[0]['responsable'], strtoupper($this->dataMaster[0]['nombre_cargo'])) . '" alt="Logo">
-
         $this->Ln(5);
         $tbl = '';
         if($this->tipoMov == 'asig'){
@@ -576,9 +548,7 @@ class RMovimientoUpdate extends  ReportePDF {
                     </table>      
                     ';
                 }
-
             }else{
-
                 if($this->dataMaster[0]['id_funcionario_dest']==null) {
                     $tbl = '<table>
                         <tr>
@@ -699,7 +669,6 @@ class RMovimientoUpdate extends  ReportePDF {
         $this->Ln(5);
         $this->writeHTML($tbl, true, false, false, false, '');
     }
-
     function generarImagen($nom, $car){
         $cadena_qr = 'Nombre: '.$nom. "\n" . 'Cargo: '.$car."\n" ;
         $barcodeobj = new TCPDF2DBarcode($cadena_qr, 'QRCODE,M');
@@ -806,7 +775,6 @@ class RMovimientoUpdate extends  ReportePDF {
             $this->SetMargins(15, $this->GetY()+5, 15);
         }
         $this->numPag = $this->numPag + 1;
-
     }
     function revisarfinPagina(){
         $dimensions = $this->getPageDimensions();

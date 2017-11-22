@@ -354,15 +354,16 @@ BEGIN
                                 fun1.oficina_nombre as oficina_responsable,
                                 case when (length(fun1.oficina_direccion)>0 and position(''Tel'' in fun1.oficina_direccion) > 0) then
                                 		substring(fun1.oficina_direccion,1,position(''Tel'' in fun1.oficina_direccion)-1)::varchar
-                                    else case when length(fun1.oficina_direccion)>0 then fun1.oficina_direccion else ''No tiene dirección''::varchar end end as direccion_responsable
+                                    else case when length(fun1.oficina_direccion)>0 then fun1.oficina_direccion else ''No tiene dirección''::varchar end end as direccion_responsable,
+                                mov.prestamo
 
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
                               left join orga.vfuncionario_cargo_lugar fun on fun.id_funcionario =  mov.id_funcionario
-                              and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion and fun.fecha_finalizacion is NULL))
+                              and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion or fun.fecha_finalizacion is NULL))
      						              left join orga.vfuncionario_cargo_lugar fundes on fundes.id_funcionario = mov.id_funcionario_dest
-                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion and fundes.fecha_finalizacion is NULL))
+                              and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion or fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
                               left join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
                               inner join orga.vfuncionario_cargo_lugar fun1 on fun1.id_funcionario = mov.id_responsable_depto
