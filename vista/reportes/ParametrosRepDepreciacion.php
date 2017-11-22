@@ -79,6 +79,7 @@ Phx.vista.ParametrosRepDepreciacion = {
 		this.configElement(this.cmbMoneda,true,false);
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,true,true);
+		this.configElement(this.radGroupDeprec,true,true);
 
 		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,true,true);

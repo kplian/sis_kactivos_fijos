@@ -2416,7 +2416,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                         id: 'img-detail-panel',
                         region: 'north'
                     }, {
-                        id: 'img-qr-panel',
+                        id: 'img-qr-panel'+this.idContenedor,
                         region: 'center'
                     }]
                 },this.form],
@@ -2573,7 +2573,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.detailsTemplate.overwrite(detailEl, data);
         detailEl.slideIn('l', {stopFx:true,duration:.3});
 
-        var qrcode = new QRCode("img-qr-panel", {
+        var qrcode = new QRCode('img-qr-panel'+this.idContenedor, {
             text: data.codigo,
             width: 128,
             height: 128,
