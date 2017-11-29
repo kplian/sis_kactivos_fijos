@@ -69,7 +69,7 @@ BEGIN
                 and depu.id_usuario = p_id_usuario;
 
                 if v_depto_ids is null then
-                    v_filtro = v_filtro || ' mov.id_depto = -1 and ';    
+                    --v_filtro = v_filtro || ' mov.id_depto = -1 and ';
                 else
                     v_filtro = v_filtro || ' mov.id_depto in ('||v_depto_ids||') and ';    
                 end if;
