@@ -68,7 +68,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbClasificacion = new Ext.form.ComboBox({
 			fieldLabel: 'Clasificación',
 			anchor: '100%',
-			emptyText: 'Elija una clasificación...',
+			emptyText: 'Elija una opción...',
 			store: new Ext.data.JsonStore({
                 url: '../../sis_kactivos_fijos/control/Clasificacion/ListarClasificacionTree',
                 id: 'id_clasificacion',
@@ -206,6 +206,25 @@ Ext.define('Phx.vista.ParametrosBase', {
 			maxLength: 1000,
 			style: this.setBackgroundColor('txtUbicacionFisica')
 		});
+		this.cmbTipo = new Ext.form.ComboBox({
+			fieldLabel: 'Tipo',
+			emptyText: 'Elija un tipo...',
+			lazyRender:true,
+		    allowBlank: true,
+		    mode: 'local',
+		    anchor: '100%',
+		    store: new Ext.data.ArrayStore({
+		        id: '',
+		        fields: [
+		            'key',
+		            'value'
+		        ],
+		        data: [['resp','Por Responsable'],['lug','Por Lugar']]
+		    }),
+		    valueField: 'key',
+		    displayField: 'value',
+		    style: this.setBackgroundColor('cmbTipo')
+		});
 		this.cmbOficina = new Ext.form.ComboBox({
 			fieldLabel: 'Oficina',
 			anchor: '100%',
@@ -238,7 +257,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbResponsable = new Ext.form.ComboBox({
 			fieldLabel: 'Responsable',
 			anchor: '100%',
-			emptyText: 'Elija una funcionario...',
+			emptyText: 'Elija un funcionario...',
 			store: new Ext.data.JsonStore({  
 				url: '../../sis_organigrama/control/Funcionario/listarFuncionarioCargo',
 				id: 'id_uo',
@@ -451,7 +470,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.fieldSetGeneral = new Ext.form.FieldSet({
         	collapsible: true,
         	title: 'General',
-        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.txtNroCbteAsociado,
+        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.cmbTipo,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
 				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.radGroupDeprec]
         });
@@ -536,6 +555,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.txtMontoSup.setValue('');
 		this.txtNroCbteAsociado.setValue('');
 		this.radGroupDeprec.setValue('completo');
+		this.cmbTipo.setValue('');
 
 		this.cmbClasificacion.selectedIndex=-1;
 
@@ -611,7 +631,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			monto_sup: this.txtMontoSup.getValue(),
 			nro_cbte_asociado: this.txtNroCbteAsociado.getValue(),
 			fecha_compra_max: _fecha_compra_max,
-			af_deprec: this.radGroupDeprec.getValue().inputValue
+			af_deprec: this.radGroupDeprec.getValue().inputValue,
+			tipo: this.cmbTipo.getValue()
 		};
 
 		Ext.apply(params,this.getExtraParams());
@@ -713,6 +734,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,false,true);
 		this.configElement(this.radGroupDeprec,false,true);
+		this.configElement(this.cmbTipo,false,true);
 
 		this.configElement(this.fieldSetGeneral,false,true);
 		this.configElement(this.fieldSetIncluir,false,true);
