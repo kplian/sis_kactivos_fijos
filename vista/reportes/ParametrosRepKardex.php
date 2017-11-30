@@ -49,7 +49,7 @@ Phx.vista.ParametrosRepKardex = {
 		this.configElement(this.dteFechaHasta,true,false);
 		this.configElement(this.cmbActivo,true,false);
 
-		this.configElement(this.cmbClasificacion,true,true);
+		this.configElement(this.cmbClasificacion,false,true);
 		this.configElement(this.txtDenominacion,false,true);
 		this.configElement(this.dteFechaCompra,false,true);
 		this.configElement(this.dteFechaIniDep,false,true);
