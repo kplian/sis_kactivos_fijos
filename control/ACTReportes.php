@@ -250,6 +250,9 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('nro_cbte_asociado')!=''){
 			$this->objParam->addFiltro("afij.nro_cbte_asociado ilike ''%".$this->objParam->getParametro('nro_cbte_asociado')."%''");
 		}
+		if($this->objParam->getParametro('id_lugar')!=''){
+			$this->objParam->addFiltro("afij.id_oficina in (select id_oficina from orga.toficina where id_lugar = ".$this->objParam->getParametro('id_lugar').")");
+		}
 	}
 
 	function ReporteRespInventario(){

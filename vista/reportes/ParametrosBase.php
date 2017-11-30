@@ -306,6 +306,29 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbLugar = new Ext.form.ComboBox({
 			fieldLabel: 'Lugar',
 			anchor: '100%',
+			emptyText: 'Elija una opción...',
+			store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/Lugar/listarLugar',
+                id: 'id_lugar',
+                root: 'datos',
+                fields: ['id_lugar','codigo','nombre'],
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                baseParams:{par_filtro:'lug.codigo#lug.nombre', es_regional: 'si'}
+            }),
+            valueField: 'id_lugar',
+			displayField: 'nombre',
+			forceSelection: false,
+			typeAhead: false,
+			triggerAction: 'all',
+			lazyRender: true,
+			mode: 'remote',
+			pageSize: 15,
+			queryDelay: 1000,
+			minChars: 2,
 			style: this.setBackgroundColor('cmbLugar')
 		});
 		this.radGroupTangible = new Ext.form.RadioGroup({
@@ -470,7 +493,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.fieldSetGeneral = new Ext.form.FieldSet({
         	collapsible: true,
         	title: 'General',
-        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.cmbTipo,this.txtNroCbteAsociado,
+        	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.cmbTipo,this.cmbLugar,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
 				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.radGroupDeprec]
         });
@@ -485,7 +508,7 @@ Ext.define('Phx.vista.ParametrosBase', {
         	xtype: 'fieldset',
         	collapsible: true,
         	title: 'Compra',
-        	items: [this.cmbUnidSolic,this.cmbResponsableCompra,this.cmbLugar]
+        	items: [this.cmbUnidSolic,this.cmbResponsableCompra]
         });
 
 		//Formulario
