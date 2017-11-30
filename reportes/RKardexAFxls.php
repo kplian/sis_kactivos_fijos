@@ -438,7 +438,7 @@ class RKardexAFxls
 		$f=$this->fila;
 		$this->cell($sheet,'Jefe de Activos Fijos',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,Arial,false,false);
 		$f++;
-		$this->cell($sheet,'Lic. Juan Perez Agramont',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,Arial,false,false);
+		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,Arial,false,false);
 	}
 	
 	function setDataSet($dataset){
