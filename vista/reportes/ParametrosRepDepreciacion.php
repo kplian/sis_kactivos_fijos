@@ -108,7 +108,17 @@ Phx.vista.ParametrosRepDepreciacion = {
 			repOficina: this.repOficina
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+
+    	if(elm=='dteFechaHasta'||elm=='cmbMoneda'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>

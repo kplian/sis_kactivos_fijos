@@ -84,6 +84,7 @@ Phx.vista.ParametrosRepSinAsignar = {
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,true,true);
 
+		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,true,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
@@ -113,7 +114,17 @@ Phx.vista.ParametrosRepSinAsignar = {
 			repDeposito: this.repDeposito
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+
+    	if(elm=='cmbDeposito'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>

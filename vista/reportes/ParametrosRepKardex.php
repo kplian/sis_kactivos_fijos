@@ -108,7 +108,16 @@ Phx.vista.ParametrosRepKardex = {
 			repDeposito: this.repDeposito
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+    	if(elm=='dteFechaDesde'||elm=='dteFechaHasta'||elm=='cmbActivo'||elm=='cmbMoneda'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>

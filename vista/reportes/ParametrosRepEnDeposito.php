@@ -115,7 +115,17 @@ Phx.vista.ParametrosRepEnDeposito = {
 			repDeposito: this.repDeposito
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+
+    	if(elm=='cmbDeposito'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>

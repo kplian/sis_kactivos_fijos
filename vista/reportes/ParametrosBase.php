@@ -38,13 +38,15 @@ Ext.define('Phx.vista.ParametrosBase', {
 		        data: []
 		    }),
 		    valueField: 'key',
-		    displayField: 'value'
+		    displayField: 'value',
+		    style: this.setBackgroundColor('cmbResponsable')
 		});
 		this.dteFechaDesde = new Ext.form.DateField({
 			id: this.idContenedor+'_dteFechaDesde',
 			fieldLabel: 'Fecha',
 			vtype: 'daterange',
-			endDateField: this.idContenedor+'_dteFechaHasta'
+			endDateField: this.idContenedor+'_dteFechaHasta',
+			style: this.setBackgroundColor('dteFechaDesde')
 		});
 		this.lblDesde = new Ext.form.Label({
 			text: 'Desde: '
@@ -53,7 +55,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			id: this.idContenedor+'_dteFechaHasta',
 			fieldLabel: 'Hasta',
 			vtype: 'daterange',
-			startDateField: this.idContenedor+'_dteFechaDesde'
+			startDateField: this.idContenedor+'_dteFechaDesde',
+			style: this.setBackgroundColor('dteFechaHasta')
 		});
 		this.lblHasta = new Ext.form.Label({
 			text: 'Hasta: '
@@ -90,7 +93,8 @@ Ext.define('Phx.vista.ParametrosBase', {
             pageSize: 15,
             queryDelay: 1000,
             anchor: '100%',
-            minChars: 2
+            minChars: 2,
+            style: this.setBackgroundColor('cmbClasificacion')
 		});
 		this.cmbActivo = new Ext.form.ComboBox({
 			fieldLabel: 'Activo Fijo',
@@ -123,20 +127,24 @@ Ext.define('Phx.vista.ParametrosBase', {
             anchor: '100%',
             minChars: 2,
             tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>Código:</b> {codigo}</p><p>{denominacion}</p> </div></tpl>',
+            style: this.setBackgroundColor('cmbActivo')
 		});
 		this.txtDenominacion = new Ext.form.TextField({
 			fieldLabel: 'Denominación',
-			width: '100%'
+			width: '100%',
+			style: this.setBackgroundColor('txtDenominacion')
 		});
 		this.dteFechaCompra = new Ext.form.DateField({
 			fieldLabel: 'Fecha Compra Inf.',
 			//format: 'd/m/Y', 
-			dateFormat:'Y-m-d'
+			dateFormat:'Y-m-d',
+			style: this.setBackgroundColor('dteFechaCompra')
 		});
 		this.dteFechaCompraMax = new Ext.form.DateField({
 			fieldLabel: 'Fecha Compra Sup.',
 			//format: 'd/m/Y', 
-			dateFormat:'Y-m-d'
+			dateFormat:'Y-m-d',
+			style: this.setBackgroundColor('dteFechaCompraMax')
 		});
 		this.lblFechaCompraInf = new Ext.form.Label({
 			text: '>= '
@@ -151,6 +159,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.dteFechaIniDep = new Ext.form.DateField({
 			fieldLabel: 'Fecha Ini.Dep.',
 			format: 'd/m/Y', 
+			style: this.setBackgroundColor('dteFechaIniDep')
 		});
 		this.cmbEstado = new Ext.form.ComboBox({
 			fieldLabel: 'Estado',
@@ -183,16 +192,19 @@ Ext.define('Phx.vista.ParametrosBase', {
 			pageSize:10,
 			queryDelay:1000,
 			width:250,
-			minChars:2
+			minChars:2,
+			style: this.setBackgroundColor('cmbEstado')
 		});
 		this.cmbCentroCosto = new Ext.form.ComboBox({
 			fieldLabel: 'Centro Costo',
-			anchor: '100%'
+			anchor: '100%',
+			style: this.setBackgroundColor('cmbCentroCosto')
 		});
 		this.txtUbicacionFisica = new Ext.form.TextField({
 			fieldLabel: 'Ubicación Física',
 			width: '100%',
-			maxLength: 1000
+			maxLength: 1000,
+			style: this.setBackgroundColor('txtUbicacionFisica')
 		});
 		this.cmbOficina = new Ext.form.ComboBox({
 			fieldLabel: 'Oficina',
@@ -219,8 +231,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 			mode: 'remote',
 			pageSize: 15,
 			queryDelay: 1000,
-			minChars: 2
+			minChars: 2,
+			style: this.setBackgroundColor('cmbOficina')
 		});
+
 		this.cmbResponsable = new Ext.form.ComboBox({
 			fieldLabel: 'Responsable',
 			anchor: '100%',
@@ -240,6 +254,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 				baseParams: {par_filtro:'desc_funcionario1#email_empresa#codigo#nombre_cargo'}
 				
 			}),
+			style: this.setBackgroundColor('cmbResponsable'),
 			valueField: 'id_funcionario',
 			displayField: 'desc_funcionario1',
 			tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_funcionario1}</b></p><p>{codigo}</p><p>{nombre_cargo}</p><p>{email_empresa}</p><p>{oficina_nombre} - {lugar_nombre}</p> </div></tpl>',
@@ -256,19 +271,23 @@ Ext.define('Phx.vista.ParametrosBase', {
 		});
 		this.txtObservaciones = new Ext.form.TextField({
 			fieldLabel: 'Observaciones',
-			width: '100%'
+			width: '100%',
+			style: this.setBackgroundColor('txtObservaciones')
 		});
 		this.cmbUnidSolic = new Ext.form.ComboBox({
 			fieldLabel: 'Unidad Solicitante',
-			anchor: '100%'
+			anchor: '100%',
+			style: this.setBackgroundColor('cmbUnidSolic')
 		});
 		this.cmbResponsableCompra = new Ext.form.ComboBox({
 			fieldLabel: 'Responsable Compra',
-			anchor: '100%'
+			anchor: '100%',
+			style: this.setBackgroundColor('cmbResponsableCompra')
 		});
 		this.cmbLugar = new Ext.form.ComboBox({
 			fieldLabel: 'Lugar',
-			anchor: '100%'
+			anchor: '100%',
+			style: this.setBackgroundColor('cmbLugar')
 		});
 		this.radGroupTangible = new Ext.form.RadioGroup({
 			fieldLabel: '1',
@@ -328,7 +347,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			pageSize: 10,
 			queryDelay: 1000,
 			gwidth: 250,
-			minChars: 2
+			minChars: 2,
+			style: this.setBackgroundColor('cmbDepto')
 		});
 		this.cmbDeposito = new Ext.form.ComboBox({
 			fieldLabel: 'Deposito',
@@ -356,7 +376,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			pageSize: 15,
 			queryDelay: 1000,
 			gwidth: 150,
-			minChars: 2
+			minChars: 2,
+			style: this.setBackgroundColor('cmbDeposito')
 		});
 
 		this.cmbMoneda = new Ext.form.ComboBox({
@@ -386,7 +407,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			queryDelay: 1000,
 			gwidth: 150,
 			minChars: 2,
-			allowBlank: false
+			allowBlank: false,
+			style: this.setBackgroundColor('cmbMoneda')
 		});
 		//Para el rango de montos
 		this.lblMontoInf = new Ext.form.Label({
@@ -394,14 +416,16 @@ Ext.define('Phx.vista.ParametrosBase', {
 		});
 		this.txtMontoInf = new Ext.form.NumberField({
 			allowDecimals: true,
-			decimalPrecision: 2
+			decimalPrecision: 2,
+			style: this.setBackgroundColor('txtMontoInf')
 		});
 		this.lblMontoSup = new Ext.form.Label({
 			text: 'y <= '
 		});
 		this.txtMontoSup = new Ext.form.NumberField({
 			allowDecimals: true,
-			decimalPrecision: 2
+			decimalPrecision: 2,
+			style: this.setBackgroundColor('txtMontoSup')
 		});
 		this.cmpMontos = new Ext.form.CompositeField({
         	fieldLabel: 'Importe Compra ',
@@ -410,7 +434,8 @@ Ext.define('Phx.vista.ParametrosBase', {
         //Num. C31
         this.txtNroCbteAsociado = new Ext.form.TextField({
 			fieldLabel: 'C31',
-			width: '100%'
+			width: '100%',
+			style: this.setBackgroundColor('txtNroCbteAsociado')
 		});
 		//Depreciación: totales o totales + detalle
 		this.radGroupDeprec = new Ext.form.RadioGroup({
@@ -707,6 +732,13 @@ Ext.define('Phx.vista.ParametrosBase', {
         	nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
         }
         window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
+    },
+    setBackgroundColor: function(elm){
+    	return String.format('background-color: {0}; background-image: none;', this.setPersonalBackgroundColor(elm));
+    },
+    setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	return '#FFF';
     }
 });
 </script>

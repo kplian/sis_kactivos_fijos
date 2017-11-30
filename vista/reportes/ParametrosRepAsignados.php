@@ -44,6 +44,9 @@ Phx.vista.ParametrosRepAsignados = {
 		this.claseReporte = 'ReporteAsignados';
 		this.titleReporte = 'Reportes asignados';
 	},
+	definirBackground: function(){
+		this.Atributos[0].config.style = 'background-color: #ddd; background-image: none;';
+	},
 	definirParametros: function(report){
 		this.inicializarParametros();
 
@@ -108,7 +111,16 @@ Phx.vista.ParametrosRepAsignados = {
 			repOficina: this.repOficina
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+    	if(elm=='cmbResponsable'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>
