@@ -41,24 +41,34 @@ Phx.vista.ParametrosRepRespInventario = {
 
 		//Tipo
 		this.cmbTipo.on('select',function(combo,record,index){
-			console.log('yay',record.data.key)
 			if(record.data.key=='lug'){
-				this.cmbOficina.allowBlank=false;
+				this.cmbLugar.setVisible(true);
+				this.cmbLugar.allowBlank=false;
+				this.cmbLugar.markInvalid();
+				this.cmbLugar.modificado=true;
+
 				this.cmbResponsable.allowBlank=true;
-
-				this.cmbOficina.markInvalid();
 				this.cmbResponsable.clearInvalid();
-
 				this.cmbResponsable.setValue('');
 				this.cmbResponsable.modificado=true;
-			} else {
+
 				this.cmbOficina.allowBlank=true;
-				this.cmbResponsable.allowBlank=false;
-
-				this.cmbOficina.clearInvalid();
-				this.cmbResponsable.markInvalid();
-
 				this.cmbOficina.setValue('');
+				this.cmbOficina.setVisible(false);
+				this.cmbOficina.modificado=true;
+
+			} else {
+				this.cmbLugar.setVisible(false);
+				this.cmbLugar.allowBlank=true;
+				this.cmbLugar.clearInvalid();
+				this.cmbLugar.setValue('');
+
+				this.cmbResponsable.allowBlank=false;
+				this.cmbResponsable.markInvalid();
+				this.cmbResponsable.modificado=true;
+
+				this.cmbOficina.allowBlank=true;
+				this.cmbOficina.setVisible(true);
 				this.cmbOficina.modificado=true;
 			}
 		}, this);
@@ -86,7 +96,7 @@ Phx.vista.ParametrosRepRespInventario = {
 		this.configElement(this.cmbResponsable,true,true);
 		this.configElement(this.cmbUnidSolic,false,true);
 		this.configElement(this.cmbResponsableCompra,false,true);
-		this.configElement(this.cmbLugar,false,true);
+		this.configElement(this.cmbLugar,true,false);
 		this.configElement(this.radGroupTransito,false,true);
 		this.configElement(this.radGroupTangible,false,true);
 		this.configElement(this.cmbDepto,true,false);
@@ -122,6 +132,7 @@ Phx.vista.ParametrosRepRespInventario = {
 	                	id_depto: this.cmbDepto.getValue(),
 	                	nombre_oficina: this.repOficina,
 	                	tipo: this.cmbTipo.getValue(),
+	                	id_lugar: this.cmbLugar.getValue(),
 	                	sort: 'afij.codigo',
 	                	dir: 'ASC',
 	                	limit: 5000,
@@ -153,7 +164,7 @@ Phx.vista.ParametrosRepRespInventario = {
     	var color='#FFF',
     		obligatorio='#ffffb3';
 
-    	if(elm=='cmbTipo'||elm=='cmbDepto'){
+    	if(elm=='cmbTipo'||elm=='cmbDepto'||elm=='cmbLugar'){
     		color = obligatorio;
     	}
     	return color;
