@@ -272,8 +272,8 @@ BEGIN
 						from kaf.tactivo_fijo afij
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
-						inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-						inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+						left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
 						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
 						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
 						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
@@ -472,8 +472,8 @@ BEGIN
                             uo.nombre_cargo
                         from kaf.tactivo_fijo afij                       
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg                      
-                        inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-                        inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+                        left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+                        left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
                         inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
                         inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
                         inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
@@ -532,8 +532,8 @@ BEGIN
             v_consulta:='select count(afij.id_activo_fijo)
                         from kaf.tactivo_fijo afij                       
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg                      
-                        inner join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-                        inner join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+                        left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+                        left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
                         inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
                         inner join param.tdepto dpto on dpto.id_depto = afij.id_depto                        
                         inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig

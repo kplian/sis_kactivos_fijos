@@ -247,6 +247,9 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('fecha_compra_max')!=''){
 			$this->objParam->addFiltro("afij.fecha_compra <= ''".$this->objParam->getParametro('fecha_compra_max')."''");
 		}
+		if($this->objParam->getParametro('nro_cbte_asociado')!=''){
+			$this->objParam->addFiltro("afij.nro_cbte_asociado = ''".$this->objParam->getParametro('nro_cbte_asociado')."''");
+		}
 	}
 
 	function ReporteRespInventario(){

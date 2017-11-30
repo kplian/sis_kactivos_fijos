@@ -120,7 +120,17 @@ Phx.vista.ParametrosRepRespInventario = {
 			repOficina: this.repOficina
 		}
 		return params;
-	}
+	},
+	setPersonalBackgroundColor: function(elm){
+    	//Para sobreescribir
+    	var color='#FFF',
+    		obligatorio='#ffffb3';
+
+    	if(elm=='cmbResponsable'||elm=='cmbDepto'){
+    		color = obligatorio;
+    	}
+    	return color;
+    }
 
 }
 </script>	
