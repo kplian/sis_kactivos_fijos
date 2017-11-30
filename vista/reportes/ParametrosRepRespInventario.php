@@ -12,6 +12,7 @@ Phx.vista.ParametrosRepRespInventario = {
 
 		//Eventos
 		this.definirEventos();
+
 	},
 	definirEventos: function(){
 		this.cmbActivo.on('select',function(){
@@ -37,6 +38,30 @@ Phx.vista.ParametrosRepRespInventario = {
 		this.cmbOficina.on('select',function(combo,record,index){
 			this.repOficina = record.data['nombre'];
 		}, this);
+
+		//Tipo
+		this.cmbTipo.on('select',function(combo,record,index){
+			console.log('yay',record.data.key)
+			if(record.data.key=='lug'){
+				this.cmbOficina.allowBlank=false;
+				this.cmbResponsable.allowBlank=true;
+
+				this.cmbOficina.markInvalid();
+				this.cmbResponsable.clearInvalid();
+
+				this.cmbResponsable.setValue('');
+				this.cmbResponsable.modificado=true;
+			} else {
+				this.cmbOficina.allowBlank=true;
+				this.cmbResponsable.allowBlank=false;
+
+				this.cmbOficina.clearInvalid();
+				this.cmbResponsable.markInvalid();
+
+				this.cmbOficina.setValue('');
+				this.cmbOficina.modificado=true;
+			}
+		}, this);
 	},
 	definicionRutareporte: function(report){
 		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteAsignados.php';
@@ -57,8 +82,8 @@ Phx.vista.ParametrosRepRespInventario = {
 		this.configElement(this.cmbEstado,false,true);
 		this.configElement(this.cmbCentroCosto,false,true);
 		this.configElement(this.txtUbicacionFisica,false,true);
-		this.configElement(this.cmbOficina,true,true);
-		this.configElement(this.cmbResponsable,true,false);
+		this.configElement(this.cmbOficina,true,false);
+		this.configElement(this.cmbResponsable,true,true);
 		this.configElement(this.cmbUnidSolic,false,true);
 		this.configElement(this.cmbResponsableCompra,false,true);
 		this.configElement(this.cmbLugar,false,true);
@@ -78,6 +103,7 @@ Phx.vista.ParametrosRepRespInventario = {
 		this.configElement(this.cmbMoneda,false,true);
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,false,true);
+		this.configElement(this.cmbTipo,true,false);
 
 		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,false,true);
@@ -85,7 +111,7 @@ Phx.vista.ParametrosRepRespInventario = {
 	},
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
-			if(this.cmbResponsable.getValue()!=''){
+			/*if(this.cmbOficina.getValue()!=''){*/
 				Phx.CP.loadingShow();
 				//Generación del reporte
 		        Ext.Ajax.request({
@@ -95,6 +121,7 @@ Phx.vista.ParametrosRepRespInventario = {
 	                	id_oficina: this.cmbOficina.getValue(),
 	                	id_depto: this.cmbDepto.getValue(),
 	                	nombre_oficina: this.repOficina,
+	                	tipo: this.cmbTipo.getValue(),
 	                	sort: 'afij.codigo',
 	                	dir: 'ASC',
 	                	limit: 5000,
@@ -106,9 +133,9 @@ Phx.vista.ParametrosRepRespInventario = {
 	                timeout: this.timeout,
 	                scope: this
 	            });
-			} else {
+			/*} else {
 				Ext.MessageBox.alert('Información','Debe seleccionar los criterios obligatorios.');
-			}
+			}*/
 			
 		}
 	},
@@ -126,7 +153,7 @@ Phx.vista.ParametrosRepRespInventario = {
     	var color='#FFF',
     		obligatorio='#ffffb3';
 
-    	if(elm=='cmbResponsable'||elm=='cmbDepto'){
+    	if(elm=='cmbTipo'||elm=='cmbDepto'){
     		color = obligatorio;
     	}
     	return color;

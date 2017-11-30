@@ -277,6 +277,7 @@ class ACTReportes extends ACTbase {
 		$reporte = new RRespInventario($this->objParam);
 		
 		$reporte->setOficina($this->objParam->getParametro('nombre_oficina'));
+		$reporte->setTipo($this->objParam->getParametro('tipo'));
 		$reporte->datosHeader($dataSource->getDatos());
 		$reporte->generarReporte();
 		$reporte->output($reporte->url_archivo,'F');  
