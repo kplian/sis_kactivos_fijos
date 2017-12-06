@@ -219,7 +219,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		            'key',
 		            'value'
 		        ],
-		        data: [['resp','Por Responsable'],['lug','Por Lugar']]
+		        data: [['resp','Por Responsable'],['lug','Por Lugar'], ['lug_fun','Por Lugar Funcionario']]
 		    }),
 		    valueField: 'key',
 		    displayField: 'value',

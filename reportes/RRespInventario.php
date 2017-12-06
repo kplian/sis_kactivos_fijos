@@ -31,10 +31,11 @@ class RRespInventario extends ReportePDF {
     }
 	
 	function datosHeader ($data) {
+
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
         $this->dataMaster = $data[0];
-		$this->datos_detalle = $data;	
-
+		$this->datos_detalle = $data;
+        //var_dump($this->dataMaster);exit;
 		$this->SetMargins(7, 52, 5);
 	}
 	
@@ -107,7 +108,7 @@ class RRespInventario extends ReportePDF {
         $this->SetFontSize(10);
         $this->Ln(5);
 
-        if($this->tipo=='lug'){
+        if($this->tipo=='lug' || $this->tipo=='lug_fun'){
             //Responsable
             $this->SetFont('', 'B');
             $this->Cell(45, $height,'LUGAR DE ASIGNACIÓN:', "", 0, 'L', false, '', 0, false, 'T', 'C');
@@ -169,7 +170,7 @@ class RRespInventario extends ReportePDF {
 		  
 		  $this->SetFontSize(7);
 
-          if($this->tipo=='lug'){
+          if($this->tipo=='lug' || $this->tipo=='lug_fun'){
             $this->SetY(42);
           } else {
             $this->SetY(51);
@@ -181,7 +182,7 @@ class RRespInventario extends ReportePDF {
 	        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
             $this->tabletextcolor=array();
 			
-            if($this->tipo=='lug') {
+            if($this->tipo=='lug' || $this->tipo=='lug_fun') {
                 $RowArray = array(
                         's0'  => $i+1,
                         's1' => $datarow['codigo'],   
@@ -234,7 +235,7 @@ class RRespInventario extends ReportePDF {
         $this->tablebordersHD=array('LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');
         $this->tabletextcolorHD=array();
 
-        if($this->tipo=='lug'){
+        if($this->tipo=='lug' || $this->tipo=='lug_fun'){
             $RowArray = array(
                     's0'  => 'Nro',
                     's1' => 'Código',   
