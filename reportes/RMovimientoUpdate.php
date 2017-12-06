@@ -230,12 +230,20 @@ class RMovimientoUpdate extends  ReportePDF {
                    </table>';
             $this->writeHTML ($tbl);
         }else if($tipo=='devol'){
+            $destino_dev = '';
+
             if($this->dataMaster[0]['id_funcionario_dest']==null){
+                if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI'){
+                    $destino_dev = 'ALMACEN';
+                }else{
+                    $destino_dev = $this->dataMaster[0]['responsable_depto'];
+                }
+
                 $tbl .= '<tr>
                             <td width="11%"><b>ORIGEN: </b></td>
                             <td width="40%">' . $this->dataMaster[0]['responsable'] . '</td>
                             <td width="11%"><b>DESTINO: </b></td>
-                            <td width="40%">' . $this->dataMaster[0]['responsable_depto'] . '</td>
+                            <td width="40%">' . $destino_dev . '</td>
                        </tr>
                        <tr>
                             <td width="11%" ><b>LUGAR: </b></td>
@@ -259,11 +267,16 @@ class RMovimientoUpdate extends  ReportePDF {
                        ';
                 $this->writeHTML($tbl);
             }else {
+                if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI'){
+                    $destino_dev = 'ALMACEN';
+                }else{
+                    $destino_dev = $this->dataMaster[0]['responsable_dest'];
+                }
                 $tbl .= '<tr>
                             <td width="11%"><b>ORIGEN: </b></td>
                             <td width="40%">' . $this->dataMaster[0]['responsable'] . '</td>
                             <td width="11%"><b>DESTINO: </b></td>
-                            <td width="40%">' . $this->dataMaster[0]['responsable_dest'] . '</td>
+                            <td width="40%">' . $destino_dev . '</td>
                        </tr>
                        <tr>
                             <td width="11%" ><b>LUGAR: </b></td>
@@ -304,7 +317,13 @@ class RMovimientoUpdate extends  ReportePDF {
         //<img  style="width: 110px; height: 110px;" src="' . $this->generarImagen($this->dataMaster[0]['responsable'], strtoupper($this->dataMaster[0]['nombre_cargo'])) . '" alt="Logo">
         $this->Ln(5);
         $tbl = '';
+        $descripcion = '';
         if($this->tipoMov == 'asig'){
+            if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI'){
+                $descripcion = 'EMPLEADO ASIGNACIÓN';
+            }else{
+                $descripcion = 'RECIBÍ CONFORME';
+            }
             if($this->dataMaster[0]['custodio']!='') {
                 $tbl = '<table>
                         <tr>
@@ -353,7 +372,7 @@ class RMovimientoUpdate extends  ReportePDF {
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'.$descripcion.'</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>CUSTODIO</b></td>
                                 </tr>
                             </table>
@@ -400,7 +419,7 @@ class RMovimientoUpdate extends  ReportePDF {
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'.$descripcion.'</b></td>
                                 </tr>
                             </table>
                         </td>
@@ -410,8 +429,18 @@ class RMovimientoUpdate extends  ReportePDF {
                     ';
             }
         }else if($this->tipoMov == 'transf' ||$this->tipoMov == 'devol'){
+            $responsable = '';
+            $cargo = '';
             if($this->dataMaster[0]['custodio']!='') {
                 if($this->dataMaster[0]['id_funcionario_dest']==null){
+
+                    if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI' && $this->tipoMov == 'devol'){
+                        $descripcion = 'ENCARGADO ALMACEN';
+                    }else{
+                        $descripcion = 'RECIBÍ CONFORME';
+                        $responsable = $this->dataMaster[0]['responsable_depto'];
+                        $cargo = strtoupper($this->dataMaster[0]['cargo_jefe']);
+                    }
                     $tbl = '<table>
                         <tr>
                         <td style="width: 15%"></td>
@@ -456,21 +485,21 @@ class RMovimientoUpdate extends  ReportePDF {
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable'] . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $responsable . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['custodio'] . '</td>
                                 </tr>
                                  
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo']) . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $cargo . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . 'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']) . '</td>
                                 </tr>
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>ENTREGUE CONFORME</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'.$descripcion.'</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>CUSTODIO</b></td>
                                 </tr>
                             </table>
@@ -480,6 +509,13 @@ class RMovimientoUpdate extends  ReportePDF {
                     </table>      
                     ';
                 }else{
+                    if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI' && $this->tipoMov == 'devol'){
+                        $descripcion = 'ENCARGADO ALMACEN';
+                    }else{
+                        $descripcion = 'RECIBÍ CONFORME';
+                        $responsable = $this->dataMaster[0]['responsable_dest'];
+                        $cargo = strtoupper($this->dataMaster[0]['nombre_cargo_dest']);
+                    }
                     $tbl = '<table>
                         <tr>
                         <td style="width: 15%"></td>
@@ -524,21 +560,21 @@ class RMovimientoUpdate extends  ReportePDF {
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable'] . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_dest'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $responsable . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['custodio'] . '</td>
                                 </tr>
                                  
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo']) . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo_dest']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $cargo . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . 'CI. ' . strtoupper($this->dataMaster[0]['ci_custodio']) . '</td>
                                 </tr>
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>ENTREGUE CONFORME</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'.$descripcion.'</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>CUSTODIO</b></td>
                                 </tr>
                             </table>
@@ -550,6 +586,14 @@ class RMovimientoUpdate extends  ReportePDF {
                 }
             }else{
                 if($this->dataMaster[0]['id_funcionario_dest']==null) {
+
+                    if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI' && $this->tipoMov == 'devol'){
+                        $descripcion = 'ENCARGADO ALMACEN';
+                    }else{
+                        $descripcion = 'RECIBÍ CONFORME';
+                        $responsable = $this->dataMaster[0]['responsable_depto'];
+                        $cargo = strtoupper($this->dataMaster[0]['cargo_jefe']);
+                    }
                     $tbl = '<table>
                         <tr>
                         <td style="width: 15%"></td>
@@ -586,19 +630,19 @@ class RMovimientoUpdate extends  ReportePDF {
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable'] . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' .  $responsable . '</td>
                                 </tr>
                                  
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo']) . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $cargo . '</td>
                                 </tr>
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>ENTREGUE CONFORME</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'. $descripcion .'</b></td>
                                 </tr>
                             </table>
                         </td>
@@ -607,6 +651,15 @@ class RMovimientoUpdate extends  ReportePDF {
                     </table>      
                     ';
                 }else{
+
+                    if($this->dataMaster[0]['codigo_depto'] == 'DAF-TI' && $this->tipoMov == 'devol'){
+                        $descripcion = 'ENCARGADO ALMACEN';
+                    }else{
+                        $descripcion = 'RECIBÍ CONFORME';
+                        $responsable = $this->dataMaster[0]['responsable_dest'];
+                        $cargo = strtoupper($this->dataMaster[0]['nombre_cargo_dest']);
+                    }
+
                     $tbl = '<table>
                         <tr>
                         <td style="width: 15%"></td>
@@ -643,19 +696,19 @@ class RMovimientoUpdate extends  ReportePDF {
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_depto'] . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable'] . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $this->dataMaster[0]['responsable_dest'] . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $responsable . '</td>
                                 </tr>
                                  
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['cargo_jefe']) . '</td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo']) . '</td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . strtoupper($this->dataMaster[0]['nombre_cargo_dest']) . '</td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;">' . $cargo . '</td>
                                 </tr>
                                 
                                 <tr>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RESPONSABLE</b></td>
                                     <td align="center" style="font-family: Calibri; font-size: 9px;"><b>ENTREGUE CONFORME</b></td>
-                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>RECIBÍ CONFORME</b></td>
+                                    <td align="center" style="font-family: Calibri; font-size: 9px;"><b>'.$descripcion.'</b></td>
                                 </tr>
                             </table>
                         </td>
