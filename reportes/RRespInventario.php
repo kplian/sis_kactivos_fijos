@@ -190,7 +190,7 @@ class RRespInventario extends ReportePDF {
                         's3' => date("d/m/Y",strtotime($datarow['fecha_asignacion'])),
                         's4' => '',
                         's5' => '',
-                        's6' => '',
+                        's6' => $datarow['ubicacion'],
                         's7' => $datarow['responsable'],
                         's8' => ''
                         );
@@ -202,7 +202,7 @@ class RRespInventario extends ReportePDF {
                         's3' => date("d/m/Y",strtotime($datarow['fecha_asignacion'])),
                         's4' => '',
                         's5' => '',
-                        's6' => '',
+                        's6' => $datarow['ubicacion'],
                         's7' => $datarow['desc_oficina'],
                         's8' => ''
                         );    
