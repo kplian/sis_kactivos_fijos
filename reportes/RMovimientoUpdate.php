@@ -168,6 +168,7 @@ class RMovimientoUpdate extends  ReportePDF {
     public function fieldsHeader($tipo){
         $this->SetFont('', '');
         $this->SetFontSize(10);
+
         $this->Ln();
         $tbl = '<table border="1" style="font-size: 8pt;">';
         if($tipo=='asig'){
@@ -315,7 +316,13 @@ class RMovimientoUpdate extends  ReportePDF {
     function Firmas() {
         //<img  style="width: 110px; height: 110px;" src="' . $this->generarImagen($this->dataMaster[0]['responsable_depto'], 'RESPONSABLE ACTIVOS FIJOS') . '" alt="Logo">
         //<img  style="width: 110px; height: 110px;" src="' . $this->generarImagen($this->dataMaster[0]['responsable'], strtoupper($this->dataMaster[0]['nombre_cargo'])) . '" alt="Logo">
+        if ($this->getY()>=160 && $this->getY()<=234){
+            $pos = $this->getY()+(234-$this->getY());
+            $this->setY($pos);
+        }
+
         $this->Ln(5);
+
         $tbl = '';
         $descripcion = '';
         if($this->tipoMov == 'asig'){
