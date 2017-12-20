@@ -17,9 +17,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:   
- AUTOR:         
- FECHA:     
+ DESCRIPCION:   Se aumenta join con vista para obtener el monto real a la fecha
+ AUTOR:         RCM
+ FECHA:         13/12/2017
 ***************************************************************************/
 DECLARE
 
@@ -44,29 +44,32 @@ BEGIN
     p_id_usuario,
     now(),
     'activo',
-    id_activo_fijo,
-    monto_vigente_orig,
+    afv.id_activo_fijo,
+    av.monto_vigente_real_af,
     p_vida_util,
     p_fecha,
     0,
     0,
     0,
-    monto_vigente,
+    av.monto_vigente_real_af,
     p_vida_util,
-    tipo,
-    estado,
-    principal,
-    monto_rescate,
+    afv.tipo,
+    afv.estado,
+    afv.principal,
+    afv.monto_rescate,
     p_id_movimiento_af,
-    codigo||'-G',
-    id_moneda_dep,
-    id_moneda,
+    afv.codigo,
+    afv.id_moneda_dep,
+    afv.id_moneda,
     p_fecha,
-    deducible,
-    id_activo_fijo_valor,
-    monto_vigente_orig
-    from kaf.tactivo_fijo_valores
-    where id_activo_fijo = p_id_activo_fijo;
+    afv.deducible,
+    afv.id_activo_fijo_valor,
+    av.monto_vigente_real_af
+    from kaf.tactivo_fijo_valores afv 
+    inner join kaf.vactivo_fijo_vigente av 
+    on av.id_activo_fijo = afv.id_activo_fijo
+    and afv.id_moneda_dep = av.id_moneda_dep
+    where afv.id_activo_fijo = p_id_activo_fijo;
     
     --Definicion de la respuesta
     v_resp = pxp.f_agrega_clave(v_resp,'mensaje','AFV replicado satisfactoriamente (id_activo_fijo'||p_id_activo_fijo||')'); 

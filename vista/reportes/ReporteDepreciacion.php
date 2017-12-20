@@ -66,6 +66,14 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		this.load();
 
 		this.definirReporteCabecera();
+
+		this.addButton('btnSelect', {
+            text: 'Reporte',
+            iconCls: 'bpdf32',
+            disabled: false,
+            handler: this.imprimirReporte,
+            tooltip: '<b>Imprimir reporte</b><br/>Genera el reporte en el formato para impresión.'
+         });
 	},
 
 	Atributos:[
@@ -466,6 +474,49 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			label: 'DEPTO.',
 			value: this.maestro.paramsRep.repDepto
 		}]
+	},
+	imprimirReporte: function(){
+	    Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Reportes/ReporteDetalleDepreciacion',
+            params:{
+            	titulo_reporte: this.maestro.paramsRep.titleReporte,
+				reporte: this.maestro.paramsRep.reporte,
+				fecha_desde: this.maestro.paramsRep.fecha_desde,
+				fecha_hasta: this.maestro.paramsRep.fecha_hasta,
+				id_activo_fijo: this.maestro.paramsRep.id_activo_fijo,
+				id_clasificacion: this.maestro.paramsRep.id_clasificacion,
+				denominacion: this.maestro.paramsRep.denominacion,
+				fecha_compra: this.maestro.paramsRep.fecha_compra,
+				fecha_ini_dep: this.maestro.paramsRep.fecha_ini_dep,
+				estado: this.maestro.paramsRep.estado,
+				id_centro_costo: this.maestro.paramsRep.id_centro_costo,
+				ubicacion: this.maestro.paramsRep.ubicacion,
+				id_oficina: this.maestro.paramsRep.id_oficina,
+				id_funcionario: this.maestro.paramsRep.id_funcionario,
+				id_uo: this.maestro.paramsRep.id_uo,
+				id_funcionario_compra: this.maestro.paramsRep.id_funcionario_compra,
+				id_lugar: this.maestro.paramsRep.id_lugar,
+				af_transito: this.maestro.paramsRep.af_transito,
+				af_tangible: this.maestro.paramsRep.af_tangible,
+				af_estado_mov: this.maestro.paramsRep.af_estado_mov,
+				id_depto: this.maestro.paramsRep.id_depto,
+				id_deposito: this.maestro.paramsRep.id_deposito,
+				id_moneda: this.maestro.paramsRep.id_moneda,
+				desc_moneda: this.maestro.paramsRep.desc_moneda,
+				tipo_salida: 'grid',
+				rep_metodo_list: this.metodoList,
+				monto_inf: this.maestro.paramsRep.monto_inf,
+				monto_sup: this.maestro.paramsRep.monto_sup,
+				fecha_compra_max: this.maestro.paramsRep.fecha_compra_max,
+				af_deprec: this.maestro.paramsRep.af_deprec,
+				nro_cbte_asociado: this.maestro.paramsRep.nro_cbte_asociado
+            },
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        }); 
 	}
 })
 </script>

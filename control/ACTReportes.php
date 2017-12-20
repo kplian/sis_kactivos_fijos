@@ -3,6 +3,7 @@ require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__).'/../reportes/RKardexAFxls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteGralAFXls.php');
 require_once(dirname(__FILE__).'/../reportes/RRespInventario.php');
+require_once(dirname(__FILE__).'/../reportes/RDetalleDepreciacion.php');
 
 class ACTReportes extends ACTbase {
 
@@ -145,6 +146,21 @@ class ACTReportes extends ACTbase {
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
+	function listarRepDepreciacionPDF(){
+		$this->definirFiltros();
+
+		$this->objFunc=$this->create('MODReportes');		
+		$data=$this->objFunc->listarRepDepreciacion($this->objParam);
+		if($data->getTipo() == 'EXITO'){				
+			return $data;
+		}
+        else{
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		} 
+		
+	}
+
 	function definirFiltros() {
 		$this->objParam->defecto('ordenacion','codigo');
 		$this->objParam->defecto('dir_ordenacion','asc');
@@ -285,6 +301,33 @@ class ACTReportes extends ACTbase {
 		$reporte->generarReporte();
 		$reporte->output($reporte->url_archivo,'F');  
          
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function ReporteDetalleDepreciacion(){
+		$nombreArchivo = 'DetalleDepreciacion'.uniqid(md5(session_id())).'.pdf'; 
+		$obj = $this->listarRepDepreciacionPDF();
+		
+		$dataMaestro = $obj->getDatos();
+		
+		//parametros basicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Consolidado';
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+		//Instancia la clase de pdf
+		$reporte = new RDetalleDepreciacion($this->objParam);
+		$reporte->datosHeader($obj->getDatos(),$obj->getDatos());
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');				
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);

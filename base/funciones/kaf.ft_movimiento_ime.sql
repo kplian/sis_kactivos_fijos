@@ -895,8 +895,11 @@ BEGIN
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
 
                         --Obtener el valor real de la revalorización
-                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
-                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+                        --RCM 12/12/2017: se coloca directo el importe del movaf para depreciación en boa
+                        --v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        --v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+                        v_monto_inc_dec_real = v_registros_af_mov.importe;
+                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util;
 
                         if v_monto_inc_dec_real = 0  then
                           raise exception 'Inc/Dec de la revalorización es cero. Nada que hacer.';
@@ -1463,8 +1466,11 @@ BEGIN
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
 
                         --Obtener el valor real de la mejora
-                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
-                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+                        --RCM 12/12/2017: se comenta temporalmente para poner el monto del movaf para cuadrar depre boa
+                        --v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        --v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+                        v_monto_inc_dec_real = v_registros_af_mov.importe;
+                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util;
 
                         if v_monto_inc_dec_real = 0  then
                           raise exception 'La mejora debe ser mayor a cero. Nada que hacer.';

@@ -75,9 +75,9 @@ BEGIN
                 end as mes_dep,
                 cla.depreciable,
                 case
-                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep and afv1.fecha_ult_dep is not null then kaf.f_months_between(('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date, v_fecha_hasta) + 1
+                    when afv.fecha_ult_dep_real >= afv.fecha_ini_dep and afv1.fecha_ult_dep is not null then kaf.f_months_between(('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date, v_fecha_hasta)
                 else
-                    kaf.f_months_between(afv.fecha_ult_dep_real, v_fecha_hasta) + 1
+                    kaf.f_months_between(afv.fecha_ult_dep_real, v_fecha_hasta) 
                 end as meses_dep,
 
                 mon.id_moneda_dep,
@@ -104,7 +104,8 @@ BEGIN
                 cla.depreciable,
                 afv.vida_util_orig,
                 tipo_cambio_anterior,
-                afv1.fecha_fin
+                afv1.fecha_fin,
+                afv1.id_activo_fijo_valor_original
                 from kaf.tmovimiento_af maf
                 inner join kaf.vactivo_fijo_valor afv
                 on afv.id_activo_fijo = maf.id_activo_fijo
@@ -119,11 +120,12 @@ BEGIN
                 where maf.id_movimiento = p_id_movimiento
                 and afv.fecha_ult_dep_real < v_fecha_hasta --solo que tenga depreciacion menor a la fecha indicada en el movimiento
                 --and afv.estado = 'activo'
-                and (case  when cla.depreciable = 'si' then
+                /*and (case  when cla.depreciable = 'si' then
                         afv.vida_util_real > 0
                     else
                         0=0
-                    end) loop
+                    end)*/
+        loop
 
         --Bandera de control de depreciación
         v_sw_control_dep= true;
@@ -156,12 +158,32 @@ BEGIN
 
         v_tipo_cambio_anterior = v_rec.tipo_cambio_anterior;
 
+        --RCM 18-12-2017: Verifica si es un AFV replicado a partir de otro AFV
+        if v_rec.id_activo_fijo_valor_original is not null and v_rec.fecha_ult_dep is null then
+
+            select mdep.tipo_cambio_fin
+            into v_tipo_cambio_anterior
+            from kaf.tmovimiento_af_dep mdep
+            where mdep.id_activo_fijo_valor = v_rec.id_activo_fijo_valor_original
+            and mdep.id_moneda_dep = v_rec.id_moneda_dep
+            and mdep.fecha = (select max(fecha)
+                            from kaf.tmovimiento_af_dep
+                            where id_activo_fijo_valor = v_rec.id_activo_fijo_valor_original
+                            and id_moneda_dep = v_rec.id_moneda_dep);
+                            
+--                  raise exception 'si entra %',v_tipo_cambio_anterior;
+        end if;
+
         --Bucle de la cantidad de meses a depreciar
         for i in 1..v_rec.meses_dep loop
-
+                /*if v_rec.id_activo_fijo = 306 then
+    raise exception 'fffffff: %  %  ',v_rec.meses_dep,v_rec.fecha_fin;
+end if;*/
             --Verifica que la fecha fin del afv sea menor o igual a la fecha en que se está depreciando
-            if v_rec.fecha_fin is not null and  v_rec.fecha_fin > v_mes_dep then
-                exit;
+            if v_rec.fecha_fin is not null then
+                if v_mes_dep >= v_rec.fecha_fin then
+                    exit;
+                end if;
             end if;
 
             if v_rec.actualizar = 'si'  then
@@ -190,7 +212,7 @@ BEGIN
                 --RAC 03/03/2017
                 --  agrega validacion de division por cero
                 if v_ant_vida_util = 0 and v_rec.depreciable = 'si' then
-                    exit; --v_nuevo_dep_mes       = 0;
+                    --exit; --v_nuevo_dep_mes       = 0;
                 else
                     v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
                 end if;
@@ -199,6 +221,20 @@ BEGIN
                 v_nuevo_dep_per       = v_dep_per_actualiz + v_nuevo_dep_mes;
                 v_nuevo_monto_vigente = v_monto_actualiz - v_nuevo_dep_acum;
                 v_nuevo_vida_util     = v_ant_vida_util - 1;
+
+                --RCM 12/12/2017: que siga actualizando la dep. acum aunque tenga vida util cero
+                if v_ant_vida_util = 0 and v_rec.depreciable = 'si' then
+                    v_dep_per_actualiz  = 0;
+                    --v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
+                    v_monto_actualiz    = v_rec.monto_rescate;
+                    v_nuevo_dep_mes = 0;
+
+                    v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
+                    v_nuevo_dep_per       = 0;
+                    v_nuevo_monto_vigente = v_rec.monto_rescate;
+                    v_nuevo_vida_util     = 0;
+                end if;
+                --FIN RCM
 
             else
                 --Actualización de importes
