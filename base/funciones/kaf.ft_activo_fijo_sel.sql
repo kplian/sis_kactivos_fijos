@@ -452,11 +452,11 @@ BEGIN
                             afij.marca,
                             afij.nro_serie,
                             afij.caracteristicas,
-                            COALESCE(round(afvi.monto_vigente_real_af,2), afij.monto_compra),
-                            COALESCE(afvi.vida_util_real_af,afij.vida_util_original),                            
-                            afvi.fecha_ult_dep_real_af,
-                            COALESCE(round(afvi.depreciacion_acum_real_af,2),0),
-                            COALESCE(round( afvi.depreciacion_per_real_af,2),0),
+                            afij.monto_compra, --COALESCE(round(afvi.monto_vigente_real_af,2), afij.monto_compra),
+                            afij.vida_util_original, --COALESCE(afvi.vida_util_real_af,afij.vida_util_original),                            
+                            afij.fecha_ini_dep, --afvi.fecha_ult_dep_real_af,
+                            afij.depreciacion_acum,--COALESCE(round(afvi.depreciacion_acum_real_af,2),0),
+                            afij.depreciacion_per,--COALESCE(round( afvi.depreciacion_per_real_af,2),0),
                             cla.tipo_activo,
                             cla.depreciable,
                             afij.monto_compra_orig,
@@ -483,9 +483,9 @@ BEGIN
                         and afvi.id_moneda = afij.id_moneda_orig
                         and (afvi.estado_mov_dep = ''finalizado'' or afvi.estado_mov_dep is null) */
 
-                        left join kaf.f_activo_fijo_vigente('''||v_parametros.fecha_mov||''') afvi
+                        /*left join kaf.f_activo_fijo_vigente('''||v_parametros.fecha_mov||''') afvi
                         on afvi.id_activo_fijo = afij.id_activo_fijo
-                        and afvi.id_moneda = afij.id_moneda_orig
+                        and afvi.id_moneda = afij.id_moneda_orig*/
 
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod                       
@@ -540,9 +540,9 @@ BEGIN
                         left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto 
                         left join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
                         /*left join kaf.vactivo_fijo_vigente afvi on afvi.id_activo_fijo = afij.id_activo_fijo*/
-                        left join kaf.f_activo_fijo_vigente('''||v_parametros.fecha_mov||''') afvi
+                        /*left join kaf.f_activo_fijo_vigente('''||v_parametros.fecha_mov||''') afvi
                         on afvi.id_activo_fijo = afij.id_activo_fijo
-                        and afvi.id_moneda = afij.id_moneda_orig
+                        and afvi.id_moneda = afij.id_moneda_orig*/
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod                       
                         left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
