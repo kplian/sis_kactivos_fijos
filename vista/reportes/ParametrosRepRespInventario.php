@@ -41,7 +41,7 @@ Phx.vista.ParametrosRepRespInventario = {
 
 		//Tipo
 		this.cmbTipo.on('select',function(combo,record,index){
-			if(record.data.key=='lug'){
+			if(record.data.key=='lug' || record.data.key=='lug_fun'){
 				this.cmbLugar.setVisible(true);
 				this.cmbLugar.allowBlank=false;
 				this.cmbLugar.markInvalid();

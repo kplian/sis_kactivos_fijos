@@ -278,7 +278,6 @@ class ACTReportes extends ACTbase {
 
 		$this->objFunc=$this->create('MODReportes');
 		$dataSource=$this->objFunc->listarRepAsignados($this->objParam);
-//var_dump($dataSource);exit;
 
 		//parametros basicos
 		$orientacion = 'L';

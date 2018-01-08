@@ -157,12 +157,18 @@ class MODReportes extends MODbase{
 		$this->procedimiento='kaf.f_reportes_af';
 		$this->transaccion='SKA_RASIG_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		//se adiciona estos parametros para obtener el lugar del reporte
+		$this->setParametro('id_lugar','id_lugar','int4');
+		$this->setParametro('id_depto','id_depto','int4');
+		$this->setParametro('tipo','tipo','varchar');
+
 		if($this->objParam->getParametro('tipo_salida')!='grid'){
 			$this->setCount(false);
 		}
 
 		//Definicion de la lista del resultado del query
 		$this->captura('codigo','VARCHAR');
+		$this->captura('lugar','VARCHAR');
         $this->captura('desc_clasificacion','VARCHAR');
         $this->captura('denominacion','VARCHAR');
         $this->captura('descripcion','VARCHAR');
@@ -180,8 +186,6 @@ class MODReportes extends MODbase{
 		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
-		
-		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
