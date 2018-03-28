@@ -102,6 +102,31 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
+		{
+			config:{
+				name:'codigo_ant', 
+				fieldLabel: 'Código SAP',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
         {
 			config:{
 				name:'denominacion', 
@@ -180,7 +205,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {
 			config:{
 				name:'monto_vigente_orig', 
-				fieldLabel: 'Costo AF',
+				fieldLabel: 'Valor Inicial',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -406,7 +431,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {
 			config:{
 				name:'monto_vigente', 
-				fieldLabel: 'Valor Residual',
+				fieldLabel: 'Valor Neto',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -424,6 +449,231 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'monto_vigente',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'codigo_tcc', 
+				fieldLabel: 'Centro Costo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'codigo_tcc',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cod_raiz', 
+				fieldLabel: 'Cod.Raíz',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'cod_raiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cod_grupo', 
+				fieldLabel: 'Cod.Grupo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'cod_grupo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cod_clase', 
+				fieldLabel: 'Cod.Clase',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'cod_clase',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cod_subgrupo', 
+				fieldLabel: 'Cod.Subgrupo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'cod_subgrupo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'desc_raiz', 
+				fieldLabel: 'Raíz',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'desc_raiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'desc_grupo', 
+				fieldLabel: 'Grupo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'desc_grupo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'desc_clase', 
+				fieldLabel: 'Clase',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'desc_clase',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		}
+		,{
+			config:{
+				name:'desc_subgrupo', 
+				fieldLabel: 'Subgrupo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'desc_subgrupo',type:'string'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -449,7 +699,17 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {name:'monto_vigente', type: 'numeric'},
         {name:'nivel', type: 'numeric'},
         {name:'orden', type: 'numeric'},
-        {name:'tipo', type: 'string'}
+        {name:'tipo', type: 'string'},
+        {name:'codigo_ant', type: 'string'},
+        {name:'codigo_tcc', type: 'string'},
+        {name:'cod_raiz', type: 'string'},
+        {name:'cod_grupo', type: 'string'},
+        {name:'cod_clase', type: 'string'},
+        {name:'cod_subgrupo', type: 'string'},
+        {name:'desc_raiz', type: 'string'},
+        {name:'desc_grupo', type: 'string'},
+        {name:'desc_clase', type: 'string'},
+        {name:'desc_subgrupo', type: 'string'}
 	],
 	sortInfo:{
 		field: 'codigo',

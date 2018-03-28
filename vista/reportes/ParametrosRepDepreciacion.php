@@ -42,7 +42,7 @@ Phx.vista.ParametrosRepDepreciacion = {
 	definicionRutareporte: function(report){
 		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteDepreciacion.php';
 		this.claseReporte = 'ReporteDepreciacion';
-		this.titleReporte = 'Reporte Detalle Depreciación';
+		this.titleReporte = 'Depreciación al ';
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();
@@ -87,11 +87,14 @@ Phx.vista.ParametrosRepDepreciacion = {
 	},
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
+			var date = new Date(this.dteFechaHasta.getValue());
+			this.titleReporte = 'Depreciación al ';
+			this.titleReporte+=date.format('d-m-y');
 			var win = Phx.CP.loadWindows(
 				this.rutaReporte,
                 this.titleReporte, {
-                    width: 870,
-                    height : 620
+                    width: '97%',//870,
+                    height: '97%'//620
                 }, { 
                     paramsRep: this.getParams()
                 },

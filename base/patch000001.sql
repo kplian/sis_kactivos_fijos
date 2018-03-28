@@ -1051,3 +1051,28 @@ ALTER TABLE kaf.tmovimiento_af_dep
   ADD CONSTRAINT uq_tmovimiento_af_dep__id_activo_fijo_valor__id_moneda_dep__fecha
     UNIQUE (id_activo_fijo_valor, id_moneda_dep, fecha) NOT DEFERRABLE;
 /***********************************F-SCP-RCM-KAF-1-17/10/2017****************************************/  
+
+/***********************************I-SCP-RCM-KAF-1-08/01/2018****************************************/  
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN monto_vigente_actualiz_inicial NUMERIC DEFAULT 0 NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.monto_vigente_actualiz_inicial
+IS 'Columna que tiene el monto vigente actualizacion del padre (caso de revalorizaciones, ajustes, etc.)';
+
+/***********************************F-SCP-RCM-KAF-1-08/01/2018****************************************/  
+
+
+/***********************************I-SCP-RCM-KAF-1-21/02/2018****************************************/  
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN registro VARCHAR(15) DEFAULT 'generado' NOT NULL;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.registro
+IS 'Tipo de registro: generado, manual';
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN observaciones VARCHAR(5000);
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.observaciones
+IS 'Observaciones para los registros que se hagan manualmente';  
+/***********************************F-SCP-RCM-KAF-1-21/02/2018****************************************/    

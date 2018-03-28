@@ -706,8 +706,8 @@ Ext.define('Phx.vista.ParametrosBase', {
             			var win = Phx.CP.loadWindows(
 							this.rutaReporte,
 			                this.titleReporte, {
-			                    width: 870,
-			                    height : 620
+			                    width: '97%',//870,
+			                    height: '97%'//620
 			                }, { 
 			                    paramsRep: this.getParams()
 			                },
