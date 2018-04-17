@@ -2368,7 +2368,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         id: this.idContenedor+'_id_proyecto',
                                         qtip: 'Proyecto o aplicación del activo fijo, se utliza para cargar los gastos  de depreciación (Determinar los centro de costos)',
                                         fieldLabel:'Proyecto / Aplicación',
-                                        allowBlank:false,
+                                        allowBlank:true,
                                         emptyText:'Proyecto...',
                                         store: new Ext.data.JsonStore({
                                             url: '../../sis_parametros/control/Proyecto/ListarProyecto',
