@@ -1914,3 +1914,110 @@ AS
          
 /***********************************F-DEP-RAC-KAF-1-19/10/2017****************************************/
                   
+/***********************************I-DEP-RCM-KAF-1-10/04/2018****************************************/                  
+DROP VIEW kaf.vactivo_fijo_vigente;
+
+CREATE VIEW kaf.vactivo_fijo_vigente (
+    id_activo_fijo,
+    monto_vigente_real_af,
+    vida_util_real_af,
+    fecha_ult_dep_real_af,
+    depreciacion_acum_real_af,
+    depreciacion_per_real_af,
+    monto_actualiz_real_af,
+    id_moneda,
+    id_moneda_dep)
+AS
+SELECT afd.id_activo_fijo,
+    sum(afd.monto_vigente_real) AS monto_vigente_real_af,
+    max(afd.vida_util_real) AS vida_util_real_af,
+    max(afd.fecha_ult_dep_real) AS fecha_ult_dep_real_af,
+    sum(afd.depreciacion_acum_real) AS depreciacion_acum_real_af,
+    sum(afd.depreciacion_per_real) AS depreciacion_per_real_af,
+    sum(afd.monto_actualiz_real) AS monto_actualiz_real_af,
+    afd.id_moneda,
+    afd.id_moneda_dep
+FROM kaf.vactivo_fijo_valor afd
+GROUP BY afd.id_activo_fijo, afd.id_moneda, afd.id_moneda_dep;
+/***********************************F-DEP-RCM-KAF-1-10/04/2018****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-17/04/2018****************************************/
+CREATE VIEW kaf.v_cbte_deprec_monto_actualiz (
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    monto_actualiz,
+    id_movimiento,
+    id_moneda,
+    codigo_tcc)
+AS
+ WITH trel_contable AS (
+         SELECT rc_1.id_tabla AS id_clasificacion,
+            (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::character varying)::text) || '}'::text)::integer[] AS nodos
+           FROM conta.ttabla_relacion_contable tb
+             JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+             JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+          WHERE tb.esquema::text = 'KAF'::text AND tb.tabla::text = 'tclasificacion'::text AND trc.codigo_tipo_relacion::text = 'ALTAAF'::text
+        )
+ SELECT rc.id_clasificacion,
+    cla.codigo_completo_tmp,
+    cla.nombre,
+    sum(mdep.monto_actualiz) AS monto_actualiz,
+    maf.id_movimiento,
+    mdep.id_moneda,
+    cc.codigo_tcc
+   FROM kaf.tmovimiento_af maf
+     JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af = maf.id_movimiento_af
+     JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+     JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+     JOIN kaf.tclasificacion cla ON cla.id_clasificacion = rc.id_clasificacion
+     JOIN param.vcentro_costo cc ON cc.id_centro_costo = af.id_centro_costo
+  WHERE mdep.id_moneda = param.f_get_moneda_base()
+  GROUP BY rc.id_clasificacion, cla.codigo_completo_tmp, cla.nombre, maf.id_movimiento, mdep.id_moneda,cc.codigo_tcc;
+
+
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_depreciacion(
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    monto_depreciacion,
+    id_movimiento,
+    id_moneda,
+    codigo_tcc)
+AS
+WITH trel_contable AS(
+  SELECT rc_1.id_tabla AS id_clasificacion,
+         (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::
+           character varying)::text) || '}'::text)::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+       JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+         = tb.id_tabla_relacion_contable
+       JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+         trc.id_tipo_relacion_contable
+  WHERE tb.esquema::text = 'KAF'::text AND
+        tb.tabla::text = 'tclasificacion'::text AND
+        trc.codigo_tipo_relacion::text = 'DEPACCLAS'::text)
+    SELECT rc.id_clasificacion,
+           cla.codigo_completo_tmp,
+           cla.nombre,
+           sum(mdep.depreciacion) AS monto_depreciacion,
+           maf.id_movimiento,
+           mdep.id_moneda,
+           cc.codigo_tcc
+    FROM kaf.tmovimiento_af maf
+         JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af =
+           maf.id_movimiento_af
+         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+         JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+         JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
+           rc.id_clasificacion
+         JOIN param.vcentro_costo cc ON cc.id_centro_costo = af.id_centro_costo
+    WHERE mdep.id_moneda = param.f_get_moneda_base()
+    GROUP BY rc.id_clasificacion,
+             cla.codigo_completo_tmp,
+             cla.nombre,
+             maf.id_movimiento,
+             mdep.id_moneda,
+             cc.codigo_tcc;
+/***********************************F-DEP-RCM-KAF-1-17/04/2018****************************************/

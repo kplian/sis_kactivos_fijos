@@ -1076,3 +1076,13 @@ ALTER TABLE kaf.tmovimiento_af_dep
 COMMENT ON COLUMN kaf.tmovimiento_af_dep.observaciones
 IS 'Observaciones para los registros que se hagan manualmente';  
 /***********************************F-SCP-RCM-KAF-1-21/02/2018****************************************/    
+
+
+/***********************************I-SCP-RCM-KAF-1-17/04/2018****************************************/    
+create table kaf.tgrupo (
+	id_grupo serial,
+	codigo varchar(15) not null,
+	nombre varchar(150) not null
+	constraint pk_tgrupo__id_grupo primary key (id_grupo)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-1-17/04/2018****************************************/    

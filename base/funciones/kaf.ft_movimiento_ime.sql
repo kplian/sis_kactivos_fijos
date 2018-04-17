@@ -1573,7 +1573,7 @@ BEGIN
                     raise exception 'El Comprobante contable (ID: %) aún no ha sido validado',v_movimiento.id_int_comprobante;
                   end if;*/
 
-                  --Recorrido de los activos fijos de la mejora
+                  --Recorrido de los activos fijos del ajuste
                     for v_registros_af_mov in (select
                                               af.id_activo_fijo, 
                                               af.monto_compra,          
@@ -1585,7 +1585,8 @@ BEGIN
                                               af.codigo,
                                               af.cantidad_revaloriz,
                                               av.monto_vigente_real_af,
-                                              av.vida_util_real_af
+                                              av.vida_util_real_af,
+                                              av.depreciacion_acum_real_af
                                               from kaf.tmovimiento_af maf
                                               inner join kaf.tmovimiento mov
                                               on mov.id_movimiento = maf.id_movimiento
@@ -1596,26 +1597,50 @@ BEGIN
                                               and av.id_moneda = v_id_moneda_base
                                               where maf.id_movimiento = v_movimiento.id_movimiento) loop
 
-                        --Obtener el valor real de la mejora
-                        v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
-                        v_vida_util_inc_dec_real = v_registros_af_mov.vida_util - v_registros_af_mov.vida_util_real_af;
+                        --Obtener el valor real del ajuste
+                        if v_registros_af_mov.importe = 0 then
+                            v_monto_inc_dec_real = v_registros_af_mov.monto_vigente_real_af;
+                        else
+                            v_monto_inc_dec_real = v_registros_af_mov.importe - v_registros_af_mov.monto_vigente_real_af;
+                        end if;
+                        
+                        if v_registros_af_mov.vida_util = 0 then
+                            v_vida_util_inc_dec_real = v_registros_af_mov.vida_util_real_af;
+                        else
+                            v_vida_util_inc_dec_real = v_registros_af_mov.vida_util;-- - v_registros_af_mov.vida_util_real_af;
+                        end if;
 
                         --Finalización de AFV(s) vigentes (seteando fecha_fin)
                         v_fun = kaf.f_afv_finalizar(p_id_usuario,
                                                     v_registros_af_mov.id_activo_fijo,
                                                     v_registros_af_mov.fecha_mov);
 
-                        --Creación de los nuevos AFV para la mejora en todas las monedas
-                        v_fun = kaf.f_afv_crear(p_id_usuario,
-                                                v_movimiento.cod_movimiento,
-                                                v_registros_af_mov.id_activo_fijo,
-                                                v_id_moneda_base,
-                                                v_registros_af_mov.id_movimiento_af,
-                                                v_registros_af_mov.fecha_mov,
-                                                v_monto_inc_dec_real,
-                                                v_registros_af_mov.vida_util,
-                                                kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
-                                                'si');
+                        --RCM 10-04-2018: si el importe del ajuste es cero, replica del anterior. Si es distinto, crea uno nuevo
+                        if v_registros_af_mov.importe = 0 then
+
+                            --Replicación de AFV(s), con seteo de la nueva vida útil
+                            v_fun = kaf.f_afv_replicar(p_id_usuario,
+                                                      v_registros_af_mov.id_activo_fijo,
+                                                      v_registros_af_mov.id_movimiento_af,
+                                                      v_vida_util_inc_dec_real,
+                                                      v_registros_af_mov.fecha_mov,
+                                                      'ajuste',
+                                                      kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento)
+                                                      );
+
+                        else
+                            --Creación de los nuevos AFV para la mejora en todas las monedas
+                            v_fun = kaf.f_afv_crear(p_id_usuario,
+                                                    v_movimiento.cod_movimiento,
+                                                    v_registros_af_mov.id_activo_fijo,
+                                                    v_id_moneda_base,
+                                                    v_registros_af_mov.id_movimiento_af,
+                                                    v_registros_af_mov.fecha_mov,
+                                                    v_monto_inc_dec_real,
+                                                    v_registros_af_mov.vida_util,
+                                                    kaf.f_get_codigo_nuevo_afv(v_registros_af_mov.id_activo_fijo,v_movimiento.cod_movimiento),
+                                                    'si');
+                        end if;
 
                     end loop;
 
@@ -1836,7 +1861,7 @@ BEGIN
             FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
 
             --Obtener datos tipo estado
-             if v_movimiento.cod_movimiento = 'deprec' then
+             if v_movimiento.cod_movimiento in ('deprec','actua') then
                 if v_codigo_estado = 'borrador' then
                     --Eliminar registros de la depreciacion
                     delete from kaf.tmovimiento_af_dep
