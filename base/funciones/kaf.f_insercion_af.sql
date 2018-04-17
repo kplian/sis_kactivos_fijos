@@ -85,7 +85,8 @@ BEGIN
         nro_cbte_asociado,
         fecha_cbte_asociado,
         id_cotizacion_det,
-        id_preingreso_det
+        id_preingreso_det,
+        id_grupo
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -139,7 +140,8 @@ BEGIN
         (p_parametros->'nro_cbte_asociado')::varchar,
         (p_parametros->'fecha_cbte_asociado')::date,
         (p_parametros->'id_cotizacion_det')::integer,
-        (p_parametros->'id_preingreso_det')::integer
+        (p_parametros->'id_preingreso_det')::integer,
+        (p_parametros->'id_grupo')::integer
         
     ) returning id_activo_fijo into v_id_activo_fijo;
 

@@ -104,6 +104,8 @@ class MODActivoFijo extends MODbase{
 		$this->captura('fecha_asignacion','date');
 		$this->captura('prestamo','varchar');
 		$this->captura('fecha_dev_prestamo','date');
+		$this->captura('id_grupo','int4');
+		$this->captura('desc_grupo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -166,6 +168,7 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
 		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
 		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
+		$this->setParametro('id_grupo','id_grupo','int4');
 		
 		
 		
@@ -230,7 +233,7 @@ class MODActivoFijo extends MODbase{
 		$this->setParametro('monto_compra_orig_100','monto_compra_orig_100','numeric');
 		$this->setParametro('nro_cbte_asociado','nro_cbte_asociado','varchar');
 		$this->setParametro('fecha_cbte_asociado','fecha_cbte_asociado','date');
-		
+		$this->setParametro('id_grupo','id_grupo','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -131,7 +131,9 @@ BEGIN
                             uo.nombre_cargo,
                             afij.fecha_asignacion,
                             afij.prestamo,
-                            afij.fecha_dev_prestamo
+                            afij.fecha_dev_prestamo,
+                            afij.id_grupo,
+                            gru.nombre as desc_grupo
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -164,6 +166,7 @@ BEGIN
                         and uof.tipo = ''oficial''
                         left join orga.tuo uo
                         on uo.id_uo = uof.id_uo
+                        left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
 				        where  ';
 
             --Verifica si la consulta es por usuario
@@ -234,6 +237,7 @@ BEGIN
                         and uof.tipo = ''oficial''
                         left join orga.tuo uo
                         on uo.id_uo = uof.id_uo
+                        left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
 				        where  ';
 
             --Verifica si la consulta es por usuario

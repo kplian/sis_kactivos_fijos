@@ -94,7 +94,8 @@ BEGIN
             v_parametros.id_unidad_medida,
             v_parametros.monto_compra_orig_100,
             v_parametros.nro_cbte_asociado,
-            v_parametros.fecha_cbte_asociado
+            v_parametros.fecha_cbte_asociado,
+            v_parametros.id_grupo
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -190,7 +191,8 @@ BEGIN
                 id_unidad_medida = v_parametros.id_unidad_medida,
                 monto_compra_orig_100 = v_parametros.monto_compra_orig_100,
                 nro_cbte_asociado = v_parametros.nro_cbte_asociado,
-                fecha_cbte_asociado = v_parametros.fecha_cbte_asociado
+                fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
+                id_grupo = v_parametros.id_grupo
 			where id_activo_fijo = v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta
@@ -308,7 +310,8 @@ BEGIN
 			id_unidad_medida,
 			monto_compra_orig_100,
 			nro_cbte_asociado,
-			fecha_cbte_asociado
+			fecha_cbte_asociado,
+			id_grupo
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -460,7 +463,8 @@ BEGIN
             id_unidad_medida,
             monto_compra_orig_100,
             nro_cbte_asociado,
-            fecha_cbte_asociado
+            fecha_cbte_asociado,
+            id_grupo
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;

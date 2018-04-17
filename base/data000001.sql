@@ -322,3 +322,8 @@ select pxp.f_add_catalog('KAF','tmovimiento__tipo_asig','Seleccionar','seleccion
 select pxp.f_insert_tgui ('Activos Fijos por Responsable - Inventario', 'Activos Fijos por Responsable - Inventario', 'KAF.REP.07', 'si', 4, 'sis_kactivos_fijos/vista/reportes/ParametrosRepRespInventario.php', 3, '', 'ParametrosRepRespInventario', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.07', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-1-04/11/2017****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-17/04/2018****************************************/
+select pxp.f_insert_tgui ('Grupos', 'Agrupador de activos fijos', 'AFGRU', 'si', 1, 'sis_kactivos_fijos/vista/grupo/Grupo.php', 3, '', 'Grupo', 'KAF');
+select pxp.f_insert_testructura_gui ('AFGRU', 'CONFAF');
+/***********************************F-DAT-RCM-KAF-0-17/04/2018****************************************/
