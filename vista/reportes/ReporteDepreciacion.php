@@ -652,8 +652,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:1,
 			grid:true,
 			form:true
-		}
-		,{
+		},
+		{
 			config:{
 				name:'desc_subgrupo', 
 				fieldLabel: 'Subgrupo',
@@ -674,6 +674,31 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'desc_subgrupo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'afecta_concesion', 
+				fieldLabel: 'Afecta Concesión',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'afecta_concesion',type:'string'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -709,7 +734,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {name:'desc_raiz', type: 'string'},
         {name:'desc_grupo', type: 'string'},
         {name:'desc_clase', type: 'string'},
-        {name:'desc_subgrupo', type: 'string'}
+        {name:'desc_subgrupo', type: 'string'},
+        {name:'afecta_concesion', type: 'string'}
 	],
 	sortInfo:{
 		field: 'codigo',

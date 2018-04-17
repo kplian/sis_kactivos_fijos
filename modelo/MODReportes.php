@@ -376,6 +376,7 @@ class MODReportes extends MODbase{
         $this->captura('desc_grupo','varchar');
         $this->captura('desc_clase','varchar');
         $this->captura('desc_subgrupo','varchar');
+        $this->captura('afecta_concesion','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

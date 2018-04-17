@@ -1,4 +1,4 @@
-I-DAT-RCM-KAF-1-02/09/2015****************************************/
+/***********************************I-DAT-RCM-KAF-1-02/09/2015****************************************/
 INSERT INTO segu.tsubsistema ("codigo", "nombre", "fecha_reg", "prefijo", "estado_reg", "nombre_carpeta", "id_subsis_orig")
 VALUES (E'KAF', E'Sistema de Activos Fijos', E'2015-09-03', E'SKA', E'activo', E'ACTIVOS FIJOS', NULL);
 
