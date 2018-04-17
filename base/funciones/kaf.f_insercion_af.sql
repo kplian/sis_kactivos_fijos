@@ -119,7 +119,7 @@ BEGIN
         0,
         'registrado',
         (p_parametros->'id_clasificacion')::integer,
-        null,
+        (p_parametros->'id_centro_costo')::integer,
         (p_parametros->'id_oficina')::integer,
         (p_parametros->'id_depto')::integer,
         p_id_usuario,

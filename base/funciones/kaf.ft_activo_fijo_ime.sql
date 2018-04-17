@@ -95,7 +95,8 @@ BEGIN
             v_parametros.monto_compra_orig_100,
             v_parametros.nro_cbte_asociado,
             v_parametros.fecha_cbte_asociado,
-            v_parametros.id_grupo
+            v_parametros.id_grupo,
+            v_parametros.id_centro_costo
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -175,7 +176,7 @@ BEGIN
                 vida_util_original = v_parametros.vida_util_original,
                 estado = v_parametros.estado,
                 id_clasificacion = v_parametros.id_clasificacion,
-                -- id_centro_costo = v_parametros.id_centro_costo,
+                id_centro_costo = v_parametros.id_centro_costo,
                 id_oficina = v_parametros.id_oficina,
                 id_depto = v_parametros.id_depto,
                 id_usuario_mod = p_id_usuario,
@@ -311,7 +312,8 @@ BEGIN
 			monto_compra_orig_100,
 			nro_cbte_asociado,
 			fecha_cbte_asociado,
-			id_grupo
+			id_grupo,
+			id_centro_costo
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -464,7 +466,8 @@ BEGIN
             monto_compra_orig_100,
             nro_cbte_asociado,
             fecha_cbte_asociado,
-            id_grupo
+            id_grupo,
+            id_centro_costo
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;

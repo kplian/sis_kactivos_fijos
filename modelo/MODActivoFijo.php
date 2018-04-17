@@ -69,7 +69,7 @@ class MODActivoFijo extends MODbase{
 		$this->captura('estado_fun','varchar');
 		$this->captura('estado_compra','varchar');
 		$this->captura('clasificacion','text');
-		$this->captura('centro_costo','text');
+		$this->captura('centro_costo','varchar');
 		$this->captura('oficina','text');
 		$this->captura('depto','text');
 		$this->captura('funcionario','text');

@@ -97,7 +97,7 @@ BEGIN
                             cat1.descripcion as estado_fun,
                             cat2.descripcion as estado_compra,
                             cla.codigo_completo_tmp || '' '' || cla.nombre as clasificacion,
-                            cc.codigo_cc as centro_costo,
+                            cc.codigo_tcc as centro_costo,
                             ofi.codigo || '' '' || ofi.nombre as oficina,
                             dpto.codigo || '' '' || dpto.nombre as depto,
                             fun.desc_funcionario2 as funcionario,
