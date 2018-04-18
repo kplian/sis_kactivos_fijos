@@ -76,10 +76,14 @@ BEGIN
 						usu2.cuenta as usr_mod,
 						actval.codigo,
 						actval.fecha_fin,
-						actval.monto_vigente_orig_100
+						actval.monto_vigente_orig_100,
+						actval.id_moneda,
+						mon.codigo as desc_moneda
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod
+						inner join param.tmoneda mon
+						on mon.id_moneda = actval.id_moneda
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -106,6 +110,8 @@ BEGIN
 					    from kaf.tactivo_fijo_valores actval
 					    inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod
+						inner join param.tmoneda mon
+						on mon.id_moneda = actval.id_moneda
 					    where ';
 			
 			--Definicion de la respuesta		    

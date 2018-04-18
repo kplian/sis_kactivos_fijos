@@ -50,6 +50,8 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('codigo','varchar');
 		$this->captura('fecha_fin','date');
 		$this->captura('monto_vigente_orig_100','numeric');
+		$this->captura('id_moneda','int4');
+		$this->captura('desc_moneda','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

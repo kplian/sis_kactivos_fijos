@@ -573,7 +573,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
         'depreciacion_acum_real',
         'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda',
         {name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
-        {name:'monto_vigente_orig_100', type: 'numeric'}
+        {name:'monto_vigente_orig_100', type: 'numeric'},'id_moneda'
 		
 	],
 	sortInfo:{
