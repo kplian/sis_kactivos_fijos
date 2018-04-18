@@ -1417,7 +1417,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             }),
             valueField: 'id_',
             displayField: 'nombre',
-            gdisplayField: 'desc_',
+            gdisplayField: 'centro_costo',
             hiddenName: 'id_centro_costo',
             forceSelection: true,
             typeAhead: false,
@@ -1430,7 +1430,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             gwidth: 150,
             minChars: 2,
             renderer: function(value, p, record) {
-                return String.format('{0}', record.data['desc_']);
+                return String.format('{0}', record.data['centro_costo']);
             }
         },
         type: 'ComboBox',
