@@ -104,6 +104,51 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 			},
 			grid: true,
 			form: true
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_uno',
+				fieldLabel: 'Plantillca Cbte. 1',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_uno',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_dos',
+				fieldLabel: 'Plantillca Cbte. 2',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_dos',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_tres',
+				fieldLabel: 'Plantillca Cbte. 3',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_tres',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		}, 
 		{
 			config:{
@@ -211,51 +256,6 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		},
-		{
-			config:{
-				name: 'plantilla_cbte_uno',
-				fieldLabel: 'Plantillca Cbte. 1',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
-			},
-			type:'Field',
-			filters:{pfiltro:'movtipo.plantilla_cbte_uno',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'plantilla_cbte_dos',
-				fieldLabel: 'Plantillca Cbte. 2',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
-			},
-			type:'Field',
-			filters:{pfiltro:'movtipo.plantilla_cbte_dos',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'plantilla_cbte_tres',
-				fieldLabel: 'Plantillca Cbte. 3',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4
-			},
-			type:'Field',
-			filters:{pfiltro:'movtipo.plantilla_cbte_tres',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
 		}
 	],
 	tam_pag:50,	
