@@ -56,7 +56,10 @@ BEGIN
 						cat.codigo as codigo_tipomov,
 						cat.descripcion as desc_tipomov,
 						pm.codigo as codigo_pm,
-						pm.nombre as nombre_pm
+						pm.nombre as nombre_pm,
+						movtip.plantilla_cbte_uno,
+						movtip.plantilla_cbte_dos,
+						movtip.plantilla_cbte_tres
 						from kaf.tmovimiento_tipo movtip
 						inner join segu.tusuario usu1 on usu1.id_usuario = movtip.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movtip.id_usuario_mod

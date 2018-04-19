@@ -211,6 +211,51 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_uno',
+				fieldLabel: 'Plantillca Cbte. 1',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_uno',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_dos',
+				fieldLabel: 'Plantillca Cbte. 2',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_dos',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'plantilla_cbte_tres',
+				fieldLabel: 'Plantillca Cbte. 3',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_tres',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		}
 	],
 	tam_pag:50,	
@@ -235,8 +280,10 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 		{name:'codigo_tipomov', type: 'string'},
 		{name:'desc_tipomov', type: 'string'},
 		{name:'codigo_pm', type: 'string'},
-		{name:'nombre_pm', type: 'string'}
-		
+		{name:'nombre_pm', type: 'string'},
+		{name:'plantilla_cbte_uno', type: 'string'},
+		{name:'plantilla_cbte_dos', type: 'string'},
+		{name:'plantilla_cbte_tres', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_movimiento_tipo',

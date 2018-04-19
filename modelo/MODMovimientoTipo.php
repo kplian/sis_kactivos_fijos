@@ -36,6 +36,9 @@ class MODMovimientoTipo extends MODbase{
 		$this->captura('desc_tipomov','varchar');
 		$this->captura('codigo_pm','varchar');
 		$this->captura('nombre_pm','varchar');
+		$this->captura('plantilla_cbte_uno','varchar');
+		$this->captura('plantilla_cbte_dos','varchar');
+		$this->captura('plantilla_cbte_tres','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -55,6 +58,9 @@ class MODMovimientoTipo extends MODbase{
 		$this->setParametro('id_cat_movimiento','id_cat_movimiento','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('id_proceso_macro','id_proceso_macro','int4');
+		$this->setParametro('plantilla_cbte_uno','plantilla_cbte_uno','varchar');
+		$this->setParametro('plantilla_cbte_dos','plantilla_cbte_dos','varchar');
+		$this->setParametro('plantilla_cbte_tres','plantilla_cbte_tres','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -75,6 +81,9 @@ class MODMovimientoTipo extends MODbase{
 		$this->setParametro('id_cat_movimiento','id_cat_movimiento','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('id_proceso_macro','id_proceso_macro','int4');
+		$this->setParametro('plantilla_cbte_uno','plantilla_cbte_uno','varchar');
+		$this->setParametro('plantilla_cbte_dos','plantilla_cbte_dos','varchar');
+		$this->setParametro('plantilla_cbte_tres','plantilla_cbte_tres','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
