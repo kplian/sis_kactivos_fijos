@@ -1094,4 +1094,16 @@ alter table kaf.tmovimiento_tipo
 add column plantilla_cbte_dos varchar(20);
 alter table kaf.tmovimiento_tipo
 add column plantilla_cbte_tres varchar(20);
-/***********************************F-SCP-RCM-KAF-1-19/04/2018****************************************/    
+/***********************************F-SCP-RCM-KAF-1-19/04/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-20/04/2018****************************************/
+alter table kaf.tmovimiento
+add column id_int_comprobante_3 integer;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante
+IS 'Comprobante de la actualización del activo';
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_aitb
+IS 'Comprobante de la actualización de la depreciación acumulada';
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_3
+IS 'Comprobante de la depreciacion';
+/***********************************F-SCP-RCM-KAF-1-20/04/2018****************************************/
