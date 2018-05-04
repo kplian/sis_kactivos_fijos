@@ -1009,24 +1009,13 @@ BEGIN
                 if v_codigo_estado_siguiente = 'generado' then
 
                     --Generación de la depreciación
-                    /*for v_rec in (select id_movimiento_af, id_activo_fijo
-                                from kaf.tmovimiento_af
-                                where id_movimiento = v_movimiento.id_movimiento) loop
-                        v_resp = kaf.f_depreciacion_lineal(p_id_usuario,v_rec.id_activo_fijo,v_movimiento.fecha_hasta,  v_rec.id_movimiento_af);
-                        
-                        --Actualiza la respuesta en el movimiento
-                        update kaf.tmovimiento_af set
-                        respuesta = v_resp
-                        where id_movimiento_af = v_rec.id_movimiento_af;
-                        
-                    end loop;*/
                     v_resp = kaf.f_depreciacion_lineal_v2(p_id_usuario,v_movimiento.id_movimiento);
 
                 elsif v_codigo_estado_siguiente = 'cbte' then
                 
                     --Obtención del código de plantilla para depreciación
-                    v_kaf_cbte = pxp.f_get_variable_global('kaf_cbte_depreciacion');
-                        
+                    v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,1); --'KAF-DEP-ACTAF';
+                    
                     --Generación comprobante de depreciación
                     v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
                                                                     v_kaf_cbte ,
@@ -1034,27 +1023,45 @@ BEGIN
                                                                     p_id_usuario,
                                                                     v_parametros._id_usuario_ai, 
                                                                     v_parametros._nombre_usuario_ai);
-            
-                    --Obtención del código de plantilla para aitb/depreciacion
-                    v_kaf_cbte_aitb = pxp.f_get_variable_global('kaf_cbte_depreciacion_aitb');
-                     
-                    --Generación de comprobante de depreciación
-                    v_id_int_comprobante_aitb =   conta.f_gen_comprobante ( 
-                                                   v_movimiento.id_movimiento, 
-                                                   v_kaf_cbte_aitb ,
-                                                   v_id_estado_actual,                                                     
-                                                   p_id_usuario,
-                                                   v_parametros._id_usuario_ai, 
-                                                   v_parametros._nombre_usuario_ai);
-            
+                                                                    
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set 
-                    id_int_comprobante = v_id_int_comprobante ,
-                    id_int_comprobante_aitb = v_id_int_comprobante_aitb        
+                    id_int_comprobante = v_id_int_comprobante
                     where id_movimiento = v_movimiento.id_movimiento;
-
-                    --Generar comprobante de actualización  (RCM ??????? 28/06/2017) 
-
+                    
+                    --Obtención del código de plantilla para depreciación
+                    v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,2); --'KAF-DEP-ACTDEPAC';
+                    
+                    --Generación comprobante de depreciación
+                    v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
+                                                                    v_kaf_cbte ,
+                                                                    v_id_estado_actual,                                                     
+                                                                    p_id_usuario,
+                                                                    v_parametros._id_usuario_ai, 
+                                                                    v_parametros._nombre_usuario_ai);
+                                                                    
+                    --Se relaciona los comprobantes generados con el movimiento
+                    update  kaf.tmovimiento  set 
+                    id_int_comprobante_aitb = v_id_int_comprobante
+                    where id_movimiento = v_movimiento.id_movimiento;
+                    
+                    --Obtención del código de plantilla para depreciación
+                    v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,3); --'KAF-DEP-DEPREC';
+                    
+                    --Generación comprobante de depreciación
+                    v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
+                                                                    v_kaf_cbte ,
+                                                                    v_id_estado_actual,                                                     
+                                                                    p_id_usuario,
+                                                                    v_parametros._id_usuario_ai, 
+                                                                    v_parametros._nombre_usuario_ai);
+                                                                    
+                    --Se relaciona los comprobantes generados con el movimiento
+                    update  kaf.tmovimiento  set 
+                    id_int_comprobante_3 = v_id_int_comprobante
+                    where id_movimiento = v_movimiento.id_movimiento;
+                    
+                    
                 elsif v_codigo_estado_siguiente = 'finalizado' then
                     --Verificar si los comprobantes fueron validados
                     /*if not exists(select 1 from conta.tint_comprobante
@@ -1068,7 +1075,7 @@ BEGIN
                       raise exception 'El Comprobante de depreciación aún no ha sido validado (%)',v_movimiento.id_int_comprobante;
                     end if;*/
 
-                    --raise exception 'aqui era el error';
+                    raise exception 'YA LLEGO A FINALIZAR';
                     --Actualiza la última fecha de depreciación
                     update kaf.tactivo_fijo_valores set
                     fecha_ult_dep = mov.fecha_hasta
@@ -1083,7 +1090,7 @@ BEGIN
 
                 end if;
            
-            --RAC 04/04/2017 nuevo tipo de movimeinto
+            --RAC 04/04/2017 nuevo tipo de movimiento
             --los activos no depreciable solo pueden actulizar AITB  
             elsif v_movimiento.cod_movimiento = 'actua' then
 

@@ -1086,3 +1086,24 @@ create table kaf.tgrupo (
 	constraint pk_tgrupo__id_grupo primary key (id_grupo)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-1-17/04/2018****************************************/    
+
+/***********************************I-SCP-RCM-KAF-1-19/04/2018****************************************/    
+alter table kaf.tmovimiento_tipo
+add column plantilla_cbte_uno varchar(20);
+alter table kaf.tmovimiento_tipo
+add column plantilla_cbte_dos varchar(20);
+alter table kaf.tmovimiento_tipo
+add column plantilla_cbte_tres varchar(20);
+/***********************************F-SCP-RCM-KAF-1-19/04/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-20/04/2018****************************************/
+alter table kaf.tmovimiento
+add column id_int_comprobante_3 integer;
+
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante
+IS 'Comprobante de la actualización del activo';
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_aitb
+IS 'Comprobante de la actualización de la depreciación acumulada';
+COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_3
+IS 'Comprobante de la depreciacion';
+/***********************************F-SCP-RCM-KAF-1-20/04/2018****************************************/

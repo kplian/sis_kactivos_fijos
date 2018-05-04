@@ -53,7 +53,10 @@ BEGIN
 			id_usuario_reg,
 			id_usuario_ai,
 			fecha_mod,
-			id_usuario_mod
+			id_usuario_mod,
+			plantilla_cbte_uno,
+			plantilla_cbte_dos,
+			plantilla_cbte_tres
           	) values(
 			v_parametros.id_cat_movimiento,
 			'activo',
@@ -63,10 +66,10 @@ BEGIN
 			p_id_usuario,
 			v_parametros._id_usuario_ai,
 			null,
-			null
-							
-			
-			
+			null,
+			v_parametros.plantilla_cbte_uno,
+			v_parametros.plantilla_cbte_dos,
+			v_parametros.plantilla_cbte_tres
 			)RETURNING id_movimiento_tipo into v_id_movimiento_tipo;
 			
 			--Definicion de la respuesta
@@ -95,7 +98,10 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+			plantilla_cbte_uno = v_parametros.plantilla_cbte_uno,
+			plantilla_cbte_dos = v_parametros.plantilla_cbte_dos,
+			plantilla_cbte_tres = v_parametros.plantilla_cbte_tres
 			where id_movimiento_tipo=v_parametros.id_movimiento_tipo;
                
 			--Definicion de la respuesta
