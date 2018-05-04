@@ -895,7 +895,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_dev_prestamo', type: 'date',dateFormat:'Y-m-d H:i:s.u'}
 	],
 	sortInfo:{
-		field: 'fecha_mov',
+		field: 'id_movimiento',
 		direction: 'DESC'
 	},
 	onButtonReport:function(){
