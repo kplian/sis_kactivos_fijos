@@ -125,7 +125,6 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				disabled: true,
 				renderer: function(value,p,record){
 					/*var fecha = new Date(record.data['fecha_mov'].dateFormat('d/m/Y'));*/
-					console.log('xxxxxxx',record);
 					if(record.data.cod_movimiento=='deprec'||record.data.cod_movimiento=='actua'){
 						return '<tpl for="."><div class="x-combo-list-item"><p><b>Fecha: </b> '+record.data['fecha_mov'].dateFormat('d/m/Y')+'</p><p><b>Tramite: </b> <font color="blue">'+record.data['num_tramite']+'</font></p><p><b>Estado: </b>'+record.data['estado']+'</p><p><b>Fecha Hasta: </b>'+record.data['fecha_hasta'].dateFormat('d/m/Y')+'</p></div></tpl>';
 					}
