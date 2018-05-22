@@ -483,7 +483,38 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;         
+		end;
+
+    /*********************************    
+    #TRANSACCION:  'SKA_OBTMOV_SEL'
+    #DESCRIPCION:   Obtención del movimiento por el ID
+    #AUTOR:         RCM
+    #FECHA:         18-05-2018
+    ***********************************/
+
+    elsif(p_transaccion='SKA_OBTMOV_SEL')then
+
+        begin
+
+            --Consulta
+            v_consulta:='select
+                        mov.id_movimiento,
+                        to_char(mov.fecha_hasta,''mm-yyyy'') as fecha_hasta,
+                        to_char(mov.fecha_mov,''dd-mm-yyyy'') as fecha_mov,
+                        mov.id_depto,
+                        mov.glosa,
+                        mov.num_tramite,
+                        mov.estado,
+                        dep.nombre as depto,
+                        dep.codigo as cod_depto
+                        from kaf.tmovimiento mov
+                        inner join param.tdepto dep on dep.id_depto = mov.id_depto
+                        where mov.id_movimiento = '||v_parametros.id_movimiento;
+
+                  --Devuelve la respuesta
+            return v_consulta;
+
+        end;
 					
 	else
 					     

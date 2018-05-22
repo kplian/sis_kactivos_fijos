@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.ft_movimiento_af_dep_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -441,6 +439,72 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
+		end;
+        
+    /*********************************    
+ 	#TRANSACCION:  'SKA_RDEPMEN_SEL'
+ 	#DESCRIPCION:	Reporte depreciación mensual
+ 	#AUTOR:			RCM		
+ 	#FECHA:			14/05/2018
+	***********************************/
+
+	elsif(p_transaccion='SKA_RDEPMEN_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+            			row_number() over(order by afv.codigo) as numero,
+                        afv.codigo, 
+                        af.codigo_ant, 
+                        af.denominacion,
+                        to_char(afv.fecha_ini_dep,''dd-mm-yyyy''), 
+                        af.cantidad_af, 
+                        um.descripcion as desc_unidad_medida,
+                        cc.codigo_tcc,
+                        af.nro_serie,
+                        af.ubicacion,
+                        fun.desc_funcionario2,
+                        afv.monto_vigente_orig_100,
+                        afv.monto_vigente_orig,
+                        afv.vida_util,
+                        afv.vida_util_orig,
+                        null::numeric as inc_actualiz,
+                        null::numeric as valor_actualiz,
+                        null::numeric as dep_acum_gestant,
+                        null::numeric as actualiz_dep_gest_ant,
+                        null::numeric as depreciacion_gestion,
+                        null::numeric as depreciacion_mensual,
+                        null::numeric as depreciacion_acum,
+                        null::numeric as valor_activo,
+                        min(fecha) over (partition by mdep.id_activo_fijo_valor), 
+                        max(fecha) over (partition by mdep.id_activo_fijo_valor)
+                        from kaf.tmovimiento_af_dep mdep
+                        inner join kaf.tmovimiento_af maf
+                        on maf.id_movimiento_af = mdep.id_movimiento_af
+                        inner join kaf.tmovimiento mov
+                        on mov.id_movimiento = maf.id_movimiento
+                        inner join kaf.tactivo_fijo_valores afv
+                        on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+                        inner join kaf.tactivo_fijo af
+                        on af.id_activo_fijo = maf.id_activo_fijo
+                        left join param.vcentro_costo cc
+                        on cc.id_centro_costo = af.id_centro_costo
+                        left join param.tunidad_medida um
+                        on um.id_unidad_medida = af.id_unidad_medida
+                        left join orga.vfuncionario fun
+                        on fun.id_funcionario = af.id_funcionario
+				        where mdep.id_moneda = '||v_parametros.id_moneda||'
+                        and maf.id_movimiento = '||v_parametros.id_movimiento||'
+                        order by afv.codigo';
+			
+			--Definicion de la respuesta
+			--v_consulta:=v_consulta||v_parametros.filtro;
+            raise notice '%',v_consulta;
+			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
 		end;
     
     
