@@ -1397,7 +1397,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'id_centro_costo',
-            fieldLabel: 'id_centro_costo',
+            fieldLabel: 'Centro Costo',
             allowBlank: true,
             emptyText: 'Elija una opción...',
             store: new Ext.data.JsonStore({
@@ -1748,7 +1748,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'fecha_dev_prestamo',type:'date',dateFormat: 'Y-m-d'},
              {name:'fecha_asignacion',type:'date',dateFormat: 'Y-m-d'},
              {name:'id_grupo',type:'numeric'},
-             {name:'desc_grupo',type:'string'},'movimiento_tipo_pres'
+             {name:'desc_grupo',type:'string'},'movimiento_tipo_pres',
+             {name:'centro_costo',type:'string'}
              ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -1882,7 +1883,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                minChars: 2
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Clasificación',
@@ -1990,7 +1992,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         start: 0,
                                         limit: 10,
                                         sort: 'descripcion',
-                                        dir: 'ASC'
+                                        dir: 'ASC',
+                                        par_filtro:'ume.codigo#ume.descripcion'
                                     }
                                 }),
                                 valueField: 'id_unidad_medida',
@@ -2001,7 +2004,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15,
-                                tpl : '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                                tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                                minChars: 2
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Estado funcional Actual',
@@ -2025,7 +2029,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         limit: 10,
                                         sort: 'descripcion',
                                         dir: 'ASC',
-                                        par_filtro:'cat.descripcion',
+                                        par_filtro:'cat.descripcion#cat.codigo',
                                         cod_subsistema:'KAF',
                                         catalogo_tipo:'tactivo_fijo__id_cat_estado_fun'
                                     }
@@ -2038,7 +2042,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 triggerAction: 'all',
                                 lazyRender: true,
                                 pageSize: 15,
-                                tpl : '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                                tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                                minChars: 2
                             }, {
                                 xtype: 'textfield',
                                 fieldLabel: 'Codigo Ant.',
@@ -2111,7 +2116,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                minChars: 2
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: 'Oficina',
@@ -2187,7 +2193,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 lazyRender: true,
                                 pageSize: 15,
                                 //valueNotFoundText: 'Proveedor no encontrado',
-                                pageSize: 15
+                                pageSize: 15,
+                                minChars: 2
                             }, {
                                 xtype: 'datefield',
                                 fieldLabel: 'Fecha Compra',
@@ -2240,7 +2247,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                             limit: 10,
                                             sort: 'moneda',
                                             dir: 'ASC',
-                                            par_filtro:'moneda.moneda'
+                                            par_filtro:'moneda.moneda#moneda.codigo'
                                         }
                                     }),
                                     valueField: 'id_moneda',
@@ -2249,7 +2256,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     mode: 'remote',
                                     triggerAction: 'all',
                                     lazyRender: true,
-                                    pageSize: 15
+                                    pageSize: 15,
+                                    minChars: 2
                                 }, {
                                     xtype: 'label',
                                     text: 'Valor Compra'
@@ -2283,7 +2291,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         limit: 10,
                                         sort: 'descripcion',
                                         dir: 'ASC',
-                                        par_filtro:'cat.descripcion',
+                                        par_filtro:'cat.descripcion#cat.codigo',
                                         cod_subsistema:'KAF',
                                         catalogo_tipo:'tactivo_fijo__id_cat_estado_compra'
                                     }
@@ -2294,7 +2302,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 mode: 'remote',
                                 triggerAction: 'all',
                                 lazyRender: true,
-                                pageSize: 15
+                                pageSize: 15,
+                                minChars: 2
                             }, {
                                 xtype: 'textfield',
                                 fieldLabel: 'Nro.Cbte Asociado',

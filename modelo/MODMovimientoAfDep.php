@@ -248,9 +248,6 @@ class MODMovimientoAfDep extends MODbase{
 		$this->capturaCount('total_depreciacion_acum_real','numeric');
 		$this->capturaCount('total_monto_vigente_real','numeric');
 		$this->capturaCount('max_vida_util_real','integer');
-		
-		
-		
 
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
@@ -282,16 +279,6 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('id_moneda_dep','int4');
 		$this->captura('desc_moneda','varchar');
 		$this->captura('fecha_fin','date');
-		
-		 
-                         
-                         
-                     
-                  
-		
-		
-		
-	
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -300,6 +287,53 @@ class MODMovimientoAfDep extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
+	function listarDepreciacionMensual(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion='SKA_RDEPMEN_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		$this->setParametro('id_movimiento','id_movimiento','integer');
+		$this->setParametro('id_moneda','id_moneda','integer');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('numero','bigint');
+		$this->captura('codigo','varchar');
+		$this->captura('codigo_ant','varchar');
+		$this->captura('denominacion','varchar');
+		$this->captura('fecha_ini_dep','text');
+		$this->captura('cantidad_af','integer');
+		$this->captura('desc_unidad_medida','varchar');
+		$this->captura('codigo_tcc','varchar');
+		$this->captura('nro_serie','varchar');
+		$this->captura('ubicacion','varchar');
+		$this->captura('desc_funcionario','text');
+		$this->captura('monto_vigente_orig_100','numeric');
+        $this->captura('monto_vigente_orig','numeric');
+        $this->captura('vida_util','integer');
+        $this->captura('vida_util_orig','integer');
+		$this->captura('inc_actualiz','numeric');
+		$this->captura('valor_actualiz','numeric');
+		$this->captura('dep_acum_gestant','numeric');
+		$this->captura('actualiz_dep_gest_ant','numeric');
+		$this->captura('depreciacion_gestion','numeric');
+		$this->captura('depreciacion_mensual','numeric');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('valor_activo','numeric');
+
+		$this->captura('fecha_ini','date');
+		$this->captura('fecha_fin','date');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 }
 ?>

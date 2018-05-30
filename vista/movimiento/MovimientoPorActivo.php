@@ -112,6 +112,32 @@ Phx.vista.MovimientoPorActivo = {
 		    'MovimientoPrincipal'
 			);
 		}
+    },
+    preparaMenu:function(n){
+    	var tb = Phx.vista.MovimientoPorActivo.superclass.preparaMenu.call(this);
+      	var data = this.getSelectedData();
+      	var tb = this.tbar;
+
+      	this.getBoton('btnReporte').disable();
+      	this.getBoton('btnAsignacion').disable();
+
+        if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
+            this.getBoton('btnReporte').enable();
+        }
+		if(data.cod_movimiento == 'asig' || data.cod_movimiento == 'transf' || data.cod_movimiento == 'devol'){
+            this.getBoton('btnAsignacion').enable();
+        }
+
+        return tb;
+    },
+
+    liberaMenu:function(){
+        var tb = Phx.vista.MovimientoPorActivo.superclass.liberaMenu.call(this);
+        if(tb){
+            this.getBoton('btnReporte').disable();
+	        this.getBoton('btnAsignacion').disable();
+        }
+       return tb
     }
     
 };
