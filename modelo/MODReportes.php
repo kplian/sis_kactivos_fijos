@@ -337,7 +337,7 @@ class MODReportes extends MODbase{
 		$this->transaccion='SKA_RDEPREC_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-		
+
 		if($this->objParam->getParametro('tipo_salida')!='grid'){
 			$this->setCount(false);
 		}
@@ -380,9 +380,9 @@ class MODReportes extends MODbase{
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
-		//echo $this->consulta;exit;
 		
 		//Devuelve la respuesta
 		return $this->respuesta;
