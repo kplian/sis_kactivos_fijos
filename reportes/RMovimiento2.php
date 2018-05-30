@@ -410,9 +410,12 @@ class RMovimiento2 extends ReportePDF {
           } else {
             $this->SetY($this->posY+8.2);
           }
-      
+
          $totalAF = 0;
          $totalCompra = 0;
+         //echo 'aqui fass pcloey:'.$tipo;
+        //var_dump($this->getDataSource());
+         //exit;
 		 foreach ($this->getDataSource() as $datarow) {
             if($tipo=='baja'){
                
@@ -510,7 +513,7 @@ class RMovimiento2 extends ReportePDF {
                     
                             
                 $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
-                $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
+                $this->tablenumbers=array(0,0,0,0,0,0,0,0,0,0);
                 $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
                 $this->tabletextcolor=array();
                 //totales de montos
@@ -590,6 +593,7 @@ class RMovimiento2 extends ReportePDF {
                 's8' => '',
                 's9' => ''
             );
+
             $this-> MultiRow($RowArray,false,1);
         }
 		$this->Ln(10);	
@@ -599,7 +603,6 @@ class RMovimiento2 extends ReportePDF {
    } 
    
    function generarCabecera($tipo){
-    	
 		//armca caecera de la tabla
 		$this->SetFontSize(9);
         $this->SetFont('', 'B');

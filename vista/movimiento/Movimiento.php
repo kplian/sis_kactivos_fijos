@@ -6,7 +6,6 @@
 *@date 22-10-2015 20:42:41
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
-
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -14,7 +13,6 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
-
 
 		//funcionalidad para listado de historicos
         this.historico = 'no';
@@ -49,19 +47,46 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             text :'Reporte',
             iconCls : 'bpdf32',
             disabled: true,
-            handler : this.onButtonReport,
+            //handler : this.onButtonReporteMovimiento,
+            handler: this.onButtonReporte,
             tooltip : '<b>Reporte de Movimiennto</b><br/><b>Reporte de Movimiento efectuado y su detalle</b>'
         });
-        
-         this.addButton('btnReporteDep',{
-         	grupo: [0,5],
-            text :'Det. Dep',
-            iconCls : 'bpdf32',
-            disabled: true,
-            handler : this.onButtonReportDepreciacion,
-            tooltip : '<b>Reporte Depreciación</b><br/><b>Reprote que detalla la depreciación del movimiento</b>'
-        });
 
+        me = this;
+        this.addButton('btnAsignacion',
+            {
+                iconCls: 'bexcel',
+                xtype: 'splitbutton',
+                grupo: [0,4],
+                tooltip: '<b>Reporte de Asig./Trans./Devol. A.F.</b><br>Reporte de Asignación, Transferencia, Devolución de Activos Fijos.',
+                text: 'Reporte A/T/D',
+                //handler: this.onButtonExcel,
+                argument: {
+                    'news': true,
+                    def: 'reset'
+                },
+                scope: me,
+                menu: [{
+                    text: 'Reporte CSV',
+                    iconCls: 'bexcel',
+                    argument: {
+                        'news': true,
+                        def: 'csv'
+                    },
+                    handler: me.onButtonATDExcel,
+                    scope: me
+                }, {
+                    text: 'Reporte PDF',
+                    iconCls: 'bpdf',
+                    argument: {
+                        'news': true,
+                        def: 'pdf'
+                    },
+                    handler: me.onButtonATDPdf,
+                    scope: me
+                }]
+            }
+        );
 
 	},
 			
@@ -901,7 +926,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_movimiento',
 		direction: 'DESC'
 	},
-	onButtonReport:function(){
+	onButtonReporteMovimiento: function(){
 	    var rec=this.sm.getSelected();
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
@@ -914,18 +939,54 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
         });  
 	},
 	
-	onButtonReportDepreciacion:function(){
+	onButtonReportDepreciacion: function(){
 	    var rec=this.sm.getSelected();
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacion',
-            params:{'id_movimiento':rec.data.id_movimiento, fecha_hasta: rec.data.fecha_mov},
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacionMensual',
+            params:{'id_movimiento':rec.data.id_movimiento, fecha_hasta: rec.data.fecha_mov, id_moneda: 1},
             success: this.successExport,
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this
         });  
-	}
+	},
+
+	onButtonReporte: function(){
+		var rec=this.sm.getSelected();
+		console.log('aqui',rec);
+
+		if(rec.data.cod_movimiento=='deprec'||rec.data.cod_movimiento=='actua'){
+			this.onButtonReportDepreciacion();
+		} else {
+			this.onButtonReporteMovimiento();
+		}
+	},
+	onButtonATDExcel: function () {
+		var rec=this.sm.getSelected();
+		Phx.CP.loadingShow();
+		Ext.Ajax.request({
+			url: '../../sis_kactivos_fijos/control/Movimiento/generarReporteAsig_Trans_DevAFXls',
+			params: {'id_movimiento':rec.data.id_movimiento},
+			success: this.successExport,
+			failure: this.conexionFailure,
+			timeout: this.timeout,
+			scope: this
+		});
+	},
+
+    onButtonATDPdf:function(){
+        var rec=this.sm.getSelected();
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimientoUpdate',
+            params:{'id_movimiento':rec.data.id_movimiento},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    }
 
 })
 </script>

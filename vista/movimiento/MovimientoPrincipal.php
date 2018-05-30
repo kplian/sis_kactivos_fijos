@@ -75,41 +75,7 @@ Phx.vista.MovimientoPrincipal = {
 
 
 
-        me = this;
-        this.addButton('btnAsignacion',
-            {
-                iconCls: 'bexcel',
-                xtype: 'splitbutton',
-                grupo: [0,4],
-                tooltip: '<b>Reporte de Asig./Trans./Devol. A.F.</b><br>Reporte de Asignación, Transferencia, Devolución de Activos Fijos.',
-                text: 'Reporte A/T/D',
-                //handler: this.onButtonExcel,
-                argument: {
-                    'news': true,
-                    def: 'reset'
-                },
-                scope: me,
-                menu: [{
-                    text: 'Reporte CSV',
-                    iconCls: 'bexcel',
-                    argument: {
-                        'news': true,
-                        def: 'csv'
-                    },
-                    handler: me.onButtonATDExcel,
-                    scope: me
-                }, {
-                    text: 'Reporte PDF',
-                    iconCls: 'bpdf',
-                    argument: {
-                        'news': true,
-                        def: 'pdf'
-                    },
-                    handler: me.onButtonATDPdf,
-                    scope: me
-                }]
-            }
-        );
+
 
         //Evento para store de motivos
         this.Cmp.id_movimiento_motivo.getStore().on('load', function(store, records, options){
@@ -152,7 +118,7 @@ Phx.vista.MovimientoPrincipal = {
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.loadCheckDocumentosPlanWf,
-                tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.',
+                tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documentos requeridos en la solicitud seleccionada.',
                 grupo: [0,1,2,3,4,5,6],
             }
         );
@@ -170,38 +136,7 @@ Phx.vista.MovimientoPrincipal = {
             });         
         }
 
-
-
     },
-
-	onButtonATDExcel: function () {
-
-			var rec=this.sm.getSelected();
-			Phx.CP.loadingShow();
-			Ext.Ajax.request({
-				url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteAsig_Trans_DevAFXls',
-				params:{'id_movimiento':rec.data.id_movimiento},
-				success: this.successExport,
-				failure: this.conexionFailure,
-				timeout:this.timeout,
-				scope:this
-			});
-
-	},
-
-    onButtonATDPdf:function(){
-        var rec=this.sm.getSelected();
-        Phx.CP.loadingShow();
-        Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteMovimientoUpdate',
-            params:{'id_movimiento':rec.data.id_movimiento},
-            success: this.successExport,
-            failure: this.conexionFailure,
-            timeout:this.timeout,
-            scope:this
-        });
-    },
-
 
     openMovimientos: function(){
     	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento/MovimientoGral.php',
@@ -423,7 +358,6 @@ Phx.vista.MovimientoPrincipal = {
         var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
         if(tb){
             this.getBoton('btnReporte').disable();
-            this.getBoton('btnReporteDep').disable();
             this.getBoton('ant_estado').disable();
 	        this.getBoton('sig_estado').disable();
 	        this.getBoton('btnChequeoDocumentosWf').disable();
@@ -466,13 +400,6 @@ Phx.vista.MovimientoPrincipal = {
         if(data.estado=='finalizado'||data.estado=='cancelado'){
         	this.getBoton('ant_estado').disable();
         	this.getBoton('sig_estado').disable();
-        }
-
-        if(data.cod_movimiento=='deprec'  || data.cod_movimiento=='actua'){
-        	this.getBoton('btnReporteDep').enable();
-        }
-        else{
-        	this.getBoton('btnReporteDep').disable();
         }
 
         return tb;

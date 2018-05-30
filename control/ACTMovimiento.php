@@ -12,6 +12,7 @@ require_once (dirname(__FILE__) . '/../reportes/RMovimientoUpdate.php');
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__).'/../reportes/RDetalleDepXls.php');
 require_once(dirname(__FILE__).'/../reportes/RAsig_Trans_DevAFXls.php');
+require_once(dirname(__FILE__).'/../reportes/RDepreciacionMensualXls.php');
 
 class ACTMovimiento extends ACTbase{    
 			
@@ -77,7 +78,7 @@ class ACTMovimiento extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
-	function listarReporteMovimientoMaestro(){		
+	function listarReporteMovimientoMaestro(){
 		$this->objFunc=$this->create('MODMovimiento');		
 		$cbteHeader=$this->objFunc->listarReporteMovimientoMaestro($this->objParam);
 		if($cbteHeader->getTipo() == 'EXITO'){				
@@ -90,7 +91,7 @@ class ACTMovimiento extends ACTbase{
 		
 	}
 	
-	function listarReporteMovimientoDetalle(){		
+	function listarReporteMovimientoDetalle(){
 		$this->objFunc=$this->create('MODMovimiento');		
 		$cbteHeader=$this->objFunc->listarReporteMovimientoDetalle($this->objParam);
 		if($cbteHeader->getTipo() == 'EXITO'){				
@@ -104,43 +105,39 @@ class ACTMovimiento extends ACTbase{
 	}
 	
 	 function generarReporteMovimiento(){
+	    $nombreArchivo = 'Movimientos'.uniqid(md5(session_id())).'.pdf'; 
 		
-			    $nombreArchivo = 'Movimientos'.uniqid(md5(session_id())).'.pdf'; 
-				
-				$obj = $this->listarReporteMovimientoMaestro();
-				$objDetalle = $this->listarReporteMovimientoDetalle();
-				
-				$dataMaestro = $obj->getDatos();
-		        $dataDetalle = $objDetalle->getDatos();
-				
-				
-				//parametros basicos
-				$tamano = 'LETTER';
-				$orientacion = 'L';
-				$titulo = 'Consolidado';
-				
-				
-				$this->objParam->addParametro('orientacion',$orientacion);
-				$this->objParam->addParametro('tamano',$tamano);		
-				$this->objParam->addParametro('titulo_archivo',$titulo);        
-				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-				
-				//Instancia la clase de pdf
-				$reporte = new RMovimiento2($this->objParam);
-				$reporte->datosHeader($obj->getDatos(),  $objDetalle->getDatos());
-				$reporte->generarReporte();
-				$reporte->output($reporte->url_archivo,'F');				
-				$this->mensajeExito=new Mensaje();
-				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
-				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		$obj = $this->listarReporteMovimientoMaestro();
+		$objDetalle = $this->listarReporteMovimientoDetalle();
 		
+		$dataMaestro = $obj->getDatos();
+        $dataDetalle = $objDetalle->getDatos();
+		
+		
+		//parametros basicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Consolidado';
+		
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		//Instancia la clase de pdf
+		$reporte = new RMovimiento2($this->objParam);
+		$reporte->datosHeader($obj->getDatos(),  $objDetalle->getDatos());
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');				
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 	
 
 	function generarReporteMovimiento_bk(){
-		
-		
 		$obj = $this->listarReporteMovimientoMaestro();
 		$objDetalle = $this->listarReporteMovimientoDetalle();
 		
@@ -160,7 +157,6 @@ class ACTMovimiento extends ACTbase{
 		$mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->res = $mensajeExito;
 		$this->res->imprimirRespuesta($this->res->generarJson());
-
 	}
 
 	function siguienteEstadoMovimiento(){
@@ -195,27 +191,26 @@ class ACTMovimiento extends ACTbase{
 	
 	function generarReporteDepreciacion(){
 			    
-				$nombreArchivo = uniqid(md5(session_id()).'RDetalleDepXls').'.xls'; 
-				$dataSource = $this->recuperarDetalleDep();
-				//parametros basicos
-				$tamano = 'LETTER';
-				$orientacion = 'L';
-				$titulo = 'Consolidado';
-				
-				$this->objParam->addParametro('orientacion',$orientacion);
-				$this->objParam->addParametro('tamano',$tamano);		
-				$this->objParam->addParametro('titulo_archivo',$titulo);        
-				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-				
-				
-				$reporte = new RDetalleDepXls($this->objParam); 
-				$reporte->datosHeader($dataSource->getDatos(), $this->objParam->getParametro('id_movimiento'));
-				$reporte->generarReporte(); 
-				
-				$this->mensajeExito=new Mensaje();
-				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
-				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		$nombreArchivo = uniqid(md5(session_id()).'RDetalleDepXls').'.xls'; 
+		$dataSource = $this->recuperarDetalleDep();
+		//parametros basicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Consolidado';
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		$reporte = new RDetalleDepXls($this->objParam); 
+		$reporte->datosHeader($dataSource->getDatos(), $this->objParam->getParametro('id_movimiento'));
+		$reporte->generarReporte(); 
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 		
 	}
 
@@ -258,7 +253,6 @@ class ACTMovimiento extends ACTbase{
 	}
 
     function generarReporteMovimientoUpdate(){
-
         $nombreArchivo = 'Movimientos'.uniqid(md5(session_id())).'.pdf';
 
         $obj = $this->listarReporteMovimientoMaestro();
@@ -288,7 +282,54 @@ class ACTMovimiento extends ACTbase{
         $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
 
+    function generarReporteDepreciacionMensual(){
+		$nombreArchivo = uniqid('RDepreciacionMensualXls'.md5(session_id())).'.xls'; 
+		$dataSourceMaster = $this->obtenerMovimientoID();
+		$dataSource = $this->detalleDepreciacionMensual();
+
+		//Parametros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Detalle Dep.';
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		$reporte = new RDepreciacionMensualXls($this->objParam); 
+		$reporte->setMaster($dataSourceMaster->getDatos());
+		$reporte->setData($dataSource->getDatos());
+		$reporte->generarReporte(); 
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function detalleDepreciacionMensual(){    	
+		$this->objFunc = $this->create('MODMovimientoAfDep');
+		$data = $this->objFunc->listarDepreciacionMensual($this->objParam);
+		if($data->getTipo() == 'EXITO'){
+			return $data;
+		} else {
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		}
+    }
+
+    function obtenerMovimientoID(){
+		$this->objFunc = $this->create('MODMovimiento');
+		$data = $this->objFunc->obtenerMovimientoID($this->objParam);
+		if($data->getTipo() == 'EXITO'){
+			return $data;
+		} else {
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		}
     }
 			
 }

@@ -160,7 +160,24 @@ class ACTMovimientoAfDep extends ACTbase{
 			$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
+	function listarDepreciacionMensual(){
+		$this->objParam->defecto('ordenacion','id_movimiento_af_dep');
+		$this->objParam->defecto('dir_ordenacion','asc');
 
+		if($this->objParam->getParametro('id_movimiento')!=''){
+			$this->objParam->addFiltro("maf.id_movimiento = ".$this->objParam->getParametro('id_movimiento'));
+		}
+		
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODMovimientoAfDep','listarDepreciacionMensual');
+		} else{
+			$this->objFunc=$this->create('MODMovimientoAfDep');
+			
+			$this->res=$this->objFunc->listarDepreciacionMensual($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 
 
 			
