@@ -312,19 +312,24 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('desc_funcionario','text');
 		$this->captura('monto_vigente_orig_100','numeric');
         $this->captura('monto_vigente_orig','numeric');
+        $this->captura('inc_valor_actualiz','numeric');
+		$this->captura('valor_actualiz','numeric');
         $this->captura('vida_util','integer');
         $this->captura('vida_util_orig','integer');
 		$this->captura('inc_actualiz','numeric');
-		$this->captura('valor_actualiz','numeric');
 		$this->captura('dep_acum_gestant','numeric');
 		$this->captura('actualiz_dep_gest_ant','numeric');
 		$this->captura('depreciacion_gestion','numeric');
 		$this->captura('depreciacion_mensual','numeric');
 		$this->captura('depreciacion_acum','numeric');
 		$this->captura('valor_activo','numeric');
-
+		$this->captura('tipo_cambio_ini','numeric');
+		$this->captura('tipo_cambio_fin','numeric');
 		$this->captura('fecha_ini','date');
 		$this->captura('fecha_fin','date');
+		$this->captura('cuenta_activo','text');
+		$this->captura('cuenta_dep_acum','text');
+		$this->captura('cuenta_deprec','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

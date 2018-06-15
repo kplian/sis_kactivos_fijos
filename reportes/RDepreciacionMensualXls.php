@@ -171,18 +171,24 @@ class RDepreciacionMensualXls
 		$this->cell($sheet,'Responsable Actual'			,"K$f",10,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Valor Compra'				,"L$f",11,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Costo'						,"M$f",12,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Vida Útil Original (meses)'	,"N$f",13,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Vida Útil Residual (meses)'	,"O$f",14,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Inc.x Actualiz.'			,"P$f",15,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Valor Actualiz.'			,"Q$f",16,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"R$f",17,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Actualiz. Dep.Gest. Ant.'	,"S$f",18,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Gestión'		,"T$f",19,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Mensual'		,"U$f",20,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Acum.'			,"V$f",21,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Valor Activo'				,"W$f",22,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Desde'						,"X$f",23,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Hasta'						,"Y$f",24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Inc. Actualiz. Costo'		,"N$f",13,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
+		$this->cell($sheet,'Valor Actualiz.'			,"O$f",14,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
+		$this->cell($sheet,'Vida Útil Original (meses)'	,"P$f",15,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//N->O
+		$this->cell($sheet,'Vida Útil Residual (meses)'	,"Q$f",16,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//O->P
+		$this->cell($sheet,'Inc.x Actualiz.'			,"R$f",17,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//P->Q
+		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"S$f",18,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Inc. Dep.Acum.Actualiz.'	,"T$f",19,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Gestión'		,"U$f",20,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Mensual'		,"V$f",21,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Acum.'			,"W$f",22,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Valor Activo'				,"X$f",23,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'TC Ini'						,"Y$f",24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'TC Fin'						,"Z$f",25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Desde'						,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Hasta'						,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Cuenta Activo'				,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Cuenta Dep. Acum'			,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Cuenta Deprec.'				,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 
 		$this->fila++;
 		//////////////////
@@ -208,6 +214,37 @@ class RDepreciacionMensualXls
 		    'A12'         // Top left coordinate of the worksheet range where
 		                 //    we want to set these values (default is A1)
 		);
+
+		//Definición del rango total de filas
+		$range=count($this->dataSet)+11;
+
+		//Coloreado de las columnas que se utilizan para la generación del comprobante contable 
+		$sheet->getStyle('P11:P'.$range)->applyFromArray(
+		    array(
+		        'fill' => array(
+		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+		            'color' => array('rgb' => '#ffff99')
+		        )
+		    )
+		); //Inc.x Actualiz.
+
+		$sheet->getStyle('S11:S'.$range)->applyFromArray(
+		    array(
+		        'fill' => array(
+		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+		            'color' => array('rgb' => '#ffff99')
+		        )
+		    )
+		);//Inc. Dep.Acum.Actualiz.
+
+		$sheet->getStyle('U11:U'.$range)->applyFromArray(
+		    array(
+		        'fill' => array(
+		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+		            'color' => array('rgb' => '#ffff99')
+		        )
+		    )
+		);//Depreciación Mensual
 
 
 		/*$arrayTotal = array(
@@ -317,11 +354,11 @@ class RDepreciacionMensualXls
 		$sheet->getColumnDimension('K')->setWidth(30);
 		$sheet->getColumnDimension('L')->setWidth(15);
 		$sheet->getColumnDimension('M')->setWidth(15);
-		$sheet->getColumnDimension('N')->setWidth(10);
-		$sheet->getColumnDimension('O')->setWidth(10);
-		$sheet->getColumnDimension('P')->setWidth(15);
-		$sheet->getColumnDimension('Q')->setWidth(15);
-		$sheet->getColumnDimension('R')->setWidth(15);
+		$sheet->getColumnDimension('N')->setWidth(15);
+		$sheet->getColumnDimension('O')->setWidth(15);//N:10
+		$sheet->getColumnDimension('P')->setWidth(10);//O:10
+		$sheet->getColumnDimension('Q')->setWidth(10);//P:15
+		$sheet->getColumnDimension('R')->setWidth(15);//Q:15
 		$sheet->getColumnDimension('S')->setWidth(15);
 		$sheet->getColumnDimension('T')->setWidth(15);
 		$sheet->getColumnDimension('U')->setWidth(15);
@@ -329,6 +366,12 @@ class RDepreciacionMensualXls
 		$sheet->getColumnDimension('W')->setWidth(15);
 		$sheet->getColumnDimension('X')->setWidth(15);
 		$sheet->getColumnDimension('Y')->setWidth(15);
+		$sheet->getColumnDimension('Z')->setWidth(15);
+		$sheet->getColumnDimension('AA')->setWidth(15);
+		$sheet->getColumnDimension('AB')->setWidth(15);
+		$sheet->getColumnDimension('AC')->setWidth(60);
+		$sheet->getColumnDimension('AD')->setWidth(60);
+		$sheet->getColumnDimension('AE')->setWidth(60);
 	}
 
 }
