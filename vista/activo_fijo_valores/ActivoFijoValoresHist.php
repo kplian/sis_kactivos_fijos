@@ -13,14 +13,45 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config;
+		this.initButtons = [this.cmbMonedaDep];
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValoresHist.superclass.constructor.call(this,config);
 		this.init();
-		console.log('aaa',this.maestro,this.maestro[0].data)
 		Ext.apply(this.store.baseParams,{id_activo_fijo: this.maestro[0].data.id_activo_fijo});
 		this.load();
 		
 	},
+	cmbMonedaDep: new Ext.form.ComboBox({
+		fieldLabel: 'Moneda',
+		grupo:[0,1,2],
+		allowBlank: false,
+		blankText:'... ?',
+		emptyText:'Moneda...',
+		store:new Ext.data.JsonStore(
+		{
+			url: '../../sis_kactivos_fijos/control/MonedaDep/listarMonedaDep',
+			id: 'id_moneda_dep',
+			root: 'datos',
+			sortInfo:{
+				field: 'descripcion',
+				direction: 'DESC'
+			},
+			totalProperty: 'total',
+			fields: ['id_moneda_dep','descripcion','id_moneda','actualiza',],
+			// turn on remote sorting
+			remoteSort: true,
+			baseParams:{par_filtro:'descripcion'}
+		}),
+		valueField: 'id_moneda_dep',
+		triggerAction: 'all',
+		displayField: 'descripcion',
+	    hiddenName: 'id_moneda_dep',
+		mode:'remote',
+		pageSize:50,
+		queryDelay:500,
+		listWidth:'280',
+		width:80
+	}),
 	
 	Atributos:[
 		{
@@ -91,7 +122,21 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 			grid: true,
 			form: true
 		},
-		
+		{
+			config:{
+				name: 'desc_moneda',
+				fieldLabel: 'Moneda',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:15
+			},
+				type:'TextField',
+				filters:{pfiltro:'mon.codigo',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
 		{
 			config:{
 				name: 'monto_vigente_orig',
@@ -315,21 +360,6 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'actval.estado',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
-		},
-		{
-			config:{
-				name: 'desc_moneda',
-				fieldLabel: 'Moneda',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:15
-			},
-				type:'TextField',
-				filters:{pfiltro:'mon.codigo',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:false

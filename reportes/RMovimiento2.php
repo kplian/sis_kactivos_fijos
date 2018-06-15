@@ -6,38 +6,38 @@
  * 
  * */
 class RMovimiento2 extends ReportePDF {
-	var $dataMaster;
-	var $datos_detalle;
-	var $ancho_hoja;
-	var $gerencia;
-	var $numeracion;
-	var $ancho_sin_totales;
-	var $tipoMov;
+    var $dataMaster;
+    var $datos_detalle;
+    var $ancho_hoja;
+    var $gerencia;
+    var $numeracion;
+    var $ancho_sin_totales;
+    var $tipoMov;
     var $posY;
-	
-	function getDataSource(){
-		return  $this->datos_detalle;		
-	}
-	
-	function datosHeader  ( $maestro, $detalle ) {
-		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
-		$this->datos_detalle = $detalle;
-		$this->dataMaster = $maestro;	
-		$this->tipoMov = $this->dataMaster[0]['cod_movimiento']; 
-		
-		if($this->tipoMov=='asig'||$tipo=='devol'){
-			$this->SetMargins(7, 55, 5);
+    
+    function getDataSource(){
+        return  $this->datos_detalle;       
+    }
+    
+    function datosHeader  ( $maestro, $detalle ) {
+        $this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
+        $this->datos_detalle = $detalle;
+        $this->dataMaster = $maestro;   
+        $this->tipoMov = $this->dataMaster[0]['cod_movimiento']; 
+        
+        if($this->tipoMov=='asig'||$tipo=='devol'){
+            $this->SetMargins(7, 55, 5);
         } 
         else if ($this->tipoMov=='deprec'){
-        	$this->SetMargins(7, 53, 5);
+            $this->SetMargins(7, 53, 5);
          }
-		else{
-			$this->SetMargins(7, 52, 5);
-		}	
-	}
-	
-	function Header() {
-		$height = 6;
+        else{
+            $this->SetMargins(7, 52, 5);
+        }   
+    }
+    
+    function Header() {
+        $height = 6;
         $midHeight = 9;
         $longHeight = 18;
 
@@ -45,8 +45,8 @@ class RMovimiento2 extends ReportePDF {
         $y = $this->GetY();
         $this->SetXY($x, $y);
        
-		//$this->Image(dirname(__FILE__).'/../../lib/'.$_SESSION['_DIR_LOGO'], 10,5,35,20);
-		$this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,35,16);
+        //$this->Image(dirname(__FILE__).'/../../lib/'.$_SESSION['_DIR_LOGO'], 10,5,35,20);
+        $this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,35,16);
 
         $this->SetFontSize(12);
         $this->SetFont('', 'B');
@@ -97,12 +97,12 @@ class RMovimiento2 extends ReportePDF {
         //$this->Cell($w = $width2, $h = $height, $txt = $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), $border = "B", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         $this->Cell($w = $width2, $h = $height, $txt = '', $border = "", $ln = 0, $align = 'C', $fill = false, $link = '', $stretch = 0, $ignore_min_height = false, $calign = 'T', $valign = 'M');
         $this->setCellPaddings(2);
-		
-		//$this->Ln();
-		$this->fieldsHeader($this->tipoMov);
-		$this->generarCabecera($this->tipoMov);
-		
-	}
+        
+        //$this->Ln();
+        $this->fieldsHeader($this->tipoMov);
+        $this->generarCabecera($this->tipoMov);
+        
+    }
 
     public function fieldsHeader($tipo){
 
@@ -232,8 +232,8 @@ class RMovimiento2 extends ReportePDF {
 
     }
 
-	function Firmas() {
-		$this->SetFontSize(7);
+    function Firmas() {
+        $this->SetFontSize(7);
         
         $_firma100='';
         $_firma110=$this->dataMaster[0]['responsable_depto'];
@@ -266,9 +266,9 @@ class RMovimiento2 extends ReportePDF {
                 $_firma311='* CUSTODIO';    
             }
         }
-		
-		
-		if($this->tipoMov=='transf'){
+        
+        
+        if($this->tipoMov=='transf'){
             $_firma100=$this->cortar_texto_firma($this->dataMaster[0]['responsable_depto']);
             $_firma110='RESPONSABLE ACTIVOS FIJOS';
             $_firma111='SUPERVISOR';
@@ -364,9 +364,9 @@ class RMovimiento2 extends ReportePDF {
             }
             
         }
-		
-		
-	}
+        
+        
+    }
 
     function cortar_texto_firma($texto){
         $lim=39;
@@ -388,11 +388,11 @@ class RMovimiento2 extends ReportePDF {
     }
    
    function generarReporte() {
-   	      $this->setFontSubsetting(false);
-		  $this->AddPage();
-		  $tipo = $this->tipoMov;
-		  
-		  $this->SetFontSize(7);
+          $this->setFontSubsetting(false);
+          $this->AddPage();
+          $tipo = $this->tipoMov;
+          
+          $this->SetFontSize(7);
 
           //Definición de la fila donde empezar a desplegar los datos
           if($this->tipoMov=='asig'){
@@ -410,84 +410,87 @@ class RMovimiento2 extends ReportePDF {
           } else {
             $this->SetY($this->posY+8.2);
           }
-      
+
          $totalAF = 0;
          $totalCompra = 0;
-		 foreach ($this->getDataSource() as $datarow) {
+         //echo 'aqui fass pcloey:'.$tipo;
+        //var_dump($this->getDataSource());
+         //exit;
+         foreach ($this->getDataSource() as $datarow) {
             if($tipo=='baja'){
                
-			  $this->tablealigns=array('L','L','L','L','L','L','L');
-		      $this->tablenumbers=array(0,0,0,0,0,0,0);
-		      $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-	          $this->tabletextcolor=array();
-			  $RowArray = array(
-	            			's0'  => $i+1,
-	            			's1' => $datarow['codigo'],   
-	                        's2' => $datarow['descripcion'],        
-	                        's3' => $datarow['marca'],
-	                        's4' => $datarow['nro_serie'],            
-	                        's5' => $datarow['estado_fun'],
-	                        's6' => $datarow['motivo']);
-				
-				
+              $this->tablealigns=array('L','L','L','L','L','L','L');
+              $this->tablenumbers=array(0,0,0,0,0,0,0);
+              $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+              $this->tabletextcolor=array();
+              $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
+                            's2' => $datarow['descripcion'],        
+                            's3' => $datarow['marca'],
+                            's4' => $datarow['nro_serie'],            
+                            's5' => $datarow['estado_fun'],
+                            's6' => $datarow['motivo']);
+                
+                
             } else if($tipo=='reval'){
                
-				
-				$this->tablealigns=array('L','L','L','L','L','L','R','R','L');
-		        $this->tablenumbers=array(0,0,0,0,0,0,1,1);
-		        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-	            $this->tabletextcolor=array();
-				
-				$RowArray = array(
-	            			's0'  => $i+1,
-	            			's1' => $datarow['codigo'],   
-	                        's2' => $datarow['descripcion'],       
-	                        's4' => $datarow['marca'],
-	                        's5' => $datarow['nro_serie'],
-	                        's6' => $datarow['estado_fun'] ,  
-	                        's7' => $datarow['vida_util'] , 
-	                        's8' => $datarow['importe'] 
-	                        );
-				
+                
+                $this->tablealigns=array('L','L','L','L','L','L','R','R','L');
+                $this->tablenumbers=array(0,0,0,0,0,0,1,1);
+                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+                $this->tabletextcolor=array();
+                
+                $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
+                            's2' => $datarow['descripcion'],       
+                            's4' => $datarow['marca'],
+                            's5' => $datarow['nro_serie'],
+                            's6' => $datarow['estado_fun'] ,  
+                            's7' => $datarow['vida_util'] , 
+                            's8' => $datarow['importe'] 
+                            );
+                
 
             } else if($tipo=='deprec'||$tipo=='actua'){
                
-				
-				$this->tablealigns=array('L','L','L','L','L','L','L');
-		        $this->tablenumbers=array(0,0,0,0,0,0,0);
-		        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-	            $this->tabletextcolor=array();
-				
-				$RowArray = array(
-	            			's0'  => $i+1,
-	            			's1' => $datarow['codigo'],   
-	                        's2' => $datarow['descripcion'],       
-	                        's4' => $datarow['marca'],
-	                        's5' => $datarow['nro_serie'],
-	                        's6' => $datarow['estado_fun'] ,  
-	                        's7' => $datarow['monto_compra'] , 
-	                        's8' => $datarow['importe']  
-	                        );
-				
+                
+                $this->tablealigns=array('L','L','L','L','L','L','L');
+                $this->tablenumbers=array(0,0,0,0,0,0,0);
+                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+                $this->tabletextcolor=array();
+                
+                $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
+                            's2' => $datarow['descripcion'],       
+                            's4' => $datarow['marca'],
+                            's5' => $datarow['nro_serie'],
+                            's6' => $datarow['estado_fun'] ,  
+                            's7' => $datarow['monto_compra'] , 
+                            's8' => $datarow['importe']  
+                            );
+                
 
             } else if($tipo=='asig'||$tipo=='devol'){
-                	
-               				
-				$this->tablealigns=array('L','L','L','L','L','L','L');
-		        $this->tablenumbers=array(0,0,0,0,0,0,0);
-		        $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-	            $this->tabletextcolor=array();
-				
-				$RowArray = array(
-	            			's0'  => $i+1,
-	            			's1' => $datarow['codigo'],   
+                    
+                            
+                $this->tablealigns=array('L','L','L','L','L','L','L');
+                $this->tablenumbers=array(0,0,0,0,0,0,0);
+                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+                $this->tabletextcolor=array();
+                
+                $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
                             's2' => $datarow['denominacion'],
-	                        's3' => $datarow['descripcion'],
-	                        's4' => $datarow['estado_fun'] ,           
-	                        's5' => ''
-	                        );
-				
-				
+                            's3' => $datarow['descripcion'],
+                            's4' => $datarow['estado_fun'] ,           
+                            's5' => ''
+                            );
+                
+                
             } else if($tipo=='transf'){
                     
                             
@@ -510,7 +513,7 @@ class RMovimiento2 extends ReportePDF {
                     
                             
                 $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
-                $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
+                $this->tablenumbers=array(0,0,0,0,0,0,0,0,0,0);
                 $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
                 $this->tabletextcolor=array();
                 //totales de montos
@@ -550,30 +553,30 @@ class RMovimiento2 extends ReportePDF {
                 
                 
             } else {
-			  $this->tablealigns=array('L','L','L','L','L','L','L');
-		      $this->tablenumbers=array(0,0,0,0,0,0,0);
-		      $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-	          $this->tabletextcolor=array();
-			  $RowArray = array(
-	            			's0'  => $i+1,
-	            			's1' => $datarow['codigo'],   
-	                        's2' => $datarow['descripcion'],   
-	                        's3' => $datarow['tipo_activo'],       
-	                        's4' => $datarow['marca'],
-	                        's5' => $datarow['nro_serie'],
-	                        's6' => $datarow['fecha_compra'] ,           
-	                        's7' => $datarow['estado_fun']
-	                        );
-				
-				
+              $this->tablealigns=array('L','L','L','L','L','L','L');
+              $this->tablenumbers=array(0,0,0,0,0,0,0);
+              $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
+              $this->tabletextcolor=array();
+              $RowArray = array(
+                            's0'  => $i+1,
+                            's1' => $datarow['codigo'],   
+                            's2' => $datarow['descripcion'],   
+                            's3' => $datarow['tipo_activo'],       
+                            's4' => $datarow['marca'],
+                            's5' => $datarow['nro_serie'],
+                            's6' => $datarow['fecha_compra'] ,           
+                            's7' => $datarow['estado_fun']
+                            );
+                
+                
             }
             $i++;
-			
-			$this-> MultiRow($RowArray,false,1);
-			$this->revisarfinPagina();
-			
+            
+            $this-> MultiRow($RowArray,false,1);
+            $this->revisarfinPagina();
+            
         }
-		if($tipo=='alta'){
+        if($tipo=='alta'){
             $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
             $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
             $this->tableborders=array('','','','','','','RLTB','RLTB','','');
@@ -590,90 +593,90 @@ class RMovimiento2 extends ReportePDF {
                 's8' => '',
                 's9' => ''
             );
+
             $this-> MultiRow($RowArray,false,1);
         }
-		$this->Ln(10);	
-		
-		$this->Firmas();
-		
+        $this->Ln(10);  
+        
+        $this->Firmas();
+        
    } 
    
    function generarCabecera($tipo){
-    	
-		//armca caecera de la tabla
-		$this->SetFontSize(9);
+        //armca caecera de la tabla
+        $this->SetFontSize(9);
         $this->SetFont('', 'B');
-		///////////////////////////////////////
-		if($tipo=='baja'){
+        ///////////////////////////////////////
+        if($tipo=='baja'){
             
-	          $this->tablewidthsHD=array(10,35,100,70,50,20,20);			  
-	          $this->tablealignsHD=array('C','C','C','C','C','C','C');
-		      $this->tablenumbersHD=array(0,0,0,0,0,0,0);
-		      $this->tablebordersHD=array('TB','TB','TB','TB','TB','TB','TB');
-	          $this->tabletextcolorHD=array();
-			  $RowArray = array(
-	            			's0'  => 'Nro',
-	            			's1' => 'Código',   
-	                        's2' => 'Descripcion',        
-	                        's3' => 'Marca',
-	                        's4' => 'Nro. Serie',            
-	                        's5' => 'Estado Fun.',
-	                        's6' => 'Motivo');
-			
+              $this->tablewidthsHD=array(10,35,100,70,50,20,20);              
+              $this->tablealignsHD=array('C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('TB','TB','TB','TB','TB','TB','TB');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',   
+                            's2' => 'Descripcion',        
+                            's3' => 'Marca',
+                            's4' => 'Nro. Serie',            
+                            's5' => 'Estado Fun.',
+                            's6' => 'Motivo');
+            
 
         } else if($tipo=='reval'){
-        	
-			  $this->tablewidthsHD=array(8,35,90,35,25,20,20,20);
-	          $this->tablealignsHD=array('C','C','C','C','C','C','C');
-		      $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-		      $this->tablebordersHD=array('TB','TB','TB','TB','TB','TB','TB','TB');
-	          $this->tabletextcolorHD=array();
-			  $RowArray = array(
-	            			's0'  => 'Nro',
-	            			's1' => 'Código',   
-	                        's2' => 'Descripcion',        
-	                        's3' => 'Marca',
-	                        's4' => 'Nro. Serie',            
-	                        's5' => 'Estado Fun.',
-	                        's6' => 'Inc.Vida Util',
-	                        's7' => 'Inc.Valor')  ;
+            
+              $this->tablewidthsHD=array(8,35,90,35,25,20,20,20);
+              $this->tablealignsHD=array('C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('TB','TB','TB','TB','TB','TB','TB','TB');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',   
+                            's2' => 'Descripcion',        
+                            's3' => 'Marca',
+                            's4' => 'Nro. Serie',            
+                            's5' => 'Estado Fun.',
+                            's6' => 'Inc.Vida Util',
+                            's7' => 'Inc.Valor')  ;
 
         } else if($tipo=='deprec'||$tipo=='actua'){
-        	
-			  $this->tablewidthsHD=array(8,35,102,35,25,20,20,20);
-	          $this->tablealignsHD=array('C','C','C','C','C','C','C');
-		      $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-		      $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TB','TB','TBR');
-	          $this->tabletextcolorHD=array();
-			  $RowArray = array(
-	            			's0'  => 'Nro',
-	            			's1' => 'Código',   
-	                        's2' => 'Descripcion',        
-	                        's3' => 'Marca',
-	                        's4' => 'Nro. Serie',            
-	                        's5' => 'Estado Fun.',
-	                        's6' => 'Imp. Compral',
-	                        's7' => 'Imp. Vigente');
-				
+            
+              $this->tablewidthsHD=array(8,35,102,35,25,20,20,20);
+              $this->tablealignsHD=array('C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TB','TB','TBR');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',   
+                            's2' => 'Descripcion',        
+                            's3' => 'Marca',
+                            's4' => 'Nro. Serie',            
+                            's5' => 'Estado Fun.',
+                            's6' => 'Imp. Compral',
+                            's7' => 'Imp. Vigente');
+                
         } else if($tipo=='asig'||$tipo=='devol'){
-            	
+                
               $this->tablewidthsHD=array(8,25,59,90,26,57);
-			   //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
-	          $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
-		      $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-		      $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
-	          $this->tabletextcolorHD=array();
-			  $RowArray = array(
-	            			's0'  => 'Nro',
-	            			's1' => 'Código',   
-	                        's2' => 'Denominación',
+               //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
+              $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
+              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+              $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
+              $this->tabletextcolorHD=array();
+              $RowArray = array(
+                            's0'  => 'Nro',
+                            's1' => 'Código',   
+                            's2' => 'Denominación',
                             's3' => 'Descripción',
-	                        //'s3' => 'Marca',
-	                        //'s4' => 'Nro. Serie',            
-	                        's4' => 'Estado Fun.',           
-	                        's5' => 'Observaciones');
-			
-			
+                            //'s3' => 'Marca',
+                            //'s4' => 'Nro. Serie',            
+                            's4' => 'Estado Fun.',           
+                            's5' => 'Observaciones');
+            
+            
             
         } else if($tipo=='transf'){
             $this->tablewidthsHD=array(8,25,59,90,26,57);
@@ -735,13 +738,13 @@ class RMovimiento2 extends ReportePDF {
             
             $this->tablewidthsHD=array(8,31,94,34,32.5,26.5,18,20.5);
             $this->tablealignsHD=array('C','C','C','C','C','C','C','C');
-	        $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-	        $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TB','TB','TBR');
+            $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
+            $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TB','TB','TBR');
             $this->tabletextcolorHD=array();
-		    
-		    $RowArray = array(
-            			's0'  => 'Nro',
-            			's1' => 'Código',   
+            
+            $RowArray = array(
+                        's0'  => 'Nro',
+                        's1' => 'Código',   
                         's2' => 'Descripcion',        
                         's3' => 'Tipo de Activo',
                         's4' => 'Marca',            
@@ -750,26 +753,26 @@ class RMovimiento2 extends ReportePDF {
                         's7' => 'Estado Fun.');
 
         }
-		
-		/////////////////////////////////	                         
+        
+        /////////////////////////////////                            
         $this-> MultiRowHeader($RowArray,false,1);
-		$this->tablewidths = $this->tablewidthsHD;
-		
+        $this->tablewidths = $this->tablewidthsHD;
+        
     }
 
    function revisarfinPagina(){
-		$dimensions = $this->getPageDimensions();
-		$hasBorder = false; //flag for fringe case
-		
-		$startY = $this->GetY();
-		$this->getNumLines($row['cell1data'], 80);
-		
-		if (($startY + 4 * 3) + $dimensions['bm'] > ($dimensions['hk'])) {
-		    if($this->total!= 0){
-				$this->AddPage();
-			}
-		} 
-	}
+        $dimensions = $this->getPageDimensions();
+        $hasBorder = false; //flag for fringe case
+        
+        $startY = $this->GetY();
+        $this->getNumLines($row['cell1data'], 80);
+        
+        if (($startY + 4 * 3) + $dimensions['bm'] > ($dimensions['hk'])) {
+            if($this->total!= 0){
+                $this->AddPage();
+            }
+        } 
+    }
    
   
    

@@ -2169,7 +2169,7 @@ WHERE tb.esquema::text = 'KAF'::text AND tb.tabla::text =
     SELECT rc.id_clasificacion,
     cla.codigo_completo_tmp,
     cla.nombre,
-    sum(mdep.depreciacion * mdep.tipo_cambio_fin / mdep.tipo_cambio_ini) AS
+    sum(mdep.depreciacion)/* * mdep.tipo_cambio_fin / mdep.tipo_cambio_ini)*/ AS
         monto_depreciacion,
     maf.id_movimiento,
     mdep.id_moneda,
@@ -2473,7 +2473,7 @@ WHERE tb.esquema::text = 'KAF'::text AND tb.tabla::text =
     cla.nombre,
     af.codigo,
     af.codigo_ant,
-    mdep.depreciacion * mdep.tipo_cambio_fin / mdep.tipo_cambio_ini AS
+    mdep.depreciacion /** mdep.tipo_cambio_fin / mdep.tipo_cambio_ini*/ AS
         monto_depreciacion,
     maf.id_movimiento,
     mdep.id_moneda,

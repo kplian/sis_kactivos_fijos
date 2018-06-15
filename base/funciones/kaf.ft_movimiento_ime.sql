@@ -1016,13 +1016,32 @@ BEGIN
                     --Obtención del código de plantilla para depreciación
                     v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,1); --'KAF-DEP-ACTAF';
                     
-                    --Generación comprobante de depreciación
+                    --Generación comprobante 1/3 de depreciación
                     v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
                                                                     v_kaf_cbte ,
                                                                     v_id_estado_actual,                                                     
                                                                     p_id_usuario,
                                                                     v_parametros._id_usuario_ai, 
                                                                     v_parametros._nombre_usuario_ai);
+
+                    --RCM 07/06/2018
+                    --Marcación del comprobante como actualización
+                    update conta.tint_comprobante set
+                    cbte_aitb = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+                    update conta.tint_transaccion set
+                    importe_debe_mt = 0,
+                    importe_haber_mt = 0,
+                    importe_recurso_mt = 0,
+                    importe_gasto_mt = 0,
+                    importe_debe_ma = 0,
+                    importe_haber_ma = 0,
+                    importe_recurso_ma = 0,
+                    importe_gasto_ma = 0,
+                    actualizacion = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --FIN RCM 07/06/2018
                                                                     
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set 
@@ -1032,13 +1051,32 @@ BEGIN
                     --Obtención del código de plantilla para depreciación
                     v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,2); --'KAF-DEP-ACTDEPAC';
                     
-                    --Generación comprobante de depreciación
+                    --Generación comprobante 2/3 de depreciación
                     v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
                                                                     v_kaf_cbte ,
                                                                     v_id_estado_actual,                                                     
                                                                     p_id_usuario,
                                                                     v_parametros._id_usuario_ai, 
                                                                     v_parametros._nombre_usuario_ai);
+
+                    --RCM 07/06/2018
+                    --Marcación del comprobante como actualización
+                    update conta.tint_comprobante set
+                    cbte_aitb = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+                    update conta.tint_transaccion set
+                    importe_debe_mt = 0,
+                    importe_haber_mt = 0,
+                    importe_recurso_mt = 0,
+                    importe_gasto_mt = 0,
+                    importe_debe_ma = 0,
+                    importe_haber_ma = 0,
+                    importe_recurso_ma = 0,
+                    importe_gasto_ma = 0,
+                    actualizacion = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --FIN RCM 07/06/2018
                                                                     
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set 
@@ -1107,7 +1145,8 @@ BEGIN
                 elsif v_codigo_estado_siguiente = 'cbte' then
 
                     --Obtencion dela plantilla de comprobante
-                    v_kaf_cbte = kaf.f_get_plantilla_cbte(v_movimiento.id_movimiento_motivo);
+                    --v_kaf_cbte = kaf.f_get_plantilla_cbte(v_movimiento.id_movimiento_motivo);
+                    v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,1);
                           
                     --Generación comprobante de depreciación
                     v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento, 
@@ -1116,6 +1155,25 @@ BEGIN
                                                                       p_id_usuario,
                                                                       v_parametros._id_usuario_ai, 
                                                                       v_parametros._nombre_usuario_ai);
+
+                    --RCM 07/06/2018
+                    --Marcación del comprobante como actualización
+                    update conta.tint_comprobante set
+                    cbte_aitb = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+                    update conta.tint_transaccion set
+                    importe_debe_mt = 0,
+                    importe_haber_mt = 0,
+                    importe_recurso_mt = 0,
+                    importe_gasto_mt = 0,
+                    importe_debe_ma = 0,
+                    importe_haber_ma = 0,
+                    importe_recurso_ma = 0,
+                    importe_gasto_ma = 0,
+                    actualizacion = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+                    --FIN RCM 07/06/2018
                        
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set 

@@ -58,7 +58,8 @@ BEGIN
     ew.id_depto,
     mov.id_int_comprobante,
     mov.id_int_comprobante_aitb,
-    cat.codigo as movimiento
+    cat.codigo as movimiento,
+    mov.id_int_comprobante_3
     into
     v_registros
     from  kaf.tmovimiento mov      
@@ -68,7 +69,7 @@ BEGIN
     on cat.id_catalogo = mov.id_cat_movimiento
     where mov.id_int_comprobante = p_id_int_comprobante
     or mov.id_int_comprobante_aitb = p_id_int_comprobante
-    or mov.id_int_comprobante = p_id_int_comprobante; 
+    or mov.id_int_comprobante_3 = p_id_int_comprobante; 
     
     --2) Valida que el comprobante esté relacionado con un movimiento
     if v_registros.id_movimiento is null then
@@ -136,7 +137,7 @@ BEGIN
                                                     p_id_usuario,
                                                     p_id_usuario_ai, -- id_usuario_ai
                                                     p_usuario_ai, -- usuario_ai
-                                                    v_registros.id_depto_conta,
+                                                    v_registros.id_depto,
                                                     'Comprobantes de depreciación validados');
 
         --Actualiza estado del proceso

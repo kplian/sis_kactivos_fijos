@@ -1107,3 +1107,23 @@ IS 'Comprobante de la actualización de la depreciación acumulada';
 COMMENT ON COLUMN kaf.tmovimiento.id_int_comprobante_3
 IS 'Comprobante de la depreciacion';
 /***********************************F-SCP-RCM-KAF-1-20/04/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-05/06/2018****************************************/
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN dependiente VARCHAR(2) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.dependiente
+IS 'Bandera (si,no) que indica si el activo fijo valor dependerá de los afv padres. Si es dependiente, la lógica será tomar los valores del padre. Si no es dependiente, el afv utilizará sus propios valores para todo';
+/***********************************F-SCP-RCM-KAF-1-05/06/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-15/06/2018****************************************/
+create table kaf.tubicacion (
+	id_ubicacion serial,
+	codigo varchar(30) null,
+	nombre varchar(100) not null,
+	constraint pk_tubicacion__id_ubicacion primary key (id_ubicacion)
+) inherits (pxp.tbase) without oids;
+
+alter table kaf.tactivo_fijo
+add column id_ubicacion integer;
+/***********************************F-SCP-RCM-KAF-1-15/06/2018****************************************/
