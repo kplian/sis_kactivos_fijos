@@ -398,8 +398,8 @@ Phx.vista.MovimientoPrincipal = {
         }
 
         if(data.estado=='finalizado'||data.estado=='cancelado'){
-            this.getBoton('ant_estado').disable();
-            this.getBoton('sig_estado').disable();
+        	this.getBoton('ant_estado').disable();
+        	this.getBoton('sig_estado').disable();
         }
 
         return tb;

@@ -337,7 +337,7 @@ class MODReportes extends MODbase{
 		$this->transaccion='SKA_RDEPREC_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-		
+
 		if($this->objParam->getParametro('tipo_salida')!='grid'){
 			$this->setCount(false);
 		}
@@ -349,8 +349,8 @@ class MODReportes extends MODbase{
 		$this->setParametro('af_deprec','af_deprec','varchar');
 
 		//Definicion de la lista del resultado del query
-		$this->captura('codigo','varchar(50)');
-        $this->captura('denominacion','varchar(500)');
+		$this->captura('codigo','varchar');
+        $this->captura('denominacion','varchar');
         $this->captura('fecha_ini_dep','date');
         $this->captura('monto_vigente_orig_100','numeric');
         $this->captura('monto_vigente_orig','numeric');
@@ -362,27 +362,31 @@ class MODReportes extends MODbase{
         $this->captura('depreciacion_acum_actualiz_gest_ant','numeric');
         $this->captura('depreciacion_per','numeric');
         $this->captura('depreciacion_acum','numeric');
+        $this->captura('depreciacion','numeric');
         $this->captura('monto_vigente','numeric');
         $this->captura('nivel','integer');
         $this->captura('orden','bigint');
         $this->captura('tipo','varchar(10)');
         $this->captura('codigo_ant','varchar');
         $this->captura('codigo_tcc','varchar');
-        $this->captura('cod_raiz','text');
+        /*$this->captura('cod_raiz','text');
         $this->captura('cod_grupo','text');
         $this->captura('cod_clase','text');
         $this->captura('cod_subgrupo','text');
         $this->captura('desc_raiz','varchar');
         $this->captura('desc_grupo','varchar');
         $this->captura('desc_clase','varchar');
-        $this->captura('desc_subgrupo','varchar');
+        $this->captura('desc_subgrupo','varchar');*/
         $this->captura('afecta_concesion','varchar');
-
+		$this->captura('id_activo_fijo','integer');
+		$this->captura('cuenta_activo','text');
+		$this->captura('cuenta_dep_acum','text');
+		$this->captura('cuenta_deprec','text');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
-		//echo $this->consulta;exit;
 		
 		//Devuelve la respuesta
 		return $this->respuesta;

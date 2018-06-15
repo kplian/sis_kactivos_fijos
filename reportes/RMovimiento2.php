@@ -416,7 +416,8 @@ class RMovimiento2 extends ReportePDF {
          //echo 'aqui fass pcloey:'.$tipo;
         //var_dump($this->getDataSource());
          //exit;
-         foreach ($this->getDataSource() as $datarow) {
+
+		 foreach ($this->getDataSource() as $datarow) {
             if($tipo=='baja'){
                
               $this->tablealigns=array('L','L','L','L','L','L','L');
@@ -603,8 +604,8 @@ class RMovimiento2 extends ReportePDF {
    } 
    
    function generarCabecera($tipo){
-        //armca caecera de la tabla
-        $this->SetFontSize(9);
+		//armca caecera de la tabla
+		$this->SetFontSize(9);
         $this->SetFont('', 'B');
         ///////////////////////////////////////
         if($tipo=='baja'){

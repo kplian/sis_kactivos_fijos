@@ -451,50 +451,195 @@ BEGIN
 	elsif(p_transaccion='SKA_RDEPMEN_SEL')then
      				
     	begin
-    		--Sentencia de la consulta
-			v_consulta:='select
+
+			create temp table tt_movimiento_af_dep(
+            	id_movimiento_af_dep integer,
+                id_activo_fijo_valor integer,
+                id_activo_fijo_valor_padre integer,
+                id_movimiento integer,
+                id_activo_fijo integer,
+                monto_actualiz numeric,
+                monto_actualiz_ant numeric,
+                depreciacion_per numeric,
+                depreciacion numeric,
+                depreciacion_acum numeric,
+                monto_vigente numeric,
+                tipo_cambio_ini numeric,
+                tipo_cambio_fin numeric,
+                fecha_ini_dep date,
+                monto_vigente_orig_100 numeric,
+                monto_vigente_orig numeric,
+                fecha date,
+                id_afvs text,
+                depreciacion_acum_gest_ant numeric,
+                tipo_cambio_fin_gest_ant integer
+            ) on commit drop;
+            
+            --Carga los registros de depreciacion del movimiento
+            insert into tt_movimiento_af_dep(
+              id_movimiento_af_dep,
+              id_activo_fijo_valor,
+              id_movimiento,
+              id_activo_fijo,
+              monto_actualiz,
+              monto_actualiz_ant,
+              depreciacion_per,
+              depreciacion,
+              depreciacion_acum,
+              monto_vigente,
+              tipo_cambio_ini,
+              tipo_cambio_fin,
+              fecha
+            )
+            select
+            mdep.id_movimiento_af_dep,
+            mdep.id_activo_fijo_valor,
+            maf.id_movimiento,
+            maf.id_activo_fijo,
+            mdep.monto_actualiz,
+            mdep.monto_actualiz_ant,
+            mdep.depreciacion_per,
+            mdep.depreciacion,
+            mdep.depreciacion_acum,
+            mdep.monto_vigente,
+            mdep.tipo_cambio_ini,
+            mdep.tipo_cambio_fin,
+            mdep.fecha
+            from kaf.tmovimiento_af_dep mdep
+            inner join kaf.tmovimiento_af maf
+            on maf.id_movimiento_af = mdep.id_movimiento_af
+            where mdep.id_moneda = v_parametros.id_moneda
+        	and maf.id_movimiento = v_parametros.id_movimiento;
+            
+            --Obtiene el id_activo_fijo_valor padre
+            update tt_movimiento_af_dep set
+            id_activo_fijo_valor_padre = kaf.f_get_afv_padre(tt_movimiento_af_dep.id_activo_fijo_valor);
+            
+            --Obtiene los Ids de los AFV de los dependientes
+            update tt_movimiento_af_dep set
+            id_afvs = kaf.f_get_ids_afv_dependiente(tt_movimiento_af_dep.id_activo_fijo_valor);
+            
+            --Obtiene datos del padre
+            update tt_movimiento_af_dep set
+            fecha_ini_dep = (select fecha_ini_dep from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre),
+			monto_vigente_orig_100 = (select monto_vigente_orig_100 from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre),
+			monto_vigente_orig = (select monto_vigente_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre)
+            where id_activo_fijo_valor_padre is not null;
+            
+            --Los que no tienen padre
+            update tt_movimiento_af_dep mdep set
+            fecha_ini_dep = afv.fecha_ini_dep,
+            monto_vigente_orig_100 = afv.monto_vigente_orig_100,
+            monto_vigente_orig = afv.monto_vigente_orig
+            from kaf.tactivo_fijo_valores afv
+            where afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+            and mdep.id_activo_fijo_valor_padre is null;
+            
+            --Depreciación acumulada gestión anterior
+            update tt_movimiento_af_dep set
+            depreciacion_acum_gest_ant = (select ps_depreciacion_acum_gest_ant from kaf.f_get_depreciacion_acum_gest_ant(tt_movimiento_af_dep.id_activo_fijo_valor,
+            																	tt_movimiento_af_dep.id_afvs,
+                                                                                2,
+                                                                                tt_movimiento_af_dep.fecha)),
+        	tipo_cambio_fin_gest_ant = (select ps_depreciacion_acum_gest_ant from kaf.f_get_depreciacion_acum_gest_ant(tt_movimiento_af_dep.id_activo_fijo_valor,
+            																	tt_movimiento_af_dep.id_afvs,
+                                                                                2,
+                                                                                tt_movimiento_af_dep.fecha));
+            
+    		--Sentencia de la consulta            
+			v_consulta:='
+            			WITH tta as (SELECT distinct rc_1.id_tabla AS id_clasificacion,
+                          ((''{''::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, ''hijos''::
+                          character varying)::text) || ''}''::text)::integer [ ] AS nodos
+                          FROM conta.ttabla_relacion_contable tb
+                          JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+                          = tb.id_tabla_relacion_contable
+                          JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+                          trc.id_tipo_relacion_contable
+                          WHERE tb.esquema::text = ''KAF''::text AND
+                          tb.tabla::text = ''tclasificacion''::text AND
+                          trc.codigo_tipo_relacion::text in (''ALTAAF''::text,''DEPACCLAS''::text,''DEPCLAS''::text)
+                        )
+            			select
             			row_number() over(order by afv.codigo) as numero,
                         afv.codigo, 
                         af.codigo_ant, 
                         af.denominacion,
-                        to_char(afv.fecha_ini_dep,''dd-mm-yyyy''), 
+                        to_char(mdep.fecha_ini_dep,''dd-mm-yyyy''), 
                         af.cantidad_af, 
                         um.descripcion as desc_unidad_medida,
                         cc.codigo_tcc,
                         af.nro_serie,
                         af.ubicacion,
                         fun.desc_funcionario2,
-                        afv.monto_vigente_orig_100,
-                        afv.monto_vigente_orig,
+                        mdep.monto_vigente_orig_100,
+                        mdep.monto_vigente_orig,
+                        mdep.monto_actualiz - mdep.monto_vigente_orig as inc_valor_actualiz,
+                        mdep.monto_actualiz as valor_actualiz,
                         afv.vida_util,
                         afv.vida_util_orig,
-                        null::numeric as inc_actualiz,
-                        null::numeric as valor_actualiz,
-                        null::numeric as dep_acum_gestant,
-                        null::numeric as actualiz_dep_gest_ant,
-                        null::numeric as depreciacion_gestion,
-                        null::numeric as depreciacion_mensual,
-                        null::numeric as depreciacion_acum,
-                        null::numeric as valor_activo,
-                        min(fecha) over (partition by mdep.id_activo_fijo_valor), 
-                        max(fecha) over (partition by mdep.id_activo_fijo_valor)
-                        from kaf.tmovimiento_af_dep mdep
-                        inner join kaf.tmovimiento_af maf
-                        on maf.id_movimiento_af = mdep.id_movimiento_af
+                        mdep.monto_actualiz - mdep.monto_actualiz_ant as inc_actualiz,
+                        mdep.depreciacion_acum_gest_ant,--vde.depreciacion_acum_actualiz as dep_acum_gestant,
+                        case 
+                        	when coalesce(mdep.depreciacion_acum_gest_ant,0) = 0 then 0
+                            else mdep.depreciacion_acum_gest_ant * mdep.tipo_cambio_fin/mdep.tipo_cambio_fin_gest_ant
+                        end as actualiz_dep_gest_ant,
+                        --mdep.depreciacion_acum_gest_ant * mdep.tipo_cambio_fin/mdep.tipo_cambio_fin_gest_ant as actualiz_dep_gest_ant,--vde.inc_dep_acum_actualiz as actualiz_dep_gest_ant,
+                        mdep.depreciacion_per::numeric as depreciacion_gestion,
+                        mdep.depreciacion as depreciacion_mensual,
+                        mdep.depreciacion_acum as depreciacion_acum,
+                        mdep.monto_vigente as valor_activo,
+                        mdep.tipo_cambio_ini,
+                        mdep.tipo_cambio_fin,
+                        min(mdep.fecha) over (partition by mdep.id_activo_fijo_valor), 
+                        max(mdep.fecha) over (partition by mdep.id_activo_fijo_valor),
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
+                          from conta.tcuenta c 
+                          where c.id_cuenta in (select id_cuenta
+                                              from conta.trelacion_contable rc 
+                                              where rc.id_tipo_relacion_contable =  90
+                                              and rc.id_gestion = 2
+                                              and rc.estado_reg = ''activo''
+                                              and rc.id_tabla = tta.id_clasificacion
+                                              )
+                        ) as cuenta_activo,
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
+                                    from conta.tcuenta c 
+                                    where c.id_cuenta in (select id_cuenta
+                                                        from conta.trelacion_contable rc 
+                                                        where rc.id_tipo_relacion_contable =  92
+                                                        and rc.id_gestion = 2
+                                                        and rc.estado_reg = ''activo''
+                                                        and rc.id_tabla = tta.id_clasificacion
+                                                        )
+                        ) as cuenta_dep_acum,
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
+                                    from conta.tcuenta c 
+                                    where c.id_cuenta in (select id_cuenta
+                                                        from conta.trelacion_contable rc 
+                                                        where rc.id_tipo_relacion_contable =  91
+                                                        and rc.id_gestion = 2
+                                                        and rc.estado_reg = ''activo''
+                                                        and rc.id_tabla = tta.id_clasificacion
+                                                        )
+                        ) as cuenta_deprec
+                        from tt_movimiento_af_dep mdep
                         inner join kaf.tmovimiento mov
-                        on mov.id_movimiento = maf.id_movimiento
+                        on mov.id_movimiento = mdep.id_movimiento
                         inner join kaf.tactivo_fijo_valores afv
                         on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
                         inner join kaf.tactivo_fijo af
-                        on af.id_activo_fijo = maf.id_activo_fijo
+                        on af.id_activo_fijo = mdep.id_activo_fijo
                         left join param.vcentro_costo cc
                         on cc.id_centro_costo = af.id_centro_costo
                         left join param.tunidad_medida um
                         on um.id_unidad_medida = af.id_unidad_medida
                         left join orga.vfuncionario fun
                         on fun.id_funcionario = af.id_funcionario
-				        where mdep.id_moneda = '||v_parametros.id_moneda||'
-                        and maf.id_movimiento = '||v_parametros.id_movimiento||'
+                        /*left join kaf.vdep_acum_actualiz_ant vde
+                        on vde.id_movimiento = mdep.id_movimiento
+                        and vde.id_activo_fijo_valor = afv.id_activo_fijo_valor*/
+                        left join tta on af.id_clasificacion = ANY (tta.nodos)
                         order by afv.codigo';
 			
 			--Definicion de la respuesta

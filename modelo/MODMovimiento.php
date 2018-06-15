@@ -415,6 +415,35 @@ class MODMovimiento extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function obtenerMovimientoID(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_sel';
+		$this->transaccion='SKA_OBTMOV_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Parámetro de entrada
+		$this->setParametro('id_movimiento','id_movimiento','integer');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_movimiento','int4');
+		$this->captura('fecha_hasta','text');
+		$this->captura('fecha_mov','text');
+		$this->captura('id_depto','int4');
+		$this->captura('glosa','varchar');
+		$this->captura('num_tramite','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('depto','varchar');
+		$this->captura('cod_depto','varchar');
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

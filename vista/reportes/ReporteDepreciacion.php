@@ -428,6 +428,31 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
+		 {
+			config:{
+				name:'depreciacion', 
+				fieldLabel: 'Depreciación',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'depreciacion',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
         {
 			config:{
 				name:'monto_vigente', 
@@ -478,7 +503,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
-		{
+		/*{
 			config:{
 				name:'cod_raiz', 
 				fieldLabel: 'Cod.Raíz',
@@ -677,7 +702,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:1,
 			grid:true,
 			form:true
-		},
+		},*/
 		{
 			config:{
 				name:'afecta_concesion', 
@@ -699,6 +724,78 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'afecta_concesion',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cuenta_activo', 
+				fieldLabel: 'Cuenta Activo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cuenta_dep_acum', 
+				fieldLabel: 'Cuenta Dep.Acum.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cuenta_deprec', 
+				fieldLabel: 'Cuenta Deprec.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -727,15 +824,19 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {name:'tipo', type: 'string'},
         {name:'codigo_ant', type: 'string'},
         {name:'codigo_tcc', type: 'string'},
-        {name:'cod_raiz', type: 'string'},
+        /*{name:'cod_raiz', type: 'string'},
         {name:'cod_grupo', type: 'string'},
         {name:'cod_clase', type: 'string'},
         {name:'cod_subgrupo', type: 'string'},
         {name:'desc_raiz', type: 'string'},
         {name:'desc_grupo', type: 'string'},
         {name:'desc_clase', type: 'string'},
-        {name:'desc_subgrupo', type: 'string'},
-        {name:'afecta_concesion', type: 'string'}
+        {name:'desc_subgrupo', type: 'string'},*/
+        {name:'afecta_concesion', type: 'string'},
+        {name:'cuenta_activo', type: 'string'},
+        {name:'cuenta_dep_acum', type: 'string'},
+        {name:'cuenta_deprec', type: 'string'},
+        {name:'depreciacion', type: 'numeric'}
 	],
 	sortInfo:{
 		field: 'codigo',

@@ -943,8 +943,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 	    var rec=this.sm.getSelected();
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacion',
-            params:{'id_movimiento':rec.data.id_movimiento, fecha_hasta: rec.data.fecha_mov},
+            url:'../../sis_kactivos_fijos/control/Movimiento/generarReporteDepreciacionMensual',
+            params:{'id_movimiento':rec.data.id_movimiento, fecha_hasta: rec.data.fecha_mov, id_moneda: 1},
             success: this.successExport,
             failure: this.conexionFailure,
             timeout:this.timeout,
