@@ -40,6 +40,9 @@ DECLARE
     v_mensaje               varchar;
     v_sw_control_dep        boolean = false;
     v_sql varchar;
+    v_id_periodo_subsistema integer;
+    v_id_subsistema         integer;
+    v_res                   varchar;
 
 BEGIN
     
@@ -47,6 +50,11 @@ BEGIN
 
     --Obtención de la fecha tope de la depreciación
     v_fecha_hasta = p_fecha_hasta;
+    
+    --Obtención del subsistema para posterior verificación de período abierto
+    select id_subsistema into v_id_subsistema
+    from segu.tsubsistema
+    where codigo = 'KAF';
     
     v_sql = 'select
         afv.id_activo_fijo,
@@ -94,7 +102,9 @@ BEGIN
         afv1.depreciacion_acum as depreciacion_acum_padre,
         afv1.monto_vigente as monto_vigente_padre,
         afv1.fecha_ult_dep as fecha_ult_dep_afv,
-        afv1.monto_vigente_actualiz_inicial
+        afv1.monto_vigente_actualiz_inicial,
+        af.codigo,
+        afv1.codigo as codigo_afv
         from kaf.vactivo_fijo_valor afv
         inner join kaf.tmoneda_dep mon
         on mon.id_moneda_dep = afv.id_moneda_dep
@@ -168,13 +178,26 @@ BEGIN
 
         --Bucle de la cantidad de meses a depreciar
         for i in 1..v_rec.meses_dep loop
-
+        
             --Verifica que la fecha fin del afv sea menor o igual a la fecha en que se está depreciando
             if v_rec.fecha_fin is not null then
-                if v_mes_dep >= v_rec.fecha_fin then
+                if date_trunc('month',v_mes_dep::date) >= date_trunc('month',v_rec.fecha_fin::date) then
                     exit;
                 end if;
             end if;
+        
+            --RCM:  Verificación periodo cerrado
+            select po_id_periodo_subsistema into v_id_periodo_subsistema
+            from param.f_get_periodo_gestion(v_mes_dep,v_id_subsistema);
+            v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema, false);
+            if v_res != 'exito' then
+              --return v_res;
+              --exit;
+              raise exception 'No puede depreciarse el activo % en el periodo %. %',v_rec.codigo_afv, v_mes_dep,v_res;
+            end if;
+            --FIN RCM
+
+            
 
             if v_rec.actualizar = 'si'  then
                 --Obtener tipo de cambio del inicio y fin de mes 
@@ -247,68 +270,75 @@ BEGIN
                 v_nuevo_vida_util     = v_ant_vida_util ;
             end if;
 
-            
+            --Verifica que no exista el reg. id_monea_dep, id_activo_fijo_valor, fecha
+            if not exists(select 1 from kaf.tmovimiento_af_dep
+                            where id_activo_fijo_valor = v_rec.id_activo_fijo_valor
+                            and id_moneda_dep = v_rec.id_moneda_dep
+                            and fecha = v_mes_dep) then
 
-            --Inserción en base de datos
-            INSERT INTO kaf.tmovimiento_af_dep (
-            id_usuario_reg,
-            id_usuario_mod,
-            fecha_reg,
-            fecha_mod,
-            estado_reg,
-            id_usuario_ai,
-            usuario_ai,
-            --id_movimiento_af,                                     
-            depreciacion_acum_ant, --10
-            depreciacion_per_ant,
-            monto_vigente_ant,
-            vida_util_ant,
-            depreciacion_acum_actualiz,
-            depreciacion_per_actualiz,
-            monto_actualiz,
-            depreciacion,
-            depreciacion_acum,
-            depreciacion_per, --19
-            monto_vigente,
-            vida_util,
-            tipo_cambio_ini,
-            tipo_cambio_fin,
-            factor,
-            id_activo_fijo_valor, --26
-            fecha,
-            monto_actualiz_ant,
-            id_moneda,
-            id_moneda_dep
-            ) VALUES (
-            p_id_usuario,
-            null,
-            now(),
-            null,
-            'activo',
-            null,
-            null,
-            --v_rec.id_movimiento_af,                                     
-            v_ant_dep_acum, --10  depreciacion_acum_ant
-            v_ant_dep_per,   --depreciacion_per_ant
-            v_ant_monto_vigente,  --monto_vigente_ant  
-            v_ant_vida_util,   --  vida_util_ant
-            v_dep_acum_actualiz,  --  depreciacion_acum_actualiz
-            v_dep_per_actualiz,  --  depreciacion_per_actualiz
-            v_monto_actualiz,    --monto_actualiz
-            v_nuevo_dep_mes,   -- depreciacion
-            v_nuevo_dep_acum,  -- depreciacion_acum
-            v_nuevo_dep_per,   -- depreciacion_per
-            v_nuevo_monto_vigente, -- 20   monto_vigente
-            v_nuevo_vida_util,  -- vida_util
-            v_rec_tc.o_tc_inicial,
-            v_rec_tc.o_tc_final,
-            v_rec_tc.o_tc_factor,
-            v_rec.id_activo_fijo_valor, --25
-            v_mes_dep,
-            v_ant_monto_actualiz,
-            v_rec.id_moneda,
-            v_rec.id_moneda_dep
-            ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
+                --Inserción en base de datos
+                INSERT INTO kaf.tmovimiento_af_dep (
+                id_usuario_reg,
+                id_usuario_mod,
+                fecha_reg,
+                fecha_mod,
+                estado_reg,
+                id_usuario_ai,
+                usuario_ai,
+                --id_movimiento_af,                                     
+                depreciacion_acum_ant, --10
+                depreciacion_per_ant,
+                monto_vigente_ant,
+                vida_util_ant,
+                depreciacion_acum_actualiz,
+                depreciacion_per_actualiz,
+                monto_actualiz,
+                depreciacion,
+                depreciacion_acum,
+                depreciacion_per, --19
+                monto_vigente,
+                vida_util,
+                tipo_cambio_ini,
+                tipo_cambio_fin,
+                factor,
+                id_activo_fijo_valor, --26
+                fecha,
+                monto_actualiz_ant,
+                id_moneda,
+                id_moneda_dep
+                ) VALUES (
+                p_id_usuario,
+                null,
+                now(),
+                null,
+                'activo',
+                null,
+                null,
+                --v_rec.id_movimiento_af,                                     
+                v_ant_dep_acum, --10  depreciacion_acum_ant
+                v_ant_dep_per,   --depreciacion_per_ant
+                v_ant_monto_vigente,  --monto_vigente_ant  
+                v_ant_vida_util,   --  vida_util_ant
+                v_dep_acum_actualiz,  --  depreciacion_acum_actualiz
+                v_dep_per_actualiz,  --  depreciacion_per_actualiz
+                v_monto_actualiz,    --monto_actualiz
+                v_nuevo_dep_mes,   -- depreciacion
+                v_nuevo_dep_acum,  -- depreciacion_acum
+                v_nuevo_dep_per,   -- depreciacion_per
+                v_nuevo_monto_vigente, -- 20   monto_vigente
+                v_nuevo_vida_util,  -- vida_util
+                v_rec_tc.o_tc_inicial,
+                v_rec_tc.o_tc_final,
+                v_rec_tc.o_tc_factor,
+                v_rec.id_activo_fijo_valor, --25
+                v_mes_dep,
+                v_ant_monto_actualiz,
+                v_rec.id_moneda,
+                v_rec.id_moneda_dep
+                ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
+            else
+                raise exception 'El Activo Fijo % ya fue depreciado en  %',v_rec.codigo_afv,v_mes_dep;
+            end if;
 
             v_gestion_previa =   extract(year from v_mes_dep::date);
             v_tipo_cambio_anterior = v_rec_tc.o_tc_final;

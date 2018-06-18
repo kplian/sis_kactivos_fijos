@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.f_insercion_af (
   p_id_usuario integer,
   p_parametros public.hstore
@@ -13,10 +11,10 @@ Descripción: Función para insertar un activo fijo (Se la independiza para pode
 */
 DECLARE
 
-	v_id_activo_fijo 		integer;
-    v_nombre_funcion		varchar;
-    v_resp					varchar;
-    v_monto_compra			numeric;
+    v_id_activo_fijo        integer;
+    v_nombre_funcion        varchar;
+    v_resp                  varchar;
+    v_monto_compra          numeric;
 
 BEGIN
 
@@ -31,23 +29,23 @@ BEGIN
                            'O',-- tipo oficial, venta, compra 
                            NULL);--defecto dos decimales
             
-	--Se hace el registro del activo fijo
-	insert into kaf.tactivo_fijo(
-		id_persona,
-		cantidad_revaloriz,
-		foto,
-		id_proveedor,
-		estado_reg,
-		fecha_compra,
-		--monto_vigente,
-		id_cat_estado_fun,
-		ubicacion,
-		--vida_util,
-		documento,
-		observaciones,
-		--fecha_ult_dep,
-		monto_rescate,
-		denominacion,
+    --Se hace el registro del activo fijo
+    insert into kaf.tactivo_fijo(
+        id_persona,
+        cantidad_revaloriz,
+        foto,
+        id_proveedor,
+        estado_reg,
+        fecha_compra,
+        --monto_vigente,
+        id_cat_estado_fun,
+        ubicacion,
+        --vida_util,
+        documento,
+        observaciones,
+        --fecha_ult_dep,
+        monto_rescate,
+        denominacion,
         id_funcionario,
         id_deposito,
         monto_compra_orig,
@@ -86,7 +84,8 @@ BEGIN
         fecha_cbte_asociado,
         id_cotizacion_det,
         id_preingreso_det,
-        id_grupo
+        id_grupo,
+        id_ubicacion
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -141,11 +140,11 @@ BEGIN
         (p_parametros->'fecha_cbte_asociado')::date,
         (p_parametros->'id_cotizacion_det')::integer,
         (p_parametros->'id_preingreso_det')::integer,
-        (p_parametros->'id_grupo')::integer
-        
+        (p_parametros->'id_grupo')::integer,
+        (p_parametros->'id_ubicacion')::integer        
     ) returning id_activo_fijo into v_id_activo_fijo;
 
-	--Respuesta
+    --Respuesta
     return v_id_activo_fijo;
 
 EXCEPTION

@@ -1,5 +1,7 @@
-CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_asignacion"()
-  RETURNS "pg_catalog"."varchar" AS $BODY$
+CREATE OR REPLACE FUNCTION kaf.ftmp_migracion_asignacion (
+)
+RETURNS varchar AS
+$body$
 DECLARE
 
     v_rec record;
@@ -157,9 +159,9 @@ BEGIN
     return 'done';  
 
 END;
-$BODY$
-  LANGUAGE 'plpgsql' VOLATILE COST 100
-;
-
-ALTER FUNCTION "kaf"."ftmp_migracion_asignacion"() OWNER TO "postgres";
-
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

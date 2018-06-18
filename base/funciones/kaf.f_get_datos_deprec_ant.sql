@@ -1,11 +1,11 @@
-CREATE OR REPLACE FUNCTION "kaf"."f_get_datos_deprec_ant"(
-    IN p_id_activo_fijo_valor "int4", 
-    IN p_fecha "date", 
-    OUT o_dep_acum_ant "numeric", 
-    OUT o_inc_dep_actualiz "numeric"
+CREATE OR REPLACE FUNCTION kaf.f_get_datos_deprec_ant (
+  p_id_activo_fijo_valor integer,
+  p_fecha date,
+  out o_dep_acum_ant numeric,
+  out o_inc_dep_actualiz numeric
 )
-RETURNS "pg_catalog"."record" AS $BODY$
-
+RETURNS record AS
+$body$
 DECLARE
 
     v_nombre_funcion  varchar;
@@ -38,6 +38,9 @@ BEGIN
 
     RETURN ;
 END
-$BODY$
-  LANGUAGE 'plpgsql' VOLATILE;
-
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

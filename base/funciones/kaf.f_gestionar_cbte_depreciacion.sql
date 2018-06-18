@@ -71,11 +71,13 @@ BEGIN
     or mov.id_int_comprobante_aitb = p_id_int_comprobante
     or mov.id_int_comprobante_3 = p_id_int_comprobante; 
     
+    
     --2) Valida que el comprobante esté relacionado con un movimiento
     if v_registros.id_movimiento is null then
-      raise exception 'El comprobante no está relacionado con ningún movimiento de activos fijos';
+      raise exception 'El comprobante no está relacionado con ningún movimiento de activos fijos (id: %, %)',p_id_int_comprobante,v_registros;
     end if;
     
+   
     --3) Verificación de validación de los 3 comprobantes
     select estado_reg
     into v_estado_1 
@@ -151,7 +153,7 @@ BEGIN
         where mov.id_movimiento = v_registros.id_movimiento; 
 
     end if;
-      
+    
     --Respuesta
     return true;
 

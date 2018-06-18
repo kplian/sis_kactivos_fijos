@@ -1,5 +1,8 @@
-CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_activos"()
-  RETURNS "pg_catalog"."varchar" AS $BODY$BEGIN
+CREATE OR REPLACE FUNCTION kaf.ftmp_migracion_activos (
+)
+RETURNS varchar AS
+$body$
+BEGIN
 
   	/*delete from kaf.tmovimiento_af;
 	delete from kaf.tmovimiento;
@@ -110,6 +113,9 @@ CREATE OR REPLACE FUNCTION "kaf"."ftmp_migracion_activos"()
 	return 'done';
 
 END
-$BODY$
-  LANGUAGE 'plpgsql' VOLATILE COST 100
-;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

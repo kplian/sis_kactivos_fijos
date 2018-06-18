@@ -1,5 +1,12 @@
-CREATE OR REPLACE FUNCTION "kaf"."f_movimiento_aprobacion"(p_id_usuario int4, p_id_proceso_wf int4, p_id_estado_anterior int4, p_id_tipo_estado_actual int4)
-  RETURNS "pg_catalog"."bool" AS $BODY$DECLARE
+CREATE OR REPLACE FUNCTION kaf.f_movimiento_aprobacion (
+  p_id_usuario integer,
+  p_id_proceso_wf integer,
+  p_id_estado_anterior integer,
+  p_id_tipo_estado_actual integer
+)
+RETURNS boolean AS
+$body$
+DECLARE
 
 	v_estado 					varchar;
 	v_movimiento 				record;
@@ -319,7 +326,9 @@ BEGIN
 	return true;
 
 END
-$BODY$
-  LANGUAGE 'plpgsql' VOLATILE COST 100
-;
-
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

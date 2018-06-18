@@ -1,6 +1,4 @@
---------------- SQL ---------------
-
-CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel ( 
+CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -9,47 +7,47 @@ CREATE OR REPLACE FUNCTION kaf.ft_movimiento_sel (
 RETURNS varchar AS
 $body$
 /**************************************************************************
- SISTEMA:		Sistema de Activos Fijos
- FUNCION: 		kaf.ft_movimiento_sel
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.ft_movimiento_sel
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento'
- AUTOR: 		 (admin)
- FECHA:	        22-10-2015 20:42:41
- COMENTARIOS:	
+ AUTOR:          (admin)
+ FECHA:         22-10-2015 20:42:41
+ COMENTARIOS:   
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:   
+ AUTOR:         
+ FECHA:     
 ***************************************************************************/
 
 DECLARE
 
-	v_consulta    		varchar;
-	v_parametros  		record;
-	v_nombre_funcion   	text;
-	v_resp				varchar;
-	v_filtro			varchar;
-	v_id_funcionario	integer;
-	v_tipo_interfaz		varchar;
+    v_consulta          varchar;
+    v_parametros        record;
+    v_nombre_funcion    text;
+    v_resp              varchar;
+    v_filtro            varchar;
+    v_id_funcionario    integer;
+    v_tipo_interfaz     varchar;
     v_depto_ids         varchar;
     v_aux               varchar;
-			    
+                
 BEGIN
 
-	v_nombre_funcion = 'kaf.ft_movimiento_sel';
+    v_nombre_funcion = 'kaf.ft_movimiento_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_SEL'
- 	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
- 	#FECHA:		22-10-2015 20:42:41
-	***********************************/
+    /*********************************    
+    #TRANSACCION:  'SKA_MOV_SEL'
+    #DESCRIPCION:   Consulta de datos
+    #AUTOR:     admin   
+    #FECHA:     22-10-2015 20:42:41
+    ***********************************/
 
-	if(p_transaccion='SKA_MOV_SEL')then
-     				
-    	begin
+    if(p_transaccion='SKA_MOV_SEL')then
+                    
+        begin
 
             --Inicialización de filtro
             v_filtro = '0=0 and ';
@@ -76,101 +74,101 @@ BEGIN
 
             end if;
 
-    		--Verificación de existencia de parámetro de interfaz
-    		v_tipo_interfaz = 'normal';
-    		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
-            	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
+            --Verificación de existencia de parámetro de interfaz
+            v_tipo_interfaz = 'normal';
+            if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
+                v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
 
-    		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
-    			--Obtención del funcionario a partir del usuario recibido
-    			select id_funcionario
-    			into v_id_funcionario
-    			from segu.tusuario usu
-    			inner join orga.tfuncionario fun
-    			on fun.id_persona = usu.id_persona
-    			where usu.id_usuario = p_id_usuario;
+            if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
+                --Obtención del funcionario a partir del usuario recibido
+                select id_funcionario
+                into v_id_funcionario
+                from segu.tusuario usu
+                inner join orga.tfuncionario fun
+                on fun.id_persona = usu.id_persona
+                where usu.id_usuario = p_id_usuario;
 
-    			if v_id_funcionario is null then
-    				raise exception 'El usuario no es funcionario.';
-    			end if;
+                if v_id_funcionario is null then
+                    raise exception 'El usuario no es funcionario.';
+                end if;
 
-              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+                v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 
-    		--Sentencia de la consulta
-			v_consulta:='select
-						mov.id_movimiento,
-						mov.direccion,
-						mov.fecha_hasta,
-						mov.id_cat_movimiento,
-						mov.fecha_mov,
-						mov.id_depto,
-						mov.id_proceso_wf,
-						mov.id_estado_wf,
-						mov.glosa,
-						mov.id_funcionario,
-						mov.estado,
-						mov.id_oficina,
-						mov.estado_reg,
-						mov.num_tramite,
-						mov.id_usuario_ai,
-						mov.id_usuario_reg,
-						mov.fecha_reg,
-						mov.usuario_ai,
-						mov.fecha_mod,
-						mov.id_usuario_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-						cat.descripcion as movimiento,
-						cat.codigo as cod_movimiento,
-						cat.icono,
-						dep.nombre as depto,
-						dep.codigo as cod_depto,
-						fun.desc_funcionario2,
-						ofi.nombre as oficina,
-						mov.id_responsable_depto,
-						mov.id_persona,
-						usu.desc_funcionario1 as responsable_depto,
-						per.nombre_completo2 as custodio,
-						tew.icono as icono_estado,
-						mov.codigo,
-			            mov.id_deposito,
-			            mov.id_depto_dest,
-			            mov.id_deposito_dest,
-			            mov.id_funcionario_dest,
-			            mov.id_movimiento_motivo,
-			            depo.nombre as deposito,
-			            depdest.nombre as depto_dest,
-			            depodest.nombre as deposito_dest,
-			            fundest.desc_funcionario2,
-			            movmot.motivo,
-			            mov.id_int_comprobante,
-			            mov.id_int_comprobante_aitb,
+            --Sentencia de la consulta
+            v_consulta:='select
+                        mov.id_movimiento,
+                        mov.direccion,
+                        mov.fecha_hasta,
+                        mov.id_cat_movimiento,
+                        mov.fecha_mov,
+                        mov.id_depto,
+                        mov.id_proceso_wf,
+                        mov.id_estado_wf,
+                        mov.glosa,
+                        mov.id_funcionario,
+                        mov.estado,
+                        mov.id_oficina,
+                        mov.estado_reg,
+                        mov.num_tramite,
+                        mov.id_usuario_ai,
+                        mov.id_usuario_reg,
+                        mov.fecha_reg,
+                        mov.usuario_ai,
+                        mov.fecha_mod,
+                        mov.id_usuario_mod,
+                        usu1.cuenta as usr_reg,
+                        usu2.cuenta as usr_mod,
+                        cat.descripcion as movimiento,
+                        cat.codigo as cod_movimiento,
+                        cat.icono,
+                        dep.nombre as depto,
+                        dep.codigo as cod_depto,
+                        fun.desc_funcionario2,
+                        ofi.nombre as oficina,
+                        mov.id_responsable_depto,
+                        mov.id_persona,
+                        usu.desc_funcionario1 as responsable_depto,
+                        per.nombre_completo2 as custodio,
+                        tew.icono as icono_estado,
+                        mov.codigo,
+                        mov.id_deposito,
+                        mov.id_depto_dest,
+                        mov.id_deposito_dest,
+                        mov.id_funcionario_dest,
+                        mov.id_movimiento_motivo,
+                        depo.nombre as deposito,
+                        depdest.nombre as depto_dest,
+                        depodest.nombre as deposito_dest,
+                        fundest.desc_funcionario2,
+                        movmot.motivo,
+                        mov.id_int_comprobante,
+                        mov.id_int_comprobante_aitb,
                         funwf.desc_funcionario2 as resp_wf,
             mov.prestamo,
             mov.fecha_dev_prestamo
-						from kaf.tmovimiento mov
-						inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
-						inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
-						inner join param.tdepto dep on dep.id_depto = mov.id_depto
-						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
-						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
-						left join segu.vpersona per on per.id_persona = mov.id_persona
-						left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
-						left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
-						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
-						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
-						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
-						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
-						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
+                        from kaf.tmovimiento mov
+                        inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
+                        inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
+                        inner join param.tdepto dep on dep.id_depto = mov.id_depto
+                        left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
+                        left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
+                        inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
+                        left join segu.vpersona per on per.id_persona = mov.id_persona
+                        left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+                        left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+                        left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
+                        left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
+                        left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
+                        left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
+                        left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
                         left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
-				        where '||v_filtro;
+                        where '||v_filtro;
 
-			--Verifica si la consulta es por usuario
+            --Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then
                 if v_parametros.por_usuario = 'si' then
                     v_consulta = v_consulta || ' (mov.id_funcionario in (select 
@@ -187,26 +185,26 @@ BEGIN
                                                 where usu.id_usuario = '||p_id_usuario||') )and ';
                 end if;
             end if;
-			
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
-			--Devuelve la respuesta
-			return v_consulta;
-						
-		end;
+            --Devuelve la respuesta
+            return v_consulta;
+                        
+        end;
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_CONT'
- 	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
- 	#FECHA:		22-10-2015 20:42:41
-	***********************************/
+    /*********************************    
+    #TRANSACCION:  'SKA_MOV_CONT'
+    #DESCRIPCION:   Conteo de registros
+    #AUTOR:     admin   
+    #FECHA:     22-10-2015 20:42:41
+    ***********************************/
 
-	elsif(p_transaccion='SKA_MOV_CONT')then
+    elsif(p_transaccion='SKA_MOV_CONT')then
 
-		begin
+        begin
 
             --Inicialización de filtro
             v_filtro = '0=0 and ';
@@ -233,51 +231,51 @@ BEGIN
 
             end if;
 
-			--Verificación de existencia de parámetro de interfaz
-    		v_tipo_interfaz = 'normal';
-    		if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
-            	v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
+            --Verificación de existencia de parámetro de interfaz
+            v_tipo_interfaz = 'normal';
+            if pxp.f_existe_parametro(p_tabla,'tipo_interfaz') then
+                v_tipo_interfaz = coalesce(v_parametros.tipo_interfaz,'normal');
             end if;
 
-    		if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
-    			--Obtención del funcionario a partir del usuario recibido
-    			select id_funcionario
-    			into v_id_funcionario
-    			from segu.tusuario usu
-    			inner join orga.tfuncionario fun
-    			on fun.id_persona = usu.id_persona
-    			where usu.id_usuario = p_id_usuario;
+            if p_administrador !=1  and v_tipo_interfaz = 'MovimientoVb' then
+                --Obtención del funcionario a partir del usuario recibido
+                select id_funcionario
+                into v_id_funcionario
+                from segu.tusuario usu
+                inner join orga.tfuncionario fun
+                on fun.id_persona = usu.id_persona
+                where usu.id_usuario = p_id_usuario;
 
-    			if v_id_funcionario is null then
-    				raise exception 'El usuario no es funcionario.';
-    			end if;
+                if v_id_funcionario is null then
+                    raise exception 'El usuario no es funcionario.';
+                end if;
 
-              	v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
+                v_filtro = v_filtro || 'ew.id_funcionario='||v_id_funcionario::varchar||' and ';
 
             end if;
 
-			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_movimiento)
-					    from kaf.tmovimiento mov
-					    inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
-					    inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
-						inner join param.tdepto dep on dep.id_depto = mov.id_depto
-						left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
-						left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
-						inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
-						left join segu.vpersona per on per.id_persona = mov.id_persona
-						left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
-						left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
-						left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
-						left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
-						left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
-						left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
-						left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select count(id_movimiento)
+                        from kaf.tmovimiento mov
+                        inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
+                        inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
+                        inner join param.tdepto dep on dep.id_depto = mov.id_depto
+                        left join orga.vfuncionario fun on fun.id_funcionario = mov.id_funcionario
+                        left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
+                        inner join orga.vfuncionario usu on usu.id_funcionario = mov.id_responsable_depto
+                        left join segu.vpersona per on per.id_persona = mov.id_persona
+                        left join wf.testado_wf ew on ew.id_estado_wf = mov.id_estado_wf
+                        left join wf.ttipo_estado tew on tew.id_tipo_estado = ew.id_tipo_estado
+                        left join kaf.tdeposito depo on depo.id_deposito = mov.id_deposito
+                        left join param.tdepto depdest on depdest.id_depto = mov.id_depto_dest
+                        left join kaf.tdeposito depodest on depodest.id_deposito = mov.id_deposito_dest
+                        left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
+                        left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
                         left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
-					    where '||v_filtro;
+                        where '||v_filtro;
 
-			--Verifica si la consulta es por usuario
+            --Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then
                 if v_parametros.por_usuario = 'si' then
                     v_consulta = v_consulta || ' (mov.id_funcionario in (select 
@@ -294,28 +292,28 @@ BEGIN
                                                 where usu.id_usuario = '||p_id_usuario||') )and ';
                 end if;
             end if;
-			
-			--Definicion de la respuesta		    
-			v_consulta:=v_consulta||v_parametros.filtro;
+            
+            --Definicion de la respuesta            
+            v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end;
+        end;
 
-	/*********************************    
- 	#TRANSACCION:  'SKA_MOV_REP'
- 	#DESCRIPCION:	Reporte de movimientos  maesto
- 	#AUTOR:			RCM, RAC
- 	#FECHA:			20/03/2016, 20/03/2017
-	***********************************/
+    /*********************************    
+    #TRANSACCION:  'SKA_MOV_REP'
+    #DESCRIPCION:   Reporte de movimientos  maesto
+    #AUTOR:         RCM, RAC
+    #FECHA:         20/03/2016, 20/03/2017
+    ***********************************/
 
-	elsif(p_transaccion='SKA_MOV_REP')then
+    elsif(p_transaccion='SKA_MOV_REP')then
 
-		begin
+        begin
 
-			--Consulta
-			v_consulta:=' select cat.descripcion as movimiento,
+            --Consulta
+            v_consulta:=' select cat.descripcion as movimiento,
                                 cat.codigo as cod_movimiento,
                                 coalesce(mov.codigo, ''S/N'') as formulario,
                                 coalesce(mov.num_tramite, ''S/N'') as num_tramite,
@@ -329,7 +327,7 @@ BEGIN
                                 fun.lugar_nombre as lugar_funcionario,
                                 fun.oficina_nombre oficina_funcionario,
                                  case when (length(fun.oficina_direccion) > 0 and position(''Tel'' in fun.oficina_direccion) > 0) then
-                                		substring(fun.oficina_direccion,1,position(''Tel'' in fun.oficina_direccion)-1)::varchar
+                                        substring(fun.oficina_direccion,1,position(''Tel'' in fun.oficina_direccion)-1)::varchar
                                     else  case when length(fun.oficina_direccion)>0 then fun.oficina_direccion::varchar else ''No tiene dirección''::varchar end end as direccion_funcionario,
                                 fun.ci,
                                 ofi.nombre as oficina,
@@ -343,26 +341,26 @@ BEGIN
                                 tlu.nombre as lugar,
                                 coalesce((select tcar.nombre
                                 from orga.tcargo tcar
-                                where tcar.id_cargo = any (orga.f_get_cargo_x_funcionario(fun1.id_funcionario,now()::date))),''SIN CARGO'')	as cargo_jefe,
+                                where tcar.id_cargo = any (orga.f_get_cargo_x_funcionario(fun1.id_funcionario,now()::date))),''SIN CARGO'') as cargo_jefe,
                                 fundes.lugar_nombre as lugar_destino,
                                 fundes.oficina_nombre as oficina_destino,
                                 case when (length(fundes.oficina_direccion)>0 and position(''Tel'' in fundes.oficina_direccion) > 0) then
-                                	substring(fundes.oficina_direccion,1,position(''Tel'' in fundes.oficina_direccion)-1)::varchar
+                                    substring(fundes.oficina_direccion,1,position(''Tel'' in fundes.oficina_direccion)-1)::varchar
                                 else case when length(fundes.oficina_direccion)>0 then fundes.oficina_direccion::varchar else ''No tiene dirección''::varchar end end as oficina_direccion,
                                 mov.id_funcionario_dest,
                                 fun1.lugar_nombre as lugar_responsable,
                                 fun1.oficina_nombre as oficina_responsable,
                                 case when (length(fun1.oficina_direccion)>0 and position(''Tel'' in fun1.oficina_direccion) > 0) then
-                                		substring(fun1.oficina_direccion,1,position(''Tel'' in fun1.oficina_direccion)-1)::varchar
+                                        substring(fun1.oficina_direccion,1,position(''Tel'' in fun1.oficina_direccion)-1)::varchar
                                     else case when length(fun1.oficina_direccion)>0 then fun1.oficina_direccion else ''No tiene dirección''::varchar end end as direccion_responsable,
-                                mov.prestamo
-
+                                mov.prestamo,
+                                dpto.codigo
                          from kaf.tmovimiento mov 
                               inner join param.tcatalogo cat on cat.id_catalogo = mov.id_cat_movimiento
                               inner join param.tdepto dpto on dpto.id_depto = mov.id_depto
                               left join orga.vfuncionario_cargo_lugar fun on fun.id_funcionario =  mov.id_funcionario
                               and ((mov.fecha_mov BETWEEN fun.fecha_asignacion and fun.fecha_finalizacion) or (mov.fecha_mov >= fun.fecha_asignacion or fun.fecha_finalizacion is NULL))
-     						              left join orga.vfuncionario_cargo_lugar fundes on fundes.id_funcionario = mov.id_funcionario_dest
+                                          left join orga.vfuncionario_cargo_lugar fundes on fundes.id_funcionario = mov.id_funcionario_dest
                               and ((mov.fecha_mov BETWEEN fundes.fecha_asignacion  and fundes.fecha_finalizacion) or (mov.fecha_mov >= fundes.fecha_asignacion or fundes.fecha_finalizacion is NULL))
                               left join orga.toficina ofi on ofi.id_oficina = mov.id_oficina
                               left join param.tlugar tlu on tlu.id_lugar = ofi.id_lugar
@@ -371,24 +369,25 @@ BEGIN
                               left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                        WHERE  id_movimiento = '||v_parametros.id_movimiento;
 
-			      --Devuelve la respuesta
-			return v_consulta;
+                  --Devuelve la respuesta
+            raise notice '%',v_consulta;
+            return v_consulta;
 
-		end;
+        end;
         
     /*********************************    
- 	#TRANSACCION:  'SKA_MOVDET_REP'
- 	#DESCRIPCION:	Reporte de movimientos detalle
- 	#AUTOR:			RAC
- 	#FECHA:			20/03/2017
-	***********************************/
+    #TRANSACCION:  'SKA_MOVDET_REP'
+    #DESCRIPCION:   Reporte de movimientos detalle
+    #AUTOR:         RAC
+    #FECHA:         20/03/2017
+    ***********************************/
 
-	elsif(p_transaccion='SKA_MOVDET_REP')then
+    elsif(p_transaccion='SKA_MOVDET_REP')then
 
-		begin
+        begin
 
-			--Consulta
-			v_consulta:=' select 
+            --Consulta
+            v_consulta:=' select 
                             af.codigo,
                             af.denominacion,
                             af.descripcion,
@@ -414,27 +413,27 @@ BEGIN
                           inner join kaf.tclasificacion cla on cla.id_clasificacion = af.id_clasificacion
                      where maf.id_movimiento = '||v_parametros.id_movimiento;
 
-			
-			v_consulta = v_consulta||' order by af.codigo asc';
-			--Devuelve la respuesta
-			return v_consulta;
+            
+            v_consulta = v_consulta||' order by af.codigo asc';
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end; 
+        end; 
         
         
     /*********************************    
- 	#TRANSACCION:  'SKA_REPDETDE_REP'
- 	#DESCRIPCION:	Reporte detalle de depreciacion para contabilizacion
- 	#AUTOR:			RAC
- 	#FECHA:			17/04/2017
-	***********************************/
+    #TRANSACCION:  'SKA_REPDETDE_REP'
+    #DESCRIPCION:   Reporte detalle de depreciacion para contabilizacion
+    #AUTOR:         RAC
+    #FECHA:         17/04/2017
+    ***********************************/
 
-	elsif(p_transaccion='SKA_REPDETDE_REP')then
+    elsif(p_transaccion='SKA_REPDETDE_REP')then
 
-		begin
+        begin
 
-			--Consulta
-			v_consulta:=' SELECT 
+            --Consulta
+            v_consulta:=' SELECT 
                               daf.id_moneda_dep,
                               mod.descripcion as desc_moneda,
                               daf.gestion_final::INTEGER,
@@ -479,11 +478,11 @@ BEGIN
                               id_activo_fijo_valor ,                                
                               daf.fecha_ini_dep';
                           
-			
-			--Devuelve la respuesta
-			return v_consulta;
+            
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end;
+        end;
 
     /*********************************    
     #TRANSACCION:  'SKA_OBTMOV_SEL'
@@ -515,21 +514,21 @@ BEGIN
             return v_consulta;
 
         end;
-					
-	else
-					     
-		raise exception 'Transaccion inexistente';
-					         
-	end if;
-					
+                    
+    else
+                         
+        raise exception 'Transaccion inexistente';
+                             
+    end if;
+                    
 EXCEPTION
-					
-	WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;
+                    
+    WHEN OTHERS THEN
+            v_resp='';
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+            v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+            raise exception '%',v_resp;
 END;
 $body$
 LANGUAGE 'plpgsql'
