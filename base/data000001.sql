@@ -327,3 +327,8 @@ select pxp.f_insert_testructura_gui ('KAF.REP.07', 'KAFREP');
 select pxp.f_insert_tgui ('Grupos', 'Agrupador de activos fijos', 'AFGRU', 'si', 1, 'sis_kactivos_fijos/vista/grupo/Grupo.php', 3, '', 'Grupo', 'KAF');
 select pxp.f_insert_testructura_gui ('AFGRU', 'CONFAF');
 /***********************************F-DAT-RCM-KAF-0-17/04/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-15/06/2018****************************************/
+select pxp.f_insert_tgui ('Locales', 'Registro de las ubicaciones físicas', 'KAFUBI', 'si', 1, 'sis_kactivos_fijos/vista/ubicacion/Ubicacion.php', 3, '', 'Ubicacion', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFUBI', 'CONFAF');
+/***********************************F-DAT-RCM-KAF-0-15/06/2018****************************************/

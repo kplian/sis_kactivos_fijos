@@ -225,6 +225,59 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 border: false
                             })
                         ]
+                    }), 
+                    new Ext.Panel({
+                        id: 'af_filter_ubicacion',
+                        title: 'Locales',
+                        autoScroll: true,
+                        cls:'empty',
+                        tools:[{
+                            id:'refresh',
+                            qtip: 'Actualizar',
+                            handler: function(event, toolEl, panel){
+                                Ext.getCmp('af_filter_ubicacion_cbo').store.reload();
+                            }
+                        }],
+                        items: [
+                            new Ext.list.ListView({
+                                id: 'af_filter_ubicacion_cbo',
+                                scope: this,
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_kactivos_fijos/control/Ubicacion/listarUbicacion',
+                                    id: 'id_ubicacion',
+                                    root: 'datos',
+                                    fields: ['id_ubicacion','codigo','nombre'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC'
+                                    }
+                                }),
+                                singleSelect: true,
+                                emptyText: 'No existen ubicaciones habilitados',
+                                reserveScrollOffset: true,
+                                columns: [{
+                                    //header: 'id_depto',
+                                    width: 0.01,
+                                    dataIndex: 'id_ubicacion',
+                                    hidden: true
+                                },{
+                                    header: 'Código',
+                                    width: .3,
+                                    dataIndex: 'codigo'
+                                },{
+                                    header: 'Nombre',
+                                    width: .6, 
+                                    dataIndex: 'nombre'
+                                }]
+                            })
+                       ]
                     })]
             })
         ]
@@ -332,6 +385,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         Ext.getCmp('af_filter_oficina').on('activate',function(){
             Ext.getCmp('af_filter_oficina_cbo').store.load();
         },this);
+        //Load data for Ubicacion
+        Ext.getCmp('af_filter_ubicacion').on('activate',function(){
+            Ext.getCmp('af_filter_ubicacion_cbo').store.load();
+        },this);
         
         Ext.getCmp('af_filter_accordion').on('expand',function(){alert('evento')},this);
 
@@ -373,13 +430,24 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             });
         }, this);
 
-        //Apply filter in main grid from Departamentos
+        //Apply filter in main grid from Oficinas
         Ext.getCmp('af_filter_oficina_cbo').addListener('selectionChange', function(cmp,cls){
             if(cmp.store.data.items[cmp.last]&&cmp.store.data.items[cmp.last].data){
                 var data=cmp.store.data.items[cmp.last].data;
                 this.filtrarGrid({
                     id_filter_panel: data.id_oficina,
                     col_filter_panel: 'id_oficina'
+                });
+            }
+        }, this);
+
+        //Apply filter in main grid from Ubicacion
+        Ext.getCmp('af_filter_ubicacion_cbo').addListener('selectionChange', function(cmp,cls){
+            if(cmp.store.data.items[cmp.last]&&cmp.store.data.items[cmp.last].data){
+                var data=cmp.store.data.items[cmp.last].data;
+                this.filtrarGrid({
+                    id_filter_panel: data.id_ubicacion,
+                    col_filter_panel: 'id_ubicacion'
                 });
             }
         }, this);
@@ -1060,6 +1128,26 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         type: 'TextField',
         filters: {
             pfiltro: 'afij.ubicacion',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true
+    }, {
+        config: {
+            name: 'id_ubicacion',
+            fieldLabel: 'Local',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 100,
+            maxLength: 100,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_ubicacion']);
+            }
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'ubic.codigo#ubic.nombre',
             type: 'string'
         },
         id_grupo: 1,
@@ -1749,7 +1837,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'fecha_asignacion',type:'date',dateFormat: 'Y-m-d'},
              {name:'id_grupo',type:'numeric'},
              {name:'desc_grupo',type:'string'},'movimiento_tipo_pres',
-             {name:'centro_costo',type:'string'}
+             {name:'centro_costo',type:'string'},
+             {name:'id_ubicacion',type:'numeric'},
+             {name:'desc_ubicacion',type:'string'}
              ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -2152,6 +2242,80 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 name: 'ubicacion',
                                 id: this.idContenedor+'_ubicacion',
                                 disabled: true
+                            }, {
+                                xtype: 'combo',
+                                fieldLabel: 'Local',
+                                name: 'id_ubicacion',
+                                allowBlank: true,
+                                id: this.idContenedor+'_id_ubicacion',
+                                emptyText: 'Elija el Local ...',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_kactivos_fijos/control/Ubicacion/listarUbicacion',
+                                    id: 'id_ubicacion',
+                                    root: 'datos',
+                                    fields: ['id_ubicacion','codigo','nombre'],
+                                    totalProperty: 'total',
+                                    sortInfo: {
+                                        field: 'codigo',
+                                        direction: 'ASC'
+                                    },
+                                    baseParams:{
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        par_filtro:'ubic.codigo#ubic.nombre'
+                                    }
+                                }),
+                                valueField: 'id_ubicacion',
+                                displayField: 'codigo',
+                                gdisplayField: 'desc_ubicacion',
+                                mode: 'remote',
+                                triggerAction: 'all',
+                                lazyRender: true,
+                                pageSize: 15,
+                                //valueNotFoundText: 'Proveedor no encontrado',
+                                pageSize: 15,
+                                minChars: 2
+                        }, {
+                                xtype: 'combo',
+                                fieldLabel: 'Nuevo Responsable',
+                                name: 'id_funcionario_asig',
+                                allowBlank: true,
+                                id: this.idContenedor+'_id_funcionario_asig',
+                                emptyText: 'Elija el nuevo responsable ...',
+                                store: new Ext.data.JsonStore({
+                                    url: '../../sis_organigrama/control/Funcionario/listarFuncionario',
+                                    root: 'datos',
+                                    sortInfo:{
+                                        field: 'desc_person',
+                                        direction: 'ASC'
+                                    },
+                                    totalProperty: 'total',
+                                    fields: ['id_funcionario','codigo','desc_person','ci','documento','telefono','celular','correo'],
+                                    remoteSort: true,
+                                    baseParams: {
+                                        start: 0,
+                                        limit: 10,
+                                        sort: 'codigo',
+                                        dir: 'ASC',
+                                        par_filtro:'funcio.codigo#nombre_completo1'
+                                    }
+                                }),
+                                tpl:'<tpl for="."><div class="x-combo-list-item"><p>{codigo} - Sis: {codigo_sub} </p><p>{desc_person}</p><p>CI:{ci}</p> </div></tpl>',
+                                valueField: 'id_funcionario',
+                                displayField: 'desc_person',
+                                hiddenName: 'id_funcionario_asig',
+                                forceSelection:true,
+                                typeAhead: false,
+                                triggerAction: 'all',
+                                lazyRender:true,
+                                mode:'remote',
+                                pageSize:10,
+                                queryDelay:1000,
+                                listWidth:'280',
+                                width:250,
+                                minChars:2
                             }]
                         }, {
                             title: 'Datos Compra',
@@ -2599,10 +2763,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     cargaFormulario: function(data){
         var obj,key,objsec,keysec;
         Ext.each(this.form.getForm().items.keys, function(element, index){
-            console.log('fuera',element);
             obj = Ext.getCmp(element);
             if(obj&&obj.items){
-                    console.log('cargaFormulario up');
                 Ext.each(obj.items.items, function(elm, b, c){
                     if(elm.getXType()=='combo'&&elm.mode=='remote'&&elm.store!=undefined){
                         if (!elm.store.getById(data[elm.name])) {

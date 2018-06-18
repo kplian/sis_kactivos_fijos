@@ -50,7 +50,9 @@ class ACTActivoFijo extends ACTbase{
 					SELECT id
 					FROM t)");
 
-			}
+			} else if($colFilter=='id_ubicacion'){
+				$this->objParam->addFiltro("afij.id_ubicacion = ".$this->objParam->getParametro('id_filter_panel'));
+			} 
 
 			//Por caracteristicas
 			if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){

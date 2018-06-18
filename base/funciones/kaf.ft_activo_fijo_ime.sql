@@ -96,7 +96,8 @@ BEGIN
             v_parametros.nro_cbte_asociado,
             v_parametros.fecha_cbte_asociado,
             v_parametros.id_grupo,
-            v_parametros.id_centro_costo
+            v_parametros.id_centro_costo,
+            v_parametros.id_ubicacion
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -163,7 +164,7 @@ BEGIN
               --  fecha_ult_dep = v_parametros.fecha_ult_dep,
                 monto_rescate = v_parametros.monto_rescate,
                 denominacion = v_parametros.denominacion,
-                id_funcionario = v_parametros.id_funcionario,
+                id_funcionario = coalesce(v_parametros.id_funcionario_asig,v_parametros.id_funcionario),
                 id_deposito = v_parametros.id_deposito,
                 monto_compra_orig = v_parametros.monto_compra_orig,
                 monto_compra = v_monto_compra,
@@ -193,7 +194,8 @@ BEGIN
                 monto_compra_orig_100 = v_parametros.monto_compra_orig_100,
                 nro_cbte_asociado = v_parametros.nro_cbte_asociado,
                 fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
-                id_grupo = v_parametros.id_grupo
+                id_grupo = v_parametros.id_grupo,
+                id_ubicacion = v_parametros.id_ubicacion
 			where id_activo_fijo = v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta

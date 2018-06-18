@@ -133,7 +133,9 @@ BEGIN
                             afij.prestamo,
                             afij.fecha_dev_prestamo,
                             afij.id_grupo,
-                            gru.nombre as desc_grupo
+                            gru.nombre as desc_grupo,
+                            afij.id_ubicacion,
+                            ubic.codigo as desc_ubicacion
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -167,6 +169,8 @@ BEGIN
                         left join orga.tuo uo
                         on uo.id_uo = uof.id_uo
                         left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
+                        left join kaf.tubicacion ubic
+                        on ubic.id_ubicacion = afij.id_ubicacion
 				        where  ';
 
             --Verifica si la consulta es por usuario
@@ -238,6 +242,8 @@ BEGIN
                         left join orga.tuo uo
                         on uo.id_uo = uof.id_uo
                         left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
+                        left join kaf.tubicacion ubic
+                        on ubic.id_ubicacion = afij.id_ubicacion
 				        where  ';
 
             --Verifica si la consulta es por usuario

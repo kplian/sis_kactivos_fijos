@@ -1126,4 +1126,7 @@ create table kaf.tubicacion (
 
 alter table kaf.tactivo_fijo
 add column id_ubicacion integer;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_ubicacion
+IS 'Campo creado para almacenar los locales que usa ETR';
 /***********************************F-SCP-RCM-KAF-1-15/06/2018****************************************/
