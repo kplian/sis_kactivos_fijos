@@ -671,7 +671,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'id_int_comprobante',
-				fieldLabel: 'Cbte',
+				fieldLabel: 'Cbte.1',
 				allowBlank: true,
 				gwidth: 40
 			},
@@ -684,12 +684,25 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'id_int_comprobante_aitb',
-				fieldLabel: 'Cbte AITB',
+				fieldLabel: 'Cbte.2',
 				allowBlank: true,
 				gwidth: 70
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.id_int_comprobante_aitb',type:'numeric'},
+			id_grupo:0,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'id_int_comprobante_3',
+				fieldLabel: 'Cbte.3',
+				allowBlank: true,
+				gwidth: 70
+			},
+			type:'TextField',
+			filters:{pfiltro:'mov.id_int_comprobante_3',type:'numeric'},
 			id_grupo:0,
 			grid:true,
 			form:false
@@ -916,11 +929,15 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'funcionario_dest', type: 'string'},
 		{name:'motivo', type: 'string'},
 		{name:'desc_funcionario2', type: 'string'},
-		'id_int_comprobante',
-		'id_int_comprobante_aitb',
+		{name:'id_int_comprobante', type: 'numeric'},
+		{name:'id_int_comprobante_aitb', type: 'numeric'},
+		{name:'id_int_comprobante_3', type: 'numeric'},
 		{name:'resp_wf', type: 'string'},
 		{name:'prestamo', type: 'string'},
-		{name:'fecha_dev_prestamo', type: 'date',dateFormat:'Y-m-d H:i:s.u'}
+		{name:'fecha_dev_prestamo', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+		{name:'id_proceso_wf_cbte1', type: 'numeric'},
+		{name:'id_proceso_wf_cbte2', type: 'numeric'},
+		{name:'id_proceso_wf_cbte3', type: 'numeric'},
 	],
 	sortInfo:{
 		field: 'id_movimiento',

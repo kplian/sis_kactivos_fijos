@@ -54,7 +54,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 	            }
 			},
 			type:'DateField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
+			filters:{pfiltro:'mov.fecha_mov',type:'date'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -74,7 +74,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'num_tramite',
-				fieldLabel: 'Nro.',
+				fieldLabel: 'Nro.Trámite',
 				gwidth: 160,
 				renderer: function(value,p,record){
 					return String.format('{0}','<i class="fa fa-reply-all" aria-hidden="true"></i> '+record.data['num_tramite']);
@@ -98,6 +98,21 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'codigo_ant',
+				fieldLabel: 'Código SAP',
+				gwidth: 100,
+				renderer: function(value,p,record){
+					return String.format('{0}','<i class="fa fa-reply-all" aria-hidden="true"></i> '+record.data['codigo']);
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo_ant',type:'string'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -220,37 +235,6 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'ufv_fecha_compra',
-				fieldLabel: 'UFV (fecha compra)',
-				gwidth: 100,
-				format: 'd/m/Y',
-	            renderer: function(value, p, record) {
-	                return value ? value.dateFormat('d/m/Y') : ''
-	            }
-			},
-			type:'DateField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid:false,
-			form:true
-		},
-		{
-			config:{
-				name: 'ufv_mov',
-				fieldLabel: 'UFV (Fecha Proc.)',
-				gwidth: 100,
-				format: 'd/m/Y',
-	            renderer: function(value, p, record) {
-	                return value ? value.dateFormat('d/m/Y') : ''
-	            }
-			},
-			type:'NumberField',
-			id_grupo:1,
-			grid:false,
-			form:true
-		},
-		{
-			config:{
 				name: 'porcentaje_dep',
 				fieldLabel: '%Dep. Años',
 				gwidth: 100
@@ -268,15 +252,63 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100
 			},
 			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
+			filters:{pfiltro:'mon.moneda',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		////////
+		{
+			config:{
+				name: 'tipo_cambio_ini',
+				fieldLabel: 'T/C Ini.',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'mdep.tipo_cambio_ini',type:'numeric'},
 			id_grupo:1,
 			grid:true,
 			form:true
 		},
 		{
 			config:{
-				name: 'monto_vigente_orig',
-				fieldLabel: 'Monto Compra Orig.(87%)',
+				name: 'tipo_cambio_fin',
+				fieldLabel: 'T/C Fin',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'mdep.tipo_cambio_fin',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'factor',
+				fieldLabel: 'Factor)',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'mdep.factor',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'fecha_dep',
+				fieldLabel: 'Fecha Dep.',
+				gwidth: 140
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'monto_actualiz_ant',
+				fieldLabel: 'Valor Vigente Actualiz.',
 				gwidth: 140
 			},
 			type:'TextField',
@@ -287,9 +319,105 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'monto_vigente_orig_100',
-				fieldLabel: 'Monto Compra Orig.(100%)',
-				gwidth: 150
+				name: 'inc_monto_actualiz',
+				fieldLabel: 'Inc.Actualiz.',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'monto_actualiz',
+				fieldLabel: 'Valor Actualiz.',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'vida_util_ant',
+				fieldLabel: 'Vida Útil Ant.',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'depreciacion_acum_ant',
+				fieldLabel: 'Dep.Acum.Ant',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'inc_dep_acum',
+				fieldLabel: 'Inc.ActualizDep.Acum',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'depreciacion_acum_actualiz',
+				fieldLabel: 'Dep.Acum.Ant.Actualiz.',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'depreciacion',
+				fieldLabel: 'Dep.Mes',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'depreciacion_per',
+				fieldLabel: 'Dep.Periodo',
+				gwidth: 140
+			},
+			type:'TextField',
+			filters:{pfiltro:'depaf.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name: 'depreciacion_acum',
+				fieldLabel: 'Dep.Acum.',
+				gwidth: 140
 			},
 			type:'TextField',
 			filters:{pfiltro:'depaf.codigo',type:'string'},
@@ -300,77 +428,13 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'monto_vigente',
-				fieldLabel: 'Monto Vigente',
-				gwidth: 100
+				fieldLabel: 'Valor Neto',
+				gwidth: 140
 			},
 			type:'TextField',
 			filters:{pfiltro:'depaf.codigo',type:'string'},
 			id_grupo:1,
 			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name: 'vida_util_original',
-				fieldLabel: 'VU. Orig.',
-				gwidth: 100
-			},
-			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name: 'vida_util',
-				fieldLabel: 'VU. Res.',
-				gwidth: 100
-			},
-			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name: 'nro_cbte_asociado',
-				fieldLabel: 'Cbte.Asoc.',
-				gwidth: 100
-			},
-			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name: 'fecha_cbte_asociado',
-				fieldLabel: 'Fecha Cbte.Asoc.',
-				gwidth: 100,
-				format: 'd/m/Y',
-	            renderer: function(value, p, record) {
-	                return value ? value.dateFormat('d/m/Y') : ''
-	            }
-			},
-			type:'DateField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name: 'cod_clasif',
-				fieldLabel: 'Cod.Clasif',
-				gwidth: 100
-			},
-			type:'TextField',
-			filters:{pfiltro:'depaf.codigo',type:'string'},
-			id_grupo:1,
-			grid: false,
 			form:true
 		}
 	],
@@ -384,38 +448,34 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_compra',type: 'date'},
 		{name:'fecha_ini_dep',type: 'date'},
 		{name:'estado',type: 'string'},
-		{name:'vida_util_original',type: 'numeric'},
 		{name:'porcentaje_dep',type: 'numeric'},
 		{name:'ubicacion',type: 'string'},
-		{name:'monto_compra_orig',type: 'numeric'},
 		{name:'moneda',type: 'string'},
-		{name:'nro_cbte_asociado',type: 'string'},
-		{name:'fecha_cbte_asociado',type: 'date'},
-		{name:'cod_clasif',type: 'string'},
 		{name:'desc_clasif',type: 'string'},
 		{name:'metodo_dep',type: 'string'},
-		{name:'ufv_fecha_compra',type: 'date'},
 		{name:'responsable',type: 'string'},
 		{name:'cargo',type: 'string'},
 		{name:'fecha_mov',type: 'date'},
 		{name:'num_tramite',type: 'string'},
 		{name:'desc_mov',type: 'string'},
 		{name:'codigo_mov',type: 'string'},
-		{name:'ufv_mov',type: 'date'},
 		{name:'id_activo_fijo',type: 'numeric'},
 		{name:'id_movimiento',type: 'numeric'},
-		{name:'monto_vigente_orig_100',type: 'numeric'},
-		{name:'monto_vigente_orig',type: 'numeric'},
-		{name:'monto_vigente_ant',type: 'numeric'},
-		{name:'actualiz_monto_vigente',type: 'numeric'},
-		{name:'monto_actualiz',type: 'numeric'},
-		{name:'vida_util_usada',type: 'numeric'},
-		{name:'vida_util',type: 'numeric'},
-		{name:'dep_acum_gest_ant',type: 'numeric'},
-		{name:'act_dep_gest_ant',type: 'numeric'},
-		{name:'depreciacion_per',type: 'numeric'},
-		{name:'depreciacion_acum',type: 'numeric'},
-		{name:'monto_vigente',type: 'numeric'}
+		{name:'tipo_cambio_ini',type:'numeric'},
+		{name:'tipo_cambio_fin',type:'numeric'},
+		{name:'factor',type:'numeric'},
+		{name:'fecha_dep',type:'numeric'},
+		{name:'monto_actualiz_ant',type:'numeric'},
+		{name:'inc_monto_actualiz',type:'numeric'},
+		{name:'monto_actualiz',type:'numeric'},
+		{name:'vida_util_ant',type:'numeric'},
+		{name:'depreciacion_acum_ant',type:'numeric'},
+		{name:'inc_dep_acum numeric,',type:'numeric'},
+		{name:'depreciacion_acum_actualiz',type:'numeric'},
+		{name:'depreciacion',type:'numeric'},
+		{name:'depreciacion_per',type:'numeric'},
+		{name:'depreciacion_acum',type:'numeric'},
+		{name:'monto_vigente',type:'numeric'}
 
 	],
 	sortInfo:{

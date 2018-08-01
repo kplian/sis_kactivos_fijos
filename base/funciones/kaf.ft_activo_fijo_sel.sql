@@ -135,7 +135,9 @@ BEGIN
                             afij.id_grupo,
                             gru.nombre as desc_grupo,
                             afij.id_ubicacion,
-                            ubic.codigo as desc_ubicacion
+                            ubic.codigo as desc_ubicacion,
+                            afij.id_grupo_clasif,
+                            gru1.nombre as desc_grupo_clasif
 						from kaf.tactivo_fijo afij                       
 						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg						
 						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -171,6 +173,7 @@ BEGIN
                         left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
                         left join kaf.tubicacion ubic
                         on ubic.id_ubicacion = afij.id_ubicacion
+                        left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
 				        where  ';
 
             --Verifica si la consulta es por usuario
@@ -244,6 +247,7 @@ BEGIN
                         left join kaf.tgrupo gru on gru.id_grupo = afij.id_grupo
                         left join kaf.tubicacion ubic
                         on ubic.id_ubicacion = afij.id_ubicacion
+                        left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
 				        where  ';
 
             --Verifica si la consulta es por usuario

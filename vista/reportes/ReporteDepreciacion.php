@@ -24,7 +24,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config;
-
+		console.log(config);
     	//llama al constructor de la clase padre
 		Phx.vista.ReporteDepreciacion.superclass.constructor.call(this,config);
 		this.init();
@@ -83,7 +83,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Código',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 120,
 				renderer: function(value,metadata,rec,index){
 					var mask='{0}';
 		            if(rec.data.tipo=='total'){
@@ -133,7 +133,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Descripción',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 250,
 				renderer: function(value,metadata,rec,index){
 					var mask='{0}';
 		            if(rec.data.tipo=='total'){
@@ -228,6 +228,84 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
+		{
+			config:{
+				name:'af_altas', 
+				fieldLabel: 'Altas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'af_altas',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'af_bajas', 
+				fieldLabel: 'Bajas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'af_bajas',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'af_traspasos', 
+				fieldLabel: 'Traspasos',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'af_traspasos',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
         {
 			config:{
 				name:'inc_actualiz', 
@@ -299,6 +377,31 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'vida_util_orig',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'vida_util_usada', 
+				fieldLabel: 'VU. Transcurrida',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'vida_util_usada',type:'numeric'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -428,7 +531,57 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
-		 {
+		{
+			config:{
+				name:'depreciacion_acum_bajas', 
+				fieldLabel: 'Dep. Acum. Bajas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'depreciacion_acum_bajas',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'depreciacion_acum_traspasos', 
+				fieldLabel: 'Dep. Acum.Traspasos',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'depreciacion_acum_traspasos',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
 			config:{
 				name:'depreciacion', 
 				fieldLabel: 'Depreciación',
@@ -703,7 +856,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},*/
-		{
+		/*{
 			config:{
 				name:'afecta_concesion', 
 				fieldLabel: 'Afecta Concesión',
@@ -727,6 +880,106 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:1,
 			grid:true,
 			form:true
+		},*/
+		{
+			config:{
+				name:'desc_ubicacion', 
+				fieldLabel: 'Local',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'ubi.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'ubicacion', 
+				fieldLabel: 'Ubicación',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 150,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'af.ubicacion',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'nro_serie', 
+				fieldLabel: 'Nro.Serie',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'af.nro_serie',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'responsable', 
+				fieldLabel: 'Responsable',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 200,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'fun.desc_funcionario2',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
 		{
 			config:{
@@ -734,7 +987,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Cuenta Activo',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 300,
 				renderer: function(value,metadata,rec,index){
 					var mask='{0}';
 		            if(rec.data.tipo=='total'){
@@ -758,7 +1011,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Cuenta Dep.Acum.',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 300,
 				renderer: function(value,metadata,rec,index){
 					var mask='{0}';
 		            if(rec.data.tipo=='total'){
@@ -782,7 +1035,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Cuenta Deprec.',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 300,
 				renderer: function(value,metadata,rec,index){
 					var mask='{0}';
 		            if(rec.data.tipo=='total'){
@@ -796,6 +1049,56 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		        }
 			},
 			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'desc_grupo', 
+				fieldLabel: 'Agrupador AE',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 300,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'gr.nombre',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'desc_grupo_clasif', 
+				fieldLabel: 'Clasificador AE',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 300,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, value):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'gr1.nombre',type:'numeric'},
 			id_grupo:1,
 			grid:true,
 			form:true
@@ -836,7 +1139,20 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
         {name:'cuenta_activo', type: 'string'},
         {name:'cuenta_dep_acum', type: 'string'},
         {name:'cuenta_deprec', type: 'string'},
-        {name:'depreciacion', type: 'numeric'}
+        {name:'depreciacion', type: 'numeric'},
+
+        {name:'desc_ubicacion', type: 'string'},
+        {name:'ubicacion', type: 'string'},
+        {name:'nro_serie', type: 'string'},
+        {name:'responsable', type: 'string'},
+        {name:'vida_util_usada', type: 'numeric'},
+        {name:'af_altas', type: 'numeric'},
+        {name:'af_bajas', type: 'numeric'},
+        {name:'af_traspasos', type: 'numeric'},
+        {name:'depreciacion_acum_bajas', type: 'numeric'},
+        {name:'depreciacion_acum_traspasos', type: 'numeric'},
+        {name:'desc_grupo', type: 'string'},
+        {name:'desc_grupo_clasif', type: 'string'}
 	],
 	sortInfo:{
 		field: 'codigo',
@@ -844,11 +1160,11 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 	},
 	title2: 'DETALLE DEPRECIACIÓN',
 	desplegarMaestro: 'si',
-	repFilaInicioEtiquetas: 45,
-	repFilaInicioDatos: 3,
+	repFilaInicioEtiquetas: 10,
+	repFilaInicioDatos: 7,
 	pdfOrientacion: 'L',
 	definirReporteCabecera: function(){
-		this.colMaestro= [{
+		/*this.colMaestro= [{
 			label: 'RESPONSABLE',
 			value: this.maestro.paramsRep.repResponsable
 		}, {
@@ -860,12 +1176,12 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		}, {
 			label: 'DEPTO.',
 			value: this.maestro.paramsRep.repDepto
-		}]
+		}]*/
 	},
 	imprimirReporte: function(){
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Reportes/ReporteDetalleDepreciacion',
+            url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDetalleDepreciacion',//ReporteDetalleDepreciacion',
             params:{
             	titulo_reporte: this.maestro.paramsRep.titleReporte,
 				reporte: this.maestro.paramsRep.reporte,

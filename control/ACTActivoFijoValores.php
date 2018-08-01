@@ -21,6 +21,10 @@ class ACTActivoFijoValores extends ACTbase{
 			$this->objParam->addFiltro("actval.id_moneda_dep = ".$this->objParam->getParametro('id_moneda_dep'));	
 		}
 
+		if($this->objParam->getParametro('id_moneda')!=''){
+			$this->objParam->addFiltro("actval.id_moneda = ".$this->objParam->getParametro('id_moneda'));
+		}
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODActivoFijoValores','listarActivoFijoValores');

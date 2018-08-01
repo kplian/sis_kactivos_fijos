@@ -41,10 +41,6 @@ Phx.vista.MovimientoAfDepPrin = {
 		
 		}
 		
-		
-	
-		console.log('........datos...',this.store.baseParams, campo_fecha )
-		
 		this.load({
 			params : {
 				start : 0, 

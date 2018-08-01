@@ -2,11 +2,11 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ParametrosRepDepreciacion = {
+Phx.vista.ParametrosRepListadoAf = {
 	require: '../../../sis_kactivos_fijos/vista/reportes/ParametrosBase.php',
 	requireclase: 'Phx.vista.ParametrosBase',
 	constructor: function(config){
-		Phx.vista.ParametrosRepDepreciacion.superclass.constructor.call(this,config);
+		Phx.vista.ParametrosRepListadoAf.superclass.constructor.call(this,config);
 		this.definicionRutareporte();
 		this.definirParametros();
 
@@ -38,22 +38,17 @@ Phx.vista.ParametrosRepDepreciacion = {
 		this.cmbOficina.on('select',function(combo,record,index){
 			this.repOficina = record.data['nombre'];
 		}, this);
-
-		//Moneda
-		this.cmbMoneda.on('select',function(combo,record,index){
-			this.moneda = record.data.descripcion
-		}, this);
 	},
 	definicionRutareporte: function(report){
-		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteDepreciacion.php';
-		this.claseReporte = 'ReporteDepreciacion';
-		this.titleReporte = 'Depreciación al ';
+		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteListadoAf.php';
+		this.claseReporte = 'ReporteListadoAf';
+		this.titleReporte = 'Listado Activos Fijos';
 	},
 	definirParametros: function(report){
 		this.inicializarParametros();
 
 		this.configElement(this.dteFechaDesde,false,true);
-		this.configElement(this.dteFechaHasta,true,false);
+		this.configElement(this.dteFechaHasta,false,true);
 		this.configElement(this.cmbActivo,false,true);
 
 		this.configElement(this.cmbClasificacion,true,true);
@@ -62,50 +57,53 @@ Phx.vista.ParametrosRepDepreciacion = {
 		this.configElement(this.dteFechaIniDep,true,true);
 		this.configElement(this.cmbEstado,true,true);
 		this.configElement(this.cmbCentroCosto,false,true);
-		this.configElement(this.txtUbicacionFisica,false,true);
+		this.configElement(this.txtUbicacionFisica,true,true);
 		this.configElement(this.cmbOficina,true,true);
-		this.configElement(this.cmbResponsable,false,true);
+		this.configElement(this.cmbResponsable,true,true);
 		this.configElement(this.cmbUnidSolic,false,true);
 		this.configElement(this.cmbResponsableCompra,false,true);
-		this.configElement(this.cmbLugar,false,true);
+		this.configElement(this.cmbLugar,true,true);
 		this.configElement(this.radGroupTransito,false,true);
-		this.configElement(this.radGroupTangible,true,true);
+		this.configElement(this.radGroupTangible,false,true);
 		this.configElement(this.cmbDepto,true,true);
-		this.configElement(this.cmbDeposito,false,true);
+		this.configElement(this.cmbDeposito,true,true);
 		this.configElement(this.lblDesde,false,true);
 		this.configElement(this.lblHasta,true,true);
-		this.configElement(this.cmpFechas,true,true);
+		this.configElement(this.cmpFechas,false,true);
 		this.configElement(this.txtMontoInf,true,true);
 		this.configElement(this.txtMontoSup,true,true);
 		this.configElement(this.lblMontoInf,true,true);
 		this.configElement(this.lblMontoSup,true,true);
-		this.configElement(this.txtNroCbteAsociado,true,true);
+		this.configElement(this.txtNroCbteAsociado,false,true);
 		this.configElement(this.cmpMontos,true,true);
-		this.configElement(this.cmbMoneda,true,false);
+		this.configElement(this.cmbMoneda,false,true);
 		this.configElement(this.radGroupEstadoMov,false,true);
-		this.configElement(this.cmpFechaCompra,true,true);
-		this.configElement(this.radGroupDeprec,true,true);
+		this.configElement(this.cmpFechaCompra,false,true);
+		this.configElement(this.radGroupDeprec,false,true);
+		this.configElement(this.cmbUbicacion,true,true);
 
 		this.configElement(this.fieldSetGeneral,true,true);
-		this.configElement(this.fieldSetIncluir,true,true);
+		this.configElement(this.fieldSetIncluir,false,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
 	onSubmit: function(){
+		console.log(this.formParam.getForm());
 		if(this.formParam.getForm().isValid()){
-			var date = new Date(this.dteFechaHasta.getValue());
-			this.titleReporte = 'Depreciación al ';
-			this.titleReporte+=date.format('d-m-y');
 			var win = Phx.CP.loadWindows(
 				this.rutaReporte,
                 this.titleReporte, {
-                    width: '97%',//870,
-                    height: '97%'//620
+                    width: 870,
+                    height : 620
                 }, { 
                     paramsRep: this.getParams()
                 },
                 this.idContenedor,
                 this.claseReporte
             );
+
+			
+		} else {
+			this.formParam.getForm().markInvalid();
 		}
 	},
 	getExtraParams: function(){
@@ -116,17 +114,7 @@ Phx.vista.ParametrosRepDepreciacion = {
 			repOficina: this.repOficina
 		}
 		return params;
-	},
-	setPersonalBackgroundColor: function(elm){
-    	//Para sobreescribir
-    	var color='#FFF',
-    		obligatorio='#ffffb3';
-
-    	if(elm=='dteFechaHasta'||elm=='cmbMoneda'){
-    		color = obligatorio;
-    	}
-    	return color;
-    }
+	}
 
 }
 </script>

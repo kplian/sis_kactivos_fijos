@@ -42,6 +42,14 @@ BEGIN
 	if(p_transaccion='SKA_GRU_INS')then
 					
         begin
+        	--Verifica duplicidad del código
+        	if exists(select 1
+        			from kaf.tgrupo
+        			where codigo = v_parametros.codigo
+        			and tipo = v_parametros.tipo) then
+        		raise exception 'Código duplicado para el Tipo seleccionado';
+        	end if;
+
         	--Sentencia de la insercion
         	insert into kaf.tgrupo(
 			nombre,
@@ -52,7 +60,8 @@ BEGIN
 			id_usuario_ai,
 			id_usuario_reg,
 			fecha_mod,
-			id_usuario_mod
+			id_usuario_mod,
+			tipo
           	) values(
 			v_parametros.nombre,
 			'activo',
@@ -62,10 +71,8 @@ BEGIN
 			v_parametros._id_usuario_ai,
 			p_id_usuario,
 			null,
-			null
-							
-			
-			
+			null,
+			v_parametros.tipo
 			)RETURNING id_grupo into v_id_grupo;
 			
 			--Definicion de la respuesta
@@ -87,6 +94,15 @@ BEGIN
 	elsif(p_transaccion='SKA_GRU_MOD')then
 
 		begin
+			--Verifica duplicidad del código
+        	if exists(select 1
+        			from kaf.tgrupo
+        			where codigo = v_parametros.codigo
+        			and tipo = v_parametros.tipo
+        			and id_grupo <> v_parametros.id_grupo) then
+        		raise exception 'Código duplicado para el Tipo seleccionado';
+        	end if;
+
 			--Sentencia de la modificacion
 			update kaf.tgrupo set
 			nombre = v_parametros.nombre,
@@ -94,7 +110,8 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+			tipo = v_parametros.tipo
 			where id_grupo=v_parametros.id_grupo;
                
 			--Definicion de la respuesta

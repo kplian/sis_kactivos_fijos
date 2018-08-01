@@ -123,11 +123,14 @@ BEGIN
      				
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select mafdep.id_movimiento_af_dep, mafdep.id_movimiento_af, mafdep.id_activo_fijo_valor,
-						mafdep.fecha, mafdep.depreciacion_acum_ant, mafdep.depreciacion_per_ant, mafdep.monto_vigente_ant, mafdep.vida_util_ant,
+			v_consulta:='select 
+						mafdep.id_movimiento_af_dep, mafdep.id_movimiento_af, mafdep.id_activo_fijo_valor,
+						mafdep.fecha, mafdep.depreciacion_acum_ant, mafdep.depreciacion_per_ant, mafdep.monto_actualiz_ant, mafdep.vida_util_ant,
 						mafdep.depreciacion_acum_actualiz, mafdep.depreciacion_per_actualiz, mafdep.monto_actualiz,
 						mafdep.depreciacion, mafdep.depreciacion_acum,mafdep.depreciacion_per, mafdep.monto_vigente, mafdep.vida_util,
-						mafdep.tipo_cambio_ini,mafdep.tipo_cambio_fin, mafdep.factor
+						mafdep.tipo_cambio_ini,mafdep.tipo_cambio_fin, mafdep.factor,
+						mafdep.monto_actualiz-mafdep.monto_actualiz_ant as inc_monto_actualiz,
+						mafdep.depreciacion_acum_actualiz - mafdep.depreciacion_acum_ant as inc_depreciacion_acum_actualiz
 						from kaf.tmovimiento_af_dep mafdep
 				        where  ';
 			

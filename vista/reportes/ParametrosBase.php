@@ -7,6 +7,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 	rutaReporte: '',
 	claseReporte: '',
 	titleReporte: '',
+	moneda:'',
 	constructor: function(config){
 		Ext.apply(this,config);
 		this.callParent(arguments);
@@ -110,10 +111,10 @@ Ext.define('Phx.vista.ParametrosBase', {
                     direction: 'ASC'
                 },
                 totalProperty: 'total',
-                fields: ['id_activo_fijo', 'denominacion', 'codigo'],
+                fields: ['id_activo_fijo', 'denominacion', 'codigo','codigo_ant'],
                 remoteSort: true,
                 baseParams: {
-                    par_filtro: 'afij.denominacion#afij.codigo'
+                    par_filtro: 'afij.denominacion#afij.codigo#afij.codigo_ant'
                 }
             }),
             valueField: 'id_activo_fijo',
@@ -126,7 +127,7 @@ Ext.define('Phx.vista.ParametrosBase', {
             queryDelay: 1000,
             anchor: '100%',
             minChars: 2,
-            tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>Código:</b> {codigo}</p><p>{denominacion}</p> </div></tpl>',
+            tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>Código:</b> {codigo}</p><p>{denominacion}</p><p><b>Código SAP:</b> {codigo_ant}</p></div></tpl>',
             style: this.setBackgroundColor('cmbActivo')
 		});
 		this.txtDenominacion = new Ext.form.TextField({
@@ -198,6 +199,29 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.cmbCentroCosto = new Ext.form.ComboBox({
 			fieldLabel: 'Centro Costo',
 			anchor: '100%',
+			emptyText: 'Elija una opción...',
+			store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/CentroCosto/listarCentroCostoProyecto',
+                id: 'id_centro_costo',
+                root: 'datos',
+                fields: ['id_centro_costo','codigo_cc','codigo_tcc'],
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'codigo_tcc',
+                    direction: 'ASC'
+                },
+                baseParams:{par_filtro:'cc.codigo_tcc#cc.nombre_proyecto#cc.descripcion_tcc'}
+            }),
+            valueField: 'id_centro_costo',
+			displayField: 'codigo_tcc',
+			forceSelection: false,
+			typeAhead: false,
+			triggerAction: 'all',
+			lazyRender: true,
+			mode: 'remote',
+			pageSize: 15,
+			queryDelay: 1000,
+			minChars: 2,
 			style: this.setBackgroundColor('cmbCentroCosto')
 		});
 		this.txtUbicacionFisica = new Ext.form.TextField({
@@ -487,6 +511,38 @@ Ext.define('Phx.vista.ParametrosBase', {
                 {boxLabel: 'Detallado', name: 'rb-auto3', inputValue: 'completo', checked: true}
             ]
 		});
+		//Ubicación (table kaf.tubicacion)
+		this.cmbUbicacion = new Ext.form.ComboBox({
+			fieldLabel: 'Local',
+			anchor: '100%',
+			emptyText: 'Elija una opción...',
+			store: new Ext.data.JsonStore({
+                url: '../../sis_kactivos_fijos/control/Ubicacion/ListarUbicacion',
+                id: 'id_ubicacion',
+                root: 'datos',
+                sortInfo: {
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_ubicacion', 'codigo', 'nombre'],
+                remoteSort: true,
+                baseParams: {
+                    par_filtro: 'ubic.codigo#ubic.nombre'
+                }
+            }),
+            valueField: 'id_ubicacion',
+            displayField: 'codigo',
+            typeAhead: false,
+            triggerAction: 'all',
+            lazyRender: true,
+            mode: 'remote',
+            pageSize: 15,
+            queryDelay: 1000,
+            anchor: '100%',
+            minChars: 2,
+            style: this.setBackgroundColor('cmbUbicacion')
+		});
 	},
 	layout: function(){
 		//Fieldsets
@@ -495,7 +551,7 @@ Ext.define('Phx.vista.ParametrosBase', {
         	title: 'General',
         	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.cmbTipo,this.cmbLugar,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
-				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.radGroupDeprec]
+				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.cmbUbicacion,this.radGroupDeprec]
         });
 
         this.fieldSetIncluir = new Ext.form.FieldSet({
@@ -579,9 +635,9 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.txtNroCbteAsociado.setValue('');
 		this.radGroupDeprec.setValue('completo');
 		this.cmbTipo.setValue('');
+		this.cmbUbicacion.setValue('');
 
 		this.cmbClasificacion.selectedIndex=-1;
-
 	},
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
@@ -655,7 +711,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			nro_cbte_asociado: this.txtNroCbteAsociado.getValue(),
 			fecha_compra_max: _fecha_compra_max,
 			af_deprec: this.radGroupDeprec.getValue().inputValue,
-			tipo: this.cmbTipo.getValue()
+			tipo: this.cmbTipo.getValue(),
+			id_ubicacion: this.cmbUbicacion.getValue()
 		};
 
 		Ext.apply(params,this.getExtraParams());
@@ -675,6 +732,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		},this);
 		//Moneda
 		this.cmbMoneda.on('select',function(combo,record,index){
+			console.log('moneda',record)
 			this.moneda = record.data.moneda
 		}, this);
 	},
@@ -758,6 +816,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.configElement(this.cmpFechaCompra,false,true);
 		this.configElement(this.radGroupDeprec,false,true);
 		this.configElement(this.cmbTipo,false,true);
+		this.configElement(this.cmbUbicacion,false,true);
 
 		this.configElement(this.fieldSetGeneral,false,true);
 		this.configElement(this.fieldSetIncluir,false,true);

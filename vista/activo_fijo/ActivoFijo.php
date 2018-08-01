@@ -254,7 +254,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                     },
                                     baseParams:{
                                         start: 0,
-                                        limit: 10,
+                                        limit: 400,
                                         sort: 'codigo',
                                         dir: 'ASC'
                                     }
@@ -656,6 +656,24 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         bottom_filter:true
     }, {
         config: {
+            name: 'codigo_ant',
+            fieldLabel: 'Código SAP',
+            allowBlank: true,
+            anchor: '80%',
+            gwidth: 120,
+            maxLength: 50
+        },
+        type: 'TextField',
+        filters: {
+            pfiltro: 'afij.codigo_ant',
+            type: 'string'
+        },
+        id_grupo: 1,
+        grid: true,
+        form: true,
+        bottom_filter:true
+    }, {
+        config: {
             name: 'estado',
             fieldLabel: 'Estado',
             allowBlank: true,
@@ -721,7 +739,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             pageSize: 15,
             queryDelay: 1000,
             anchor: '100%',
-            gwidth: 150,
+            gwidth: 200,
             minChars: 2,
             renderer: function(value, p, record) {
                 return String.format('{0}', record.data['clasificacion']);
@@ -877,7 +895,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             type: 'numeric'
         },
         id_grupo: 1,
-        grid: true,
+        grid: false,
         form: true
     }, {
         config: {
@@ -894,7 +912,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             type: 'numeric'
         },
         id_grupo: 1,
-        grid: true,
+        grid: false,
         form: true
     }, {
         config: {
@@ -1625,24 +1643,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
-            name: 'codigo_ant',
-            fieldLabel: 'Código Anterior',
-            allowBlank: true,
-            anchor: '80%',
-            gwidth: 120,
-            maxLength: 50
-        },
-        type: 'TextField',
-        filters: {
-            pfiltro: 'afij.codigo_ant',
-            type: 'string'
-        },
-        id_grupo: 1,
-        grid: true,
-        form: true,
-        bottom_filter:true
-    }, {
-        config: {
             name: 'caracteristicas',
             fieldLabel: 'Caracteristicas',
             allowBlank: true,
@@ -1839,7 +1839,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'desc_grupo',type:'string'},'movimiento_tipo_pres',
              {name:'centro_costo',type:'string'},
              {name:'id_ubicacion',type:'numeric'},
-             {name:'desc_ubicacion',type:'string'}
+             {name:'desc_ubicacion',type:'string'},
+             {name:'id_grupo_clasif',type:'numeric'},
+             {name:'desc_grupo_clasif',type:'string'}
              ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'],
     sortInfo: {
@@ -1866,7 +1868,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             this.cmbCentroCosto = new Ext.form['ComboRec']({
                 name: 'id_centro_costo',
                 fieldLabel: 'Centro Costo',
-                allowBlank: false,
+                allowBlank: true,
                 tinit:false,
                 origen:'CENTROCOSTO',
                 gdisplayField: 'centro_costo',
@@ -2575,8 +2577,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                         xtype: 'combo',
                                         name:'id_grupo',
                                         id: this.idContenedor+'_id_grupo',
-                                        fieldLabel:'Grupo',
-                                        allowBlank:false,
+                                        fieldLabel:'Grupo AE',
+                                        allowBlank:true,
                                         emptyText:'Grupo...',
                                         store: new Ext.data.JsonStore({
                                             url: '../../sis_kactivos_fijos/control/Grupo/ListarGrupo',
@@ -2590,13 +2592,48 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                             fields: ['id_grupo','codigo','nombre'],
                                             // turn on remote sorting
                                             remoteSort: true,
-                                            baseParams:{par_filtro:'codigo#nombre'}
+                                            baseParams:{par_filtro:'codigo#nombre', tipo: 'grupo'}
                                         }),
                                         valueField: 'id_grupo',
                                         displayField: 'nombre',
                                         gdisplayField:'desc_grupo',//mapea al store del grid
-                                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{codigo}</p><p>{nombre}</p> </div></tpl>',
+                                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {nombre}</p> </div></tpl>',
                                         hiddenName: 'id_grupo',
+                                        forceSelection:true,
+                                        typeAhead: true,
+                                        triggerAction: 'all',
+                                        lazyRender:true,
+                                        mode:'remote',
+                                        pageSize:10,
+                                        queryDelay:1000,
+                                        minChars:2
+                                },
+                                {
+                                        xtype: 'combo',
+                                        name:'id_grupo_clasif',
+                                        id: this.idContenedor+'_id_grupo_clasif',
+                                        fieldLabel:'Clasificación AE',
+                                        allowBlank:true,
+                                        emptyText:'Clasificación...',
+                                        store: new Ext.data.JsonStore({
+                                            url: '../../sis_kactivos_fijos/control/Grupo/ListarGrupo',
+                                            id: 'id_grupo',
+                                            root: 'datos',
+                                            sortInfo:{
+                                                field: 'codigo',
+                                                direction: 'ASC'
+                                            },
+                                            totalProperty: 'total',
+                                            fields: ['id_grupo','codigo','nombre'],
+                                            // turn on remote sorting
+                                            remoteSort: true,
+                                            baseParams:{par_filtro:'codigo#nombre', tipo: 'clasificacion'}
+                                        }),
+                                        valueField: 'id_grupo',
+                                        displayField: 'nombre',
+                                        gdisplayField:'desc_grupo_clasif',//mapea al store del grid
+                                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {nombre}</p> </div></tpl>',
+                                        hiddenName: 'id_grupo_clasif',
                                         forceSelection:true,
                                         typeAhead: true,
                                         triggerAction: 'all',

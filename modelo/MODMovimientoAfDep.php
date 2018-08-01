@@ -158,7 +158,7 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('fecha','date');
 		$this->captura('depreciacion_acum_ant','numeric');
 		$this->captura('depreciacion_per_ant','numeric');
-		$this->captura('monto_vigente_ant','numeric');
+		$this->captura('monto_actualiz_ant','numeric');
 		$this->captura('vida_util_ant','int4');
 		$this->captura('depreciacion_acum_actualiz','numeric');
 		$this->captura('depreciacion_per_actualiz','numeric');
@@ -171,6 +171,8 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('tipo_cambio_ini','numeric');
 		$this->captura('tipo_cambio_fin','numeric');
 		$this->captura('factor','numeric');
+		$this->captura('inc_monto_actualiz','numeric');
+		$this->captura('inc_depreciacion_acum_actualiz','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -308,28 +310,33 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('desc_unidad_medida','varchar');
 		$this->captura('codigo_tcc','varchar');
 		$this->captura('nro_serie','varchar');
-		$this->captura('ubicacion','varchar');
+		$this->captura('ubicacion','varchar');//10
 		$this->captura('desc_funcionario','text');
 		$this->captura('monto_vigente_orig_100','numeric');
         $this->captura('monto_vigente_orig','numeric');
+        $this->captura('af_altas','numeric');
+        $this->captura('af_bajas','numeric');
+        $this->captura('af_traspasos','numeric');
         $this->captura('inc_valor_actualiz','numeric');
 		$this->captura('valor_actualiz','numeric');
         $this->captura('vida_util','integer');
         $this->captura('vida_util_orig','integer');
-		$this->captura('inc_actualiz','numeric');
 		$this->captura('dep_acum_gestant','numeric');
 		$this->captura('actualiz_dep_gest_ant','numeric');
-		$this->captura('depreciacion_gestion','numeric');
 		$this->captura('depreciacion_mensual','numeric');
 		$this->captura('depreciacion_acum','numeric');
+		$this->captura('depreciacion_acum_bajas','numeric');
+		$this->captura('depreciacion_acum_traspasos','numeric');
+		$this->captura('depreciacion_gestion','numeric');
 		$this->captura('valor_activo','numeric');
+		$this->captura('inc_actualiz','numeric');//20
 		$this->captura('tipo_cambio_ini','numeric');
-		$this->captura('tipo_cambio_fin','numeric');
+		$this->captura('tipo_cambio_fin','numeric');//30
 		$this->captura('fecha_ini','date');
 		$this->captura('fecha_fin','date');
 		$this->captura('cuenta_activo','text');
 		$this->captura('cuenta_dep_acum','text');
-		$this->captura('cuenta_deprec','text');
+		$this->captura('cuenta_deprec','text');//35
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

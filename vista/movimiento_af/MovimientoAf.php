@@ -676,7 +676,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		if(this.maestro.cod_movimiento=='alta'){
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'registrado',id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='baja'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'retiro',id_depto_mov: this.maestro.id_depto});
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta'/*'retiro'*/,id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='reval'){
 			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
 		} else if(this.maestro.cod_movimiento=='mejora'){
@@ -2352,7 +2352,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		}
 	},
 	abrirEnlace: function(cell,rowIndex,columnIndex,e){
-		if(columnIndex==1){
+		if(cell.colModel.getColumnHeader(columnIndex)=='Código'){
 			var data = this.sm.getSelected().data;
 			Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
 			'Detalle', {

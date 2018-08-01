@@ -332,3 +332,19 @@ select pxp.f_insert_testructura_gui ('AFGRU', 'CONFAF');
 select pxp.f_insert_tgui ('Locales', 'Registro de las ubicaciones físicas', 'KAFUBI', 'si', 1, 'sis_kactivos_fijos/vista/ubicacion/Ubicacion.php', 3, '', 'Ubicacion', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFUBI', 'CONFAF');
 /***********************************F-DAT-RCM-KAF-0-15/06/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-1-25/06/2018****************************************/
+select pxp.f_insert_tgui ('Formulario 605', 'Reporte con el formato del formulario 605 para impuestos', 'KAF.REP.08', 'si', 6, 'sis_kactivos_fijos/vista/reportes/ParametrosRepForm605.php', 3, '', 'ParametrosRepForm605', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.08', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-1-25/06/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-26/06/2018****************************************/
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'kaf_caracteres_no_validos_form605', E'$,%,&,/', E'Caracteres inválidos para generar reporte del Formulario 605');
+/***********************************F-DAT-RCM-KAF-0-26/06/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-0-10/07/2018****************************************/
+select pxp.f_add_catalog('KAF','tgrupo__tipo','grupo','grupo','');
+select pxp.f_add_catalog('KAF','tgrupo__tipo','clasificacion','clasificacion','');
+/***********************************F-DAT-RCM-KAF-0-10/07/2018****************************************/

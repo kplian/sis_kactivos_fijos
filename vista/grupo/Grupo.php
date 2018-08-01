@@ -49,7 +49,7 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'nombre',
-				fieldLabel: 'Grupo',
+				fieldLabel: 'Nombre grupo',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 300,
@@ -60,6 +60,29 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
+		},
+		{
+			config: {
+				name: 'tipo',
+				fieldLabel: 'Tipo',
+				anchor: '95%',
+				tinit: false,
+				allowBlank: false,
+				origen: 'CATALOGO',
+				gdisplayField: 'tipo',
+				hiddenName: 'tipo',
+				gwidth: 95,
+				baseParams:{
+					cod_subsistema:'KAF',
+					catalogo_tipo:'tgrupo__tipo'
+				},
+				valueField: 'codigo'
+			},
+			type: 'ComboRec',
+			id_grupo: 0,
+			filters:{pfiltro:'gru.tipo',type:'string'},
+			grid: true,
+			form: true
 		},
 		{
 			config:{
@@ -83,8 +106,8 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				format: 'd/m/Y', 
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'gru.fecha_reg',type:'date'},
@@ -144,8 +167,8 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				format: 'd/m/Y', 
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'gru.fecha_mod',type:'date'},
@@ -180,15 +203,15 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 		{name:'nombre', type: 'string'},
 		{name:'estado_reg', type: 'string'},
 		{name:'codigo', type: 'string'},
-		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s'},
 		{name:'usuario_ai', type: 'string'},
 		{name:'id_usuario_ai', type: 'numeric'},
 		{name:'id_usuario_reg', type: 'numeric'},
-		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s'},
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+		{name:'tipo', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_grupo',

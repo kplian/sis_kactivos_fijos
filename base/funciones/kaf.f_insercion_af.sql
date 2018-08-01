@@ -85,7 +85,8 @@ BEGIN
         id_cotizacion_det,
         id_preingreso_det,
         id_grupo,
-        id_ubicacion
+        id_ubicacion,
+        id_grupo_clasif
     ) values(
         (p_parametros->'id_persona')::integer, 
         0,
@@ -141,7 +142,8 @@ BEGIN
         (p_parametros->'id_cotizacion_det')::integer,
         (p_parametros->'id_preingreso_det')::integer,
         (p_parametros->'id_grupo')::integer,
-        (p_parametros->'id_ubicacion')::integer        
+        (p_parametros->'id_ubicacion')::integer,
+        (p_parametros->'id_grupo_clasif')::integer
     ) returning id_activo_fijo into v_id_activo_fijo;
 
     --Respuesta

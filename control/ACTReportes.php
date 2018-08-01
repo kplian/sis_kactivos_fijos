@@ -4,6 +4,8 @@ require_once(dirname(__FILE__).'/../reportes/RKardexAFxls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteGralAFXls.php');
 require_once(dirname(__FILE__).'/../reportes/RRespInventario.php');
 require_once(dirname(__FILE__).'/../reportes/RDetalleDepreciacion.php');
+require_once(dirname(__FILE__).'/../reportes/RForm605xls.php');
+require_once(dirname(__FILE__).'/../reportes/RDetalleDepreciacionXls.php');
 
 class ACTReportes extends ACTbase {
 
@@ -14,7 +16,7 @@ class ACTReportes extends ACTbase {
 		//Verifica si la petición es para elk reporte en excel o de grilla
 		if($this->objParam->getParametro('tipo_salida')=='reporte'){
 			$this->objFunc=$this->create('MODReportes');
-			$datos=$this->objFunc->reporteKardex($this->objParam);
+			//$datos=$this->objFunc->reporteKardex($this->objParam);
 			$this->reporteKardexAFXls($datos);
 		} else {
 			if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
@@ -37,7 +39,7 @@ class ACTReportes extends ACTbase {
 		$repDatos = $this->objFunc->reporteKardex($this->objParam);
 
 		$dataSource = $repDatos;
-		
+
 		//Parámetros básicos
 		$tamano = 'LETTER';
 		$orientacion = 'L';
@@ -137,7 +139,7 @@ class ACTReportes extends ACTbase {
 		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacion');
+			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacionExportar');
 		} else {
 			$this->objFunc=$this->create('MODReportes');
 			$this->res=$this->objFunc->listarRepDepreciacion($this->objParam);
@@ -269,6 +271,9 @@ class ACTReportes extends ACTbase {
 		if($this->objParam->getParametro('id_lugar')!=''){
 			$this->objParam->addFiltro("afij.id_oficina in (select id_oficina from orga.toficina where id_lugar = ".$this->objParam->getParametro('id_lugar').")");
 		}
+		if($this->objParam->getParametro('id_ubicacion')!=''){
+			$this->objParam->addFiltro("afij.id_ubicacion = ".$this->objParam->getParametro('id_ubicacion'));
+		}
 	}
 
 	function ReporteRespInventario(){
@@ -332,6 +337,83 @@ class ACTReportes extends ACTbase {
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
+
+	/*function ReporteForm605(){
+		$this->objParam->defecto('ordenacion','af.codigo');
+		$this->objParam->defecto('dir_ordenacion','asc');
+		//Verifica si la petición es para elk reporte en excel o de grilla
+		//$this->objFunc=$this->create('MODReportes');
+		$this->ReporteForm605Xls();
+
+	}*/
+
+	function ReporteForm605Xls(){
+		$this->objParam->defecto('ordenacion','af.codigo');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		$this->definirFiltros();
+
+		$nombreArchivo = uniqid('Form605'.md5(session_id())).'.xls'; 
+		$this->objFunc = $this->create('MODReportes');
+		$dataSource = $this->objFunc->listarForm605($this->objParam);
+		//Parametros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Formulario 605';
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		$reporte = new RForm605xls($this->objParam); 
+		$reporte->setData($dataSource->getDatos());
+		$reporte->generarReporte(); 
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function generarReporteDetalleDepreciacion(){
+		$nombreArchivo = uniqid('RDetalleDepreciacionXls'.md5(session_id())).'.xls'; 
+		//$dataSourceMaster = $this->obtenerMovimientoID();
+		$dataSource = $this->obtenerDetalleDepreciacion();
+
+		//Parametros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Detalle Dep.';
+		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);        
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		$reporte = new RDetalleDepreciacionXls($this->objParam); 
+		$reporte->setMaster($dataSourceMaster);
+		$reporte->setData($dataSource->getDatos());
+		$reporte->generarReporte(); 
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function obtenerDetalleDepreciacion(){
+		$this->definirFiltros();
+		$this->objFunc=$this->create('MODReportes');
+		$data = $this->objFunc->listarRepDepreciacion($this->objParam);
+
+		if($data->getTipo() == 'EXITO'){
+			return $data;
+		} else {
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		}
+    }
 
 }
 ?>

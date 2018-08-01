@@ -1129,4 +1129,27 @@ add column id_ubicacion integer;
 
 COMMENT ON COLUMN kaf.tactivo_fijo.id_ubicacion
 IS 'Campo creado para almacenar los locales que usa ETR';
+
+
 /***********************************F-SCP-RCM-KAF-1-15/06/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-1-10/07/2018****************************************/    
+alter table kaf.tgrupo
+add column tipo varchar(15) default 'grupo' not null;
+
+ALTER TABLE kaf.tgrupo
+  ADD CONSTRAINT idx_tgrupo__codigo__tipo 
+    UNIQUE (codigo, tipo) NOT DEFERRABLE;
+
+alter table kaf.tactivo_fijo
+add column id_grupo integer;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_grupo_
+IS 'Grupo para generar información en formato AE';
+
+alter table kaf.tactivo_fijo
+add column id_grupo_clasif integer;
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_grupo_clasif
+IS 'Grupo de tipo clasificacion de la AE';
+/***********************************F-SCP-RCM-KAF-1-10/07/2018****************************************/    

@@ -68,201 +68,6 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'depreciacion_acum_ant',
-				fieldLabel: 'Dep.Acum.Ant',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_acum_ant',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion_per_ant',
-				fieldLabel: 'Dep.Periodo Ant.',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_per_ant',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'monto_vigente_ant',
-				fieldLabel: 'Monto Vigente Ant.',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.monto_vigente_ant',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'vida_util_ant',
-				fieldLabel: 'Vida Util Ant.',
-				gwidth: 85,
-				maxLength:10
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.vida_util_ant',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion_acum_actualiz',
-				fieldLabel: 'Dep.Acum.Actualiz.',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_acum_actualiz',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion_per_actualiz',
-				fieldLabel: 'Dep.Per.Actualiz',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_per_actualiz',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'monto_actualiz',
-				fieldLabel: 'Monto Vigente Actualiz.',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.monto_actualiz',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion',
-				fieldLabel: 'Dep.Mes',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion_acum',
-				fieldLabel: 'Dep.Acum.',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_acum',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'depreciacion_per',
-				fieldLabel: 'Dep.Periodo',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.depreciacion_per',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'monto_vigente',
-				fieldLabel: 'Monto Vigente',
-				gwidth: 130,
-				maxLength:10,
-				renderer: function(value,p,record){
-					p.style="text-align: right;";
-					return Ext.util.Format.number(value,'0,000.00');
-				}
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.monto_vigente',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
-				name: 'vida_util',
-				fieldLabel: 'Vida Util',
-				gwidth: 70,
-				maxLength:10
-			},
-			type:'TextField',
-			filters:{pfiltro:'res.vida_util',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:false
-		},
-		{
-			config:{
 				name: 'tipo_cambio_ini',
 				fieldLabel: 'T/C Ini.',
 				gwidth: 80,
@@ -302,6 +107,235 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:1,
 			grid:true,
 			form:false
+		},
+		{
+			config:{
+				name: 'monto_actualiz_ant',
+				fieldLabel: 'Valor Vigente Actualiz.',//'Monto Vigente Ant.',
+				gwidth: 140,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.monto_actualiz_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'inc_monto_actualiz',
+				fieldLabel: 'Inc.Actualiz',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.inc_monto_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'monto_actualiz',
+				fieldLabel: 'Valor Actualiz.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.monto_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'vida_util_ant',
+				fieldLabel: 'Vida Util Ant.',
+				gwidth: 85,
+				maxLength:10
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.vida_util_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_acum_ant',
+				fieldLabel: 'Dep.Acum.Ant',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum_ant',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_per_ant',
+				fieldLabel: 'Dep.Periodo Ant.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per_ant',type:'string'},
+			id_grupo:1,
+			grid:false,
+			form:false
+		},
+		{
+			config:{
+				name: 'inc_depreciacion_acum_actualiz',
+				fieldLabel: 'Inc.Actualiz.Dep.Acum.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.inc_depreciacion_acum_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_acum_actualiz',
+				fieldLabel: 'Dep.Acum.Ant.Actualiz.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum_actualiz',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_per_actualiz',
+				fieldLabel: 'Dep.Per.Actualiz',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per_actualiz',type:'string'},
+			id_grupo:1,
+			grid:false,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion',
+				fieldLabel: 'Dep.Mes',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_per',
+				fieldLabel: 'Dep.Periodo',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_per',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'depreciacion_acum',
+				fieldLabel: 'Dep.Acum.',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.depreciacion_acum',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'monto_vigente',
+				fieldLabel: 'Valor Neto',
+				gwidth: 130,
+				maxLength:10,
+				renderer: function(value,p,record){
+					p.style="text-align: right;";
+					return Ext.util.Format.number(value,'0,000.00');
+				}
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.monto_vigente',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'vida_util',
+				fieldLabel: 'Vida Util',
+				gwidth: 70,
+				maxLength:10
+			},
+			type:'TextField',
+			filters:{pfiltro:'res.vida_util',type:'string'},
+			id_grupo:1,
+			grid:false,
+			form:false
 		}
 
 	],
@@ -318,7 +352,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha', type: 'date',dateFormat:'Y-m-d'},
 		{name:'depreciacion_acum_ant', type: 'numeric'},
 		{name:'depreciacion_per_ant', type: 'numeric'},
-		{name:'monto_vigente_ant', type: 'numeric'},
+		{name:'monto_actualiz_ant', type: 'numeric'},
 		{name:'vida_util_ant', type: 'numeric'},
 		{name:'depreciacion_acum_actualiz', type: 'numeric'},
 		{name:'depreciacion_per_actualiz', type: 'numeric'},
@@ -330,7 +364,9 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 		{name:'vida_util', type: 'numeric'},
 		{name:'tipo_cambio_ini', type: 'numeric'},
 		{name:'tipo_cambio_fin', type: 'numeric'},
-		{name:'factor', type: 'numeric'}
+		{name:'factor', type: 'numeric'},
+		{name:'inc_monto_actualiz', type: 'numeric'},
+		{name:'inc_depreciacion_acum_actualiz', type: 'numeric'}
 	],
 	sortInfo:{
 		field: 'id_movimiento_af_dep',

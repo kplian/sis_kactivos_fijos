@@ -515,7 +515,7 @@ BEGIN
             v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
             
             --Obtención de la moneda base
-            v_id_moneda_base  = param.f_get_moneda_base();
+            v_id_moneda_base = param.f_get_moneda_base();
 
             --Obtención de datos del Estado Actual
             select 
@@ -778,6 +778,45 @@ BEGIN
                     update  kaf.tmovimiento  set 
                     id_int_comprobante = v_id_int_comprobante
                     where id_movimiento = v_movimiento.id_movimiento;
+
+                end if;
+
+                --Verifica si sale del estado borrador para verificar las fechas
+                if v_movimiento.estado = 'borrador' then
+
+                    if exists(with t_ult_dep as (
+                                    select max(fecha) over (partition by id_activo_fijo_valor) as fecha,id_activo_fijo_valor
+                                    from kaf.tmovimiento_af_dep
+                                )
+                                select 1
+                                from kaf.tmovimiento_af maf
+                                inner join kaf.tactivo_fijo_valores afv
+                                on afv.id_activo_fijo = maf.id_activo_fijo
+                                and afv.fecha_fin is null
+                                inner join t_ult_dep ud
+                                on ud.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                                and date_trunc('month',ud.fecha + '1 month'::interval) > date_trunc('month',v_movimiento.fecha_mov)
+                                where maf.id_movimiento = v_movimiento.id_movimiento
+                            ) then
+                        raise exception 'No puede continuarse con la Baja en la fecha %. La fecha de baja debe ser un mes después de la última depreciación',v_movimiento.fecha_mov;
+                    end if;
+
+                    if exists(with t_ult_dep as (
+                                    select max(fecha) over (partition by id_activo_fijo_valor) as fecha,id_activo_fijo_valor
+                                    from kaf.tmovimiento_af_dep
+                                )
+                                select 1
+                                from kaf.tmovimiento_af maf
+                                inner join kaf.tactivo_fijo_valores afv
+                                on afv.id_activo_fijo = maf.id_activo_fijo
+                                and afv.fecha_fin is null
+                                inner join t_ult_dep ud
+                                on ud.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                                and date_trunc('month',ud.fecha + '1 month'::interval) < date_trunc('month',v_movimiento.fecha_mov)
+                                where maf.id_movimiento = v_movimiento.id_movimiento
+                            ) then
+                        raise exception 'No puede continuarse con la Baja en la fecha %, debido a que existen Activos Fijos que no se depreciarion hasta esa fecha',v_movimiento.fecha_mov;
+                    end if;
 
                 end if;
 

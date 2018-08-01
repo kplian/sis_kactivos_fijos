@@ -136,6 +136,48 @@ Phx.vista.MovimientoPrincipal = {
             });         
         }
 
+        //Crea los botones para los comprobantes
+        this.addButton('btnCbte1',
+            {
+                text: 'Cbte.1',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.mostrarCbte,
+                tooltip: '<b>Comprobante 1</b><br/>Impresión del comprobante relacionado.',
+                grupo: [0,1,2,3,4,5,6],
+                cbte: 1
+            }
+        );
+
+        this.addButton('btnCbte2',
+            {
+                text: 'Cbte.2',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.mostrarCbte,
+                tooltip: '<b>Comprobante 2</b><br/>Impresión del comprobante relacionado.',
+                grupo: [0,1,2,3,4,5,6],
+                cbte: 2
+            }
+        );
+
+        this.addButton('btnCbte3',
+            {
+                text: 'Cbte.3',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.mostrarCbte,
+                tooltip: '<b>Comprobante 3</b><br/>Impresión del comprobante relacionado.',
+                grupo: [0,1,2,3,4,5,6],
+                cbte: 3
+            }
+        );
+
+        //Oculta los botones
+        this.getBoton('btnCbte1').hide();
+        this.getBoton('btnCbte2').hide();
+        this.getBoton('btnCbte3').hide();
+
     },
 
     openMovimientos: function(){
@@ -402,6 +444,20 @@ Phx.vista.MovimientoPrincipal = {
         	this.getBoton('sig_estado').disable();
         }
 
+        //Verifica si tiene Comprobantes asociados para habilitar los botones
+        this.getBoton('btnCbte1').hide();
+        this.getBoton('btnCbte2').hide();
+        this.getBoton('btnCbte3').hide();
+        if(data.id_int_comprobante){
+            this.getBoton('btnCbte1').show();
+        }
+        if(data.id_int_comprobante_aitb){
+            this.getBoton('btnCbte2').show();
+        }
+        if(data.id_int_comprobante_3){
+            this.getBoton('btnCbte3').show();
+        }
+
         return tb;
     },
     antEstado:function(){
@@ -534,7 +590,38 @@ Phx.vista.MovimientoPrincipal = {
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
             )
-    })    
+    }) ,
+    mostrarCbte: function(args){
+        console.log('sssss',args.cbte)
+        var rec = this.sm.getSelected(),
+            data = rec.data,
+            param;
+
+        if(args.cbte==1){
+            param = data.id_proceso_wf_cbte1;
+        } else if(args.cbte==2){
+            param = data.id_proceso_wf_cbte2;
+        } else if(args.cbte==3){
+            param = data.id_proceso_wf_cbte3;
+        } else {
+            return;
+        }
+
+        //Abre el reporte de comprobante
+        if (data) {
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url : '../../sis_contabilidad/control/IntComprobante/reporteCbte',
+                params : {
+                    'id_proceso_wf' : param
+                },
+                success : this.successExport,
+                failure : this.conexionFailure,
+                timeout : this.timeout,
+                scope : this
+            });
+        }
+    }   
     
     
 };

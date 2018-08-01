@@ -74,6 +74,10 @@ class MODMovimiento extends MODbase{
 		$this->captura('resp_wf','text');
 		$this->captura('prestamo','varchar');
 		$this->captura('fecha_prestamo','date');
+		$this->captura('id_int_comprobante_3','int4');
+		$this->captura('id_proceso_wf_cbte1','int4');
+        $this->captura('id_proceso_wf_cbte2','int4');
+        $this->captura('id_proceso_wf_cbte3','int4');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

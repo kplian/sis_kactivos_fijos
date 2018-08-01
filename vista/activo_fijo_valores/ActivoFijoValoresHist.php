@@ -17,15 +17,34 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValoresHist.superclass.constructor.call(this,config);
 		this.init();
-		Ext.apply(this.store.baseParams,{id_activo_fijo: this.maestro[0].data.id_activo_fijo});
-		this.load();
-		
+
+		Phx.CP.loadingShow();
+
+		Ext.Ajax.request({
+            url: '../../sis_parametros/control/Moneda/getMonedaBase',
+            params: {moneda:'si'},
+            success: function(res,params){
+                Phx.CP.loadingHide();
+                var response = Ext.decode(res.responseText).ROOT.datos;
+                Ext.apply(this.store.baseParams,{
+                	id_activo_fijo: this.maestro[0].data.id_activo_fijo,
+                	id_moneda: response.id_moneda});
+                this.load();
+            },
+            argument: this.argumentSave,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+
+        this.iniciaEventos();
+
 	},
 	cmbMonedaDep: new Ext.form.ComboBox({
 		fieldLabel: 'Moneda',
 		grupo:[0,1,2],
-		allowBlank: false,
-		blankText:'... ?',
+		allowBlank: true,
+		blankText:'...',
 		emptyText:'Moneda...',
 		store:new Ext.data.JsonStore(
 		{
@@ -109,7 +128,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'tipo',
 				hiddenName: 'tipo',
-				gwidth: 95,
+				gwidth: 80,
 				baseParams:{
 						cod_subsistema:'KAF',
 						catalogo_tipo:'tactivo_fijo_valores__tipo'
@@ -128,7 +147,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Moneda',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 90,
 				maxLength:15
 			},
 				type:'TextField',
@@ -139,8 +158,31 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'monto_vigente_orig_100',
+				fieldLabel: 'Valor Compra',
+				allowBlank: true,
+				anchor: '80%',
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+						}
+				},
+				gwidth: 100,
+			},
+				type:'NumberField',
+				filters:{pfiltro:'actval.monto_vigente_orig_100',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		{
+			config:{
 				name: 'monto_vigente_orig',
-				fieldLabel: 'Monto vigente Orig.',
+				fieldLabel: 'Valor Inicial',
 				allowBlank: true,
 				anchor: '80%',
 				renderer:function (value,p,record){
@@ -156,6 +198,22 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'NumberField',
 				filters:{pfiltro:'actval.monto_vigente_orig',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		{
+			config:{
+				name: 'fecha_ini_dep',
+				fieldLabel: 'Fecha Ini. Dep.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y', 
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'actval.fecha_ini_dep',type:'date'},
 				id_grupo:1,
 				grid:true,
 				form:false
@@ -180,7 +238,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'actval.monto_vigente_orig',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		{
@@ -203,7 +261,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'afv.depreciacion_acum_real',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		
@@ -228,7 +286,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'aafv.monto_vigente_real',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		
@@ -273,27 +331,11 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'fecha_ini_dep',
-				fieldLabel: 'Fecha Ini. Dep.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
-			},
-				type:'DateField',
-				filters:{pfiltro:'actval.fecha_ini_dep',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
-		},
-		{
-			config:{
 				name: 'fecha_ult_dep',
 				fieldLabel: 'Fecha Ult. Dep.',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 110,
 							format: 'd/m/Y', 
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
@@ -346,7 +388,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'actval.depreciacion_per',type:'string'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		{
@@ -392,7 +434,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'actval.tipo_cambio_ini',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		
@@ -408,7 +450,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'actval.depreciacion_mes',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		
@@ -426,7 +468,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'actval.tipo_cambio_fin',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 	
@@ -536,29 +578,6 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		},
-		{
-			config:{
-				name: 'monto_vigente_orig_100',
-				fieldLabel: 'Monto vigente Orig.(100%)',
-				allowBlank: true,
-				anchor: '80%',
-				renderer:function (value,p,record){
-						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
-						}
-						else{
-							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
-						}
-				},
-				gwidth: 100,
-			},
-				type:'NumberField',
-				filters:{pfiltro:'actval.monto_vigente_orig_100',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:false
 		}
 	],
 
@@ -618,6 +637,13 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
         title: 'Depreciaciones',
         height: '60%',
         cls: 'MovimientoAfDepPrin'
+    },
+    iniciaEventos: function(){
+    	this.cmbMonedaDep.on('select',function(combo, record, index){
+			Ext.apply(this.store.baseParams,{
+				id_moneda: record.data.id_moneda});
+			this.load();
+    	},this)
     }
 })
 </script>

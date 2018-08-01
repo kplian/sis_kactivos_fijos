@@ -97,7 +97,8 @@ BEGIN
             v_parametros.fecha_cbte_asociado,
             v_parametros.id_grupo,
             v_parametros.id_centro_costo,
-            v_parametros.id_ubicacion
+            v_parametros.id_ubicacion,
+            v_parametros.id_grupo_clasif
 	        into v_rec_af;
 
 	        --Inserción del registro
@@ -195,7 +196,8 @@ BEGIN
                 nro_cbte_asociado = v_parametros.nro_cbte_asociado,
                 fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
                 id_grupo = v_parametros.id_grupo,
-                id_ubicacion = v_parametros.id_ubicacion
+                id_ubicacion = v_parametros.id_ubicacion,
+                id_grupo_clasif = v_parametros.id_grupo_clasif
 			where id_activo_fijo = v_parametros.id_activo_fijo;
                
 			--Definicion de la respuesta
@@ -315,7 +317,9 @@ BEGIN
 			nro_cbte_asociado,
 			fecha_cbte_asociado,
 			id_grupo,
-			id_centro_costo
+			id_centro_costo,
+			id_ubicacion,
+			id_grupo_clasif
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
@@ -469,7 +473,9 @@ BEGIN
             nro_cbte_asociado,
             fecha_cbte_asociado,
             id_grupo,
-            id_centro_costo
+            id_centro_costo,
+            id_ubicacion,
+            id_grupo_clasif
 	        into v_rec_af
 	        from kaf.tactivo_fijo
 	        where id_activo_fijo = v_parametros.id_activo_fijo;
