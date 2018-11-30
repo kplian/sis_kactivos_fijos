@@ -6,7 +6,7 @@ class RDetalleDepreciacionXls
 	private $docexcel;
 	private $dataSetMaster;
 	private $dataSet;
-	
+
 	function __construct(CTParametro $objParam){
 		$this->objParam = $objParam;
 		$this->url_archivo = "../../../reportes_generados/".$this->objParam->getParametro('nombre_archivo');
@@ -22,7 +22,7 @@ class RDetalleDepreciacionXls
 							 ->setDescription('Reporte "'.$this->objParam->getParametro('titulo_archivo').'", generado por el framework PXP')
 							 ->setKeywords("office 2007 openxml php")
 							 ->setCategory("Report File");
-							 
+
 		$this->docexcel->setActiveSheetIndex(0);
 		$this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('titulo_archivo'));
 		$this->initializeColumnWidth($this->docexcel->getActiveSheet());
@@ -33,7 +33,7 @@ class RDetalleDepreciacionXls
 		$this->dataSetMaster = $data;
 
 	}
-	
+
 	function setData($data) {
 		$this->dataSet = $data;
 	}
@@ -49,12 +49,12 @@ class RDetalleDepreciacionXls
 		//Set active sheet index to the first sheet, so Excel opens this as the first sheet
 		$this->docexcel->setActiveSheetIndex(0);
 		$this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
-		$this->objWriter->save($this->url_archivo);		
+		$this->objWriter->save($this->url_archivo);
 	}
 
 	function imprimeTitulo($sheet) {
 		$sheet->setCellValueByColumnAndRow(0,1,$this->objParam->getParametro('titulo_rep'));
-		
+
 		//Título Principal
 		$titulo1 = "DEPRECIACIÓN ACTIVOS FIJOS";
 		$this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,Arial);
@@ -64,13 +64,13 @@ class RDetalleDepreciacionXls
 		$titulo1 = "Al ".date("d/m/Y",strtotime($this->objParam->getParametro('fecha_hasta')));
 		$this->cell($sheet,$titulo1,'A2',0,2,"center",true,$this->tam_letra_titulo,Arial);
 		$sheet->mergeCells('A2:W2');
-		
+
 		//Título 2
 		/*$fecha_hasta = date("d/m/Y",strtotime($this->objParam->getParametro('fecha_hasta')));
 		$titulo2 = "Depto.: ";
 		$this->cell($sheet,$titulo2.$this->paramDepto,'A3',0,3,"center",true,$this->tam_letra_subtitulo,Arial);
 		$sheet->mergeCells('A3:W3');*/
-		
+
 		//Título 3
 		$titulo3="(Expresado en".$this->objParam->getParametro('desc_moneda').")";
 		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,Arial);
@@ -128,7 +128,7 @@ class RDetalleDepreciacionXls
 		}
 
 		if($number==true){
-			$sheet->getStyle($cell)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00); 
+			$sheet->getStyle($cell)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 		}
 	}
 
@@ -159,9 +159,9 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"V$f" ,21,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Depreciación del Mes'		,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Acum.'			,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Bajas'			,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Traspasos'		,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Acum. Bajas'			,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Acum. Traspasos'			,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Acum.'		,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Depreciación Gestión'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Valor Neto'					,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Cuenta Activo'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
@@ -169,6 +169,7 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Cuenta Deprec.'				,"AF$f",31,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Agrupador AE'				,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Clasificador AE'			,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 
 		$this->fila++;
 		//////////////////
@@ -185,7 +186,7 @@ class RDetalleDepreciacionXls
 		$sheet->getStyle("V5:AC$count")
 			  ->getNumberFormat()
 			  ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-		 
+
 
 		//Quita las filas de los totales (la primera y la última)
 		unset($this->dataSet[0]);
@@ -202,8 +203,8 @@ class RDetalleDepreciacionXls
 		//Definición del rango total de filas
 		$range=count($this->dataSet)+6;
 
-		//Coloreado de las columnas que se utilizan para la generación del comprobante contable 
-		$sheet->getStyle('R5:R'.$range)->applyFromArray(
+		//Coloreado de las columnas que se utilizan para la generación del comprobante contable
+		/*$sheet->getStyle('R5:R'.$range)->applyFromArray(
 		    array(
 		        'fill' => array(
 		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -212,7 +213,7 @@ class RDetalleDepreciacionXls
 		    )
 		); //Inc.x Actualiz.
 
-		$sheet->getStyle('Y5:Y'.$range)->applyFromArray(
+		$sheet->getStyle('AA5:AA'.$range)->applyFromArray(
 		    array(
 		        'fill' => array(
 		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -228,7 +229,7 @@ class RDetalleDepreciacionXls
 		            'color' => array('rgb' => '#ffff99')
 		        )
 		    )
-		);//Depreciación Mensual
+		);//Depreciación Mensual*/
 
 
 		//Totales
@@ -282,7 +283,7 @@ class RDetalleDepreciacionXls
 		$sheet->getStyle("V$count:AC$count")
 			  ->getNumberFormat()
 			  ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
-		
+
 
 		//Actualización variables
 		$this->fila=$f+6;
@@ -360,10 +361,11 @@ class RDetalleDepreciacionXls
 		$sheet->getColumnDimension('AF')->setWidth(60);
 		$sheet->getColumnDimension('AG')->setWidth(60);
 		$sheet->getColumnDimension('AH')->setWidth(60);
-		$sheet->getColumnDimension('AI')->setWidth(0);
+		$sheet->getColumnDimension('AI')->setWidth(60);
 		$sheet->getColumnDimension('AJ')->setWidth(0);
 		$sheet->getColumnDimension('AK')->setWidth(0);
 		$sheet->getColumnDimension('AL')->setWidth(0);
+		$sheet->getColumnDimension('AM')->setWidth(0);
 	}
 
 }

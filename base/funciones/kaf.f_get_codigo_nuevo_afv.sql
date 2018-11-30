@@ -10,13 +10,13 @@ $body$
  DESCRIPCION:   Devuelve nuevo código para el activo fijo valor
  AUTOR:         RCM
  FECHA:         28/06/2017
- COMENTARIOS:   
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:   
- AUTOR:         
- FECHA:     
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 DECLARE
 
@@ -25,17 +25,20 @@ DECLARE
     v_numero                integer;
     v_codigo                varchar;
     v_codigo_af             varchar;
+    v_id_moneda_base        integer;
 
 BEGIN
 
     v_nombre_funcion = 'kaf.f_get_codigo_nuevo_afv';
+    v_id_moneda_base = param.f_get_moneda_base();
 
     --Conteo de la cantidad de registros del movimiento definido
-    select count(distinct 1) + 1
+    select count(1) + 1
     into v_numero
     from kaf.tactivo_fijo_valores
     where id_activo_fijo = p_id_activo_fijo
     and tipo = p_cod_movimiento
+    and id_moneda = v_id_moneda_base
     group by id_activo_fijo;
 
     v_numero = coalesce(v_numero, 1);
@@ -64,7 +67,7 @@ BEGIN
     elsif p_cod_movimiento = 'intpar' then
         v_codigo = v_codigo||'-PAR'||v_numero::varchar;
     end if;
-    
+
     --Respuesta
     return v_codigo;
 

@@ -29,7 +29,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.ReporteDepreciacion.superclass.constructor.call(this,config);
 		this.init();
 		this.store.baseParams = {
-			start: 0, 
+			start: 0,
 			limit: this.tam_pag,
 			titulo_reporte: this.maestro.paramsRep.titleReporte,
 			reporte: this.maestro.paramsRep.reporte,
@@ -74,12 +74,19 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
             handler: this.imprimirReporte,
             tooltip: '<b>Imprimir reporte</b><br/>Genera el reporte en el formato para impresión.'
          });
+
+		this.addButton('btnReport', {
+            text: 'Test',
+            disabled: false,
+            handler: this.imprimirReporte2,
+            tooltip: '<b>Imprimir reporte 2</b><br/>Genera el reporte en el formato para impresión.'
+         });
 	},
 
 	Atributos:[
 		{
 			config:{
-				name:'codigo', 
+				name:'codigo',
 				fieldLabel: 'Código',
 				allowBlank: true,
 				anchor: '80%',
@@ -104,7 +111,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'codigo_ant', 
+				name:'codigo_ant',
 				fieldLabel: 'Código SAP',
 				allowBlank: true,
 				anchor: '80%',
@@ -129,7 +136,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'denominacion', 
+				name:'denominacion',
 				fieldLabel: 'Descripción',
 				allowBlank: true,
 				anchor: '80%',
@@ -154,7 +161,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'fecha_ini_dep', 
+				name:'fecha_ini_dep',
 				fieldLabel: 'Inicio Dep.',
 				allowBlank: true,
 				anchor: '80%',
@@ -179,7 +186,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'monto_vigente_orig_100', 
+				name:'monto_vigente_orig_100',
 				fieldLabel: 'Valor Compra',
 				allowBlank: true,
 				anchor: '80%',
@@ -204,7 +211,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'monto_vigente_orig', 
+				name:'monto_vigente_orig',
 				fieldLabel: 'Valor Inicial',
 				allowBlank: true,
 				anchor: '80%',
@@ -230,7 +237,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'af_altas', 
+				name:'af_altas',
 				fieldLabel: 'Altas',
 				allowBlank: true,
 				anchor: '80%',
@@ -256,7 +263,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'af_bajas', 
+				name:'af_bajas',
 				fieldLabel: 'Bajas',
 				allowBlank: true,
 				anchor: '80%',
@@ -282,7 +289,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'af_traspasos', 
+				name:'af_traspasos',
 				fieldLabel: 'Traspasos',
 				allowBlank: true,
 				anchor: '80%',
@@ -308,7 +315,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'inc_actualiz', 
+				name:'inc_actualiz',
 				fieldLabel: 'Inc.x Actualiz.',
 				allowBlank: true,
 				anchor: '80%',
@@ -333,7 +340,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'monto_actualiz', 
+				name:'monto_actualiz',
 				fieldLabel: 'Valor Actualiz.',
 				allowBlank: true,
 				anchor: '80%',
@@ -358,7 +365,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name: 'vida_util_orig', 
+				name: 'vida_util_orig',
 				fieldLabel: 'VU. Orig.',
 				allowBlank: true,
 				anchor: '80%',
@@ -383,7 +390,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'vida_util_usada', 
+				name:'vida_util_usada',
 				fieldLabel: 'VU. Transcurrida',
 				allowBlank: true,
 				anchor: '80%',
@@ -408,7 +415,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'vida_util', 
+				name:'vida_util',
 				fieldLabel: 'VU. Residual',
 				allowBlank: true,
 				anchor: '80%',
@@ -433,7 +440,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'depreciacion_acum_gest_ant', 
+				name:'depreciacion_acum_gest_ant',
 				fieldLabel: 'Dep.Acum.Gest.Ant.',
 				allowBlank: true,
 				anchor: '80%',
@@ -458,7 +465,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'depreciacion_acum_actualiz_gest_ant', 
+				name:'depreciacion_acum_actualiz_gest_ant',
 				fieldLabel: 'Act.Deprec.Gest.Ant.',
 				allowBlank: true,
 				anchor: '80%',
@@ -483,7 +490,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'depreciacion_per', 
+				name:'depreciacion_per',
 				fieldLabel: 'Dep. Gestión',
 				allowBlank: true,
 				anchor: '80%',
@@ -506,9 +513,59 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
-        {
+		{
 			config:{
-				name:'depreciacion_acum', 
+				name:'depreciacion_acum_bajas',
+				fieldLabel: 'Dep. Acum. Bajas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 120,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'depreciacion_acum_bajas',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'depreciacion_acum_traspasos',
+				fieldLabel: 'Dep. Acum.Traspasos',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 120,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'depreciacion_acum_traspasos',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		 {
+			config:{
+				name:'depreciacion_acum',
 				fieldLabel: 'Dep. Acum.',
 				allowBlank: true,
 				anchor: '80%',
@@ -533,57 +590,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'depreciacion_acum_bajas', 
-				fieldLabel: 'Dep. Acum. Bajas',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'depreciacion_acum_bajas',type:'numeric'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'depreciacion_acum_traspasos', 
-				fieldLabel: 'Dep. Acum.Traspasos',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'depreciacion_acum_traspasos',type:'numeric'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'depreciacion', 
+				name:'depreciacion',
 				fieldLabel: 'Depreciación',
 				allowBlank: true,
 				anchor: '80%',
@@ -608,7 +615,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name:'monto_vigente', 
+				name:'monto_vigente',
 				fieldLabel: 'Valor Neto',
 				allowBlank: true,
 				anchor: '80%',
@@ -633,7 +640,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'codigo_tcc', 
+				name:'codigo_tcc',
 				fieldLabel: 'Centro Costo',
 				allowBlank: true,
 				anchor: '80%',
@@ -658,7 +665,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		/*{
 			config:{
-				name:'cod_raiz', 
+				name:'cod_raiz',
 				fieldLabel: 'Cod.Raíz',
 				allowBlank: true,
 				anchor: '80%',
@@ -683,7 +690,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cod_grupo', 
+				name:'cod_grupo',
 				fieldLabel: 'Cod.Grupo',
 				allowBlank: true,
 				anchor: '80%',
@@ -708,7 +715,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cod_clase', 
+				name:'cod_clase',
 				fieldLabel: 'Cod.Clase',
 				allowBlank: true,
 				anchor: '80%',
@@ -733,7 +740,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cod_subgrupo', 
+				name:'cod_subgrupo',
 				fieldLabel: 'Cod.Subgrupo',
 				allowBlank: true,
 				anchor: '80%',
@@ -758,7 +765,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_raiz', 
+				name:'desc_raiz',
 				fieldLabel: 'Raíz',
 				allowBlank: true,
 				anchor: '80%',
@@ -783,7 +790,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_grupo', 
+				name:'desc_grupo',
 				fieldLabel: 'Grupo',
 				allowBlank: true,
 				anchor: '80%',
@@ -808,7 +815,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_clase', 
+				name:'desc_clase',
 				fieldLabel: 'Clase',
 				allowBlank: true,
 				anchor: '80%',
@@ -833,7 +840,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_subgrupo', 
+				name:'desc_subgrupo',
 				fieldLabel: 'Subgrupo',
 				allowBlank: true,
 				anchor: '80%',
@@ -858,7 +865,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},*/
 		/*{
 			config:{
-				name:'afecta_concesion', 
+				name:'afecta_concesion',
 				fieldLabel: 'Afecta Concesión',
 				allowBlank: true,
 				anchor: '80%',
@@ -883,7 +890,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},*/
 		{
 			config:{
-				name:'desc_ubicacion', 
+				name:'desc_ubicacion',
 				fieldLabel: 'Local',
 				allowBlank: true,
 				anchor: '80%',
@@ -908,7 +915,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'ubicacion', 
+				name:'ubicacion',
 				fieldLabel: 'Ubicación',
 				allowBlank: true,
 				anchor: '80%',
@@ -933,7 +940,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'nro_serie', 
+				name:'nro_serie',
 				fieldLabel: 'Nro.Serie',
 				allowBlank: true,
 				anchor: '80%',
@@ -958,7 +965,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'responsable', 
+				name:'responsable',
 				fieldLabel: 'Responsable',
 				allowBlank: true,
 				anchor: '80%',
@@ -983,7 +990,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cuenta_activo', 
+				name:'cuenta_activo',
 				fieldLabel: 'Cuenta Activo',
 				allowBlank: true,
 				anchor: '80%',
@@ -1007,7 +1014,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cuenta_dep_acum', 
+				name:'cuenta_dep_acum',
 				fieldLabel: 'Cuenta Dep.Acum.',
 				allowBlank: true,
 				anchor: '80%',
@@ -1031,7 +1038,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'cuenta_deprec', 
+				name:'cuenta_deprec',
 				fieldLabel: 'Cuenta Deprec.',
 				allowBlank: true,
 				anchor: '80%',
@@ -1055,7 +1062,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_grupo', 
+				name:'desc_grupo',
 				fieldLabel: 'Agrupador AE',
 				allowBlank: true,
 				anchor: '80%',
@@ -1080,7 +1087,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name:'desc_grupo_clasif', 
+				name:'desc_grupo_clasif',
 				fieldLabel: 'Clasificador AE',
 				allowBlank: true,
 				anchor: '80%',
@@ -1104,7 +1111,7 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			form:true
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Reporte',
 	ActList:'../../sis_kactivos_fijos/control/Reportes/listarRepDepreciacion',
 	fields: [
@@ -1219,7 +1226,50 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this
-        }); 
+        });
+	},
+	imprimirReporte2: function(){
+	    Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDetalleDepreciacion2',//ReporteDetalleDepreciacion',
+            params:{
+            	titulo_reporte: this.maestro.paramsRep.titleReporte,
+				reporte: this.maestro.paramsRep.reporte,
+				fecha_desde: this.maestro.paramsRep.fecha_desde,
+				fecha_hasta: this.maestro.paramsRep.fecha_hasta,
+				id_activo_fijo: this.maestro.paramsRep.id_activo_fijo,
+				id_clasificacion: this.maestro.paramsRep.id_clasificacion,
+				denominacion: this.maestro.paramsRep.denominacion,
+				fecha_compra: this.maestro.paramsRep.fecha_compra,
+				fecha_ini_dep: this.maestro.paramsRep.fecha_ini_dep,
+				estado: this.maestro.paramsRep.estado,
+				id_centro_costo: this.maestro.paramsRep.id_centro_costo,
+				ubicacion: this.maestro.paramsRep.ubicacion,
+				id_oficina: this.maestro.paramsRep.id_oficina,
+				id_funcionario: this.maestro.paramsRep.id_funcionario,
+				id_uo: this.maestro.paramsRep.id_uo,
+				id_funcionario_compra: this.maestro.paramsRep.id_funcionario_compra,
+				id_lugar: this.maestro.paramsRep.id_lugar,
+				af_transito: this.maestro.paramsRep.af_transito,
+				af_tangible: this.maestro.paramsRep.af_tangible,
+				af_estado_mov: this.maestro.paramsRep.af_estado_mov,
+				id_depto: this.maestro.paramsRep.id_depto,
+				id_deposito: this.maestro.paramsRep.id_deposito,
+				id_moneda: this.maestro.paramsRep.id_moneda,
+				desc_moneda: this.maestro.paramsRep.desc_moneda,
+				tipo_salida: 'grid',
+				rep_metodo_list: this.metodoList,
+				monto_inf: this.maestro.paramsRep.monto_inf,
+				monto_sup: this.maestro.paramsRep.monto_sup,
+				fecha_compra_max: this.maestro.paramsRep.fecha_compra_max,
+				af_deprec: this.maestro.paramsRep.af_deprec,
+				nro_cbte_asociado: this.maestro.paramsRep.nro_cbte_asociado
+            },
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
 	}
 })
 </script>

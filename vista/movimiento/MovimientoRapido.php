@@ -53,6 +53,27 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
 
             this.cmpGlosa.setValue(glosa);
             this.cmpFuncionario.setDisabled(true);
+        } else if(tipoMov=='alta'){
+            glosa = 'Alta rápida de activos fijos';
+            //Funcionario
+            var func = this.obtenerDescripcionFuncionario(this.dataAf),
+                rec = new Ext.data.Record({desc_person: func.funcionario, id_funcionario: func.id_funcionario },func.id_funcionario);
+            this.cmpFuncionario.store.add(rec);
+            this.cmpFuncionario.store.commitChanges();
+            this.cmpFuncionario.modificado = true;
+            this.cmpFuncionario.setValue(func.id_funcionario);
+
+            this.cmpGlosa.setValue(glosa);
+            this.cmpFuncionario.setDisabled(true);
+
+            this.cmpFuncionarioDest.setDisabled(true);
+            this.cmpFuncionarioDest.allowBlank = true;
+
+            this.cmpDireccion.setDisabled(true);
+            this.cmpDireccion.allowBlank = true;
+
+            this.cmpOficina.setDisabled(true);
+            this.cmpOficina.allowBlank = true;
         }
     },
     cargarDatosPaneles: function(){
@@ -204,7 +225,7 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
     crearComponentesPanel: function(){
         this.storeOrig = new Ext.data.JsonStore({});
         this.storeDest = new Ext.data.JsonStore({});
-        
+
         this.listViewOrig = new Ext.list.ListView({
             store: this.storeOrig,
             multiSelect: true,
@@ -226,7 +247,7 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
             height: 270,
             width: 400
         });
-        
+
         this.listViewDest = new Ext.list.ListView({
             store: this.storeDest,
             multiSelect: true,
@@ -344,13 +365,13 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
             padding: this.paddingForm,
             bodyStyle: this.bodyStyleForm,
             border: this.borderForm,
-            frame: this.frameForm, 
+            frame: this.frameForm,
             autoScroll: false,
             autoDestroy: true,
             autoScroll: true,
             region: 'center'
         });
-        
+
         this.panel.add(this.formMovRap)
         this.panel.doLayout();
 
@@ -578,18 +599,22 @@ Phx.vista.MovimientoRapido = Ext.define('Phx.vista.MovimientoRapido', {
     validacionRegistro: function(rec){
         var tipoMov = this.tipoMov,
             rules = {
-            asig: {
-                estado: ['alta'],
-                enDeposito: 'si'
-            },
-            transf: {
-                estado: ['alta'],
-                enDeposito: 'no'
-            },
-            devol: {
-                estado: ['alta'],
-                enDeposito: 'no'
-            }
+                asig: {
+                    estado: ['alta'],
+                    enDeposito: 'si'
+                },
+                transf: {
+                    estado: ['alta'],
+                    enDeposito: 'no'
+                },
+                devol: {
+                    estado: ['alta'],
+                    enDeposito: 'no'
+                },
+                alta: {
+                    estado: ['registrado'],
+                    enDeposito: 'si'
+                }
         };
 
         if(rules[tipoMov].estado.indexOf(rec.data.estado)>-1&&rules[tipoMov].enDeposito==rec.data.en_deposito){

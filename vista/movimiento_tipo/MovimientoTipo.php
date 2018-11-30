@@ -152,6 +152,21 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 		}, 
 		{
 			config:{
+				name: 'plantilla_cbte_cuatro',
+				fieldLabel: 'Plantillca Cbte. 4',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+			type:'Field',
+			filters:{pfiltro:'movtipo.plantilla_cbte_cuatro',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		}, 
+		{
+			config:{
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
 				allowBlank: true,
@@ -283,7 +298,8 @@ Phx.vista.MovimientoTipo=Ext.extend(Phx.gridInterfaz,{
 		{name:'nombre_pm', type: 'string'},
 		{name:'plantilla_cbte_uno', type: 'string'},
 		{name:'plantilla_cbte_dos', type: 'string'},
-		{name:'plantilla_cbte_tres', type: 'string'}
+		{name:'plantilla_cbte_tres', type: 'string'},
+		{name:'plantilla_cbte_cuatro', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_movimiento_tipo',

@@ -1,6 +1,6 @@
 CREATE OR REPLACE FUNCTION kaf.f_genera_registro_af (
-	p_id_usuario integer,
-	p_id_preingreso integer
+  p_id_usuario integer,
+  p_id_preingreso integer
 )
 RETURNS varchar AS
 $body$
@@ -16,7 +16,7 @@ DECLARE
     v_vida_util integer;
     v_id_presupuesto integer;
     v_id_cat_estado_fun integer;
-    v_id_cat_estado_compra integer;    
+    v_id_cat_estado_compra integer;
     v_rec_af record;
     v_id_activo_fijo integer;
     v_id_deposito integer;
@@ -50,17 +50,17 @@ BEGIN
   from param.tunidad_medida
   where codigo = 'Und.';
 
-	for v_rec in select           
-               cot.fecha_adju, 
-               pdet.precio_compra, 
+  for v_rec in select
+               cot.fecha_adju,
+               pdet.precio_compra,
                ping.id_moneda,
                pdet.cantidad_det::integer,
-               pdet.id_depto, 
+               pdet.id_depto,
                pdet.id_clasificacion,
                pdet.observaciones,
-               cot.numero_oc, 
-               cot.id_cotizacion, 
-               pdet.id_cotizacion_det, 
+               cot.numero_oc,
+               cot.id_cotizacion,
+               pdet.id_cotizacion_det,
                sol.id_solicitud,
                cc.id_centro_costo,
                cc.id_ep,
@@ -91,8 +91,9 @@ BEGIN
             left join param.tdepto dep on dep.id_depto = pdet.id_depto
             where ping.id_preingreso  = p_id_preingreso
             and pdet.sw_generar = 'si'
-            and pdet.estado = 'mod' loop
-
+            and pdet.estado = 'mod'
+            and pdet.estado_reg = 'activo' loop
+raise exception '%',p_id_preingreso;
         --Vida útil
         select vida_util
         into v_vida_util
@@ -102,7 +103,7 @@ BEGIN
         --Deposito
         if not exists(select 1
                     from kaf.tdeposito
-                    where id_depto = v_rec.id_depto) then 
+                    where id_depto = v_rec.id_depto) then
             raise exception 'No existe depósito para el Departamento ';
         end if;
         select id_deposito into v_id_deposito
@@ -175,55 +176,55 @@ BEGIN
         --Inserción de la cantidad definida de activos fijos
         for v_i in 1..v_rec.cantidad_det::integer loop
 
-        	select
-	        null as id_persona, --ok
-    			0 as cantidad_revaloriz, --ok
-    			v_rec.id_proveedor as id_proveedor, --ok
-    			v_rec.fecha_compra as fecha_compra, --ok
-    			v_id_cat_estado_fun as id_cat_estado_fun, --ok
-    			v_rec.ubicacion as ubicacion, --ok
-    			null as documento, --ok
-    			v_rec.observaciones as observaciones, --ok
-    			1 as monto_rescate, --ok
-    			v_rec.nombre as denominacion, --ok
-	        v_id_responsable_depto as id_funcionario, --ok
-	        v_id_deposito as id_deposito, --ok
-	        v_rec.precio_compra_87 as monto_compra_orig, --ok
-	        v_rec.precio_compra_87 as monto_compra,
-	        v_rec.id_moneda as id_moneda, --ok
-	        v_rec.descripcion as descripcion, --ok
-	        v_rec.id_moneda as id_moneda_orig, --ok
-	        v_rec.fecha_conformidad as fecha_ini_dep, --ok
-	        v_id_cat_estado_compra as id_cat_estado_compra, --ok
-	        v_vida_util as vida_util_original, --ok
-	        'registrado' as estado, --ok
-	        v_rec.id_clasificacion as id_clasificacion, --ok
-	        v_id_oficina as id_oficina, --ok
-	        v_rec.id_depto as id_depto, --ok
-	        p_id_usuario as id_usuario_reg, --ok
-	        null as usuario_ai, --ok
-	        null as id_usuario_ai, --ok
-	        null as id_usuario_mod, --ok
-	        'si' as en_deposito, --ok
-	        null as codigo_ant, --ok
-	        null as marca, --ok
-	        null as nro_serie, --ok
-	        v_id_unidad_medida as id_unidad_medida, --ok
-	        v_rec.cantidad_det as cantidad_af, --ok
-	        v_rec.precio_compra as monto_compra_orig_100, --ok
-	        v_rec.c31 as nro_cbte_asociado,
-	        null as fecha_cbte_asociado,
+          select
+          null as id_persona, --ok
+          0 as cantidad_revaloriz, --ok
+          v_rec.id_proveedor as id_proveedor, --ok
+          v_rec.fecha_compra as fecha_compra, --ok
+          v_id_cat_estado_fun as id_cat_estado_fun, --ok
+          v_rec.ubicacion as ubicacion, --ok
+          null as documento, --ok
+          v_rec.observaciones as observaciones, --ok
+          1 as monto_rescate, --ok
+          v_rec.nombre as denominacion, --ok
+          v_id_responsable_depto as id_funcionario, --ok
+          v_id_deposito as id_deposito, --ok
+          v_rec.precio_compra_87 as monto_compra_orig, --ok
+          v_rec.precio_compra_87 as monto_compra,
+          v_rec.id_moneda as id_moneda, --ok
+          v_rec.descripcion as descripcion, --ok
+          v_rec.id_moneda as id_moneda_orig, --ok
+          v_rec.fecha_conformidad as fecha_ini_dep, --ok
+          v_id_cat_estado_compra as id_cat_estado_compra, --ok
+          v_vida_util as vida_util_original, --ok
+          'registrado' as estado, --ok
+          v_rec.id_clasificacion as id_clasificacion, --ok
+          v_id_oficina as id_oficina, --ok
+          v_rec.id_depto as id_depto, --ok
+          p_id_usuario as id_usuario_reg, --ok
+          null as usuario_ai, --ok
+          null as id_usuario_ai, --ok
+          null as id_usuario_mod, --ok
+          'si' as en_deposito, --ok
+          null as codigo_ant, --ok
+          null as marca, --ok
+          null as nro_serie, --ok
+          v_id_unidad_medida as id_unidad_medida, --ok
+          v_rec.cantidad_det as cantidad_af, --ok
+          v_rec.precio_compra as monto_compra_orig_100, --ok
+          v_rec.c31 as nro_cbte_asociado,
+          null as fecha_cbte_asociado,
           v_rec.id_cotizacion_det as id_cotizacion_det,
           v_rec.id_preingreso_det as id_preingreso_det
-	        into v_rec_af;
+          into v_rec_af;
 
-	        --Inserción del registro
-	        v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
+          --Inserción del registro
+          v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
 
         end loop;
 
     end loop;
-    
+raise 'paso';
     return 'Hecho';
 
 END;

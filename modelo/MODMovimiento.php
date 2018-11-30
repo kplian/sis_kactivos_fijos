@@ -78,6 +78,8 @@ class MODMovimiento extends MODbase{
 		$this->captura('id_proceso_wf_cbte1','int4');
         $this->captura('id_proceso_wf_cbte2','int4');
         $this->captura('id_proceso_wf_cbte3','int4');
+        $this->captura('id_int_comprobante_4','int4');
+		$this->captura('id_proceso_wf_cbte4','int4');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

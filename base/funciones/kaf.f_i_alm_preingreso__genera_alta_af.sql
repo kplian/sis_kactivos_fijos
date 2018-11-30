@@ -50,7 +50,8 @@ BEGIN
     for v_rec in (select distinct id_depto
                 from alm.tpreingreso_det
                 where id_preingreso = p_id_preingreso
-                and sw_generar = 'si') loop
+                and sw_generar = 'si'
+                and estado_reg = 'activo') loop
 
         --Definción de parámetros
         select
@@ -73,7 +74,7 @@ BEGIN
         null id_funcionario_dest,
         null as id_movimiento_motivo
         into v_rec_af;
-        
+
         --Creación del movimiento
         v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
 
@@ -87,7 +88,7 @@ BEGIN
                         and pdet.sw_generar = 'si'
                         and afij.estado = 'registrado') loop
 
-            --Definción de parámetros
+            --Definición de parámetros
             select
             v_id_movimiento as id_movimiento,
             v_rec_det.id_activo_fijo as id_activo_fijo,
@@ -103,13 +104,13 @@ BEGIN
             v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_rec_af_det));
 
         end loop;
-        
+
     end loop;
 
     return 'Hecho';
 
 EXCEPTION
-                
+
     WHEN OTHERS THEN
         v_resp='';
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

@@ -14,13 +14,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tclasificacion'
  AUTOR: 		 (admin)
  FECHA:	        09-11-2015 01:22:17
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -29,21 +29,21 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'kaf.ft_clasificacion_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_CLAF_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		09-11-2015 01:22:17
 	***********************************/
 
 	if(p_transaccion='SKA_CLAF_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -84,20 +84,20 @@ BEGIN
 						left join param.tcatalogo cat on cat.id_catalogo = claf.id_cat_metodo_dep
 						left join param.tconcepto_ingas cig on cig.id_concepto_ingas = claf.id_concepto_ingas
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_CLAF_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		09-11-2015 01:22:17
 	***********************************/
 
@@ -112,8 +112,8 @@ BEGIN
 						left join param.tcatalogo cat on cat.id_catalogo = claf.id_cat_metodo_dep
 						left join param.tconcepto_ingas cig on cig.id_concepto_ingas = claf.id_concepto_ingas
 				        where  ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
@@ -121,15 +121,15 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_CLAFARB_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:			admin	
+ 	#AUTOR:			admin
  	#FECHA:			09-11-2015 01:22:17
 	***********************************/
 
 	elsif(p_transaccion='SKA_CLAFARB_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -176,16 +176,16 @@ BEGIN
 						left join param.tcatalogo cat on cat.id_catalogo = claf.id_cat_metodo_dep
 						left join param.tconcepto_ingas cig on cig.id_concepto_ingas = claf.id_concepto_ingas
 				        where ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro || ' ORDER BY claf.codigo ';
 			raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-    /*********************************    
+    /*********************************
     #TRANSACCION:  'SKA_CLAFTREE_SEL'
     #DESCRIPCION:   Devuelve listado recursivo de toda la clasificación con niveles visuales
     #AUTOR:         RCM
@@ -193,7 +193,7 @@ BEGIN
     ***********************************/
 
     elsif(p_transaccion='SKA_CLAFTREE_SEL')then
-                    
+
         begin
             --Sentencia de la consulta
             v_consulta:='select
@@ -203,22 +203,28 @@ BEGIN
                             claf.nivel,
                             cla.tipo_activo,
                             cla.depreciable,
-                            cla.vida_util
+                            cla.vida_util,
+                            cla1.nombre,
+                            cla2.nombre
                         from kaf.vclasificacion_arbol claf
                         inner join kaf.tclasificacion cla
                         on cla.id_clasificacion = claf.id_clasificacion
+                        left join kaf.tclasificacion cla1
+                        on cla1.codigo_completo_tmp = (string_to_array(claf.codigo, ''.''))[1]||''.''||(string_to_array(claf.codigo, ''.''))[2]
+                        left join kaf.tclasificacion cla2
+                        on cla2.codigo_completo_tmp = (string_to_array(claf.codigo, ''.''))[1]||''.''||(string_to_array(claf.codigo, ''.''))[2]||''.''||(string_to_array(claf.codigo, ''.''))[3]
                         where  ';
-            
+
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
             v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
             --Devuelve la respuesta
             return v_consulta;
-                        
+
         end;
 
-    /*********************************    
+    /*********************************
     #TRANSACCION:  'SKA_CLAFTREE_CONT'
     #DESCRIPCION:   Conteo de registros
     #AUTOR:         RCM
@@ -231,24 +237,28 @@ BEGIN
             --Sentencia de la consulta de conteo de registros
             v_consulta:='select count(1)
                         from kaf.vclasificacion_arbol claf
-                        where  ';
-            
-            --Definicion de la respuesta            
+                        left join kaf.tclasificacion cla1
+                        on cla1.codigo_completo_tmp = (string_to_array(claf.codigo, ''.''))[1]||''.''||(string_to_array(claf.codigo, ''.''))[2]
+                        left join kaf.tclasificacion cla2
+                        on cla2.codigo_completo_tmp = (string_to_array(claf.codigo, ''.''))[1]||''.''||(string_to_array(claf.codigo, ''.''))[2]||''.''||(string_to_array(claf.codigo, ''.''))[3]
+                        where ';
+
+            --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
 
             --Devuelve la respuesta
             return v_consulta;
 
         end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

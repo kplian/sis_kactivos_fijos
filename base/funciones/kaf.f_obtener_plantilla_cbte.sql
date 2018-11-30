@@ -40,7 +40,7 @@ BEGIN
     
     --Obtención de la plantilla de cbte
     select
-    plantilla_cbte_uno, plantilla_cbte_dos, plantilla_cbte_tres
+    plantilla_cbte_uno, plantilla_cbte_dos, plantilla_cbte_tres, plantilla_cbte_cuatro
     into
     v_rec
     from kaf.tmovimiento_tipo
@@ -53,6 +53,8 @@ BEGIN
 		v_plantilla = v_rec.plantilla_cbte_dos;    
     elsif p_numero_plantilla = 3 then
     	v_plantilla = v_rec.plantilla_cbte_tres;
+    elsif p_numero_plantilla = 4 then
+        v_plantilla = v_rec.plantilla_cbte_cuatro;
     else
     	raise exception 'Número de plantilla inexistente';
     end if;

@@ -673,7 +673,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				name: 'id_int_comprobante',
 				fieldLabel: 'Cbte.1',
 				allowBlank: true,
-				gwidth: 40
+				gwidth: 70
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.id_int_comprobante',type:'numeric'},
@@ -703,6 +703,19 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'TextField',
 			filters:{pfiltro:'mov.id_int_comprobante_3',type:'numeric'},
+			id_grupo:0,
+			grid:true,
+			form:false
+		},
+		{
+			config:{
+				name: 'id_int_comprobante_4',
+				fieldLabel: 'Cbte.4',
+				allowBlank: true,
+				gwidth: 70
+			},
+			type:'TextField',
+			filters:{pfiltro:'mov.id_int_comprobante_4',type:'numeric'},
 			id_grupo:0,
 			grid:true,
 			form:false
@@ -938,6 +951,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_proceso_wf_cbte1', type: 'numeric'},
 		{name:'id_proceso_wf_cbte2', type: 'numeric'},
 		{name:'id_proceso_wf_cbte3', type: 'numeric'},
+		{name:'id_int_comprobante_4', type: 'numeric'},
+		{name:'id_proceso_wf_cbte4', type: 'numeric'}
 	],
 	sortInfo:{
 		field: 'id_movimiento',

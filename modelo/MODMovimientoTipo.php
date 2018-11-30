@@ -39,6 +39,7 @@ class MODMovimientoTipo extends MODbase{
 		$this->captura('plantilla_cbte_uno','varchar');
 		$this->captura('plantilla_cbte_dos','varchar');
 		$this->captura('plantilla_cbte_tres','varchar');
+		$this->captura('plantilla_cbte_cuatro','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -61,6 +62,7 @@ class MODMovimientoTipo extends MODbase{
 		$this->setParametro('plantilla_cbte_uno','plantilla_cbte_uno','varchar');
 		$this->setParametro('plantilla_cbte_dos','plantilla_cbte_dos','varchar');
 		$this->setParametro('plantilla_cbte_tres','plantilla_cbte_tres','varchar');
+		$this->setParametro('plantilla_cbte_cuatro','plantilla_cbte_cuatro','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -84,6 +86,7 @@ class MODMovimientoTipo extends MODbase{
 		$this->setParametro('plantilla_cbte_uno','plantilla_cbte_uno','varchar');
 		$this->setParametro('plantilla_cbte_dos','plantilla_cbte_dos','varchar');
 		$this->setParametro('plantilla_cbte_tres','plantilla_cbte_tres','varchar');
+		$this->setParametro('plantilla_cbte_cuatro','plantilla_cbte_cuatro','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -12,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento_af_dep'
  AUTOR: 		 (admin)
  FECHA:	        16-04-2016 08:14:17
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -27,21 +27,21 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'kaf.ft_movimiento_af_dep_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MAFDEP_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		16-04-2016 08:14:17
 	***********************************/
 
 	if(p_transaccion='SKA_MAFDEP_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -72,25 +72,25 @@ BEGIN
 						mafdep.fecha_mod,
 						mafdep.id_usuario_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod
 						from kaf.tmovimiento_af_dep mafdep
 						inner join segu.tusuario usu1 on usu1.id_usuario = mafdep.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mafdep.id_usuario_mod
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MAFDEP_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		16-04-2016 08:14:17
 	***********************************/
 
@@ -103,8 +103,8 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = mafdep.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = mafdep.id_usuario_mod
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
@@ -112,41 +112,45 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MAFDEPRES_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		RCM	
+ 	#AUTOR:		RCM
  	#FECHA:		05/05/2016
 	***********************************/
 
 	elsif(p_transaccion='SKA_MAFDEPRES_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select 
+			v_consulta:='select
 						mafdep.id_movimiento_af_dep, mafdep.id_movimiento_af, mafdep.id_activo_fijo_valor,
 						mafdep.fecha, mafdep.depreciacion_acum_ant, mafdep.depreciacion_per_ant, mafdep.monto_actualiz_ant, mafdep.vida_util_ant,
 						mafdep.depreciacion_acum_actualiz, mafdep.depreciacion_per_actualiz, mafdep.monto_actualiz,
 						mafdep.depreciacion, mafdep.depreciacion_acum,mafdep.depreciacion_per, mafdep.monto_vigente, mafdep.vida_util,
 						mafdep.tipo_cambio_ini,mafdep.tipo_cambio_fin, mafdep.factor,
 						mafdep.monto_actualiz-mafdep.monto_actualiz_ant as inc_monto_actualiz,
-						mafdep.depreciacion_acum_actualiz - mafdep.depreciacion_acum_ant as inc_depreciacion_acum_actualiz
+						case mafdep.meses_acum
+							when ''si'' then mafdep.tmp_inc_actualiz_dep_acum
+							else
+								mafdep.depreciacion_acum_actualiz - mafdep.depreciacion_acum_ant
+						end as inc_depreciacion_acum_actualiz
 						from kaf.tmovimiento_af_dep mafdep
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MAFDEPRES_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		RCM	
+ 	#AUTOR:		RCM
  	#FECHA:		05/05/2016
 	***********************************/
 
@@ -157,8 +161,8 @@ BEGIN
 			v_consulta:='select count(id_movimiento_af_dep)
 					    from kaf.tmovimiento_af_dep mafdep
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
@@ -166,7 +170,7 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_RESCAB_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:			RCM
@@ -174,7 +178,7 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='SKA_RESCAB_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='  select
@@ -212,17 +216,17 @@ BEGIN
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
                         inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_RESCAB_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:			RCM
@@ -243,16 +247,16 @@ BEGIN
                         inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor
                         inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE  ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-	
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'SKA_RESCABPRBK_SEL'
  	#DESCRIPCION:	Consulta de datos de depreciacon par ainterface principal
  	#AUTOR:			RAC
@@ -260,13 +264,13 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='SKA_RESCABPRBK_SEL')then
-     				
+
     	begin
-           
-        
-            
-        
-        
+
+
+
+
+
     		--Sentencia de la consulta
 			v_consulta:='  select
 						  distinct actval.id_activo_fijo_valor,
@@ -297,23 +301,23 @@ BEGIN
                           afv.id_moneda,
                           afv.id_moneda_dep,
                           mon.codigo as desc_moneda
-						from  kaf.tactivo_fijo_valores actval 
-                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor and 
+						from  kaf.tactivo_fijo_valores actval
+                        inner join kaf.vactivo_fijo_valor afv on afv.id_activo_fijo_valor = actval.id_activo_fijo_valor and
                         inner join param.tmoneda mon on mon.id_moneda = afv.id_moneda
                         WHERE  (kaf.fecha_fin is null or afv.fecha_fin <= '''||fecha_hasta||'''::date)  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-            
+
             raise notice 'consulta %',v_consulta;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-        
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'SKA_RESCABPR_SEL'
  	#DESCRIPCION:	Consulta de datos de depreciacon par ainterface principal
  	#AUTOR:			RAC
@@ -321,10 +325,10 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='SKA_RESCABPR_SEL')then
-     				
+
     	begin
-           
-        
+
+
     		--Sentencia de la consulta
 			v_consulta:='select
 						  distinct actval.id_activo_fijo_valor,
@@ -356,7 +360,7 @@ BEGIN
                           actval.id_moneda_dep,
                           mon.codigo as desc_moneda,
                           actval.fecha_fin
-						from  kaf.tactivo_fijo_valores actval 
+						from  kaf.tactivo_fijo_valores actval
                         LEFT JOIN ( SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
                                  afd.monto_vigente,
                                  afd.vida_util,
@@ -372,28 +376,28 @@ BEGIN
                           FROM kaf.tmovimiento_af_dep afd
                           inner join kaf.tactivo_fijo_valores afv on afv.id_activo_fijo_valor = afd.id_activo_fijo_valor
                           WHERE       afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
-                                 and afv.id_activo_fijo = '||v_parametros.id_activo_fijo||' 
+                                 and afv.id_activo_fijo = '||v_parametros.id_activo_fijo||'
                           ORDER BY afd.id_activo_fijo_valor,
                                    afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
                         inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
-                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)  
-                               and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)
+                               and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date
                                and  actval.id_activo_fijo = '||v_parametros.id_activo_fijo||'
                                and ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-            
+
             raise notice 'consulta %',v_consulta;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
-		end;     
-        
 
-	/*********************************    
+		end;
+
+
+	/*********************************
  	#TRANSACCION:  'SKA_RESCABPR_CONT'
  	#DESCRIPCION:	Conteo de registros de depreciacion para interface principal
  	#AUTOR:			RAC
@@ -403,7 +407,7 @@ BEGIN
 	elsif(p_transaccion='SKA_RESCABPR_CONT')then
 
 		begin
-        
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
 						  count(actval.id_activo_fijo_valor),
@@ -411,7 +415,7 @@ BEGIN
                           sum(COALESCE(min.depreciacion_acum, 0::numeric)),
                           sum( COALESCE(min.monto_vigente, actval.monto_vigente_orig)),
                           max(COALESCE(min.vida_util, actval.vida_util_orig))
-						from  kaf.tactivo_fijo_valores actval 
+						from  kaf.tactivo_fijo_valores actval
                         LEFT JOIN ( SELECT DISTINCT ON (afd.id_activo_fijo_valor) afd.id_activo_fijo_valor,
                                  afd.monto_vigente,
                                  afd.vida_util,
@@ -427,32 +431,32 @@ BEGIN
                           FROM kaf.tmovimiento_af_dep afd
                           inner join kaf.tactivo_fijo_valores afv on afv.id_activo_fijo_valor = afd.id_activo_fijo_valor
                           WHERE       afd.fecha <= '''||v_parametros.fecha_hasta||'''::date
-                                 and afv.id_activo_fijo = '||v_parametros.id_activo_fijo||' 
+                                 and afv.id_activo_fijo = '||v_parametros.id_activo_fijo||'
                           ORDER BY afd.id_activo_fijo_valor,
                                    afd.fecha DESC) min ON min.id_activo_fijo_valor =  actval.id_activo_fijo_valor AND actval.id_moneda_dep = min.id_moneda_dep
                         inner join param.tmoneda mon on mon.id_moneda = actval.id_moneda
-                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)  
-                               and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date 
+                        WHERE      (actval.fecha_fin is null or actval.fecha_fin > '''||v_parametros.fecha_hasta||'''::date)
+                               and  actval.fecha_inicio <= '''||v_parametros.fecha_hasta||'''::date
                                and  actval.id_activo_fijo = '||v_parametros.id_activo_fijo||'
                                and ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-        
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'SKA_RDEPMEN_SEL'
  	#DESCRIPCION:	Reporte depreciación mensual
- 	#AUTOR:			RCM		
+ 	#AUTOR:			RCM
  	#FECHA:			14/05/2018
 	***********************************/
 
 	elsif(p_transaccion='SKA_RDEPMEN_SEL')then
-     				
+
     	begin
 
 			create temp table tt_movimiento_af_dep(
@@ -477,7 +481,7 @@ BEGIN
                 depreciacion_acum_gest_ant numeric,
                 tipo_cambio_fin_gest_ant integer
             ) on commit drop;
-            
+
             --Carga los registros de depreciacion del movimiento
             insert into tt_movimiento_af_dep(
               id_movimiento_af_dep,
@@ -513,22 +517,22 @@ BEGIN
             on maf.id_movimiento_af = mdep.id_movimiento_af
             where mdep.id_moneda = v_parametros.id_moneda
         	and maf.id_movimiento = v_parametros.id_movimiento;
-            
+
             --Obtiene el id_activo_fijo_valor padre
             update tt_movimiento_af_dep set
             id_activo_fijo_valor_padre = kaf.f_get_afv_padre(tt_movimiento_af_dep.id_activo_fijo_valor);
-            
+
             --Obtiene los Ids de los AFV de los dependientes
             update tt_movimiento_af_dep set
             id_afvs = kaf.f_get_ids_afv_dependiente(tt_movimiento_af_dep.id_activo_fijo_valor);
-            
+
             --Obtiene datos del padre
             update tt_movimiento_af_dep set
             fecha_ini_dep = (select fecha_ini_dep from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre),
 			monto_vigente_orig_100 = (select monto_vigente_orig_100 from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre),
 			monto_vigente_orig = (select monto_vigente_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_movimiento_af_dep.id_activo_fijo_valor_padre)
             where id_activo_fijo_valor_padre is not null;
-            
+
             --Los que no tienen padre
             update tt_movimiento_af_dep mdep set
             fecha_ini_dep = afv.fecha_ini_dep,
@@ -537,7 +541,7 @@ BEGIN
             from kaf.tactivo_fijo_valores afv
             where afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
             and mdep.id_activo_fijo_valor_padre is null;
-            
+
             --Depreciación acumulada gestión anterior
             update tt_movimiento_af_dep set
             depreciacion_acum_gest_ant = (select ps_depreciacion_acum_gest_ant from kaf.f_get_depreciacion_acum_gest_ant(tt_movimiento_af_dep.id_activo_fijo_valor,
@@ -548,8 +552,8 @@ BEGIN
             																	tt_movimiento_af_dep.id_afvs,
                                                                                 2,
                                                                                 tt_movimiento_af_dep.fecha));
-            
-    		--Sentencia de la consulta            
+
+    		--Sentencia de la consulta
 			v_consulta:='
             			WITH tta as (SELECT distinct rc_1.id_tabla AS id_clasificacion,
                           ((''{''::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, ''hijos''::
@@ -565,11 +569,11 @@ BEGIN
                         )
             			select
             			row_number() over(order by afv.codigo) as numero,
-                        afv.codigo, 
-                        af.codigo_ant, 
+                        afv.codigo,
+                        af.codigo_ant,
                         af.denominacion,
-                        to_char(mdep.fecha_ini_dep,''dd-mm-yyyy''), 
-                        af.cantidad_af, 
+                        to_char(mdep.fecha_ini_dep,''dd-mm-yyyy''),
+                        af.cantidad_af,
                         um.descripcion as desc_unidad_medida,
                         cc.codigo_tcc,
                         af.nro_serie,
@@ -583,7 +587,7 @@ BEGIN
                         afv.vida_util_orig,
                         mdep.monto_actualiz - mdep.monto_actualiz_ant as inc_actualiz,
                         mdep.depreciacion_acum_gest_ant,--vde.depreciacion_acum_actualiz as dep_acum_gestant,
-                        case 
+                        case
                         	when coalesce(mdep.depreciacion_acum_gest_ant,0) = 0 then 0
                             else mdep.depreciacion_acum_gest_ant * mdep.tipo_cambio_fin/mdep.tipo_cambio_fin_gest_ant
                         end as actualiz_dep_gest_ant,
@@ -594,32 +598,32 @@ BEGIN
                         mdep.monto_vigente as valor_activo,
                         mdep.tipo_cambio_ini,
                         mdep.tipo_cambio_fin,
-                        min(mdep.fecha) over (partition by mdep.id_activo_fijo_valor), 
+                        min(mdep.fecha) over (partition by mdep.id_activo_fijo_valor),
                         max(mdep.fecha) over (partition by mdep.id_activo_fijo_valor),
-                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
-                          from conta.tcuenta c 
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta
+                          from conta.tcuenta c
                           where c.id_cuenta in (select id_cuenta
-                                              from conta.trelacion_contable rc 
+                                              from conta.trelacion_contable rc
                                               where rc.id_tipo_relacion_contable =  90
                                               and rc.id_gestion = 2
                                               and rc.estado_reg = ''activo''
                                               and rc.id_tabla = tta.id_clasificacion
                                               )
                         ) as cuenta_activo,
-                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
-                                    from conta.tcuenta c 
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta
+                                    from conta.tcuenta c
                                     where c.id_cuenta in (select id_cuenta
-                                                        from conta.trelacion_contable rc 
+                                                        from conta.trelacion_contable rc
                                                         where rc.id_tipo_relacion_contable =  92
                                                         and rc.id_gestion = 2
                                                         and rc.estado_reg = ''activo''
                                                         and rc.id_tabla = tta.id_clasificacion
                                                         )
                         ) as cuenta_dep_acum,
-                        (select c.nro_cuenta||''-''||c.nombre_cuenta 
-                                    from conta.tcuenta c 
+                        (select c.nro_cuenta||''-''||c.nombre_cuenta
+                                    from conta.tcuenta c
                                     where c.id_cuenta in (select id_cuenta
-                                                        from conta.trelacion_contable rc 
+                                                        from conta.trelacion_contable rc
                                                         where rc.id_tipo_relacion_contable =  91
                                                         and rc.id_gestion = 2
                                                         and rc.estado_reg = ''activo''
@@ -644,7 +648,7 @@ BEGIN
                         and vde.id_activo_fijo_valor = afv.id_activo_fijo_valor*/
                         left join tta on af.id_clasificacion = ANY (tta.nodos)
                         order by afv.codigo';
-			
+
 			--Definicion de la respuesta
 			--v_consulta:=v_consulta||v_parametros.filtro;
             raise notice '%',v_consulta;
@@ -652,19 +656,19 @@ BEGIN
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-    
-    
-    				
+
+
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

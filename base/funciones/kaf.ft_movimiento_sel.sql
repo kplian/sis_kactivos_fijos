@@ -147,8 +147,14 @@ BEGIN
                         mov.id_int_comprobante,
                         mov.id_int_comprobante_aitb,
                         funwf.desc_funcionario2 as resp_wf,
-            mov.prestamo,
-            mov.fecha_dev_prestamo
+                        mov.prestamo,
+                        mov.fecha_dev_prestamo,
+                        mov.id_int_comprobante_3,
+                        cb1.id_proceso_wf as id_proceso_wf_cbte1,
+                        cb2.id_proceso_wf as id_proceso_wf_cbte2,
+                        cb3.id_proceso_wf as id_proceso_wf_cbte3,
+                        mov.id_int_comprobante_4,
+                        cb4.id_proceso_wf as id_proceso_wf_cbte4
                         from kaf.tmovimiento mov
                         inner join segu.tusuario usu1 on usu1.id_usuario = mov.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = mov.id_usuario_mod
@@ -166,6 +172,10 @@ BEGIN
                         left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
                         left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
                         left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
+                        left join conta.tint_comprobante cb1 on cb1.id_int_comprobante = mov.id_int_comprobante
+                        left join conta.tint_comprobante cb2 on cb2.id_int_comprobante = mov.id_int_comprobante_aitb
+                        left join conta.tint_comprobante cb3 on cb3.id_int_comprobante = mov.id_int_comprobante_3
+                        left join conta.tint_comprobante cb4 on cb4.id_int_comprobante = mov.id_int_comprobante_4
                         where '||v_filtro;
 
             --Verifica si la consulta es por usuario
@@ -273,6 +283,10 @@ BEGIN
                         left join orga.vfuncionario fundest on fundest.id_funcionario = mov.id_funcionario_dest
                         left join kaf.tmovimiento_motivo movmot on movmot.id_movimiento_motivo = mov.id_movimiento_motivo
                         left join orga.vfuncionario funwf on funwf.id_funcionario = ew.id_funcionario
+                        left join conta.tint_comprobante cb1 on cb1.id_int_comprobante = mov.id_int_comprobante
+                        left join conta.tint_comprobante cb2 on cb2.id_int_comprobante = mov.id_int_comprobante_aitb
+                        left join conta.tint_comprobante cb3 on cb3.id_int_comprobante = mov.id_int_comprobante_3
+                        left join conta.tint_comprobante cb4 on cb4.id_int_comprobante = mov.id_int_comprobante_4
                         where '||v_filtro;
 
             --Verifica si la consulta es por usuario

@@ -56,7 +56,8 @@ BEGIN
 			id_usuario_mod,
 			plantilla_cbte_uno,
 			plantilla_cbte_dos,
-			plantilla_cbte_tres
+			plantilla_cbte_tres,
+			plantilla_cbte_cuatro
           	) values(
 			v_parametros.id_cat_movimiento,
 			'activo',
@@ -69,7 +70,8 @@ BEGIN
 			null,
 			v_parametros.plantilla_cbte_uno,
 			v_parametros.plantilla_cbte_dos,
-			v_parametros.plantilla_cbte_tres
+			v_parametros.plantilla_cbte_tres,
+			v_parametros.plantilla_cbte_cuatro
 			)RETURNING id_movimiento_tipo into v_id_movimiento_tipo;
 			
 			--Definicion de la respuesta
@@ -101,7 +103,8 @@ BEGIN
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			plantilla_cbte_uno = v_parametros.plantilla_cbte_uno,
 			plantilla_cbte_dos = v_parametros.plantilla_cbte_dos,
-			plantilla_cbte_tres = v_parametros.plantilla_cbte_tres
+			plantilla_cbte_tres = v_parametros.plantilla_cbte_tres,
+			plantilla_cbte_cuatro = v_parametros.plantilla_cbte_cuatro
 			where id_movimiento_tipo=v_parametros.id_movimiento_tipo;
                
 			--Definicion de la respuesta

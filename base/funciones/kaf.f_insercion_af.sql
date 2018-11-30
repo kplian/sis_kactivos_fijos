@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION kaf.f_insercion_af (
   p_id_usuario integer,
-  p_parametros public.hstore
+  p_parametros public.hstore,
+  p_proyecto varchar = 'no'::character varying
 )
 RETURNS integer AS
 $body$
@@ -19,16 +20,25 @@ DECLARE
 BEGIN
 
     v_nombre_funcion = 'kaf.f_insercion_af';
-     
-    --Conversión de monedas
-    v_monto_compra = param.f_convertir_moneda(
-                           (p_parametros->'id_moneda_orig')::integer, 
-                           NULL,   --por defecto moneda base
-                           (p_parametros->'monto_compra_orig')::numeric, 
-                           (p_parametros->'fecha_compra')::date, 
-                           'O',-- tipo oficial, venta, compra 
-                           NULL);--defecto dos decimales
-            
+
+    --Para el caso de proyectos, no realiza la conversión del monto, recibe del parámetro de ambos montos, el original y en bolivianos
+    if p_proyecto = 'no' then
+
+        --Conversión de monedas
+        v_monto_compra = param.f_convertir_moneda(
+                               (p_parametros->'id_moneda_orig')::integer,
+                               NULL,   --por defecto moneda base
+                               (p_parametros->'monto_compra_orig')::numeric,
+                               (p_parametros->'fecha_compra')::date,
+                               'O',-- tipo oficial, venta, compra
+                               NULL);--defecto dos decimales
+
+    else
+
+        v_monto_compra = (p_parametros->'monto_compra')::numeric;
+
+    end if;
+
     --Se hace el registro del activo fijo
     insert into kaf.tactivo_fijo(
         id_persona,
@@ -86,9 +96,10 @@ BEGIN
         id_preingreso_det,
         id_grupo,
         id_ubicacion,
-        id_grupo_clasif
+        id_grupo_clasif,
+        monto_compra_sin_actualiz
     ) values(
-        (p_parametros->'id_persona')::integer, 
+        (p_parametros->'id_persona')::integer,
         0,
         './../../../uploaded_files/sis_kactivos_fijos/ActivoFijo/default.jpg',
         (p_parametros->'id_proveedor')::integer,
@@ -143,7 +154,8 @@ BEGIN
         (p_parametros->'id_preingreso_det')::integer,
         (p_parametros->'id_grupo')::integer,
         (p_parametros->'id_ubicacion')::integer,
-        (p_parametros->'id_grupo_clasif')::integer
+        (p_parametros->'id_grupo_clasif')::integer,
+        (p_parametros->'monto_compra_sin_actualiz')::numeric
     ) returning id_activo_fijo into v_id_activo_fijo;
 
     --Respuesta

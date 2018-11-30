@@ -173,6 +173,18 @@ Phx.vista.MovimientoPrincipal = {
             }
         );
 
+        this.addButton('btnCbte4',
+            {
+                text: 'Cbte.4',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.mostrarCbte,
+                tooltip: '<b>Comprobante 4</b><br/>Impresión del comprobante relacionado.',
+                grupo: [0,1,2,3,4,5,6],
+                cbte: 3
+            }
+        );
+
         //Oculta los botones
         this.getBoton('btnCbte1').hide();
         this.getBoton('btnCbte2').hide();
@@ -448,6 +460,7 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnCbte1').hide();
         this.getBoton('btnCbte2').hide();
         this.getBoton('btnCbte3').hide();
+        this.getBoton('btnCbte4').hide();
         if(data.id_int_comprobante){
             this.getBoton('btnCbte1').show();
         }
@@ -456,6 +469,9 @@ Phx.vista.MovimientoPrincipal = {
         }
         if(data.id_int_comprobante_3){
             this.getBoton('btnCbte3').show();
+        }
+        if(data.id_int_comprobante_4){
+            this.getBoton('btnCbte4').show();
         }
 
         return tb;
@@ -592,7 +608,6 @@ Phx.vista.MovimientoPrincipal = {
             )
     }) ,
     mostrarCbte: function(args){
-        console.log('sssss',args.cbte)
         var rec = this.sm.getSelected(),
             data = rec.data,
             param;
@@ -603,6 +618,8 @@ Phx.vista.MovimientoPrincipal = {
             param = data.id_proceso_wf_cbte2;
         } else if(args.cbte==3){
             param = data.id_proceso_wf_cbte3;
+        } else if(args.cbte==4){
+            param = data.id_proceso_wf_cbte4;
         } else {
             return;
         }

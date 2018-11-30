@@ -59,7 +59,8 @@ BEGIN
 						pm.nombre as nombre_pm,
 						movtip.plantilla_cbte_uno,
 						movtip.plantilla_cbte_dos,
-						movtip.plantilla_cbte_tres
+						movtip.plantilla_cbte_tres,
+						movtip.plantilla_cbte_cuatro
 						from kaf.tmovimiento_tipo movtip
 						inner join segu.tusuario usu1 on usu1.id_usuario = movtip.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movtip.id_usuario_mod

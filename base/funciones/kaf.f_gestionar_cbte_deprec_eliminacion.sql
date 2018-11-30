@@ -64,6 +64,13 @@ BEGIN
         from kaf.tmovimiento
         where id_int_comprobante_3 = p_id_int_comprobante;    
     end if;
+    
+    if v_id_movimiento is null then
+        select 'act_dep_per'::varchar, id_movimiento
+        into v_cbte, v_id_movimiento
+        from kaf.tmovimiento
+        where id_int_comprobante_4 = p_id_int_comprobante;    
+    end if;
 
     --Si no encuentra el movimiento despliega una excepción
     if v_id_movimiento is null then
@@ -82,7 +89,8 @@ BEGIN
     c.estado_reg as estadato_cbte,
     mov.id_int_comprobante,
     mov.id_int_comprobante_aitb,
-    mov.id_int_comprobante_3
+    mov.id_int_comprobante_3,
+    mov.id_int_comprobante_4    
     into
     v_registros
     from kaf.tmovimiento  mov
@@ -90,11 +98,12 @@ BEGIN
     where mov.id_movimiento = v_id_movimiento; 
 
 
-    --3) Verifica que los 3 comprobantes no estén validados
+    --3) Verifica que los 4 comprobantes no estén validados
     if exists(select 1 from conta.tint_comprobante
               where (id_int_comprobante = v_registros.id_int_comprobante and estado_reg = 'validado')
               or (id_int_comprobante = v_registros.id_int_comprobante_aitb and estado_reg = 'validado')
-              or (id_int_comprobante = v_registros.id_int_comprobante_3 and estado_reg = 'validado')) then
+              or (id_int_comprobante = v_registros.id_int_comprobante_3 and estado_reg = 'validado')
+              or (id_int_comprobante = v_registros.id_int_comprobante_4 and estado_reg = 'validado')) then
 
         raise exception 'No puede eliminarse el comprobante, alguno de los comprobantes generados ya fue validado';
 
@@ -136,6 +145,18 @@ BEGIN
         --Eliminación del comprobante
         delete from conta.tint_comprobante
         where id_int_comprobante=v_registros.id_int_comprobante_3;
+                                                    
+    end if;
+    if v_cbte != 'act_dep_per' and coalesce(v_registros.id_int_comprobante_4,0)<>0 then
+        perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_4, 'eliminado', 'Cbte eliminado');
+        
+        --Eliminación de las transacciones
+        delete from conta.tint_transaccion
+        where id_int_comprobante=v_registros.id_int_comprobante_4;
+                          
+        --Eliminación del comprobante
+        delete from conta.tint_comprobante
+        where id_int_comprobante=v_registros.id_int_comprobante_4;
                                                     
     end if;
 
@@ -184,6 +205,7 @@ BEGIN
     id_int_comprobante = null,
     id_int_comprobante_aitb = null,
     id_int_comprobante_3 = null,
+    id_int_comprobante_4 = null,
     id_usuario_ai = p_id_usuario_ai,
     usuario_ai = p_usuario_ai
     where mov.id_movimiento = v_registros.id_movimiento;

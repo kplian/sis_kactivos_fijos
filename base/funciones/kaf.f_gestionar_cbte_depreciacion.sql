@@ -42,6 +42,7 @@ DECLARE
     v_estado_1                  varchar;
     v_estado_2                  varchar;
     v_estado_3                  varchar;
+    v_estado_4                  varchar;
 
 BEGIN
 
@@ -59,7 +60,8 @@ BEGIN
     mov.id_int_comprobante,
     mov.id_int_comprobante_aitb,
     cat.codigo as movimiento,
-    mov.id_int_comprobante_3
+    mov.id_int_comprobante_3,
+    mov.id_int_comprobante_4
     into
     v_registros
     from  kaf.tmovimiento mov      
@@ -69,7 +71,8 @@ BEGIN
     on cat.id_catalogo = mov.id_cat_movimiento
     where mov.id_int_comprobante = p_id_int_comprobante
     or mov.id_int_comprobante_aitb = p_id_int_comprobante
-    or mov.id_int_comprobante_3 = p_id_int_comprobante; 
+    or mov.id_int_comprobante_3 = p_id_int_comprobante
+    or mov.id_int_comprobante_4 = p_id_int_comprobante; 
     
     
     --2) Valida que el comprobante esté relacionado con un movimiento
@@ -78,7 +81,7 @@ BEGIN
     end if;
     
    
-    --3) Verificación de validación de los 3 comprobantes
+    --3) Verificación de validación de los 4 comprobantes
     select estado_reg
     into v_estado_1 
     from conta.tint_comprobante
@@ -94,8 +97,13 @@ BEGIN
     from conta.tint_comprobante
     where id_int_comprobante = v_registros.id_int_comprobante_3;
     
+    select estado_reg
+    into v_estado_4
+    from conta.tint_comprobante
+    where id_int_comprobante = v_registros.id_int_comprobante_4;
+    
     if v_registros.movimiento = 'deprec' then
-        if coalesce(v_estado_1,'')='validado' and coalesce(v_estado_2,'')='validado' and coalesce(v_estado_3,'')='validado' then
+        if coalesce(v_estado_1,'')='validado' and coalesce(v_estado_2,'')='validado' and coalesce(v_estado_3,'')='validado' and coalesce(v_estado_4,'')='validado' then
             v_sw_fin = true;
         end if;
     elsif v_registros.movimiento = 'actua' then

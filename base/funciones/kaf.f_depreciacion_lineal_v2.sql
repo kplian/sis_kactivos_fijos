@@ -44,20 +44,20 @@ DECLARE
     v_sw_dep_ant            boolean = false;
 
 BEGIN
-    
+
     v_nombre_funcion = 'kaf.f_depreciacion_lineal_v2';
 
     --RAC 03/03/2017
     --TODO validar que no se valores dos veces dentro el mismo omvimeinto
     --talvez eliminar la depreciacion del movimiento antes de empezar ...
-    
-    delete from  
+
+    delete from
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af in (select id_movimiento_af from kaf.tmovimiento_af
                                     where id_movimiento = p_id_movimiento);
-        
+
     ---FIN RAC
-    
+
     --Obtención del subsistema para posterior verificación de período abierto
     select id_subsistema into v_id_subsistema
     from segu.tsubsistema
@@ -86,7 +86,7 @@ BEGIN
                 case
                     when afv.fecha_ult_dep_real >= afv.fecha_ini_dep and afv1.fecha_ult_dep is not null then kaf.f_months_between(('01/'||date_part('month'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar||'/'||date_part('year'::text, afv.fecha_ult_dep_real + interval '1' month)::varchar)::date, v_fecha_hasta)
                 else
-                    kaf.f_months_between(afv.fecha_ult_dep_real, v_fecha_hasta) 
+                    kaf.f_months_between(afv.fecha_ult_dep_real, v_fecha_hasta)
                 end as meses_dep,
 
                 mon.id_moneda_dep,
@@ -98,9 +98,9 @@ BEGIN
                 afv.id_activo_fijo_valor,
                 afv.fecha_ult_dep,
                 afv.fecha_ini_dep,
-                afv.depreciacion_acum, 
-                afv.depreciacion_per, 
-                afv.monto_vigente, 
+                afv.depreciacion_acum,
+                afv.depreciacion_per,
+                afv.monto_vigente,
                 afv.vida_util,
                 afv.monto_rescate,
                 afv.vida_util_real,
@@ -119,6 +119,8 @@ BEGIN
                 afv1.monto_vigente as monto_vigente_padre,
                 afv1.fecha_ult_dep as fecha_ult_dep_afv,
                 afv1.monto_vigente_actualiz_inicial,
+                afv1.depreciacion_acum_inicial,
+                afv1.depreciacion_per_inicial,
                 af.codigo,
                 afv1.codigo as codigo_afv
                 from kaf.tmovimiento_af maf
@@ -133,7 +135,9 @@ BEGIN
                 inner join kaf.tactivo_fijo_valores afv1
                 on afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor
                 where maf.id_movimiento = p_id_movimiento
-                and afv.fecha_ult_dep_real < v_fecha_hasta --solo que tenga depreciacion menor a la fecha indicada en el movimiento
+                and maf.id_activo_fijo in (32478,32527)
+                and afv.fecha_ult_dep_real <= v_fecha_hasta --solo que tenga depreciacion menor a la fecha indicada en el movimiento
+                --and maf.id_activo_fijo in (34086,34630,34740)
                 --and afv.estado = 'activo'
                 /*and (case  when cla.depreciable = 'si' then
                         afv.vida_util_real > 0
@@ -146,7 +150,7 @@ BEGIN
         v_sw_control_dep= true;
 
         v_mes_dep = v_rec.mes_dep;
-
+        --raise notice '%',v_rec.depreciable;
         --Inicialización datos última depreciación
         if v_rec.depreciable = 'si' then
             v_ant_dep_acum          = v_rec.depreciacion_acum_real;
@@ -154,14 +158,15 @@ BEGIN
             v_ant_monto_vigente     = v_rec.monto_vigente_real;
             v_ant_vida_util         = v_rec.vida_util_real;
             v_ant_monto_actualiz    = v_rec.monto_actualiz_real;
-            
+
             --Si es un AFV replica toma la depreciacion acum y monto vigente del AFV para el inicio
             if v_rec.id_activo_fijo_valor_original is not null and v_rec.fecha_ult_dep_afv is null then
 
                 v_sw_dep_ant = true;
-                v_ant_dep_acum      = v_rec.depreciacion_acum_padre;
+                v_ant_dep_acum       = v_rec.depreciacion_acum_inicial;--v_rec.depreciacion_acum_padre;
                 v_ant_monto_actualiz = v_rec.monto_vigente_actualiz_inicial;
-                
+                v_ant_dep_per        = v_rec.depreciacion_per_inicial;
+
                 /*if v_rec.id_activo_fijo_valor = 96941 then
                     raise exception 'dep acum: %, monto actualiz: %',v_ant_dep_acum,v_ant_monto_actualiz;
                 end if;*/
@@ -203,7 +208,7 @@ BEGIN
 
         --Bucle de la cantidad de meses a depreciar
         for i in 1..v_rec.meses_dep loop
-        
+
             --Verifica que la fecha fin del afv sea menor o igual a la fecha en que se está depreciando
             /*if v_rec.codigo_afv = '06.26.01.0046' THEN
                 raise exception 'activo %  mes: %  fecha_fin: %',v_rec.codigo_afv,v_mes_dep, v_rec.fecha_fin;
@@ -214,7 +219,7 @@ BEGIN
                     exit;
                 end if;
             end if;
-        
+
             --RCM:  Verificación periodo cerrado
             select po_id_periodo_subsistema into v_id_periodo_subsistema
             from param.f_get_periodo_gestion(v_mes_dep,v_id_subsistema);
@@ -226,12 +231,10 @@ BEGIN
             end if;
             --FIN RCM
 
-/*if v_rec.id_activo_fijo_valor = 137315 then
-    raise exception 'fffff';
-end if;            */
+
 
             if v_rec.actualizar = 'si'  then
-                --Obtener tipo de cambio del inicio y fin de mes 
+                --Obtener tipo de cambio del inicio y fin de mes
                 select
                 o_tc_inicial, o_tc_final, o_tc_factor, o_fecha_ini, o_fecha_fin
                 into v_rec_tc
@@ -261,9 +264,9 @@ end if;            */
                 --Cálculo nuevos valores por depreciación
                 --RAC 03/03/2017
                 --  agrega validacion de division por cero
-                
-              
-                
+
+
+
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
                     --exit; --v_nuevo_dep_mes       = 0;
                 else
@@ -273,15 +276,15 @@ end if;            */
                     --v_nuevo_dep_mes = ((v_ant_monto_vigente-v_ant_dep_acum) * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
                     --RCM 06/04/2018: freddy pide quitar el monto de rescate para generar deprec. desde febrero así
                     --v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor) /  v_ant_vida_util;
-               
+
                     --Si es una depreciación que continúa o arraste la deprec acum de otro AFV, resta la dep acum a la fórmula
-                    if v_sw_dep_ant then
-                        v_nuevo_dep_mes = ((v_ant_monto_vigente-v_ant_dep_acum) * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
-                    else
+                    --if v_sw_dep_ant then
+                    --  v_nuevo_dep_mes = ((v_ant_monto_vigente-v_ant_dep_acum) * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
+                    --else
                         --Fórmula por defecto
                         v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor- v_rec.monto_rescate) /  v_ant_vida_util;
-                    end if;
-                     
+                    --end if;
+
                 end if;
 
                 v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
@@ -292,19 +295,19 @@ end if;            */
                 --RCM 12/12/2017: que siga actualizando la dep. acum aunque tenga vida util cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
 
-                    v_dep_per_actualiz  = 0;
                     --v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
                     v_monto_actualiz    = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
                     v_nuevo_dep_mes = 0;
 
                     v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
-                    v_nuevo_dep_per       = 0;
+                    v_nuevo_dep_per       = v_dep_per_actualiz; --0; ; cambiado para que agarre la depreciación per ant actualizada
                     v_nuevo_monto_vigente = v_rec.monto_rescate;
                     v_nuevo_vida_util     = 0;
                 end if;
                 --FIN RCM
 
             else
+            --raise notice 'entra: %, %, %',v_ant_dep_acum,v_ant_dep_per,v_ant_monto_actualiz;
                 --Actualización de importes
                 v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
                 v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
@@ -312,8 +315,9 @@ end if;            */
 
                 v_nuevo_dep_acum      = 0;
                 v_nuevo_dep_per       = 0;
-                v_nuevo_monto_vigente = v_monto_actualiz;                              
+                v_nuevo_monto_vigente = v_monto_actualiz;
                 v_nuevo_vida_util     = v_ant_vida_util ;
+                v_nuevo_dep_mes       = 0;
             end if;
 
             --Verifica que no exista el reg. id_monea_dep, id_activo_fijo_valor, fecha
@@ -331,7 +335,7 @@ end if;            */
                 estado_reg,
                 id_usuario_ai,
                 usuario_ai,
-                id_movimiento_af,                                     
+                id_movimiento_af,
                 depreciacion_acum_ant, --10
                 depreciacion_per_ant,
                 monto_vigente_ant,
@@ -360,10 +364,10 @@ end if;            */
                 'activo',
                 null,
                 null,
-                v_rec.id_movimiento_af,                                     
+                v_rec.id_movimiento_af,
                 v_ant_dep_acum, --10  depreciacion_acum_ant
                 v_ant_dep_per,   --depreciacion_per_ant
-                v_ant_monto_vigente,  --monto_vigente_ant  
+                v_ant_monto_vigente,  --monto_vigente_ant
                 v_ant_vida_util,   --  vida_util_ant
                 v_dep_acum_actualiz,  --  depreciacion_acum_actualiz
                 v_dep_per_actualiz,  --  depreciacion_per_actualiz
@@ -384,20 +388,20 @@ end if;            */
                 ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
 
             else
-                raise exception 'El Activo Fijo % ya fue depreciado en  %',v_rec.codigo_afv,v_mes_dep;
-            end if;            
+                raise exception 'El Activo Fijo % ya fue depreciado en  %, %',v_rec.codigo_afv,v_mes_dep,v_rec.id_activo_fijo_valor;
+            end if;
 
-           raise notice '- iteracion: % -> % : %  ; %' ,i,v_mes_dep,v_rec.id_moneda_dep,v_ant_monto_actualiz;
+           --raise notice '- iteracion: % -> % : %  ; %' ,i,v_mes_dep,v_rec.id_moneda_dep,v_ant_monto_actualiz;
 
             v_gestion_previa =   extract(year from v_mes_dep::date);
             v_tipo_cambio_anterior = v_rec_tc.o_tc_final;
 
             --Incrementa en uno el mes
-            v_mes_dep = v_mes_dep + interval '1' month; 
+            v_mes_dep = v_mes_dep + interval '1' month;
 
-            --ajusta las fechas 
+            --ajusta las fechas
             v_gestion_aux = date_part('year'::text, v_mes_dep);
-            v_mes_aux = date_part('month'::text, v_mes_dep);                 
+            v_mes_aux = date_part('month'::text, v_mes_dep);
             v_mes_dep = ('01/'||v_mes_aux::varchar||'/'||v_gestion_aux::varchar)::date;
             v_gestion_dep = extract(year from v_mes_dep::date);
 
@@ -409,7 +413,7 @@ end if;            */
             end if;
 
             --Reinicialización de valores depreciación para siguiente iteración
-            v_ant_dep_acum = v_nuevo_dep_acum;                       
+            v_ant_dep_acum = v_nuevo_dep_acum;
             v_ant_monto_vigente = v_nuevo_monto_vigente;
             v_ant_vida_util = v_nuevo_vida_util;
             v_ant_monto_actualiz = v_monto_actualiz;
@@ -419,7 +423,7 @@ end if;            */
         if v_rec.meses_dep = 0 then
             v_mensaje = 'Sin depreciar. No corresponde depreciar en este periodo';
         else
-            v_mes_dep = v_mes_dep - interval '1' month; 
+            v_mes_dep = v_mes_dep - interval '1' month;
             v_mensaje = 'Depreciado hasta '||v_mes_dep::varchar;
         end if;
 

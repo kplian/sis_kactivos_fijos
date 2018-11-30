@@ -2688,3 +2688,229 @@ ALTER TABLE kaf.ttipo_prorrateo
 /***********************************F-DEP-RCM-KAF-1-10/07/2018****************************************/
 
 
+/***********************************I-DEP-RCM-KAF-1-30/07/2018****************************************/
+CREATE VIEW kaf.v_cbte_baja_cab (
+    id_movimiento,
+    id_depto_af,
+    fecha_mov,
+    id_cat_movimiento,
+    codigo_catalogo,
+    desc_catalogo,
+    num_tramite,
+    fecha_hasta,
+    glosa,
+    id_depto_conta,
+    codigo_depto_conta,
+    id_gestion,
+    gestion,
+    id_moneda,
+    descripcion,
+    glosa_cbte)
+AS
+SELECT mov.id_movimiento,
+    mov.id_depto AS id_depto_af,
+    mov.fecha_mov,
+    mov.id_cat_movimiento,
+    cat.codigo AS codigo_catalogo,
+    cat.descripcion AS desc_catalogo,
+    mov.num_tramite,
+    mov.fecha_hasta,
+    mov.glosa,
+    depc.id_depto AS id_depto_conta,
+    depc.codigo AS codigo_depto_conta,
+    per.id_gestion,
+    ges.gestion,
+    md.id_moneda,
+    md.descripcion,
+    'Comprobante de Baja de Activo(s) Fijo(s) al período de '::text
+        || to_char(mov.fecha_mov::timestamp with time zone, 'mm/YYYY'::text) AS glosa_cbte
+FROM kaf.tmovimiento mov
+     JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+     JOIN param.tdepto_depto dd ON dd.id_depto_origen = mov.id_depto
+     JOIN param.tdepto depc ON depc.id_depto = dd.id_depto_destino
+     JOIN segu.tsubsistema sis ON sis.id_subsistema = depc.id_subsistema AND
+         sis.codigo::text = 'CONTA'::text
+     JOIN param.tperiodo per ON mov.fecha_mov >= per.fecha_ini AND
+         mov.fecha_mov <= per.fecha_fin
+     JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
+     JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_baja
+AS
+WITH trel_contable AS(
+  SELECT rc_1.id_tabla AS id_clasificacion,
+         (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::
+           character varying)::text) || '}'::text)::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+       JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+         = tb.id_tabla_relacion_contable
+       JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+         trc.id_tipo_relacion_contable
+  WHERE tb.esquema::text = 'KAF'::text AND
+        tb.tabla::text = 'tclasificacion'::text AND
+        trc.codigo_tipo_relacion::text = 'ALTAAF'::text)
+    SELECT rc.id_clasificacion,
+           cla.codigo_completo_tmp,
+           cla.nombre,
+           sum(mdep.monto_actualiz) AS monto_actualiz,
+           sum(mdep.depreciacion_acum) AS depreciacion_acum,
+           maf.id_movimiento,
+           mdep.id_moneda,
+           cc.codigo_tcc,
+           (((af.codigo::text || ', '::text) || af.codigo_ant::text) || ', '::
+             text) || af.descripcion::text AS descripcion,
+             cc.id_centro_costo
+    FROM kaf.tmovimiento_af maf
+         JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+         JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo =
+           maf.id_activo_fijo
+         JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_activo_fijo_valor =
+           afv.id_activo_fijo_valor AND date_trunc('month'::text, mdep.fecha::
+           timestamp with time zone) = date_trunc('month'::text, mov.fecha_mov -
+           '1 mon'::interval)
+         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+         JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+         JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
+           rc.id_clasificacion
+         LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
+           af.id_centro_costo
+    WHERE mdep.id_moneda = param.f_get_moneda_base()
+    GROUP BY rc.id_clasificacion,
+             cla.codigo_completo_tmp,
+             cla.nombre,
+             maf.id_movimiento,
+             mdep.id_moneda,
+             cc.codigo_tcc,
+             af.codigo,
+             af.codigo_ant,
+             af.denominacion,
+             af.descripcion,
+             cc.id_centro_costo;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_baja_valor_neto(
+    id_movimiento,
+    id_centro_costo,
+    id_clasificacion,
+    valor_neto)
+AS
+  SELECT v_cbte_baja.id_movimiento,
+         v_cbte_baja.id_centro_costo,
+         v_cbte_baja.id_clasificacion,
+         sum(v_cbte_baja.monto_actualiz - v_cbte_baja.depreciacion_acum) AS
+           valor_neto
+  FROM kaf.v_cbte_baja
+  GROUP BY v_cbte_baja.id_movimiento,
+           v_cbte_baja.id_centro_costo,
+           v_cbte_baja.id_clasificacion;
+/***********************************F-DEP-RCM-KAF-1-30/07/2018****************************************/
+
+/***********************************I-DEP-RCM-KAF-1-09/08/2018****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_dep_per_cab (
+    id_movimiento,
+    id_depto_af,
+    fecha_mov,
+    id_cat_movimiento,
+    codigo_catalogo,
+    desc_catalogo,
+    num_tramite,
+    fecha_hasta,
+    glosa,
+    id_depto_conta,
+    codigo_depto_conta,
+    id_gestion,
+    gestion,
+    id_moneda,
+    descripcion,
+    glosa_cbte)
+AS
+SELECT mov.id_movimiento,
+    mov.id_depto AS id_depto_af,
+    mov.fecha_mov,
+    mov.id_cat_movimiento,
+    cat.codigo AS codigo_catalogo,
+    cat.descripcion AS desc_catalogo,
+    mov.num_tramite,
+    mov.fecha_hasta,
+    mov.glosa,
+    depc.id_depto AS id_depto_conta,
+    depc.codigo AS codigo_depto_conta,
+    per.id_gestion,
+    ges.gestion,
+    md.id_moneda,
+    md.descripcion,
+    'Comprobante de Actualización de Depreciación Período correspondiente al período de '::text
+        || to_char(mov.fecha_hasta::timestamp with time zone, 'mm/YYYY'::text) AS glosa_cbte
+FROM kaf.tmovimiento mov
+     JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+     JOIN param.tdepto_depto dd ON dd.id_depto_origen = mov.id_depto
+     JOIN param.tdepto depc ON depc.id_depto = dd.id_depto_destino
+     JOIN segu.tsubsistema sis ON sis.id_subsistema = depc.id_subsistema AND
+         sis.codigo::text = 'CONTA'::text
+     JOIN param.tperiodo per ON mov.fecha_mov >= per.fecha_ini AND
+         mov.fecha_mov <= per.fecha_fin
+     JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
+     JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_dep_per
+AS
+ WITH trel_contable AS (
+SELECT rc_1.id_tabla AS id_clasificacion,
+            (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla,
+                'hijos'::character varying)::text) || '}'::text)::integer[] AS nodos
+FROM conta.ttabla_relacion_contable tb
+             JOIN conta.ttipo_relacion_contable trc ON
+                 trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+             JOIN conta.trelacion_contable rc_1 ON
+                 rc_1.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+WHERE tb.esquema::text = 'KAF'::text AND tb.tabla::text =
+    'tclasificacion'::text AND trc.codigo_tipo_relacion::text = 'DEPCLAS'::text
+        )
+    SELECT rc.id_clasificacion,
+    cla.codigo_completo_tmp,
+    cla.nombre,
+    sum(round(mdep.depreciacion_per,2) - round(mdep.depreciacion_per_ant,2) - round(mdep.depreciacion,2)) AS dep_per_actualiz,
+    maf.id_movimiento,
+    mdep.id_moneda,
+    cc.codigo_tcc
+    FROM kaf.tmovimiento_af maf
+     JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af = maf.id_movimiento_af
+     JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+     JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+     JOIN kaf.tclasificacion cla ON cla.id_clasificacion = rc.id_clasificacion
+     LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo = af.id_centro_costo
+    WHERE mdep.id_moneda = param.f_get_moneda_base()
+    GROUP BY rc.id_clasificacion, cla.codigo_completo_tmp, cla.nombre,
+        maf.id_movimiento, mdep.id_moneda, cc.codigo_tcc;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_dep_per_detalle 
+AS
+ WITH trel_contable AS (
+SELECT rc_1.id_tabla AS id_clasificacion,
+            (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla,
+                'hijos'::character varying)::text) || '}'::text)::integer[] AS nodos
+FROM conta.ttabla_relacion_contable tb
+             JOIN conta.ttipo_relacion_contable trc ON
+                 trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+             JOIN conta.trelacion_contable rc_1 ON
+                 rc_1.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+WHERE tb.esquema::text = 'KAF'::text AND tb.tabla::text =
+    'tclasificacion'::text AND trc.codigo_tipo_relacion::text = 'DEPCLAS'::text
+        )
+    SELECT rc.id_clasificacion,
+    cla.codigo_completo_tmp,
+    cla.nombre,
+    af.codigo,
+    af.codigo_ant,
+    round(mdep.depreciacion_per,2) - round(mdep.depreciacion_per_ant,2) - round(mdep.depreciacion,2) AS dep_per_actualiz,
+    maf.id_movimiento,
+    mdep.id_moneda,
+    cc.codigo_tcc
+    FROM kaf.tmovimiento_af maf
+     JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af = maf.id_movimiento_af
+     JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+     JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+     JOIN kaf.tclasificacion cla ON cla.id_clasificacion = rc.id_clasificacion
+     LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo = af.id_centro_costo
+    WHERE mdep.id_moneda = param.f_get_moneda_base();
+                 
+/***********************************F-DEP-RCM-KAF-1-09/08/2018****************************************/

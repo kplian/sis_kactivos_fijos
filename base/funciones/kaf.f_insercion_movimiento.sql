@@ -43,7 +43,7 @@ BEGIN
     select id_subsistema into v_id_subsistema
     from segu.tsubsistema
     where codigo = 'KAF';
-    
+
     --Obtiene el usuario responsable del depto.
     if not exists(select 1 from param.tdepto_usuario
           where id_depto = (p_parametros->'id_depto')::integer
@@ -78,9 +78,9 @@ BEGIN
     v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema);
 
     --Obtención del proceso de activos fijos
-    select 
+    select
     cat.codigo, cat.descripcion
-    into 
+    into
     v_cod_movimiento, v_desc_movimiento
     from param.tcatalogo cat
     where cat.id_catalogo = (p_parametros->'id_cat_movimiento')::integer;
@@ -88,9 +88,9 @@ BEGIN
     --------------------------
     --Obtiene el proceso macro
     --------------------------
-    select 
+    select
     pm.id_proceso_macro, tp.codigo
-    into 
+    into
     v_id_proceso_macro, v_codigo_tipo_proceso
     from kaf.tmovimiento_tipo mt
     inner join wf.tproceso_macro pm  on pm.id_proceso_macro =  mt.id_proceso_macro
@@ -104,7 +104,7 @@ BEGIN
     end if;
 
     --Obtencion de la gestion a partir de la fecha del movimiento
-    select 
+    select
     id_gestion into v_id_gestion
     from param.tgestion
     where gestion = extract(year from (p_parametros->'fecha_mov')::date);
@@ -113,25 +113,31 @@ BEGIN
         raise exception 'Gestión inexistente';
     end if;
 
+    --Limpia dato funcionario
+    v_id_funcionario = (p_parametros->'id_funcionario')::integer;
+    if (p_parametros->'id_funcionario')::integer = -1 then
+        v_id_funcionario = null;
+    end if;
+
     ----------------------
     --Inicio tramite en WF
     ----------------------
-    SELECT 
+    SELECT
     ps_num_tramite ,
     ps_id_proceso_wf ,
     ps_id_estado_wf ,
-    ps_codigo_estado 
+    ps_codigo_estado
     into
     v_num_tramite,
     v_id_proceso_wf,
     v_id_estado_wf,
-    v_codigo_estado   
+    v_codigo_estado
     FROM wf.f_inicia_tramite(
-    p_id_usuario, 
+    p_id_usuario,
     (p_parametros->'_id_usuario_ai')::integer,
     (p_parametros->'_nombre_usuario_ai')::varchar,
-    v_id_gestion, 
-    v_codigo_tipo_proceso, 
+    v_id_gestion,
+    v_codigo_tipo_proceso,
     NULL,
     NULL,
     'Activos Fijos: '||v_desc_movimiento,
@@ -179,7 +185,7 @@ BEGIN
         v_id_proceso_wf,
         v_id_estado_wf,
         (p_parametros->'glosa')::varchar,
-        (p_parametros->'id_funcionario')::integer,
+        v_id_funcionario,
         v_codigo_estado,
         (p_parametros->'id_oficina')::integer,
         'activo',
@@ -207,7 +213,7 @@ BEGIN
     -------------------------------------
     if v_cod_movimiento in ('deprec','actua') then
         --DEPRECIACIÓN/ACTUALIZACIÓN: registro de todos los activos del departamento que les corresponda depreciar en el periodo solicitado
-        for v_registros_mov in (select 
+        for v_registros_mov in (select
                                 afij.id_activo_fijo,
                                 afij.id_cat_estado_fun
                                 from kaf.tactivo_fijo afij
@@ -217,13 +223,13 @@ BEGIN
                                 and afij.id_depto = (p_parametros->'id_depto')::integer
                                 and (
                                         (afij.fecha_ult_dep is null and afij.fecha_ini_dep < (p_parametros->'fecha_hasta')::date)
-                                     or 
+                                     or
                                         (afij.fecha_ult_dep < (p_parametros->'fecha_hasta')::date)
                                 )) loop
-                   
+
             --RAC 29/03/2017: realiza validaciones sobre los activos que pueden relacionarse
             if kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, false)  then
-                   
+
                 insert into kaf.tmovimiento_af(
                     id_movimiento,
                     id_activo_fijo,
@@ -242,22 +248,22 @@ BEGIN
                   null
                 );
            end if;
-          
+
         end loop;
-    
+
     elsif v_cod_movimiento = 'transf' and v_sw_reg_masivo then
         --TRANSFERENCIA
         for v_registros_mov in (select
                                 afij.id_activo_fijo,
                                 afij.id_cat_estado_fun
                                 from kaf.tactivo_fijo afij
-                                where 
+                                where
                                 afij.id_funcionario = (p_parametros->'id_funcionario')::integer
                                 and  afij.estado = 'alta'
                                 and  afij.en_deposito = 'no') loop
-               
+
             if kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, false)  then
-                                        
+
                 --Registra todos los activos del funcionario origen
                 insert into kaf.tmovimiento_af(
                     id_movimiento,
@@ -277,9 +283,9 @@ BEGIN
                     p_id_usuario,
                     null
                 );
-                      
-            end if;        
-              
+
+            end if;
+
         end loop;
 
     elsif v_cod_movimiento = 'devol' and v_sw_reg_masivo then
@@ -288,18 +294,18 @@ BEGIN
         update kaf.tmovimiento set
         id_funcionario_dest = v_id_responsable_depto
         where id_movimiento = v_id_movimiento;
-        
+
         for v_registros_mov in (select
                                 afij.id_activo_fijo,
                                 afij.id_cat_estado_fun
                                 from kaf.tactivo_fijo afij
-                                where 
+                                where
                                 afij.id_funcionario = (p_parametros->'id_funcionario')::integer
                                 and  afij.estado = 'alta'
                                 and  afij.en_deposito = 'no') loop
-               
-            if kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, false)  then    
-                                    
+
+            if kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, false)  then
+
                 --Registra todos los activos del funcionario origen
                 insert into kaf.tmovimiento_af(
                     id_movimiento,
@@ -319,15 +325,15 @@ BEGIN
                     p_id_usuario,
                     null
                 );
-                  
-            end if;      
-              
+
+            end if;
+
         end loop;
-         
-         
-        
+
+
+
     end if;
-    
+
     ------------
 	--Respuesta
     ------------

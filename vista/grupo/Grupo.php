@@ -19,7 +19,7 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}})
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -29,7 +29,7 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_grupo'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -40,11 +40,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:15
 			},
-				type:'TextField',
-				filters:{pfiltro:'gru.codigo',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextField',
+			filters:{pfiltro:'gru.codigo',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
 		{
 			config:{
@@ -55,11 +55,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 300,
 				maxLength:400
 			},
-				type:'TextField',
-				filters:{pfiltro:'gru.nombre',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextField',
+			filters:{pfiltro:'gru.nombre',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
 		{
 			config: {
@@ -93,11 +93,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:10
 			},
-				type:'TextField',
-				filters:{pfiltro:'gru.estado_reg',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'gru.estado_reg',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -106,14 +106,14 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'gru.fecha_reg',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'DateField',
+			filters:{pfiltro:'gru.fecha_reg',type:'date'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -124,11 +124,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:300
 			},
-				type:'TextField',
-				filters:{pfiltro:'gru.usuario_ai',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'gru.usuario_ai',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -139,11 +139,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'gru.id_usuario_ai',type:'numeric'},
-				id_grupo:1,
-				grid:false,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'gru.id_usuario_ai',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:false
 		},
 		{
 			config:{
@@ -154,11 +154,11 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'usu1.cuenta',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -167,14 +167,14 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'gru.fecha_mod',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'DateField',
+			filters:{pfiltro:'gru.fecha_mod',type:'date'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -185,14 +185,14 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'usu2.cuenta',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Grupo AF',
 	ActSave:'../../sis_kactivos_fijos/control/Grupo/insertarGrupo',
 	ActDel:'../../sis_kactivos_fijos/control/Grupo/eliminarGrupo',
@@ -218,9 +218,14 @@ Phx.vista.Grupo=Ext.extend(Phx.gridInterfaz,{
 		direction: 'ASC'
 	},
 	bdel:true,
-	bsave:true
-	}
-)
+	bsave:true,
+	east: {
+		url:'../../../sis_contabilidad/vista/relacion_contable/RelacionContableTabla.php',
+		title:'Relacion Contable',
+		width:'50%',
+		cls:'RelacionContableTabla',
+		params:{nombre_tabla:'kaf.tgrupo',tabla_id:'id_grupo'}
+   }
+})
 </script>
-		
-		
+
