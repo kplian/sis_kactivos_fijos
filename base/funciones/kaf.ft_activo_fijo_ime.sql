@@ -134,71 +134,105 @@ BEGIN
           
               IF v_rec_af.estado != 'registrado' THEN
                  
-               IF v_rec_af.monto_compra_orig != v_parametros.monto_compra_orig or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
-                 raise exception 'no puede editar datos de compras cuando el activo ya esta de alta, registre una revalorizacion para hacer cualquier ajuste';
-               END IF;
+                     /*IF v_rec_af.monto_compra_orig != v_parametros.monto_compra_orig or v_rec_af.fecha_ini_dep != v_parametros.fecha_ini_dep or v_rec_af.id_moneda != v_parametros.id_moneda_orig  THEN
+                       raise exception 'No puede editar datos de compras cuando el activo ya esta de alta, registre una revalorizacion para hacer cualquier ajuste';
+                     END IF;*/
+                     
+                     
+                     update kaf.tactivo_fijo set
+                        id_proveedor = v_parametros.id_proveedor,
+                        fecha_compra = v_parametros.fecha_compra,
+                        id_cat_estado_fun = v_parametros.id_cat_estado_fun,
+                        ubicacion = v_parametros.ubicacion,
+                        documento = v_parametros.documento,
+                        observaciones = v_parametros.observaciones,
+                        denominacion = v_parametros.denominacion,
+                        descripcion = v_parametros.descripcion,
+                        id_cat_estado_compra = v_parametros.id_cat_estado_compra,
+                        id_centro_costo = v_parametros.id_centro_costo,
+                        id_usuario_mod = p_id_usuario,
+                        fecha_mod = now(),
+                        id_usuario_ai = v_parametros._id_usuario_ai,
+                        usuario_ai = v_parametros._nombre_usuario_ai,
+                        codigo_ant = v_parametros.codigo_ant,
+                        nro_serie = v_parametros.nro_serie,
+                        marca = v_parametros.marca,
+                        id_proyecto = v_parametros.id_proyecto,
+                        cantidad_af = v_parametros.cantidad_af,
+                        id_unidad_medida = v_parametros.id_unidad_medida,
+                        nro_cbte_asociado = v_parametros.nro_cbte_asociado,
+                        fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
+                        id_grupo = v_parametros.id_grupo,
+                        id_ubicacion = v_parametros.id_ubicacion,
+                        id_grupo_clasif = v_parametros.id_grupo_clasif
+                    where id_activo_fijo = v_parametros.id_activo_fijo;
+               
+              ELSE
+              
+                      v_monto_compra = param.f_convertir_moneda(
+                                                                 v_parametros.id_moneda_orig, 
+                                                                 NULL,   --por defecto moenda base
+                                                                 v_parametros.monto_compra_orig, 
+                                                                 v_parametros.fecha_compra, 
+                                                                 'O',-- tipo oficial, venta, compra 
+                                                                 NULL);--defecto dos decimales
+                     
+                
+              
+                    --Sentencia de la modificacion
+                    update kaf.tactivo_fijo set
+                        id_persona = v_parametros.id_persona,
+                        cantidad_revaloriz = v_parametros.cantidad_revaloriz,
+                        foto = v_parametros.foto,
+                        id_proveedor = v_parametros.id_proveedor,
+                        fecha_compra = v_parametros.fecha_compra,
+                       -- monto_vigente = v_parametros.monto_vigente,
+                        id_cat_estado_fun = v_parametros.id_cat_estado_fun,
+                        ubicacion = v_parametros.ubicacion,
+                       -- vida_util = v_parametros.vida_util,
+                        documento = v_parametros.documento,
+                        observaciones = v_parametros.observaciones,
+                      --  fecha_ult_dep = v_parametros.fecha_ult_dep,
+                        monto_rescate = v_parametros.monto_rescate,
+                        denominacion = v_parametros.denominacion,
+                        id_funcionario = coalesce(v_parametros.id_funcionario_asig,v_parametros.id_funcionario),
+                        id_deposito = v_parametros.id_deposito,
+                        monto_compra_orig = v_parametros.monto_compra_orig,
+                        monto_compra = v_monto_compra,
+                        id_moneda = v_parametros.id_moneda_orig,
+                        codigo = v_parametros.codigo,
+                        descripcion = v_parametros.descripcion,
+                        id_moneda_orig = v_parametros.id_moneda_orig,
+                        fecha_ini_dep = v_parametros.fecha_ini_dep,
+                        id_cat_estado_compra = v_parametros.id_cat_estado_compra,
+                        vida_util_original = v_parametros.vida_util_original,
+                        estado = v_parametros.estado,
+                        id_clasificacion = v_parametros.id_clasificacion,
+                        id_centro_costo = v_parametros.id_centro_costo,
+                        id_oficina = v_parametros.id_oficina,
+                        id_depto = v_parametros.id_depto,
+                        id_usuario_mod = p_id_usuario,
+                        fecha_mod = now(),
+                        id_usuario_ai = v_parametros._id_usuario_ai,
+                        usuario_ai = v_parametros._nombre_usuario_ai,
+                        codigo_ant = v_parametros.codigo_ant,
+                        nro_serie = v_parametros.nro_serie,
+                        marca = v_parametros.marca,
+                        id_proyecto = v_parametros.id_proyecto,
+                        --caraceristicas = v_parametros._nombre_usuario_ai,
+                        cantidad_af = v_parametros.cantidad_af,
+                        id_unidad_medida = v_parametros.id_unidad_medida,
+                        monto_compra_orig_100 = v_parametros.monto_compra_orig_100,
+                        nro_cbte_asociado = v_parametros.nro_cbte_asociado,
+                        fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
+                        id_grupo = v_parametros.id_grupo,
+                        id_ubicacion = v_parametros.id_ubicacion,
+                        id_grupo_clasif = v_parametros.id_grupo_clasif
+                    where id_activo_fijo = v_parametros.id_activo_fijo;
+              
               END IF;  
               
-              v_monto_compra = param.f_convertir_moneda(
-                                                         v_parametros.id_moneda_orig, 
-                                                         NULL,   --por defecto moenda base
-                                                         v_parametros.monto_compra_orig, 
-                                                         v_parametros.fecha_compra, 
-                                                         'O',-- tipo oficial, venta, compra 
-                                                         NULL);--defecto dos decimales
-             
-        
-      
-			--Sentencia de la modificacion
-			update kaf.tactivo_fijo set
-                id_persona = v_parametros.id_persona,
-                cantidad_revaloriz = v_parametros.cantidad_revaloriz,
-                foto = v_parametros.foto,
-                id_proveedor = v_parametros.id_proveedor,
-                fecha_compra = v_parametros.fecha_compra,
-               -- monto_vigente = v_parametros.monto_vigente,
-                id_cat_estado_fun = v_parametros.id_cat_estado_fun,
-                ubicacion = v_parametros.ubicacion,
-               -- vida_util = v_parametros.vida_util,
-                documento = v_parametros.documento,
-                observaciones = v_parametros.observaciones,
-              --  fecha_ult_dep = v_parametros.fecha_ult_dep,
-                monto_rescate = v_parametros.monto_rescate,
-                denominacion = v_parametros.denominacion,
-                id_funcionario = coalesce(v_parametros.id_funcionario_asig,v_parametros.id_funcionario),
-                id_deposito = v_parametros.id_deposito,
-                monto_compra_orig = v_parametros.monto_compra_orig,
-                monto_compra = v_monto_compra,
-                id_moneda = v_parametros.id_moneda_orig,
-                codigo = v_parametros.codigo,
-                descripcion = v_parametros.descripcion,
-                id_moneda_orig = v_parametros.id_moneda_orig,
-                fecha_ini_dep = v_parametros.fecha_ini_dep,
-                id_cat_estado_compra = v_parametros.id_cat_estado_compra,
-                vida_util_original = v_parametros.vida_util_original,
-                estado = v_parametros.estado,
-                id_clasificacion = v_parametros.id_clasificacion,
-                id_centro_costo = v_parametros.id_centro_costo,
-                id_oficina = v_parametros.id_oficina,
-                id_depto = v_parametros.id_depto,
-                id_usuario_mod = p_id_usuario,
-                fecha_mod = now(),
-                id_usuario_ai = v_parametros._id_usuario_ai,
-                usuario_ai = v_parametros._nombre_usuario_ai,
-                codigo_ant = v_parametros.codigo_ant,
-                nro_serie = v_parametros.nro_serie,
-                marca = v_parametros.marca,
-                id_proyecto = v_parametros.id_proyecto,
-                --caraceristicas = v_parametros._nombre_usuario_ai,
-                cantidad_af = v_parametros.cantidad_af,
-                id_unidad_medida = v_parametros.id_unidad_medida,
-                monto_compra_orig_100 = v_parametros.monto_compra_orig_100,
-                nro_cbte_asociado = v_parametros.nro_cbte_asociado,
-                fecha_cbte_asociado = v_parametros.fecha_cbte_asociado,
-                id_grupo = v_parametros.id_grupo,
-                id_ubicacion = v_parametros.id_ubicacion,
-                id_grupo_clasif = v_parametros.id_grupo_clasif
-			where id_activo_fijo = v_parametros.id_activo_fijo;
+              
                
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Activos Fijos modificado(a)'); 
@@ -607,3 +641,4 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+

@@ -135,7 +135,6 @@ BEGIN
                 inner join kaf.tactivo_fijo_valores afv1
                 on afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor
                 where maf.id_movimiento = p_id_movimiento
-                and maf.id_activo_fijo in (32478,32527)
                 and afv.fecha_ult_dep_real <= v_fecha_hasta --solo que tenga depreciacion menor a la fecha indicada en el movimiento
                 --and maf.id_activo_fijo in (34086,34630,34740)
                 --and afv.estado = 'activo'
