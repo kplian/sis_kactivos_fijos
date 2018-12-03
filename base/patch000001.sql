@@ -104,7 +104,7 @@ create table kaf.tmovimiento_af_dep (
 	monto_vigente numeric,
 	vida_util integer,
 	tipo_cambio_ini numeric(18,2),
-	tipo_cambio_fin numeric(18,2),
+	tipo_cambio_fin numeric,
 	factor numeric,
 	constraint pk_tmovimiento_af_dep__id_movimiento_af_dep primary key (id_movimiento_af_dep)
 ) inherits (pxp.tbase) without oids;
@@ -731,11 +731,6 @@ IS 'incidique a que nivel de la claisficacion se buscara la relacion contable ap
 /***********************************I-SCP-RAC-KAF-1-31/05/2017****************************************/
 
 
---------------- SQL ---------------
-
-ALTER TABLE kaf.tmoneda_dep
-  ADD COLUMN descripcion VARCHAR;
-
 /***********************************F-SCP-RAC-KAF-1-31/05/2017****************************************/
 
 /***********************************I-SCP-RCM-KAF-1-05/06/2017****************************************/
@@ -836,10 +831,6 @@ alter table kaf.tactivo_fijo
 add column fecha_cbte_asociado date;
 /***********************************F-SCP-RCM-KAF-1-26/07/2017****************************************/
 
-/***********************************I-SCP-RCM-KAF-1-11/08/2017****************************************/
-ALTER TABLE kaf.tmoneda_dep
-  ADD COLUMN descripcion VARCHAR(200);
-/***********************************F-SCP-RCM-KAF-1-11/08/2017****************************************/
 
 /***********************************I-SCP-RCM-KAF-1-08/08/2017****************************************/
 ALTER TABLE kaf.tclasificacion
@@ -1082,7 +1073,7 @@ IS 'Observaciones para los registros que se hagan manualmente';
 create table kaf.tgrupo (
 	id_grupo serial,
 	codigo varchar(15) not null,
-	nombre varchar(150) not null
+	nombre varchar(150) not null,
 	constraint pk_tgrupo__id_grupo primary key (id_grupo)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-1-17/04/2018****************************************/
@@ -1138,13 +1129,13 @@ alter table kaf.tgrupo
 add column tipo varchar(15) default 'grupo' not null;
 
 ALTER TABLE kaf.tgrupo
-  ADD CONSTRAINT idx_tgrupo__codigo__tipo
+  ADD CONSTRAINT id_tgrupo__codigo__tipo
     UNIQUE (codigo, tipo) NOT DEFERRABLE;
 
 alter table kaf.tactivo_fijo
 add column id_grupo integer;
 
-COMMENT ON COLUMN kaf.tactivo_fijo.id_grupo_
+COMMENT ON COLUMN kaf.tactivo_fijo.id_grupo
 IS 'Grupo para generar información en formato AE';
 
 alter table kaf.tactivo_fijo
@@ -1252,3 +1243,151 @@ create table kaf.treporte_detalle_depreciacion (
     depreciacion_per_ant numeric
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-KAF-1-08/11/2018****************************************/
+
+/***********************************I-SCP-EGS-KAF-1-30/11/2018****************************************/
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN fecha_ant DATE;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.fecha_ant
+IS 'En caso de que el mes anterior a esta depreciacion no sea restando 1 mes, entonces aqui debe definirse la fecha de la deprec anterior. Usado para vista de generacion de cbte actualizacion depreciacion acumulada';
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN meses_acum VARCHAR(2) DEFAULT 'no'::character varying NOT NULL;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.meses_acum
+IS 'Bandera que define si el registro de la depreciación corresponde a un mes (''no'') o corresponde a varios meses (''si''), por ejemplo en caso de activos de cierre de proyectos que deprecian varios meses pero solo afecta al ultimo mes';
+
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ADD COLUMN tmp_inc_actualiz_dep_acum NUMERIC;
+
+ALTER TABLE kaf.tmovimiento_af_dep
+  ALTER COLUMN tmp_inc_actualiz_dep_acum SET DEFAULT 0;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_dep.tmp_inc_actualiz_dep_acum
+IS 'Temporal para guardar la actualización de la pdep. acum en caso de depreciación se sume todo en un mes';
+/***********************************F-SCP-EGS-KAF-1-30/11/2018****************************************/
+
+/***********************************I-SCP-EGS-KAF-2-01/12/2018****************************************/
+
+CREATE INDEX treporte_detalle_depreciacion_idx ON kaf.treporte_detalle_depreciacion
+  USING btree (id_activo_fijo_valor, fecha_deprec);
+
+-------------- SQL -------------------
+CREATE TABLE kaf.tactivo_fijo_valores_procesado (
+  id_usuario_reg INTEGER,
+  id_usuario_mod INTEGER,
+  fecha_reg TIMESTAMP WITHOUT TIME ZONE,
+  fecha_mod TIMESTAMP WITHOUT TIME ZONE,
+  estado_reg VARCHAR(10),
+  id_usuario_ai INTEGER,
+  usuario_ai VARCHAR(300),
+  id_activo_fijo_valor INTEGER,
+  id_activo_fijo INTEGER,
+  monto_vigente_orig NUMERIC,
+  vida_util_orig INTEGER,
+  fecha_ini_dep DATE,
+  depreciacion_mes NUMERIC,
+  depreciacion_per NUMERIC,
+  depreciacion_acum NUMERIC,
+  monto_vigente NUMERIC,
+  vida_util INTEGER,
+  fecha_ult_dep DATE,
+  tipo_cambio_ini NUMERIC,
+  tipo_cambio_fin NUMERIC,
+  tipo VARCHAR(15),
+  estado VARCHAR(15),
+  principal VARCHAR(2),
+  monto_rescate NUMERIC,
+  id_movimiento_af INTEGER,
+  codigo VARCHAR(50),
+  id_moneda_dep INTEGER,
+  id_moneda INTEGER,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  deducible VARCHAR(6),
+  id_activo_fijo_valor_original INTEGER,
+  monto_vigente_orig_100 NUMERIC,
+  monto_vigente_actualiz_inicial NUMERIC,
+  dependiente VARCHAR(2),
+  af_codigo_ant VARCHAR(50),
+  af_codigo VARCHAR(50),
+  val_act NUMERIC,
+  dep_acum NUMERIC
+) 
+WITH (oids = false);
+
+---------------  SQL ----------------------------
+
+CREATE TABLE kaf.tt_nueva_clasificacion (
+  agrupador INTEGER,
+  nombre VARCHAR(100)
+) 
+WITH (oids = false);
+------------- SQL -----------------------------
+CREATE TABLE kaf.tt_nueva_clasificacion_activos (
+  codigo VARCHAR(100),
+  codigo_sap VARCHAR(50),
+  agrupador INTEGER,
+  codigo_nuevo VARCHAR(50),
+  denominacion VARCHAR(200)
+) 
+WITH (oids = false);
+
+-------------SQL -----------------------------
+
+CREATE TABLE kaf.tactivo_fijo_cta_tmp (
+  id_usuario_reg INTEGER,
+  id_usuario_mod INTEGER,
+  fecha_reg TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  fecha_mod TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  estado_reg VARCHAR(10) DEFAULT 'activo'::character varying,
+  id_usuario_ai INTEGER,
+  usuario_ai VARCHAR(300),
+  id_activo_fijo_cta_tmp SERIAL,
+  id_activo_fijo INTEGER,
+  nro_cuenta VARCHAR(20),
+  codigo_af VARCHAR(50),
+  CONSTRAINT tactivo_fijo_cta_tmp_pkey PRIMARY KEY(id_activo_fijo_cta_tmp)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+
+---------------- SQL -----------------
+ALTER TABLE kaf.tmovimiento_tipo
+  ADD COLUMN plantilla_cbte_cuatro VARCHAR(20);
+------------- SQL --------------------------------
+
+ALTER TABLE kaf.tactivo_fijo
+  ADD COLUMN afecta_concesion VARCHAR(2) DEFAULT 'no'::character varying NOT NULL;
+
+
+COMMENT ON COLUMN kaf.tactivo_fijo.id_grupo
+IS '';
+
+COMMENT ON COLUMN kaf.tactivo_fijo_modificacion.monto_compra_orig
+IS '';
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.monto_vigente_orig
+IS 'Corresponde al Importe  del 87%';
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  DROP COLUMN id_tipo_cc_ant;
+
+ALTER TABLE kaf.tactivo_fijo_modificacion
+  DROP COLUMN id_tipo_cc;
+
+ALTER TABLE kaf.tmovimiento_tipo
+  DROP COLUMN plantilla_cnte_cuatro;
+  
+/***********************************F-SCP-EGS-KAF-2-01/12/2018****************************************/
+
+
+  
+/***********************************I-SCP-EGS-KAF-3-01/12/2018****************************************/
+--------------- SQL ---------------
+
+ALTER TABLE kaf.tmoneda_dep
+  ADD COLUMN descripcion VARCHAR(200);
+/***********************************F-SCP-EGS-KAF-3-01/12/2018****************************************/
