@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION kaf.f_activo_fijo_valor (
   p_fecha date = now()::date,
   p_solo_finalizados varchar = 'si'::character varying
 )
-RETURNS SETOF kaf.vactivo_fijo_valor_estado AS
+RETURNS SETOF record AS
 $body$
 /**************************************************************************
  SISTEMA:       Sistema de Activos Fijos
@@ -10,23 +10,23 @@ $body$
  DESCRIPCION:   Recupera el valor real de los activo_fijo_valor, pudiendo ser sólo con movimientos finalizados o no
  AUTOR:         (RCM)
  FECHA:         12/06/2017
- COMENTARIOS:   
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:   
- AUTOR:         
- FECHA:     
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
     v_rec record;
-    v_result kaf.vactivo_fijo_valor_estado;
+    v_result record;
 BEGIN
 
-    
-    
-        for v_rec in select 
+
+
+        for v_rec in select
                         afv.id_usuario_reg,
                         afv.id_usuario_mod,
                         afv.fecha_reg,
@@ -70,7 +70,7 @@ BEGIN
                         min.tipo_cambio_fin as min_tipo_cambio_fin,
                         min.estado as min_estado_dep
                         from kaf.tactivo_fijo_valores afv
-                        inner join kaf.tmovimiento_af maf 
+                        inner join kaf.tmovimiento_af maf
                         on maf.id_movimiento_af = afv.id_movimiento_af
                         inner join kaf.tmovimiento mov
                         on mov.id_movimiento = maf.id_movimiento
@@ -78,7 +78,7 @@ BEGIN
                         on min.id_activo_fijo_valor = afv.id_activo_fijo_valor
                         where (afv.fecha_fin is null or afv.fecha_fin > p_fecha)
                         and afv.fecha_inicio <= p_fecha loop
-                        
+
             --Inicialización de variables
             v_result.id_usuario_reg = v_rec.id_usuario_reg;
             v_result.id_usuario_mod = v_rec.id_usuario_mod;
@@ -110,7 +110,7 @@ BEGIN
             v_result.id_moneda_dep = v_rec.id_moneda_dep;
             v_result.estado_mov_dep = v_rec.min_estado_dep;
             v_result.estado_mov = v_rec.estado_mov;
-            
+
             v_result.monto_vigente_real = 0;
             v_result.vida_util_real = 0;
             v_result.fecha_ult_dep_real = NULL;
@@ -119,7 +119,7 @@ BEGIN
             v_result.depreciacion_acum_ant_real = 0;
             v_result.monto_actualiz_real = 0;
             v_result.tipo_cambio_anterior = 0;
-            
+
             if p_solo_finalizados = 'si' then
                 if v_rec.min_estado_dep = 'finalizado' then
                     v_result.monto_vigente_real = v_rec.min_monto_vigente;
@@ -152,11 +152,11 @@ BEGIN
             end if;
 
             return next v_result;
-        
+
         end loop;
 
-    
-    
+
+
     return ;
 
 END;

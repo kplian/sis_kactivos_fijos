@@ -12,7 +12,8 @@ CREATE OR REPLACE FUNCTION kaf.f_afv_crear (
   p_monto_actualiz numeric = null,
   p_depreciacion_acum numeric = null,
   p_depreciacion_per numeric = null,
-  p_id_activo_fijo_valor_original integer = null
+  p_id_activo_fijo_valor_original integer = null,
+  p_importe_modif numeric = null
 )
 RETURNS varchar AS
 $body$
@@ -49,14 +50,14 @@ BEGIN
                   from kaf.tmoneda_dep mod
                   where mod.estado_reg = 'activo') loop
 
-      v_monto_compra = param.f_convertir_moneda(p_id_moneda_base, --moneda origen para conversion
+        v_monto_compra = param.f_convertir_moneda(p_id_moneda_base, --moneda origen para conversion
                                                 v_rec.id_moneda,   --moneda a la que sera convertido
                                                 p_monto, --este monto siemrpe estara en moenda base
                                                 p_fecha,
                                                 'O',-- tipo oficial, venta, compra
                                                 NULL);--defecto dos decimales
 
-      insert into kaf.tactivo_fijo_valores(
+        insert into kaf.tactivo_fijo_valores(
         id_usuario_reg,
         fecha_reg,
         estado_reg,
@@ -83,8 +84,9 @@ BEGIN
         monto_vigente_actualiz_inicial,
         depreciacion_acum_inicial,
         depreciacion_per_inicial,
-        id_activo_fijo_valor_original
-      ) values (
+        id_activo_fijo_valor_original,
+        importe_modif
+        ) values (
         p_id_usuario,
         now(),
         'activo',
@@ -111,7 +113,8 @@ BEGIN
         p_monto_actualiz,
         p_depreciacion_acum,
         p_depreciacion_per,
-        p_id_activo_fijo_valor_original
+        p_id_activo_fijo_valor_original,
+        p_importe_modif
       );
 
     end loop;

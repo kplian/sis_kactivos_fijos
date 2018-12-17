@@ -12,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento_af'
  AUTOR: 		 (admin)
  FECHA:	        18-03-2016 05:34:15
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -27,21 +27,21 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'kaf.ft_movimiento_af_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVAF_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		18-03-2016 05:34:15
 	***********************************/
 
 	if(p_transaccion='SKA_MOVAF_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -67,24 +67,24 @@ BEGIN
 						cat.descripcion as estado_fun,
 						mmot.motivo,
 						af.descripcion,
-                        
-                        
+
+
 						/*COALESCE(round(afvi.monto_vigente_real_af,2), af.monto_compra) as monto_vigente_real_af,
                         COALESCE(afvi.vida_util_real_af,af.vida_util_original) as vida_util_real_af,
                         afvi.fecha_ult_dep_real_af,*/
-                        
+
                         0::numeric as monto_vigente_real_af,
                         0::integer as vida_util_real_af,
                         null::date as fecha_ult_dep_real_af,
-                        
-                        
-                        
+
+
+
                         /*COALESCE(round(afvi.depreciacion_acum_real_af,2),0) as depreciacion_acum_real_af,
                         COALESCE(round( afvi.depreciacion_per_real_af,2),0) as depreciacion_per_real_af,*/
-                        
+
                         0::numeric as depreciacion_acum_real_af,
                         0::numeric as depreciacion_per_real_af,
-                        
+
                         null::varchar as desc_moneda_orig,--mon.codigo as desc_moneda_orig,
                         af.monto_compra,
                         af.vida_util as vida_util_af,
@@ -92,7 +92,7 @@ BEGIN
                         movaf.depreciacion_acum,
                         movaf.importe_ant,
                         movaf.vida_util_ant
-                        
+
 						from kaf.tmovimiento_af movaf
 						--inner join segu.tusuario usu1 on usu1.id_usuario = movaf.id_usuario_reg
 						--left join segu.tusuario usu2 on usu2.id_usuario = movaf.id_usuario_mod
@@ -104,20 +104,20 @@ BEGIN
                         and afvi.id_moneda = af.id_moneda_orig
                         inner join param.tmoneda mon on mon.id_moneda = af.id_moneda_orig*/
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVAF_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		18-03-2016 05:34:15
 	***********************************/
 
@@ -137,23 +137,23 @@ BEGIN
                         and afvi.id_moneda = af.id_moneda_orig
                         inner join param.tmoneda mon on mon.id_moneda = af.id_moneda_orig*/
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

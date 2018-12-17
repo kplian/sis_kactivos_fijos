@@ -1315,7 +1315,7 @@ CREATE TABLE kaf.tactivo_fijo_valores_procesado (
   af_codigo VARCHAR(50),
   val_act NUMERIC,
   dep_acum NUMERIC
-) 
+)
 WITH (oids = false);
 
 ---------------  SQL ----------------------------
@@ -1323,7 +1323,7 @@ WITH (oids = false);
 CREATE TABLE kaf.tt_nueva_clasificacion (
   agrupador INTEGER,
   nombre VARCHAR(100)
-) 
+)
 WITH (oids = false);
 ------------- SQL -----------------------------
 CREATE TABLE kaf.tt_nueva_clasificacion_activos (
@@ -1332,7 +1332,7 @@ CREATE TABLE kaf.tt_nueva_clasificacion_activos (
   agrupador INTEGER,
   codigo_nuevo VARCHAR(50),
   denominacion VARCHAR(200)
-) 
+)
 WITH (oids = false);
 
 -------------SQL -----------------------------
@@ -1380,14 +1380,34 @@ ALTER TABLE kaf.tactivo_fijo_modificacion
 
 ALTER TABLE kaf.tmovimiento_tipo
   DROP COLUMN plantilla_cnte_cuatro;
-  
+
 /***********************************F-SCP-EGS-KAF-2-01/12/2018****************************************/
 
 
-  
+
 /***********************************I-SCP-EGS-KAF-3-01/12/2018****************************************/
 --------------- SQL ---------------
 
 ALTER TABLE kaf.tmoneda_dep
   ADD COLUMN descripcion VARCHAR(200);
 /***********************************F-SCP-EGS-KAF-3-01/12/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-0-10/12/2018****************************************/
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN sw_modif_valor VARCHAR(2);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.sw_modif_valor
+IS 'Bandera que indica si el AFV corresponde a una modificación de valor (incremento, decremento) (Para considerar en el reporte detalle de depreciación)';
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN importe_modif NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.importe_modif
+IS 'Importe cuando corresponde a un incremento/decremento, caso cuando viene de Ajustes creados por cierre de proyectos';
+
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN importe_modif NUMERIC;
+
+COMMENT ON COLUMN kaf.tmovimiento_af.importe_modif
+IS 'Importe cuando corresponde a un incremento/decremento, caso cuando viene de Ajustes creados por cierre de proyectos';
+/***********************************F-SCP-RCM-KAF-0-10/12/2018****************************************/

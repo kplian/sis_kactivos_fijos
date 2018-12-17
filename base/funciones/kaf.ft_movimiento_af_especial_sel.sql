@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_movimiento_af_especial_sel"(	
+CREATE OR REPLACE FUNCTION "kaf"."ft_movimiento_af_especial_sel"(
 				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
 RETURNS character varying AS
 $BODY$
@@ -8,13 +8,13 @@ $BODY$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento_af_especial'
  AUTOR: 		 (admin)
  FECHA:	        23-06-2017 08:21:47
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -23,24 +23,38 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'kaf.ft_movimiento_af_especial_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVESP_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		23-06-2017 08:21:47
 	***********************************/
 
 	if(p_transaccion='SKA_MOVESP_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select
+			v_consulta:='with activo_fijo_vigente as (
+							select * from kaf.f_activo_fijo_vigente() as
+							(
+								id_activo_fijo integer,
+								monto_vigente_real_af numeric,
+								vida_util_real_af integer,
+								fecha_ult_dep_real_af date,
+								depreciacion_acum_real_af numeric,
+								depreciacion_per_real_af numeric,
+								monto_actualiz_real_af numeric,
+								id_moneda integer,
+								id_moneda_dep integer
+							)
+						)
+						select
 						movesp.id_movimiento_af_especial,
 						movesp.estado_reg,
 						movesp.id_activo_fijo,
@@ -66,26 +80,26 @@ BEGIN
 						on afv.id_activo_fijo_valor = movesp.id_activo_fijo_valor
 						left join kaf.tactivo_fijo af
 						on af.id_activo_fijo = movesp.id_activo_fijo
-						left join kaf.f_activo_fijo_vigente() afvi
+						left join activo_fijo_vigente afvi
                         on afvi.id_activo_fijo = af.id_activo_fijo
                         and afvi.id_moneda = af.id_moneda
 						inner join segu.tusuario usu1 on usu1.id_usuario = movesp.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movesp.id_usuario_mod
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVESP_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		23-06-2017 08:21:47
 	***********************************/
 
@@ -93,35 +107,49 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_movimiento_af_especial)
+			v_consulta:='with activo_fijo_vigente as (
+							select * from kaf.f_activo_fijo_vigente() as
+							(
+								id_activo_fijo integer,
+								monto_vigente_real_af numeric,
+								vida_util_real_af integer,
+								fecha_ult_dep_real_af date,
+								depreciacion_acum_real_af numeric,
+								depreciacion_per_real_af numeric,
+								monto_actualiz_real_af numeric,
+								id_moneda integer,
+								id_moneda_dep integer
+							)
+						)
+						select count(id_movimiento_af_especial)
 					    from kaf.tmovimiento_af_especial movesp
 					    left join kaf.tactivo_fijo_valores afv
 						on afv.id_activo_fijo_valor = movesp.id_activo_fijo_valor
 						left join kaf.tactivo_fijo af
 						on af.id_activo_fijo = movesp.id_activo_fijo
-						left join kaf.f_activo_fijo_vigente() afvi
+						left join activo_fijo_vigente afvi
                         on afvi.id_activo_fijo = af.id_activo_fijo
                         and afvi.id_moneda = af.id_moneda
 					    inner join segu.tusuario usu1 on usu1.id_usuario = movesp.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = movesp.id_usuario_mod
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

@@ -23,7 +23,7 @@ BEGIN
 	from wf.ttipo_estado
 	where id_tipo_estado = p_id_tipo_estado_actual;
 
-  
+
 
 	--Obtiene datos del movimiento
 	select
@@ -34,7 +34,7 @@ BEGIN
 	inner join param.tcatalogo cat
 	on cat.id_catalogo = mov.id_cat_movimiento
 	where id_proceso_wf = p_id_proceso_wf;
-	
+
 
 	if v_estado = 'finalizado' then
 
@@ -112,8 +112,22 @@ BEGIN
 			return true;
 		elsif v_movimiento.movimiento = 'reval' then
 			--RCM 12/06/2017: Aplicación de lógica en base a nuevo diagrama de flujo
-			for v_movimiento_af in (select * from kaf.tmovimiento_af maf
-									inner join kaf.f_activo_fijo_vigente() av
+			for v_movimiento_af in (with activo_fijo_vigente as (
+										select * from kaf.f_activo_fijo_vigente() as
+										(
+											id_activo_fijo integer,
+											monto_vigente_real_af numeric,
+											vida_util_real_af integer,
+											fecha_ult_dep_real_af date,
+											depreciacion_acum_real_af numeric,
+											depreciacion_per_real_af numeric,
+											monto_actualiz_real_af numeric,
+											id_moneda integer,
+											id_moneda_dep integer
+										)
+									)
+									select * from kaf.tmovimiento_af maf
+									inner join activo_fijo_vigente av
 									on av.id_activo_fijo = maf.id_activo_fijo
 									where maf.id_movimiento = v_movimiento.id_movimiento) loop
 
@@ -128,7 +142,7 @@ BEGIN
 				--Caso en función del valor vigente
 				if v_movimiento_af.monto_vigente_real_af <= 1 then
 					--Caso 1
-					
+
 				else
 					if v_monto_inc_dec_real > 0 then
 						--Caso 2
@@ -317,11 +331,11 @@ BEGIN
 
 			return true;
 		end if;
-	
+
 	else
 		return true;
 	end if;
-	
+
 --	raise exception 'FFFF: %',v_movimiento.movimiento;
 	return true;
 

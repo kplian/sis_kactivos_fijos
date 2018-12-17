@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -9,11 +7,11 @@ CREATE OR REPLACE FUNCTION kaf.ft_activo_fijo_sel (
 RETURNS varchar AS
 $body$
 /**************************************************************************
- SISTEMA:		Sistema de Activos Fijos
- FUNCION: 		kaf.ft_activo_fijo_sel
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.ft_activo_fijo_sel
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tactivo_fijo'
- AUTOR: 		 (admin)
- FECHA:	        29-10-2015 03:18:45
+ AUTOR:          (admin)
+ FECHA:         29-10-2015 03:18:45
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
@@ -25,31 +23,31 @@ $body$
 
 DECLARE
 
-	v_consulta    		varchar;
-	v_parametros  		record;
-	v_nombre_funcion   	text;
-	v_resp				varchar;
-    v_lista_af			varchar;
-    v_criterio_filtro	varchar;
-    v_clase_reporte		varchar;
+    v_consulta          varchar;
+    v_parametros        record;
+    v_nombre_funcion    text;
+    v_resp              varchar;
+    v_lista_af          varchar;
+    v_criterio_filtro   varchar;
+    v_clase_reporte     varchar;
 
 BEGIN
 
-	v_nombre_funcion = 'kaf.ft_activo_fijo_sel';
+    v_nombre_funcion = 'kaf.ft_activo_fijo_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************
- 	#TRANSACCION:  'SKA_AFIJ_SEL'
- 	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin
- 	#FECHA:		29-10-2015 03:18:45
-	***********************************/
+    /*********************************
+    #TRANSACCION:  'SKA_AFIJ_SEL'
+    #DESCRIPCION:   Consulta de datos
+    #AUTOR:     admin
+    #FECHA:     29-10-2015 03:18:45
+    ***********************************/
 
-	if(p_transaccion='SKA_AFIJ_SEL')then
+    if(p_transaccion='SKA_AFIJ_SEL')then
 
-    	begin
-    		--Sentencia de la consulta
-			v_consulta:='select
+        begin
+            --Sentencia de la consulta
+            v_consulta:='select
                             afij.id_activo_fijo,
                             afij.id_persona,
                             afij.cantidad_revaloriz,
@@ -150,13 +148,13 @@ BEGIN
                                                     and rc.id_tabla =
                                                 )
                             ) as cuenta_activo*/
-						from kaf.tactivo_fijo afij
-						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
-						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-						left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
-						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
-						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+                        from kaf.tactivo_fijo afij
+                        inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+                        left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+                        left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+                        inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+                        inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+                        inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
                         left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto
                         left  join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
                         left join kaf.vactivo_fijo_vigente_estado afvi on afvi.id_activo_fijo = afij.id_activo_fijo
@@ -169,10 +167,10 @@ BEGIN
 
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
-						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
-						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
-						left join segu.vpersona per on per.id_persona = afij.id_persona
-						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+                        left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+                        left join segu.vpersona per on per.id_persona = afij.id_persona
+                        left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
                         left join orga.tuo_funcionario uof
                         on uof.id_funcionario = afij.id_funcionario
@@ -186,7 +184,7 @@ BEGIN
                         left join kaf.tubicacion ubic
                         on ubic.id_ubicacion = afij.id_ubicacion
                         left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
-				        where  ';
+                        where  ';
 
             --Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then
@@ -200,35 +198,35 @@ BEGIN
                 end if;
             end if;
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
 
-		end;
+        end;
 
-	/*********************************
- 	#TRANSACCION:  'SKA_AFIJ_CONT'
- 	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin
- 	#FECHA:		29-10-2015 03:18:45
-	***********************************/
+    /*********************************
+    #TRANSACCION:  'SKA_AFIJ_CONT'
+    #DESCRIPCION:   Conteo de registros
+    #AUTOR:     admin
+    #FECHA:     29-10-2015 03:18:45
+    ***********************************/
 
-	elsif(p_transaccion='SKA_AFIJ_CONT')then
+    elsif(p_transaccion='SKA_AFIJ_CONT')then
 
-		begin
-			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(afij.id_activo_fijo)
-					    from kaf.tactivo_fijo afij
-						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
-						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-						left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
-						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
-						inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select count(afij.id_activo_fijo)
+                        from kaf.tactivo_fijo afij
+                        inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+                        left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+                        left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+                        inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+                        inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+                        inner join param.tmoneda mon on mon.id_moneda = afij.id_moneda_orig
                         left join param.tproyecto proy on proy.id_proyecto = afij.id_proyecto
                         left  join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
 
@@ -243,10 +241,10 @@ BEGIN
 
                         left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
                         left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
-						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
-						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
-						left join segu.vpersona per on per.id_persona = afij.id_persona
-						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+                        left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+                        left join segu.vpersona per on per.id_persona = afij.id_persona
+                        left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
                         left join param.tunidad_medida unmed on unmed.id_unidad_medida = afij.id_unidad_medida
                         left join orga.tuo_funcionario uof
                         on uof.id_funcionario = afij.id_funcionario
@@ -260,7 +258,7 @@ BEGIN
                         left join kaf.tubicacion ubic
                         on ubic.id_ubicacion = afij.id_ubicacion
                         left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
-				        where  ';
+                        where  ';
 
             --Verifica si la consulta es por usuario
             if pxp.f_existe_parametro(p_tabla,'por_usuario') then
@@ -274,60 +272,60 @@ BEGIN
                 end if;
             end if;
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-			return v_consulta;
-
-		end;
-
-	/*********************************
- 	#TRANSACCION:  'SKA_IDAF_SEL'
- 	#DESCRIPCION:	Generación de lista de ID de activos fijos en base a un criterio
- 	#AUTOR:			RCM
- 	#FECHA:			30/12/2015
-	***********************************/
-
-	elsif(p_transaccion='SKA_IDAF_SEL')then
-
-		begin
-        	--Sentencia de la consulta
-			v_consulta:='select
-						pxp.list(afij.id_activo_fijo::text) as ids
-						from kaf.tactivo_fijo afij
-						inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
-						left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
-						left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
-						inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
-						left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
-						inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
-						left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
-						left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
-						left join segu.vpersona per on per.id_persona = afij.id_persona
-						left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
-						inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
-				        where  ';
-
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
         end;
 
     /*********************************
- 	#TRANSACCION:  'SKA_GEVARTQR_SEL'
- 	#DESCRIPCION:	listado de activos segun criterio de formulario para generacion del reporte de codigos QR
- 	#AUTOR:			RAC
- 	#FECHA:			17/03/2017
-	***********************************/
+    #TRANSACCION:  'SKA_IDAF_SEL'
+    #DESCRIPCION:   Generación de lista de ID de activos fijos en base a un criterio
+    #AUTOR:         RCM
+    #FECHA:         30/12/2015
+    ***********************************/
 
-	elsif(p_transaccion='SKA_GEVARTQR_SEL')then
+    elsif(p_transaccion='SKA_IDAF_SEL')then
 
-		begin
+        begin
+            --Sentencia de la consulta
+            v_consulta:='select
+                        pxp.list(afij.id_activo_fijo::text) as ids
+                        from kaf.tactivo_fijo afij
+                        inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = afij.id_usuario_mod
+                        left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
+                        left join param.tcatalogo cat2 on cat2.id_catalogo = afij.id_cat_estado_compra
+                        inner join kaf.tclasificacion cla on cla.id_clasificacion = afij.id_clasificacion
+                        left join param.vcentro_costo cc on cc.id_centro_costo = afij.id_centro_costo
+                        inner join param.tdepto dpto on dpto.id_depto = afij.id_depto
+                        left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
+                        left join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
+                        left join segu.vpersona per on per.id_persona = afij.id_persona
+                        left join param.vproveedor pro on pro.id_proveedor = afij.id_proveedor
+                        inner join kaf.tdeposito depaf on depaf.id_deposito = afij.id_deposito
+                        where  ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************
+    #TRANSACCION:  'SKA_GEVARTQR_SEL'
+    #DESCRIPCION:   listado de activos segun criterio de formulario para generacion del reporte de codigos QR
+    #AUTOR:         RAC
+    #FECHA:         17/03/2017
+    ***********************************/
+
+    elsif(p_transaccion='SKA_GEVARTQR_SEL')then
+
+        begin
 
             v_criterio_filtro = '  0=0 ';
            -- raise exception 'sss';
@@ -380,7 +378,7 @@ BEGIN
             END IF;
 
             --Sentencia de la consulta
-			v_consulta:='select
+            v_consulta:='select
                             kaf.id_activo_fijo,
                             kaf.codigo::varchar,
                             kaf.codigo_ant::varchar,
@@ -397,8 +395,8 @@ BEGIN
 
             raise notice '%',v_consulta;
 
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
         end;
 
@@ -632,20 +630,20 @@ BEGIN
         end;
 
 
-	else
+    else
 
-		raise exception 'Transaccion inexistente';
+        raise exception 'Transaccion inexistente';
 
-	end if;
+    end if;
 
 EXCEPTION
 
-	WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;
+    WHEN OTHERS THEN
+            v_resp='';
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+            v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+            v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+            raise exception '%',v_resp;
 END;
 $body$
 LANGUAGE 'plpgsql'

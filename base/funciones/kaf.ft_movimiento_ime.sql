@@ -1752,7 +1752,8 @@ BEGIN
                                               maf.depreciacion_acum,
                                               maf.depreciacion_per,
                                               maf.fecha_ini_dep,
-                                              maf.id_activo_fijo_valor_original
+                                              maf.id_activo_fijo_valor_original,
+                                              maf.importe_modif
                                               from kaf.tmovimiento_af maf
                                               inner join kaf.tmovimiento mov
                                               on mov.id_movimiento = maf.id_movimiento
@@ -1809,7 +1810,9 @@ BEGIN
                                                     v_registros_af_mov.monto_vigente_actualiz,
                                                     v_registros_af_mov.depreciacion_acum,
                                                     v_registros_af_mov.depreciacion_per,
-                                                    v_registros_af_mov.id_activo_fijo_valor_original);
+                                                    v_registros_af_mov.id_activo_fijo_valor_original,
+                                                    v_registros_af_mov.importe_modif
+                                                    );
                         end if;
 
                     end loop;
