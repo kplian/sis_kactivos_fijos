@@ -42,6 +42,8 @@ DECLARE
     v_id_subsistema         integer;
     v_res                   varchar;
     v_sw_dep_ant            boolean = false;
+    v_mover_dep             varchar;
+    v_resp_mov              varchar;
 
 BEGIN
 
@@ -475,7 +477,16 @@ BEGIN
 
 
     end if;
---raise exception 'fin';
+
+
+    --RCM 17-12-2018: Se verifica si se debe mover la depreciación de varios meses del movimiento en el último mes
+    v_mover_dep = pxp.f_get_variable_global('kaf_dep_mov_en_un_solo_mes');
+
+    if coalece(v_mover_dep,'no') = 'si' then
+        v_resp_mov = kaf.f_depreciacion_mover_mes(p_id_movimiento);
+    end if;
+
+
     return 'hecho';
 
 EXCEPTION
