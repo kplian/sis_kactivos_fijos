@@ -11,11 +11,8 @@ $body$
  FECHA:         05/10/2018
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
 ***************************************************************************/
 DECLARE
 
@@ -59,15 +56,13 @@ BEGIN
                 and afv.fecha_ult_dep is null
                 --and maf.id_activo_fijo = 55250
     ) loop
-            --raise notice '';
-            --raise notice 'v_rec.id_activo_fijo_valor, ';
+
             --Sumar toda la depreciación
             select sum(depreciacion), sum(depreciacion_acum_ant), sum(depreciacion_acum_actualiz)
             into v_sum_deprec, v_dep_acum_ant, v_dep_acum_actualiz
             from kaf.tmovimiento_af_dep
             where id_activo_fijo_valor = v_rec.id_activo_fijo_valor
             and id_movimiento_af = v_rec.id_movimiento_af;
-            --raise notice 'suma: %',v_sum_deprec;
 
             --Obtener la primera depreciación
             select *
@@ -90,8 +85,7 @@ BEGIN
                           from kaf.tmovimiento_af_dep
                           where id_activo_fijo_valor = v_rec.id_activo_fijo_valor
                           and id_movimiento_af = v_rec.id_movimiento_af);
---            raise notice 'valores 1: %  %  %  %',v_rec_pri.depreciacion_acum_ant,v_rec_pri.depreciacion_per_ant,v_rec_pri.monto_vigente_ant,v_rec_pri.vida_util_ant ;
---            raise notice 'valores 2: %  %  %  %',v_rec_pri.tipo_cambio_ini,v_sum_deprec,v_rec_ult.tipo_cambio_fin / v_rec_pri.tipo_cambio_ini,v_rec_ult.id_movimiento_af_dep;
+
             --Actualizar la última depreciación
             update kaf.tmovimiento_af_dep set
             depreciacion_acum_ant   = v_rec_pri.depreciacion_acum_ant,
@@ -125,7 +119,7 @@ BEGIN
             and id_movimiento_af_dep <> v_rec_ult.id_movimiento_af_dep;
 
     end loop;
-    --raise exception 'llego al final';
+
     --Respuesta
     return 'hecho';
 
