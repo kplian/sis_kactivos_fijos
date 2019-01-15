@@ -9,13 +9,13 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.MovimientoPrincipal = {    
-    bsave:false,    
+Phx.vista.MovimientoPrincipal = {
+    bsave:false,
     require:'../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php',
     requireclase:'Phx.vista.Movimiento',
     title:'Movimientos',
     nombreVista: 'MovimientoPrincipal',
-    
+
     gruposBarraTareas:[
         {name:'Todos',title:'<h1 align="center"><i class="fa fa-bars"></i> Todos</h1>',grupo:0,height:0},
         {name:'Altas',title:'<h1 align="center"><i class="fa fa-thumbs-o-up"></i> Altas</h1>',grupo:1,height:0},
@@ -55,9 +55,9 @@ Phx.vista.MovimientoPrincipal = {
     bactGroups:  [0,1,2,3,4,5,6],
     btestGroups: [0,1,2,3,4,5,6],
     bexcelGroups: [0,1,2,3,4,5,6],
-    
-    
-    
+
+
+
     constructor: function(config) {
 
         Phx.vista.MovimientoPrincipal.superclass.constructor.call(this,config);
@@ -101,7 +101,7 @@ Phx.vista.MovimientoPrincipal = {
                 }
             });
         }, this);
-        
+
         //Add handler to id_cat_movimiento field
         this.Cmp.id_depto_dest.on('select', function(cmp,rec,el){
             this.Cmp.id_deposito_dest.reset();
@@ -133,7 +133,7 @@ Phx.vista.MovimientoPrincipal = {
                 failure: this.conexionFailure,
                 timeout:this.timeout,
                 scope:this
-            });         
+            });
         }
 
         //Crea los botones para los comprobantes
@@ -181,7 +181,7 @@ Phx.vista.MovimientoPrincipal = {
                 handler: this.mostrarCbte,
                 tooltip: '<b>Comprobante 4</b><br/>Impresión del comprobante relacionado.',
                 grupo: [0,1,2,3,4,5,6],
-                cbte: 3
+                cbte: 4
             }
         );
 
@@ -398,7 +398,7 @@ Phx.vista.MovimientoPrincipal = {
         Phx.vista.Movimiento.superclass.onButtonEdit.call(this);
         var data = this.getSelectedData();
         this.habilitarCampos(data.cod_movimiento);
-        
+
     },
 
     south: {
@@ -407,7 +407,7 @@ Phx.vista.MovimientoPrincipal = {
         height: '50%',
         cls: 'MovimientoAf'
     },
-    
+
     liberaMenu:function(){
         var tb = Phx.vista.Movimiento.superclass.liberaMenu.call(this);
         if(tb){
@@ -495,15 +495,15 @@ Phx.vista.MovimientoPrincipal = {
         })
     },
     onAntEstado:function(wizard,resp){
-        Phx.CP.loadingShow(); 
-        Ext.Ajax.request({ 
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
             url:'../../sis_kactivos_fijos/control/Movimiento/anteriorEstadoMovimiento',
             params:{
                     id_proceso_wf:resp.id_proceso_wf,
-                    id_estado_wf:resp.id_estado_wf,  
+                    id_estado_wf:resp.id_estado_wf,
                     obs:resp.obs
              },
-            argument:{wizard:wizard},  
+            argument:{wizard:wizard},
             success:this.successWizard,
             failure: this.conexionFailure,
             timeout:this.timeout,
@@ -528,10 +528,10 @@ Phx.vista.MovimientoPrincipal = {
                 config:[{
                   event:'beforesave',
                   delegate: this.onSaveWizard,
-                  
+
                 }],
                 scope:this
-            });        
+            });
     },
     onSaveWizard:function(wizard,resp){
         Phx.CP.loadingShow();
@@ -602,7 +602,7 @@ Phx.vista.MovimientoPrincipal = {
     rowExpander: new Ext.ux.grid.RowExpander({
             tpl : new Ext.Template(
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Registro:&nbsp;&nbsp;</b> {usr_reg}</p>',
-                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Registro:&nbsp;&nbsp;</b> {fecha_reg}</p>',           
+                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Registro:&nbsp;&nbsp;</b> {fecha_reg}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
             )
@@ -638,8 +638,8 @@ Phx.vista.MovimientoPrincipal = {
                 scope : this
             });
         }
-    }   
-    
-    
+    }
+
+
 };
 </script>

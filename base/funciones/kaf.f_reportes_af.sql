@@ -13,6 +13,9 @@ $body$
  AUTOR:          RCM
  FECHA:          09/05/2016
  COMENTARIOS:
+ ***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
 ***************************************************************************/
 
 DECLARE
@@ -1082,7 +1085,7 @@ raise notice '%',v_consulta;
                 depreciacion numeric(18,2),
                 depreciacion_per_ant numeric,
                 importe_modif numeric
-            ) on commit drop;
+            )on commit drop;
 
             --Carga los datos en la tabla temporal
             insert into tt_detalle_depreciacion(
@@ -1114,7 +1117,7 @@ raise notice '%',v_consulta;
             end as monto_vigente_orig_100,
 --            afv.monto_vigente_orig,
             case coalesce(afv.id_activo_fijo_valor_original,0)
-                when 0 then afv.monto_vigente_orig_100
+                when 0 then afv.monto_vigente_orig
                 else (select monto_vigente_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = afv.id_activo_fijo_valor_original /*kaf.f_get_afv_padre(afv.id_activo_fijo_valor)*/)
             end as monto_vigente_orig,
             --(coalesce(mdep.monto_actualiz,0) - coalesce(afv.monto_vigente_orig,0)) as inc_actualiz,
@@ -1157,7 +1160,8 @@ raise notice '%',v_consulta;
             and mdep.id_moneda_dep = v_parametros.id_moneda
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
                                                             --and afv.codigo not like '%-G%'
-            and af.estado <> 'eliminado';
+            and af.estado <> 'eliminado'
+            and date_trunc('year',coalesce(af.fecha_baja,'01-01-1900'::date)) <> date_trunc('year',v_parametros.fecha_hasta::date);
 
 
             insert into tt_detalle_depreciacion(
@@ -1182,8 +1186,17 @@ raise notice '%',v_consulta;
                              afv.fecha_ini_dep
                     end
             end as fecha_ini_dep,
-            afv.monto_vigente_orig_100,
-            afv.monto_vigente_orig,
+            --afv.monto_vigente_orig_100,
+            --afv.monto_vigente_orig,
+            case coalesce(afv.id_activo_fijo_valor_original,0)
+                when 0 then afv.monto_vigente_orig_100
+                else (select monto_vigente_orig_100 from kaf.tactivo_fijo_valores where id_activo_fijo_valor = afv.id_activo_fijo_valor_original/*kaf.f_get_afv_padre(afv.id_activo_fijo_valor)*/)
+            end as monto_vigente_orig_100,
+--            afv.monto_vigente_orig,
+            case coalesce(afv.id_activo_fijo_valor_original,0)
+                when 0 then afv.monto_vigente_orig
+                else (select monto_vigente_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = afv.id_activo_fijo_valor_original /*kaf.f_get_afv_padre(afv.id_activo_fijo_valor)*/)
+            end as monto_vigente_orig,
             --(coalesce(mdep.monto_actualiz,0) - coalesce(afv.monto_vigente_orig,0)) as inc_actualiz,
             case
                   when (coalesce(mdep.monto_actualiz,0) - coalesce(afv.monto_vigente_orig,0)) < 0 then 0
@@ -1659,7 +1672,12 @@ raise notice '%',v_consulta;
                             else 0
                         end as af_bajas,
                         0::numeric as af_traspasos,
-                        (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2) as inc_actualiz,
+                        --(tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2) as inc_actualiz,
+                        case coalesce(tt.importe_modif,0)
+                            when 0 then (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2)
+                            else
+                                (tt.monto_actualiz - tt.monto_vigente_orig - tt.importe_modif)::numeric(18,2)
+                        end as inc_actualiz,
                         --Se aumenta lógica para el caso de ajustes que incementen el monto
                         case coalesce(tt.importe_modif,0)
                             when 0 then tt.monto_actualiz - (case
@@ -1668,7 +1686,7 @@ raise notice '%',v_consulta;
                                                                         tt.monto_vigente_orig + (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2)
                                                                     else 0
                                                                 end )
-                            else tt.monto_actualiz + tt.importe_modif
+                            else tt.monto_actualiz -- + tt.importe_modif
                         end as monto_actualiz,
                         tt.vida_util_orig,
                         tt.vida_util_orig - tt.vida_util as vida_util_usada,

@@ -4,11 +4,17 @@ CREATE OR REPLACE FUNCTION kaf.f_depreciacion_lineal_v2 (
 )
 RETURNS varchar AS
 $body$
-/*
-Autor: RCM
-Fecha: 24/10/2017
-Descripción: Depreciación lineal de activos fijos v2
-*/
+/**************************************************************************
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.fdepreciacion_lineal_v2
+ DESCRIPCION:   Depreciación lineal de activos fijos v2
+ AUTOR:         RCM
+ FECHA:         24/10/2017
+ COMENTARIOS:
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
+***************************************************************************/
 DECLARE
 
     v_resp                  varchar;
@@ -124,7 +130,8 @@ BEGIN
                 afv1.depreciacion_acum_inicial,
                 afv1.depreciacion_per_inicial,
                 af.codigo,
-                afv1.codigo as codigo_afv
+                afv1.codigo as codigo_afv,
+                afv1.importe_modif --#4
                 from kaf.tmovimiento_af maf
                 inner join kaf.vactivo_fijo_valor afv
                 on afv.id_activo_fijo = maf.id_activo_fijo
@@ -138,20 +145,12 @@ BEGIN
                 on afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor
                 where maf.id_movimiento = p_id_movimiento
                 and afv.fecha_ult_dep_real <= v_fecha_hasta --solo que tenga depreciacion menor a la fecha indicada en el movimiento
-                --and maf.id_activo_fijo in (34086,34630,34740)
-                --and afv.estado = 'activo'
-                /*and (case  when cla.depreciable = 'si' then
-                        afv.vida_util_real > 0
-                    else
-                        0=0
-                    end)*/
         loop
 
         --Bandera de control de depreciación
         v_sw_control_dep= true;
-
         v_mes_dep = v_rec.mes_dep;
-        --raise notice '%',v_rec.depreciable;
+
         --Inicialización datos última depreciación
         if v_rec.depreciable = 'si' then
             v_ant_dep_acum          = v_rec.depreciacion_acum_real;
@@ -165,12 +164,9 @@ BEGIN
 
                 v_sw_dep_ant = true;
                 v_ant_dep_acum       = v_rec.depreciacion_acum_inicial;--v_rec.depreciacion_acum_padre;
-                v_ant_monto_actualiz = v_rec.monto_vigente_actualiz_inicial;
+                v_ant_monto_actualiz = v_rec.monto_vigente_actualiz_inicial + coalesce(v_rec.importe_modif,0); --#4
                 v_ant_dep_per        = v_rec.depreciacion_per_inicial;
 
-                /*if v_rec.id_activo_fijo_valor = 96941 then
-                    raise exception 'dep acum: %, monto actualiz: %',v_ant_dep_acum,v_ant_monto_actualiz;
-                end if;*/
             end if;
         else
             v_ant_dep_acum          = 0;
@@ -210,11 +206,6 @@ BEGIN
         --Bucle de la cantidad de meses a depreciar
         for i in 1..v_rec.meses_dep loop
 
-            --Verifica que la fecha fin del afv sea menor o igual a la fecha en que se está depreciando
-            /*if v_rec.codigo_afv = '06.26.01.0046' THEN
-                raise exception 'activo %  mes: %  fecha_fin: %',v_rec.codigo_afv,v_mes_dep, v_rec.fecha_fin;
-            end if;*/
-
             if v_rec.fecha_fin is not null then
                 if date_trunc('month',v_mes_dep::date) >= date_trunc('month',v_rec.fecha_fin::date) then
                     exit;
@@ -226,13 +217,9 @@ BEGIN
             from param.f_get_periodo_gestion(v_mes_dep,v_id_subsistema);
             v_res = param.f_verifica_periodo_subsistema_abierto(v_id_periodo_subsistema, false);
             if v_res != 'exito' then
-              --return v_res;
-              --exit;
-              raise exception 'No puede depreciarse el activo % en el periodo %. %',v_rec.codigo_afv, v_mes_dep,v_res;
+               raise exception 'No puede depreciarse el activo % en el periodo %. %',v_rec.codigo_afv, v_mes_dep,v_res;
             end if;
             --FIN RCM
-
-
 
             if v_rec.actualizar = 'si'  then
                 --Obtener tipo de cambio del inicio y fin de mes
@@ -252,14 +239,8 @@ BEGIN
             --SI es llamado para depreciar .....
             if v_rec.depreciable = 'si' then
                 --Actualización de importes
-
-                /*if i = 2 then
-                    raise exception '%: monto actualiz: %, v_ant_monto_actualiz: %, factor: %',i,v_monto_actualiz,v_ant_monto_actualiz,v_rec_tc.o_tc_factor;
-                end if;*/
-
                 v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
                 v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
-                --v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
                 v_monto_actualiz    = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
 
                 --Cálculo nuevos valores por depreciación
@@ -296,7 +277,6 @@ BEGIN
                 --RCM 12/12/2017: que siga actualizando la dep. acum aunque tenga vida util cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
 
-                    --v_monto_actualiz    = v_ant_monto_vigente * v_rec_tc.o_tc_factor;
                     v_monto_actualiz    = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
                     v_nuevo_dep_mes = 0;
 
@@ -304,11 +284,11 @@ BEGIN
                     v_nuevo_dep_per       = v_dep_per_actualiz; --0; ; cambiado para que agarre la depreciación per ant actualizada
                     v_nuevo_monto_vigente = v_rec.monto_rescate;
                     v_nuevo_vida_util     = 0;
+
                 end if;
                 --FIN RCM
 
             else
-            --raise notice 'entra: %, %, %',v_ant_dep_acum,v_ant_dep_per,v_ant_monto_actualiz;
                 --Actualización de importes
                 v_dep_acum_actualiz = v_ant_dep_acum * v_rec_tc.o_tc_factor;
                 v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
@@ -392,15 +372,13 @@ BEGIN
                 raise exception 'El Activo Fijo % ya fue depreciado en  %, %',v_rec.codigo_afv,v_mes_dep,v_rec.id_activo_fijo_valor;
             end if;
 
-           --raise notice '- iteracion: % -> % : %  ; %' ,i,v_mes_dep,v_rec.id_moneda_dep,v_ant_monto_actualiz;
-
             v_gestion_previa =   extract(year from v_mes_dep::date);
             v_tipo_cambio_anterior = v_rec_tc.o_tc_final;
 
             --Incrementa en uno el mes
             v_mes_dep = v_mes_dep + interval '1' month;
 
-            --ajusta las fechas
+            --Ajusta las fechas
             v_gestion_aux = date_part('year'::text, v_mes_dep);
             v_mes_aux = date_part('month'::text, v_mes_dep);
             v_mes_dep = ('01/'||v_mes_aux::varchar||'/'||v_gestion_aux::varchar)::date;
@@ -482,7 +460,7 @@ BEGIN
     --RCM 17-12-2018: Se verifica si se debe mover la depreciación de varios meses del movimiento en el último mes
     v_mover_dep = pxp.f_get_variable_global('kaf_dep_mov_en_un_solo_mes');
 
-    if coalece(v_mover_dep,'no') = 'si' then
+    if coalesce(v_mover_dep,'no') = 'si' then
         v_resp_mov = kaf.f_depreciacion_mover_mes(p_id_movimiento);
     end if;
 

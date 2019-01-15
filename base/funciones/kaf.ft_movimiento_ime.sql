@@ -14,11 +14,8 @@ $body$
  FECHA:         22-10-2015 20:42:41
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #4     KAF       ETR           11/01/2019  RCM         Se quita restricción de dar baja el mismo mes de depreciación
 ***************************************************************************/
 
 DECLARE
@@ -798,7 +795,8 @@ BEGIN
                 --Verifica si sale del estado borrador para verificar las fechas
                 if v_movimiento.estado = 'borrador' then
 
-                    if exists(with t_ult_dep as (
+                    --Inicio #4: restricción comentada
+                    /*if exists(with t_ult_dep as (
                                     select max(fecha) over (partition by id_activo_fijo_valor) as fecha,id_activo_fijo_valor
                                     from kaf.tmovimiento_af_dep
                                 )
@@ -813,7 +811,8 @@ BEGIN
                                 where maf.id_movimiento = v_movimiento.id_movimiento
                             ) then
                         raise exception 'No puede continuarse con la Baja en la fecha %. La fecha de baja debe ser un mes después de la última depreciación',v_movimiento.fecha_mov;
-                    end if;
+                    end if;*/
+                    --Fin #4
 
                     if exists(with t_ult_dep as (
                                     select max(fecha) over (partition by id_activo_fijo_valor) as fecha,id_activo_fijo_valor
