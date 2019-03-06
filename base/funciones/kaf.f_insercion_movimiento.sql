@@ -185,7 +185,7 @@ BEGIN
         v_id_proceso_wf,
         v_id_estado_wf,
         (p_parametros->'glosa')::varchar,
-        v_id_funcionario,
+        coalesce(v_id_funcionario,(p_parametros->'id_funcionario_dest')::integer),
         v_codigo_estado,
         (p_parametros->'id_oficina')::integer,
         'activo',
