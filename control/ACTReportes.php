@@ -1,4 +1,15 @@
 <?php
+/**
+*@package pXP
+*@file ACTReportes.php
+*@author  RCM
+*@date 27/07/2017
+*@description Genera los reportes generales
+*/
+/***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+
+***************************************************************************/
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__).'/../reportes/RKardexAFxls.php');
 require_once(dirname(__FILE__).'/../reportes/RReporteGralAFXls.php');
@@ -396,7 +407,7 @@ class ACTReportes extends ACTbase {
 		$reporte->setData($dataSource->getDatos());
 		$reporte->generarReporte();
 
-		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito = new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
