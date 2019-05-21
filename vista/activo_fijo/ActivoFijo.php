@@ -5,7 +5,11 @@
 *@author  (admin)
 *@date 29-10-2015 03:18:45
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+* ISSUE       EMPRESA     FECHA:		      AUTOR       DESCRIPCION
+* #8  			ETR      14/05/2019          MZM         se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
+ * 
+ 
+ * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -286,6 +290,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.maestro = config;
         //llama al constructor de la clase padre
         Phx.vista.ActivoFijo.superclass.constructor.call(this, config);
+		
+
 
         var cmbCaract = new Ext.form.ComboBox({
             name:'caract_val',
@@ -517,7 +523,16 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             tooltip : '<b>Detalle Depreciación</b><br/>Detalle completo de las depreciaciones mensuales realizadas'
         });
 
-
+		
+        //Inicio #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
+		this.addButton('btnImportarCC',{
+        	text :'Subir CC',
+            iconCls : 'bchecklist',
+            disabled: false,
+            handler: this.onButtonSubirCC,
+            tooltip : '<b>Subir Relacion AF-CentroCosto</b><br/>desde Excel (xlsx).'
+        });
+        //Fin #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
         //Add context menu
         this.grid.on('rowcontextmenu', function(grid, rowIndex, e) {
             e.stopEvent();
@@ -625,7 +640,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         });
 
         this.crearMenuMov();
-
+        
+        
+        
     },
     Atributos: [{
         //configuracion del componente
@@ -3079,9 +3096,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 cls: 'ActivoFijoValoresDepPrin'
             },
             {
-                url: '../../../sis_kactivos_fijos/vista/tipo_prorrateo/TipoProrrateo.php',
+                url: '../../../sis_kactivos_fijos/vista/activo_fijo_cc/ActivoFijoCc.php',
                 title: 'Centros de Costo',
-                cls: 'TipoProrrateo'
+                cls: 'ActivoFijoCc'
             },
             {
                 url: '../../../sis_kactivos_fijos/vista/activo_fijo_modificacion/ActivoFijoModificacion.php',
@@ -3184,7 +3201,24 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             this.idContenedor,
             'ActivoFijoValoresHist'
         );
-    }
+    },
+    onButtonSubirCC: function(rec)
+    {//Inicio #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
+        
+        Phx.CP.loadWindows
+        (
+            '../../../sis_kactivos_fijos/vista/activo_fijo_cc/ImportarCentroCosto.php',
+            'Importar CC desde Excel',
+            {
+                modal: true,
+                width: 450,
+                height: 150
+            },
+            {'id_activo_fijo':1},
+            this.idContenedor,
+            'ImportarCentroCosto'
+        );
+	}//Fin #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
 
 })
 </script>
