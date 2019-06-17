@@ -1430,12 +1430,75 @@ create table kaf.tactivo_fijo_cc (
 
 /***********************************I-SCP-MZM-KAF-8-14/05/2019****************************************/
 create table kaf.tactivo_fijo_cc_log (
-  id_activo_fijo_cc_log SERIAL, 
-  activo_fijo VARCHAR NOT NULL, 
-  centro_costo VARCHAR NOT NULL, 
-  mes DATE NOT NULL, 
-  cantidad_horas NUMERIC(18,2) NOT NULL, 
+  id_activo_fijo_cc_log SERIAL,
+  activo_fijo VARCHAR NOT NULL,
+  centro_costo VARCHAR NOT NULL,
+  mes DATE NOT NULL,
+  cantidad_horas NUMERIC(18,2) NOT NULL,
   detalle TEXT NOT NULL,
   nombre_archivo VARCHAR
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-MZM-KAF-8-14/05/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-2-21/05/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN porcentaje NUMERIC(18,2);
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.porcentaje
+IS '(Distribución de valores)Porcentaje a tomar en cuenta del importe del activo fijo original';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_clasificacion INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_clasificacion
+IS 'Utilizado cuando se creara un nuevo activo fijo';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN denominacion VARCHAR(500);
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.denominacion
+IS 'Utilizado cuando se creara un nuevo activo fijo';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN fecha_ini_dep DATE;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.fecha_ini_dep
+IS 'Utilizado cuando se creara un nuevo activo fijo';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN vida_util INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.vida_util
+IS 'Utilizado cuando se creara un nuevo activo fijo';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_centro_costo INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_centro_costo
+IS 'Utilizado cuando se creara un nuevo activo';
+/***********************************F-SCP-RCM-KAF-2-21/05/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-2-23/05/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN tipo VARCHAR(15);
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.tipo
+IS 'Tipo de distribución que se realizará (activo fijo existente, nuevo activo fijo, salida a almacén)';
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN opcion VARCHAR(15);
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.opcion
+IS 'Opción para la distribución de valores: porcentaje o importe';
+/***********************************F-SCP-RCM-KAF-2-23/05/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-2-06/06/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_moneda INTEGER;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD COLUMN id_almacen INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_almacen
+IS 'Para el caso de tipo = af_almacen';
+/***********************************F-SCP-RCM-KAF-2-06/06/2019****************************************/
