@@ -14,11 +14,8 @@ $body$
  FECHA:         29-10-2015 03:18:45
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #12    KAF       ETR           16/05/2019  RCM         Modificación funcionario por regularización
 ***************************************************************************/
 
 DECLARE
@@ -145,6 +142,7 @@ BEGIN
                         documento = v_parametros.documento,
                         observaciones = v_parametros.observaciones,
                         denominacion = v_parametros.denominacion,
+                        id_funcionario = coalesce(v_parametros.id_funcionario_asig,v_parametros.id_funcionario), --#12
                         descripcion = v_parametros.descripcion,
                         id_cat_estado_compra = v_parametros.id_cat_estado_compra,
                         id_centro_costo = v_parametros.id_centro_costo,
