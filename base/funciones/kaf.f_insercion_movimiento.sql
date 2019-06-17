@@ -4,11 +4,17 @@ CREATE OR REPLACE FUNCTION kaf.f_insercion_movimiento (
 )
 RETURNS integer AS
 $body$
-/*
-Autor: RCM
-Fecha: 03/08/2017
-Descripción: Función para crear un nuevo movimiento
-*/
+/**************************************************************************
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.f_insercion_movimiento
+ DESCRIPCION:   Función para crear un nuevo movimiento
+ AUTOR:         RCM
+ FECHA:         03/08/2017
+ COMENTARIOS:
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
+***************************************************************************/
 DECLARE
 
 	v_id_movimiento 		integer;
@@ -185,7 +191,7 @@ BEGIN
         v_id_proceso_wf,
         v_id_estado_wf,
         (p_parametros->'glosa')::varchar,
-        v_id_funcionario,
+        coalesce(v_id_funcionario,(p_parametros->'id_funcionario_dest')::integer),
         v_codigo_estado,
         (p_parametros->'id_oficina')::integer,
         'activo',
@@ -213,19 +219,40 @@ BEGIN
     -------------------------------------
     if v_cod_movimiento in ('deprec','actua') then
         --DEPRECIACIÓN/ACTUALIZACIÓN: registro de todos los activos del departamento que les corresponda depreciar en el periodo solicitado
-        for v_registros_mov in (select
-                                afij.id_activo_fijo,
-                                afij.id_cat_estado_fun
-                                from kaf.tactivo_fijo afij
-                                inner join kaf.tclasificacion cla
-                                on cla.id_clasificacion = afij.id_clasificacion
-                                where afij.estado = 'alta'
-                                and afij.id_depto = (p_parametros->'id_depto')::integer
-                                and (
-                                        (afij.fecha_ult_dep is null and afij.fecha_ini_dep < (p_parametros->'fecha_hasta')::date)
-                                     or
-                                        (afij.fecha_ult_dep < (p_parametros->'fecha_hasta')::date)
-                                )) loop
+         for v_registros_mov in (
+            --Inicio #7: Modificación consulta
+            select distinct
+            afij.id_activo_fijo,
+            afij.id_cat_estado_fun
+            from kaf.vactivo_fijo_valor vaf
+            inner join kaf.tactivo_fijo afij
+            on afij.id_activo_fijo = vaf.id_activo_fijo
+            inner join kaf.tactivo_fijo_valores afv
+            on afv.id_activo_fijo_valor = vaf.id_activo_fijo_valor
+            where afij.id_depto = (p_parametros->'id_depto')::integer
+            and afij.estado <> 'registrado'
+            --Verifica la fecha inicio depreciación o en su defecto la fecha de última depreciación sean anterior a la fecha de depreciación
+            and (
+              (
+                vaf.fecha_ult_dep is null and date_trunc('month',vaf.fecha_ini_dep) <= date_trunc('month',(p_parametros->'fecha_hasta')::date)
+              )
+              or
+              (
+                date_trunc('month',vaf.fecha_ult_dep) < date_trunc('month',(p_parametros->'fecha_hasta')::date)
+              )
+            )
+            --Verifica que no tenga fecha fin
+            and (
+              afv.fecha_fin is null or date_trunc('month',afv.fecha_fin) <= date_trunc('month',(p_parametros->'fecha_hasta')::date)
+            )
+            --Verifica si está en baja q su fecha de baja sea anterior a la fecha de depreciación
+            and (
+              (afij.estado <> 'baja')
+              or
+              (afij.estado = 'baja' and date_trunc('month',afij.fecha_baja) < date_trunc('month',(p_parametros->'fecha_hasta')::date))
+            )
+            --Fin #7
+        ) loop
 
             --RAC 29/03/2017: realiza validaciones sobre los activos que pueden relacionarse
             if kaf.f_validar_ins_mov_af(v_id_movimiento, v_registros_mov.id_activo_fijo, false)  then
@@ -239,15 +266,16 @@ BEGIN
                     id_usuario_reg,
                     fecha_mod
                 ) values(
-                  v_id_movimiento,
-                  v_registros_mov.id_activo_fijo,
-                  v_registros_mov.id_cat_estado_fun,
-                  'activo',
-                  now(),
-                  p_id_usuario,
-                  null
+                    v_id_movimiento,
+                    v_registros_mov.id_activo_fijo,
+                    v_registros_mov.id_cat_estado_fun,
+                    'activo',
+                    now(),
+                    p_id_usuario,
+                    null
                 );
-           end if;
+
+            end if;
 
         end loop;
 

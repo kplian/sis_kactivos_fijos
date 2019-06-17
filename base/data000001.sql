@@ -19,11 +19,11 @@ select pxp.f_insert_testructura_gui ('KAFREP', 'KAF');
 
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'kaf_codigo_longitud', E'5', E'Longitud correlativo en el codigo de activos');
-  
-  
-  
+
+
+
 /***********************************F-DAT-RCM-KAF-1-02/09/2015****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-11/09/2015****************************************/
@@ -46,7 +46,7 @@ select pxp.f_insert_testructura_gui ('KAFMMOT', 'KAF');
 select pxp.f_insert_tgui ('Tipo Movimiento', 'Tipo Movimiento', 'KAFMOVT', 'si', 5, 'sis_kactivos_fijos/vista/movimiento_tipo/MovimientoTipo.php', 2, '', 'MovimientoTipo', 'KAF');
 select pxp.f_insert_testructura_gui ('KAFMOVT', 'KAF');
 /***********************************F-DAT-RCM-KAF-1-18/03/2016****************************************/
- 
+
 /***********************************I-DAT-RCM-KAF-1-25/03/2016****************************************/
 select wf.f_import_tproceso_macro ('insert','KAF-MOV-AF', 'KAF', 'Procesos de Activos Fijos','si');
 select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
@@ -106,7 +106,7 @@ insert into pxp.variable_global(variable,valor,descripcion) values('kaf_nivel_ti
 /***********************************I-DAT-RAC-KAF-1-25/07/2016****************************************/
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 ---------------------------------
 
 select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__id_cat_estado_fun','KAF','tactivo_fijo__id_cat_estado_fun');
@@ -118,7 +118,7 @@ select param.f_import_tcatalogo ('insert','KAF','Regular','2','tactivo_fijo__id_
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 ---------------------------------
 
 select param.f_import_tcatalogo_tipo ('insert','tclasificacion__id_cat_metodo_dep','KAF','tclasificacion__id_cat_metodo_dep');
@@ -128,7 +128,7 @@ select param.f_import_tcatalogo ('insert','KAF','hrs_prod',NULL,'tclasificacion_
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 ---------------------------------
 
 select param.f_import_tcatalogo_tipo ('insert','tactivo_fijo__id_cat_estado_compra','KAF','tactivo_fijo__id_cat_estado_compra');
@@ -137,7 +137,7 @@ select param.f_import_tcatalogo ('insert','KAF','Usado','usado','tactivo_fijo__i
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 ---------------------------------
 
 select param.f_import_tcatalogo_tipo ('insert','tmovimiento__id_cat_movimiento','KAF','tmovimiento__id_cat_movimiento');
@@ -166,7 +166,7 @@ select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KA
 /* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'kaf_clase_reporte_codigo', E'RCodigoQRAF', E'nombre de la calse utilizada para imprimir el codigo de af,  el codigo de la clase debe acomodarce dentro del archivo sis_kactivos_fijos/reportes/RCodigoQRAF.php');
 
 
@@ -191,7 +191,7 @@ select param.f_import_tcatalogo ('insert','KAF','Actualización','actua','tmovim
 
 
 ----------------------------------
---COPY LINES TO data.sql FILE  
+--COPY LINES TO data.sql FILE
 ---------------------------------
 
 select pxp.f_insert_tgui ('Movimientos', 'Movimientos de los activos fijos', 'KAFMOV', 'si', 3, 'sis_kactivos_fijos/vista/movimiento/MovimientoPrincipal.php', 2, '', 'MovimientoPrincipal', 'KAF');
@@ -210,13 +210,13 @@ select pxp.f_insert_tgui ('Monedas Dep', 'Moneda para depreciación', 'MONDEP', 
 
 
 ----------------------------------
---COPY LINES TO data.sql FILE  
+--COPY LINES TO data.sql FILE
 ---------------------------------
 
 select pxp.f_insert_tgui ('Configuración Prorrateo', 'Configuración Prorrateo', 'TIPRO', 'si', 2, 'sis_kactivos_fijos/vista/tipo_prorrateo/ProyectoKaf.php', 3, '', 'ProyectoKaf', 'KAF');
 select pxp.f_insert_tgui ('Clasificación Relación Contable', 'Clasificación Relación Contable', 'LAFRC', 'si', 3, 'sis_kactivos_fijos/vista/cta_clasificacion/CtaClasificacion.php', 3, '', 'CtaClasificacion', 'KAF');
 ----------------------------------
---COPY LINES TO dependencies.sql FILE  
+--COPY LINES TO dependencies.sql FILE
 ---------------------------------
 
 select pxp.f_insert_testructura_gui ('TIPRO', 'CONFAF');
@@ -226,12 +226,12 @@ select pxp.f_insert_testructura_gui ('LAFRC', 'CONFAF');
 
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'kaf_cbte_depreciacion', E'DEPAF', E'codigo de la plantilla de cbte de depreciacion');
-  
-  
+
+
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'kaf_cbte_depreciacion_aitb', E'AITBAF', E'cbte de AITB activos Fijos');
 
 
@@ -340,7 +340,7 @@ select pxp.f_insert_testructura_gui ('KAF.REP.08', 'KAFREP');
 
 /***********************************I-DAT-RCM-KAF-0-26/06/2018****************************************/
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'kaf_caracteres_no_validos_form605', E'$,%,&,/', E'Caracteres inválidos para generar reporte del Formulario 605');
 /***********************************F-DAT-RCM-KAF-0-26/06/2018****************************************/
 
@@ -348,3 +348,7 @@ VALUES
 select pxp.f_add_catalog('KAF','tgrupo__tipo','grupo','grupo','');
 select pxp.f_add_catalog('KAF','tgrupo__tipo','clasificacion','clasificacion','');
 /***********************************F-DAT-RCM-KAF-0-10/07/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-2-25/02/2019****************************************/
+select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Distribuir Valor AF','dval','');
+/***********************************F-DAT-RCM-KAF-2-25/02/2019****************************************/

@@ -1411,3 +1411,31 @@ ALTER TABLE kaf.tmovimiento_af
 COMMENT ON COLUMN kaf.tmovimiento_af.importe_modif
 IS 'Importe cuando corresponde a un incremento/decremento, caso cuando viene de Ajustes creados por cierre de proyectos';
 /***********************************F-SCP-RCM-KAF-0-10/12/2018****************************************/
+
+/***********************************I-SCP-RCM-KAF-0-08/02/2019****************************************/
+ALTER TABLE kaf.ttipo_prorrateo
+  ADD COLUMN id_gestion INTEGER NOT NULL;
+/***********************************F-SCP-RCM-KAF-0-08/02/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-8-08/05/2019****************************************/
+create table kaf.tactivo_fijo_cc (
+	id_activo_fijo_cc serial,
+	id_activo_fijo integer not null,
+	id_centro_costo integer not null,
+	mes date not null,
+	cantidad_horas numeric(18,2) not null,
+	constraint pk_tactivo_fijo_cc__id_activo_fijo_cc primary key (id_activo_fijo_cc)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-KAF-8-08/05/2019****************************************/
+
+/***********************************I-SCP-MZM-KAF-8-14/05/2019****************************************/
+create table kaf.tactivo_fijo_cc_log (
+  id_activo_fijo_cc_log SERIAL, 
+  activo_fijo VARCHAR NOT NULL, 
+  centro_costo VARCHAR NOT NULL, 
+  mes DATE NOT NULL, 
+  cantidad_horas NUMERIC(18,2) NOT NULL, 
+  detalle TEXT NOT NULL,
+  nombre_archivo VARCHAR
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-MZM-KAF-8-14/05/2019****************************************/

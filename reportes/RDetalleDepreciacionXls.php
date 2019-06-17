@@ -1,4 +1,15 @@
 <?php
+/**
+*@package pXP
+*@file RDetalleDepreciacionXls.php
+*@author  RCM
+*@date 27/07/2017
+*@description Reporte Detalle de Depreciación
+*/
+/***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
+***************************************************************************/
 class RDetalleDepreciacionXls
 {
 	private $objParam;
@@ -151,7 +162,7 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Altas'						,"N$f" ,13,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Bajas'						,"O$f" ,14,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Traspasos'					,"P$f" ,15,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Inc.x Actualiz.'				,"Q$f" ,16,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
+		$this->cell($sheet,'Inc.x Actualiz.'			,"Q$f" ,16,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
 		$this->cell($sheet,'Valor Actualiz.'			,"R$f" ,17,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
 		$this->cell($sheet,'Vida Útil Original (meses)'	,"S$f" ,18,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//N->O
 		$this->cell($sheet,'Vida Útil Transcurrida (meses)'	,"T$f" ,19,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//N->O
@@ -160,8 +171,8 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Depreciación del Mes'		,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Dep.Acum. Bajas'			,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Traspasos'			,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Acum.'		,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Acum. Traspasos'		,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Depreciación Acum.'			,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Depreciación Gestión'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Valor Neto'					,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Cuenta Activo'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
@@ -170,6 +181,30 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Agrupador AE'				,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Clasificador AE'			,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
 		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+
+		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
+		$this->cell($sheet,'Código 2018'   				,"AJ$f",35,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 1'   					,"AK$f",36,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 1'   			,"AL$f",37,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 2'   					,"AM$f",38,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 2'   			,"AN$f",39,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 3'   					,"AO$f",40,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 3'   			,"AP$f",41,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 4'   					,"AQ$f",42,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 4'   			,"AR$f",43,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 5'   					,"AS$f",44,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 5'   			,"AT$f",45,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 6'   					,"AU$f",46,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 6'   			,"AV$f",47,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 7'   					,"AW$f",48,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 7'   			,"AX$f",49,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 8'   					,"AY$f",50,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 8'   			,"AZ$f",51,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 9'   					,"BA$f",52,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 9'   			,"BB$f",53,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'CC 10'   					,"BC$f",54,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Dep.Mes. CC 10'   			,"BD$f",55,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		//Fin #9
 
 		$this->fila++;
 		//////////////////
@@ -272,8 +307,11 @@ class RDetalleDepreciacionXls
 		$range_sum='=SUM(AC'.($this->fila).':AC'.($f-1).')';
 		$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
 		$this->cell($sheet,'',"AD$f",29,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
-		$sheet->mergeCells("AD$f:AH$f");
-		$this->cellBorder($sheet,"AD$f:AH$f");
+
+		//Inicio #9: se estira el  merge cell de AH hasta BC y también el borde
+		$sheet->mergeCells("AD$f:BD$f");
+		$this->cellBorder($sheet,"AD$f:BD$f");
+		//Fin #9
 
 		//Formato de números para los totales
 		$count=count($this->dataSet)+6;
@@ -362,10 +400,35 @@ class RDetalleDepreciacionXls
 		$sheet->getColumnDimension('AG')->setWidth(60);
 		$sheet->getColumnDimension('AH')->setWidth(60);
 		$sheet->getColumnDimension('AI')->setWidth(60);
-		$sheet->getColumnDimension('AJ')->setWidth(0);
-		$sheet->getColumnDimension('AK')->setWidth(0);
-		$sheet->getColumnDimension('AL')->setWidth(0);
-		$sheet->getColumnDimension('AM')->setWidth(0);
+		$sheet->getColumnDimension('AJ')->setWidth(15);
+		$sheet->getColumnDimension('AK')->setWidth(15);
+		$sheet->getColumnDimension('AL')->setWidth(15);
+		$sheet->getColumnDimension('AM')->setWidth(15);
+
+		//Inicio #9: Seteo del ancho de nuevas columnas
+		$sheet->getColumnDimension('AN')->setWidth(15);
+		$sheet->getColumnDimension('AO')->setWidth(15);
+		$sheet->getColumnDimension('AP')->setWidth(15);
+		$sheet->getColumnDimension('AQ')->setWidth(15);
+		$sheet->getColumnDimension('AR')->setWidth(15);
+		$sheet->getColumnDimension('AS')->setWidth(15);
+		$sheet->getColumnDimension('AT')->setWidth(15);
+		$sheet->getColumnDimension('AU')->setWidth(15);
+		$sheet->getColumnDimension('AV')->setWidth(15);
+		$sheet->getColumnDimension('AW')->setWidth(15);
+		$sheet->getColumnDimension('AX')->setWidth(15);
+		$sheet->getColumnDimension('AY')->setWidth(15);
+		$sheet->getColumnDimension('AZ')->setWidth(15);
+		$sheet->getColumnDimension('BA')->setWidth(15);
+		$sheet->getColumnDimension('BB')->setWidth(15);
+		$sheet->getColumnDimension('BC')->setWidth(15);
+		$sheet->getColumnDimension('BD')->setWidth(15);
+
+		$sheet->getColumnDimension('BE')->setWidth(0);
+		$sheet->getColumnDimension('BF')->setWidth(0);
+		$sheet->getColumnDimension('BG')->setWidth(0);
+		$sheet->getColumnDimension('BH')->setWidth(0);
+		//Fin #9
 	}
 
 }

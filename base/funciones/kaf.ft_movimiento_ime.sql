@@ -16,6 +16,7 @@ $body$
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #4     KAF       ETR           11/01/2019  RCM         Se quita restricción de dar baja el mismo mes de depreciación
+ #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
 ***************************************************************************/
 
 DECLARE
@@ -284,18 +285,43 @@ BEGIN
                         id_usuario_reg,
                         fecha_mod
                     )
-                    select
-                        v_parametros.id_movimiento,
-                        afij.id_activo_fijo,
-                        afij.id_cat_estado_fun,
-                        'activo',
-                        now(),
-                        p_id_usuario,
-                        null
-                        from kaf.tactivo_fijo afij
-                        where afij.estado = 'alta'
-                        and afij.id_depto = v_parametros.id_depto
-                        and ((afij.fecha_ult_dep is null and afij.fecha_ini_dep < v_parametros.fecha_hasta) or (afij.fecha_ult_dep < v_parametros.fecha_hasta));
+                    --Inicio #7: Modificación consulta
+                    select distinct
+                    v_parametros.id_movimiento,
+                    afij.id_activo_fijo,
+                    afij.id_cat_estado_fun,
+                    'activo',
+                    now(),
+                    p_id_usuario,
+                    null
+                    from kaf.vactivo_fijo_valor vaf
+                    inner join kaf.tactivo_fijo afij
+                    on afij.id_activo_fijo = vaf.id_activo_fijo
+                    inner join kaf.tactivo_fijo_valores afv
+                    on afv.id_activo_fijo_valor = vaf.id_activo_fijo_valor
+                    where afij.id_depto = v_parametros.id_depto
+                    and afij.estado <> 'registrado'
+                    --Verifica la fecha inicio depreciación o en su defecto la fecha de última depreciación sean anterior a la fecha de depreciación
+                    and (
+                      (
+                        vaf.fecha_ult_dep is null and date_trunc('month',vaf.fecha_ini_dep) <= date_trunc('month',v_parametros.fecha_hasta)
+                      )
+                      or
+                      (
+                        date_trunc('month',vaf.fecha_ult_dep) < date_trunc('month',v_parametros.fecha_hasta)
+                      )
+                    )
+                    --Verifica que no tenga fecha fin
+                    and (
+                      afv.fecha_fin is null or date_trunc('month',afv.fecha_fin) <= date_trunc('month',v_parametros.fecha_hasta)
+                    )
+                    --Verifica si está en baja q su fecha de baja sea anterior a la fecha de depreciación
+                    and (
+                      (afij.estado <> 'baja')
+                      or
+                      (afij.estado = 'baja' and date_trunc('month',afij.fecha_baja) < date_trunc('month',v_parametros.fecha_hasta))
+                    );
+                    --Fin #7
 
                 end if;
 
@@ -653,8 +679,9 @@ BEGIN
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = movaf.id_activo_fijo
                                               where movaf.id_movimiento = v_movimiento.id_movimiento
-                                              and movaf.id_activo_fijo not in (select id_activo_fijo
-                                                                                from pro.tproyecto_activo) --condición para que no genere AFV para activos que viene de cierre de proyectos
+                                              and not exists(select id_activo_fijo
+                                                            from pro.tproyecto_activo
+                                                            where id_activo_fijo = movaf.id_activo_fijo) --condición para que no genere AFV para activos que viene de cierre de proyectos
                     ) loop
 
                         --Recorrido de las monedas configuradas para insertar un registro para cada una
@@ -670,21 +697,21 @@ BEGIN
                                                                       v_registros_af_mov.monto_compra, --este monto siemrpe estara en moenda base
                                                                       v_registros_af_mov.fecha_ini_dep,
                                                                       'O',-- tipo oficial, venta, compra
-                                                                      NULL);--defecto dos decimales
+                                                                      6);--defecto dos decimales
 
                             v_monto_compra_100 = param.f_convertir_moneda(v_registros_af_mov.id_moneda_orig, --moneda origen para conversion
                                                                           v_registros_mod.id_moneda,   --moneda a la que sera convertido
                                                                           v_registros_af_mov.monto_compra_orig_100, --este monto siemrpe estara en moenda base
                                                                           v_registros_af_mov.fecha_ini_dep,
                                                                           'O',-- tipo oficial, venta, compra
-                                                                          NULL);--defecto dos decimales
+                                                                          6);--defecto dos decimales
 
                             v_monto_rescate = param.f_convertir_moneda(v_id_moneda_base, --moneda origen para conversion
                                                                        v_registros_mod.id_moneda,   --moneda a la que sera convertido
                                                                        v_registros_af_mov.monto_rescate, --este monto siemrpe estara en moenda base
                                                                        v_registros_af_mov.fecha_ini_dep,
                                                                        'O',-- tipo oficial, venta, compra
-                                                                       NULL);--defecto dos decimales
+                                                                       6);--defecto dos decimales
 
                             --Crea el registro de importes
                             insert into kaf.tactivo_fijo_valores(

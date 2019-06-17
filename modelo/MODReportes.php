@@ -6,6 +6,10 @@
 *@date 27/07/2017
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
+/***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
+***************************************************************************/
 
 class MODReportes extends MODbase{
 
@@ -399,10 +403,35 @@ class MODReportes extends MODbase{
         $this->captura('desc_grupo','varchar');
         $this->captura('desc_grupo_clasif','varchar');
         $this->captura('cuenta_dep_acum_dos','text');
+        $this->captura('bk_codigo','varchar');
+
+        //Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
+		$this->captura('cc1', 'varchar(50)');
+		$this->captura('dep_mes_cc1', 'numeric(24,2)');
+		$this->captura('cc2', 'varchar(50)');
+		$this->captura('dep_mes_cc2', 'numeric(24,2)');
+		$this->captura('cc3', 'varchar(50)');
+		$this->captura('dep_mes_cc3', 'numeric(24,2)');
+		$this->captura('cc4', 'varchar(50)');
+		$this->captura('dep_mes_cc4', 'numeric(24,2)');
+		$this->captura('cc5', 'varchar(50)');
+		$this->captura('dep_mes_cc5', 'numeric(24,2)');
+		$this->captura('cc6', 'varchar(50)');
+		$this->captura('dep_mes_cc6', 'numeric(24,2)');
+		$this->captura('cc7', 'varchar(50)');
+		$this->captura('dep_mes_cc7', 'numeric(24,2)');
+		$this->captura('cc8', 'varchar(50)');
+		$this->captura('dep_mes_cc8', 'numeric(24,2)');
+		$this->captura('cc9', 'varchar(50)');
+		$this->captura('dep_mes_cc9', 'numeric(24,2)');
+		$this->captura('cc10', 'varchar(50)');
+		$this->captura('dep_mes_cc10', 'numeric(24,2)');
+
 		$this->captura('id_activo_fijo','integer');
         $this->captura('nivel','integer');
         $this->captura('orden','bigint');
         $this->captura('tipo','varchar(10)');
+		//Fin #9
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -475,6 +504,31 @@ class MODReportes extends MODbase{
         $this->captura('nivel','integer');
         $this->captura('orden','bigint');
         $this->captura('tipo','varchar(10)');
+
+        $this->captura('bk_codigo','varchar');
+
+		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
+		$this->captura('cc1', 'varchar(50)');
+		$this->captura('dep_mes_cc1', 'numeric(24,2)');
+		$this->captura('cc2', 'varchar(50)');
+		$this->captura('dep_mes_cc2', 'numeric(24,2)');
+		$this->captura('cc3', 'varchar(50)');
+		$this->captura('dep_mes_cc3', 'numeric(24,2)');
+		$this->captura('cc4', 'varchar(50)');
+		$this->captura('dep_mes_cc4', 'numeric(24,2)');
+		$this->captura('cc5', 'varchar(50)');
+		$this->captura('dep_mes_cc5', 'numeric(24,2)');
+		$this->captura('cc6', 'varchar(50)');
+		$this->captura('dep_mes_cc6', 'numeric(24,2)');
+		$this->captura('cc7', 'varchar(50)');
+		$this->captura('dep_mes_cc7', 'numeric(24,2)');
+		$this->captura('cc8', 'varchar(50)');
+		$this->captura('dep_mes_cc8', 'numeric(24,2)');
+		$this->captura('cc9', 'varchar(50)');
+		$this->captura('dep_mes_cc9', 'numeric(24,2)');
+		$this->captura('cc10', 'varchar(50)');
+		$this->captura('dep_mes_cc10', 'numeric(24,2)');
+		//Fin #9
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
