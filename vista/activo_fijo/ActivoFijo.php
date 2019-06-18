@@ -5,11 +5,12 @@
 *@author  (admin)
 *@date 29-10-2015 03:18:45
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-* ISSUE       EMPRESA     FECHA:		      AUTOR       DESCRIPCION
-* #8  			ETR      14/05/2019          MZM         se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
- * 
- 
- * */
+*/
+/***************************************************************************
+#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #8     KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
+ #16    KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
+***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -290,8 +291,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         this.maestro = config;
         //llama al constructor de la clase padre
         Phx.vista.ActivoFijo.superclass.constructor.call(this, config);
-		
-
 
         var cmbCaract = new Ext.form.ComboBox({
             name:'caract_val',
@@ -349,6 +348,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             }
 
         },this);
+
         txtFilter.on('blur',function (val){
             //Verifica que el campo de texto tenga algun valor
             if(cmbCaract.getValue()&&txtFilter.getValue()){
@@ -523,7 +523,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             tooltip : '<b>Detalle Depreciación</b><br/>Detalle completo de las depreciaciones mensuales realizadas'
         });
 
-		
+
         //Inicio #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
 		this.addButton('btnImportarCC',{
         	text :'Subir CC',
@@ -533,6 +533,17 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             tooltip : '<b>Subir Relacion AF-CentroCosto</b><br/>desde Excel (xlsx).'
         });
         //Fin #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
+
+        //Inicio #16
+        this.addButton('btnCompletarProCC',{
+            text :'Completar Prorrateo',
+            iconCls : 'bchecklist',
+            disabled: false,
+            handler: this.onButtonCompletarCC,
+            tooltip : '<b>Completa el prorrateo con las Hrs. faltantes al mes con el CC por defecto por activo fijo'
+        });
+        //Fin #16
+
         //Add context menu
         this.grid.on('rowcontextmenu', function(grid, rowIndex, e) {
             e.stopEvent();
@@ -640,9 +651,75 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         });
 
         this.crearMenuMov();
-        
-        
-        
+
+        //Inicio #16: Creación de ventana para pedir la fecha al llamar el proceso de completar prorrateo mensual
+        var fechaPro = new Ext.form.DateField({
+            fieldLabel: 'Mes',
+            allowBlank: false
+        });
+
+        this.formProCC = new Ext.form.FormPanel({
+            id: this.idContenedor + '_af_form_pro_cc',
+            items: [fechaPro],
+            padding: this.paddingForm,
+            bodyStyle: this.bodyStyleForm,
+            border: this.borderForm,
+            frame: this.frameForm,
+            autoScroll: false,
+            autoDestroy: true,
+            autoScroll: true,
+            region: 'center'
+        });
+
+        this.submitProCC = function(){
+            if(this.formProCC.getForm().isValid()){
+                Phx.CP.loadingShow();
+
+                var post = {
+                    fecha: this.formProCC.getForm().items.items[0].value
+                };
+
+                Ext.Ajax.request({
+                    url: '../../sis_kactivos_fijos/control/ActivoFijoCc/completarProrrateoCC',
+                    params: post,
+                    isUpload: false,
+                    success: function(a,b,c){
+                        Phx.CP.loadingHide();
+                        this.afWindowProCC.hide();
+                        Ext.MessageBox.alert('Hecho','El prorrateo se realizó satisfactoriamente');
+                    },
+                    argument: this.argumentSave,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        }
+
+        this.afWindowProCC = new Ext.Window({
+            width: 300,
+            height: 120,
+            modal: true,
+            closeAction: 'hide',
+            labelAlign: 'top',
+            title: 'Completar Prorrateo mensual',
+            bodyStyle: 'padding:5px',
+            layout: 'border',
+            items: [this.formProCC],
+            buttons: [{
+                text: 'Guardar',
+                handler: this.submitProCC,
+                scope: this
+            }, {
+                text: 'Declinar',
+                handler: function() {
+                    this.afWindowProCC.hide();
+                },
+                scope: this
+            }]
+        });
+        //Fin #16
+
     },
     Atributos: [{
         //configuracion del componente
@@ -3042,7 +3119,6 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     btriguerreturn:false,
 
     actualizarSegunClasificacion: function(tipo_activo, depreciable){
-        console.log('actualizar',tipo_activo, depreciable)
         if(tipo_activo == 'tangible'){
             Ext.getCmp(this.idContenedor+'_id_deposito').enable();
             Ext.getCmp(this.idContenedor+'_nro_serie').enable();
@@ -3204,7 +3280,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     },
     onButtonSubirCC: function(rec)
     {//Inicio #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
-        
+
         Phx.CP.loadWindows
         (
             '../../../sis_kactivos_fijos/vista/activo_fijo_cc/ImportarCentroCosto.php',
@@ -3218,7 +3294,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             this.idContenedor,
             'ImportarCentroCosto'
         );
-	}//Fin #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
+	}, //Fin #8 Activo Fijo, adiciona el boton para subida de datos de AF con Centro de Costo
 
+    //Inicio #16
+    onButtonCompletarCC: function() {
+        this.ctxMenu.hide();
+        this.afWindowProCC.setTitle('Completar Prorrateo mensual');
+        this.afWindowProCC.show();
+    }
+    //Fin #16
 })
 </script>

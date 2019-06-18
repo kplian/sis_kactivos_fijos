@@ -2674,6 +2674,7 @@ WITH trel_contable AS(
   select
   acc.id_activo_fijo, sum(acc.cantidad_horas) as total_hrs_af
   from kaf.tactivo_fijo_cc acc
+  where acc.estado_reg = 'activo'
   group by acc.id_activo_fijo
 )
     SELECT rc.id_clasificacion,
@@ -2765,6 +2766,7 @@ WITH trel_contable AS(
          ))
          LEFT JOIN kaf.tactivo_fijo_cc acc
          ON acc.id_activo_fijo = maf.id_activo_fijo
+         AND acc.estado_reg = 'activo'
          LEFT JOIN tprorrateo_af paf
          ON paf.id_activo_fijo = maf.id_activo_fijo
     WHERE mdep.id_moneda = param.f_get_moneda_base()
@@ -2804,6 +2806,7 @@ WITH trel_contable AS(
   select
   acc.id_activo_fijo, sum(acc.cantidad_horas) as total_hrs_af
   from kaf.tactivo_fijo_cc acc
+  where acc.estado_reg = 'activo'
   group by acc.id_activo_fijo
 
 )
@@ -2840,6 +2843,7 @@ WITH trel_contable AS(
          ))
          LEFT JOIN kaf.tactivo_fijo_cc acc
          ON acc.id_activo_fijo = maf.id_activo_fijo
+         AND acc.estado_reg = 'activo'
          LEFT JOIN tprorrateo_af paf
          ON paf.id_activo_fijo = maf.id_activo_fijo
     WHERE mdep.id_moneda = param.f_get_moneda_base()
@@ -2879,6 +2883,7 @@ WITH trel_contable AS(
   select
   acc.id_activo_fijo, sum(acc.cantidad_horas) as total_hrs_af
   from kaf.tactivo_fijo_cc acc
+  where acc.estado_reg = 'activo'
   group by acc.id_activo_fijo
 
 )
@@ -2972,6 +2977,7 @@ WITH trel_contable AS(
          ))
          LEFT JOIN kaf.tactivo_fijo_cc acc
          ON acc.id_activo_fijo = maf.id_activo_fijo
+         AND acc.estado_reg = 'activo'
          LEFT JOIN tprorrateo_af paf
          ON paf.id_activo_fijo = maf.id_activo_fijo
     WHERE mdep.id_moneda = param.f_get_moneda_base()
@@ -2987,3 +2993,50 @@ WITH trel_contable AS(
              cta.id_cuenta,
              acc.id_centro_costo;
 /***********************************F-DEP-RCM-KAF-10-14/05/2019****************************************/
+
+/***********************************I-DEP-RCM-KAF-2-06/06/2019****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_mov_especial(
+    id_movimiento,
+    id_depto_af,
+    fecha_mov,
+    id_cat_movimiento,
+    codigo_catalogo,
+    desc_catalogo,
+    num_tramite,
+    fecha_hasta,
+    glosa,
+    id_depto_conta,
+    codigo_depto_conta,
+    id_gestion,
+    gestion,
+    id_moneda,
+    descripcion,
+    glosa_cbte)
+AS
+  SELECT mov.id_movimiento,
+         mov.id_depto AS id_depto_af,
+         mov.fecha_mov,
+         mov.id_cat_movimiento,
+         cat.codigo AS codigo_catalogo,
+         cat.descripcion AS desc_catalogo,
+         mov.num_tramite,
+         mov.fecha_hasta,
+         mov.glosa,
+         depc.id_depto AS id_depto_conta,
+         depc.codigo AS codigo_depto_conta,
+         per.id_gestion,
+         ges.gestion,
+         md.id_moneda,
+         md.descripcion,
+         'Distribución de valores de activos fijos'::varchar AS glosa_cbte
+  FROM kaf.tmovimiento mov
+       JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+       JOIN param.tdepto_depto dd ON dd.id_depto_origen = mov.id_depto
+       JOIN param.tdepto depc ON depc.id_depto = dd.id_depto_destino
+       JOIN segu.tsubsistema sis ON sis.id_subsistema = depc.id_subsistema AND
+         sis.codigo::text = 'CONTA'::text
+       JOIN param.tperiodo per ON mov.fecha_mov >= per.fecha_ini AND
+         mov.fecha_mov <= per.fecha_fin
+       JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
+       JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
+/***********************************F-DEP-RCM-KAF-2-06/06/2019****************************************/
