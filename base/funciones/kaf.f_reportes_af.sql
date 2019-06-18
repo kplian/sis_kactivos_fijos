@@ -1148,7 +1148,6 @@ raise notice '%',v_consulta;
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
                                                             --and afv.codigo not like '%-G%'
             and af.estado <> 'eliminado'
-            and af.id_activo_fijo in (54809,46113,32303)
             and date_trunc('year',coalesce(af.fecha_baja,'01-01-1900'::date)) <> date_trunc('year',v_parametros.fecha_hasta::date);
 
 
@@ -1242,7 +1241,6 @@ raise notice '%',v_consulta;
                                                 from tt_detalle_depreciacion)
             and af.estado <> 'eliminado'
             --and af.fecha_baja >= v_parametros.fecha_hasta::date
-            and af.id_activo_fijo in (54809,46113,32303)
             and date_trunc('year',af.fecha_baja) = date_trunc('year',v_parametros.fecha_hasta::date)
             and date_trunc('month',af.fecha_baja) = date_trunc('month',afv.fecha_fin + '1 month'::interval);
 

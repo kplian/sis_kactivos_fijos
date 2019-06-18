@@ -352,3 +352,28 @@ select pxp.f_add_catalog('KAF','tgrupo__tipo','clasificacion','clasificacion',''
 /***********************************I-DAT-RCM-KAF-2-25/02/2019****************************************/
 select pxp.f_add_catalog('KAF','tmovimiento__id_cat_movimiento','Distribuir Valor AF','dval','');
 /***********************************F-DAT-RCM-KAF-2-25/02/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-2-23/05/2018****************************************/
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__opcion','Activo Fijo','af_exist','');
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__opcion','Nuevo Activo Fijo','af_nuevo','');
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__opcion','Salida a Almacén','af_almacen','');
+
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__forma','Porcentaje','porcentaje','');
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__forma','Importe','importe','');
+/***********************************F-DAT-RCM-KAF-2-23/05/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-2-28/05/2018****************************************/
+INSERT INTO pxp.variable_global (
+	variable, valor, descripcion
+) VALUES (
+	E'kaf_mov_especial_moneda', E'UFV', E'Moneda a utilizar para la Distribución de Valores en Activos Fijos'
+);
+/***********************************F-DAT-RCM-KAF-2-28/05/2018****************************************/
+
+/***********************************I-DAT-RCM-KAF-15-17/06/2019****************************************/
+select param.f_import_tplantilla_archivo_excel ('insert','SUBIRCC','SubirCentroCosto','activo',NULL,'2',NULL,NULL,'xlsx','');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCAF','SUBIRCC','si',NULL,NULL,'1','Activo Fijo','activo_fijo','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCCC','SUBIRCC','si',NULL,NULL,'3','Centro Costo','centro_costo','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCMES','SUBIRCC','si','dd/mm/yyyy',NULL,'2','Mes','mes','date',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCHRA','SUBIRCC','si',NULL,NULL,'4','Horas','cantidad_horas','numeric','.','activo');
+/***********************************F-DAT-RCM-KAF-15-17/06/2019****************************************/
