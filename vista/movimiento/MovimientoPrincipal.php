@@ -6,6 +6,10 @@
 *@date 20-09-2011 10:22:05
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
+/***************************************************************************
+#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #2     KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
+***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -41,7 +45,7 @@ Phx.vista.MovimientoPrincipal = {
         } else if(indice==5){
             this.filterMov='deprec,actua';
         } else if(indice==6){
-            this.filterMov='divis,desgl,intpar';
+            this.filterMov='divis,desgl,intpar,dval'; //#2
         }
         this.store.baseParams.cod_movimiento = this.filterMov;
         this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
@@ -340,7 +344,7 @@ Phx.vista.MovimientoPrincipal = {
             swFuncionarioDest=false;
             swCatMovMotivo=true;
             h=280;
-        } else if(mov=='divis'||mov=='desgl'||mov=='intpar'){
+        } else if(mov=='divis'||mov=='desgl'||mov=='intpar'||mov=='dval'){ //#2
             swDireccion=false;
             swFechaHasta=false;
             swFuncionario=false;

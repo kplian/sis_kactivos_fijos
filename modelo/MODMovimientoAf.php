@@ -5,20 +5,24 @@
 *@author  (admin)
 *@date 18-03-2016 05:34:15
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
 
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     KAF       ETR           21/01/2019  RCM         Opción para traspasar valores de un activo fijo a otro
+***************************************************************************
+*/
 class MODMovimientoAf extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarMovimientoAf(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_movimiento_af_sel';
 		$this->transaccion='SKA_MOVAF_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_movimiento_af','int4');
 		$this->captura('id_movimiento','int4');
@@ -54,21 +58,21 @@ class MODMovimientoAf extends MODbase{
         $this->captura('depreciacion_acum','numeric');
         $this->captura('importe_ant','numeric');
         $this->captura('vida_util_ant','integer');
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarMovimientoAf(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_ime';
 		$this->transaccion='SKA_MOVAF_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento','id_movimiento','int4');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
@@ -89,13 +93,13 @@ class MODMovimientoAf extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarMovimientoAf(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_ime';
 		$this->transaccion='SKA_MOVAF_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 		$this->setParametro('id_movimiento','id_movimiento','int4');
@@ -117,13 +121,13 @@ class MODMovimientoAf extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarMovimientoAf(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_ime';
 		$this->transaccion='SKA_MOVAF_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 
@@ -134,6 +138,42 @@ class MODMovimientoAf extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
+	//Inicio #2
+	function obtenerSaldoDistribucion(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_ime';
+		$this->transaccion = 'SKA_MOVAFSAL_LIS';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
+		$this->setParametro('id_movimiento_af_especial','id_movimiento_af_especial','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function obtenerMonedaMovEsp(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_ime';
+		$this->transaccion = 'SKA_MONESP_LIS';
+		$this->tipo_procedimiento = 'IME';
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+
+	//Fin #2
+
 }
 ?>

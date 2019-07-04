@@ -6,19 +6,22 @@
 *@date 16-04-2016 08:14:17
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
-
+/***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ ***************************************************************************/
 class MODMovimientoAfDep extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarMovimientoAfDep(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
 		$this->transaccion='SKA_MAFDEP_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_movimiento_af_dep','bigint');
 		$this->captura('vida_util','int4');
@@ -48,21 +51,21 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarMovimientoAfDep(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_dep_ime';
 		$this->transaccion='SKA_MAFDEP_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('vida_util','vida_util','int4');
 		$this->setParametro('tipo_cambio_ini','tipo_cambio_ini','numeric');
@@ -91,13 +94,13 @@ class MODMovimientoAfDep extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarMovimientoAfDep(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_dep_ime';
 		$this->transaccion='SKA_MAFDEP_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','bigint');
 		$this->setParametro('vida_util','vida_util','int4');
@@ -127,13 +130,13 @@ class MODMovimientoAfDep extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarMovimientoAfDep(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_dep_ime';
 		$this->transaccion='SKA_MAFDEP_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_af_dep','id_movimiento_af_dep','bigint');
 
@@ -177,7 +180,7 @@ class MODMovimientoAfDep extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -187,12 +190,12 @@ class MODMovimientoAfDep extends MODbase{
 		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
 		$this->transaccion='SKA_RESCAB_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-		
+
 		$this->capturaCount('total_monto_actualiz_real','numeric');
 		$this->capturaCount('total_depreciacion_acum_real','numeric');
 		$this->capturaCount('total_monto_vigente_real','numeric');
-		
-	
+
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
 		$this->captura('id_activo_fijo','int4');
@@ -214,24 +217,24 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('id_movimiento_af','int4');
 		$this->captura('tipo_cambio_fin','numeric');
 		$this->captura('codigo','varchar');
-		
+
 		$this->captura('monto_vigente_real','numeric');
 		$this->captura('vida_util_real','integer');
 		$this->captura('depreciacion_acum_ant_real','numeric');
 		$this->captura('depreciacion_acum_real','numeric');
 		$this->captura('depreciacion_per_real','numeric');
-		
+
 		$this->captura('monto_actualiz_real','numeric');
 		$this->captura('id_moneda','int4');
 		$this->captura('id_moneda_dep','int4');
 		$this->captura('desc_moneda','varchar');
-		
-	
+
+
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -241,11 +244,11 @@ class MODMovimientoAfDep extends MODbase{
 		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
 		$this->transaccion='SKA_RESCABPR_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-		
+
 		$this->setParametro('fecha_hasta','fecha_hasta','date');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','integer');
-		
-		
+
+
 		$this->capturaCount('total_monto_actualiz_real','numeric');
 		$this->capturaCount('total_depreciacion_acum_real','numeric');
 		$this->capturaCount('total_monto_vigente_real','numeric');
@@ -268,14 +271,14 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('fecha_ini_dep','date');
 		$this->captura('monto_vigente_orig','numeric');
 		$this->captura('vida_util','int4');
-		$this->captura('vida_util_orig','int4');		
+		$this->captura('vida_util_orig','int4');
 		$this->captura('tipo_cambio_fin','numeric');
-		$this->captura('codigo','varchar');		
+		$this->captura('codigo','varchar');
 		$this->captura('monto_vigente_real','numeric');
-		$this->captura('vida_util_real','integer');		
+		$this->captura('vida_util_real','integer');
 		$this->captura('depreciacion_acum_real','numeric');
 		$this->captura('depreciacion_per_real','numeric');
-		$this->captura('depreciacion_acum_ant_real','numeric');		
+		$this->captura('depreciacion_acum_ant_real','numeric');
 		$this->captura('monto_actualiz_real','numeric');
 		$this->captura('id_moneda','int4');
 		$this->captura('id_moneda_dep','int4');
@@ -285,7 +288,7 @@ class MODMovimientoAfDep extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -337,15 +340,74 @@ class MODMovimientoAfDep extends MODbase{
 		$this->captura('cuenta_activo','text');
 		$this->captura('cuenta_dep_acum','text');
 		$this->captura('cuenta_deprec','text');//35
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	//Inicio #2: Actualización listado detalle depreciación interfaz
+	function listarDeprecFormato(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion='SKA_LISDEP_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','integer');
+		$this->captura('id_activo_fijo_valor','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('fecha','date');
+		$this->captura('id_moneda','integer');
+		$this->captura('valor_vigente_actualiz','numeric');
+		$this->captura('inc_actualiz','numeric');
+		$this->captura('valor_actualiz','numeric');
+		$this->captura('vida_util_ant','integer');
+		$this->captura('dep_acum_ant','numeric');
+		$this->captura('inc_actualiz_dep_acum','numeric');
+		$this->captura('dep_acum_ant_actualiz','numeric');
+		$this->captura('dep_mes','numeric');
+		$this->captura('dep_periodo','numeric');
+		$this->captura('dep_acum','numeric');
+		$this->captura('valor_neto','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarDeprecFormatoTotales(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion='SKA_LISDEPTOT_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('id_moneda','integer');
+		$this->captura('fecha','date');
+		$this->captura('vida_util_ant','integer');
+		$this->captura('dep_periodo','numeric');
+		$this->captura('dep_acum','numeric');
+		$this->captura('valor_neto','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #2
 
 }
 ?>
