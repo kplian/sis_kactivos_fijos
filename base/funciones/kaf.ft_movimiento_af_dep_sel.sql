@@ -14,12 +14,9 @@ $body$
  FECHA:	        16-04-2016 08:14:17
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
-***************************************************************************/
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ ***************************************************************************/
 
 DECLARE
 
@@ -266,10 +263,6 @@ BEGIN
 	elsif(p_transaccion='SKA_RESCABPRBK_SEL')then
 
     	begin
-
-
-
-
 
     		--Sentencia de la consulta
 			v_consulta:='  select
@@ -651,7 +644,6 @@ BEGIN
 
 			--Definicion de la respuesta
 			--v_consulta:=v_consulta||v_parametros.filtro;
-            raise notice '%',v_consulta;
 			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
@@ -659,7 +651,108 @@ BEGIN
 
 		end;
 
+	--Inicio #2: Actualización de listado detalle depreciación
+	/*********************************
+    #TRANSACCION:  'SKA_LISDEP_SEL'
+    #DESCRIPCION:   Listado de la depreciación en el formato de la interfaz de detalle de depreciación
+    #AUTOR:         RCM
+    #FECHA:         21/01/2019
+    ***********************************/
 
+    elsif(p_transaccion='SKA_LISDEP_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='SELECT
+						afv.id_activo_fijo,
+						afv.id_activo_fijo_valor,
+						afv.codigo,
+						mdep.fecha,
+						mdep.id_moneda,
+						mdep.monto_actualiz_ant AS valor_vigente_actualiz,
+						mdep.monto_actualiz - mdep.monto_actualiz_ant AS inc_actualiz,
+						mdep.monto_actualiz AS valor_actualiz,
+						mdep.vida_util_ant,
+						mdep.depreciacion_acum_ant AS dep_acum_ant,
+						mdep.depreciacion_acum_actualiz - mdep.depreciacion_acum_ant AS inc_actualiz_dep_acum,
+						mdep.depreciacion_acum_actualiz AS dep_acum_ant_actualiz,
+						mdep.depreciacion AS dep_mes,
+						mdep.depreciacion_per AS dep_periodo,
+						mdep.depreciacion_acum AS dep_acum,
+						mdep.monto_vigente AS valor_neto
+						FROM kaf.tactivo_fijo_valores afv
+						JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                        WHERE ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+
+        end;
+
+    /*********************************
+    #TRANSACCION:  'SKA_LISDEP_CONT'
+    #DESCRIPCION:   Conteo de listado de la depreciación en el formato de la interfaz de detalle de depreciación
+    #AUTOR:         RCM
+    #FECHA:         21/01/2019
+    ***********************************/
+
+    elsif(p_transaccion='SKA_LISDEP_CONT')then
+
+        begin
+
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='SELECT COUNT(1)
+                        FROM kaf.tactivo_fijo_valores afv
+						JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                        WHERE  ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+	/*********************************
+    #TRANSACCION:  'SKA_LISDEPTOT_SEL'
+    #DESCRIPCION:   Suma totales del listado de la depreciación en el formato de la interfaz de detalle de depreciación
+    #AUTOR:         RCM
+    #FECHA:         21/01/2019
+    ***********************************/
+
+    elsif(p_transaccion='SKA_LISDEPTOT_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='SELECT
+						afv.id_activo_fijo,
+						afv.codigo,
+						afv.id_moneda,
+						mdep.fecha,
+						MAX(mdep.vida_util_ant) as vida_util_ant,
+						ROUND(SUM(mdep.depreciacion_per),2) AS dep_periodo,
+						ROUND(SUM(mdep.depreciacion_acum),2) AS dep_acum,
+						ROUND(SUM(mdep.monto_vigente),2) AS valor_neto
+						FROM kaf.tactivo_fijo_valores afv
+						JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                        WHERE ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' GROUP BY afv.id_activo_fijo, afv.codigo, mdep.fecha, afv.id_moneda';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+
+        end;
+    --Fin #2
 
 	else
 

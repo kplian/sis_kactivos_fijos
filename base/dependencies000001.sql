@@ -246,6 +246,34 @@ ALTER TABLE kaf.tmovimiento_af_especial
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD CONSTRAINT fk_tmovimiento_af_especial__id_clasificacion FOREIGN KEY (id_clasificacion)
+    REFERENCES kaf.tclasificacion(id_clasificacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD CONSTRAINT fk_tmovimiento_af_especial__id_centro_costo FOREIGN KEY (id_centro_costo)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD CONSTRAINT fk_tmovimiento_af_especial__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ADD CONSTRAINT fk_tmovimiento_af_especial__id_almacen FOREIGN KEY (id_almacen)
+    REFERENCES alm.talmacen(id_almacen)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
 /***********************************F-DEP-RCM-KAF-1-23/06/2017****************************************/
 
 /***********************************I-DEP-RCM-KAF-1-27/06/2017****************************************/

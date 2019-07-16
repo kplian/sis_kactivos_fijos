@@ -1,22 +1,30 @@
 <?php
 /**
 *@package pXP
-*@file gen-MovimientoAf.php
+*@file MovimientoAf.php
 *@author  (admin)
 *@date 18-03-2016 05:34:15
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     KAF       ETR           21/01/2019  RCM         Opción para traspasar valores de un activo fijo a otro
+***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 
-Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 
 	swAccion: 'new',
 	IdMovimientoAf: '',
+	idMonedaBase: 0, //#2 id de la moneda base
+	idMonedaMovEsp: 0,//#2 id moneda movimentos especiales
+	codigoMoneda: '',//#2 código moneda movimentos especiales
 
-	constructor:function(config){
-		this.maestro=config.maestro;
+	constructor: function(config) {
+		this.maestro = config.maestro;
 
     	//llama al constructor de la clase padre
 		Phx.vista.MovimientoAf.superclass.constructor.call(this,config);
@@ -25,100 +33,116 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.grid.getBottomToolbar().disable();
 
        	//Add report button
-        this.addButton('btnDetDep',{
-            text :'Depreciacion',
-            iconCls : 'bpdf32',
+        this.addButton('btnDetDep', {
+            text: 'Depreciacion',
+            iconCls: 'bpdf32',
             disabled: true,
-            handler : this.onButtonDetDep,
-            tooltip : '<b>Depreciación</b><br/>Detalle del cálculo de depreciación'
+            handler: this.onButtonDetDep,
+            tooltip: '<b>Depreciación</b><br/>Detalle del cálculo de depreciación'
        	});
 
         /////////
         //Eventos
        	/////////
        	// Combo activos
-       	this.Cmp.id_activo_fijo.on('select', function(combo, record, index){
+       	this.Cmp.id_activo_fijo.on('select', function(combo, record, index) {
        		this.cargarResumenAf(record.data);
        		this.validarDatosMov();
-       	}, this)
+       		this.getValorActualActivoFijo(record.data.id_activo_fijo);
+       	}, this);
 
        	//Campo importe
-       	this.Cmp.importe.on('blur', function(cmp){
+       	this.Cmp.importe.on('blur', function(cmp) {
        		this.validarDatosMov();
        	}, this);
 
        	//Campo vida util
-       	this.Cmp.vida_util.on('blur', function(cmp){
+       	this.Cmp.vida_util.on('blur', function(cmp) {
        		this.validarDatosMov();
        	}, this);
 
        	//Campo depreciacion_acum
-       	this.Cmp.depreciacion_acum.on('blur', function(cmp){
+       	this.Cmp.depreciacion_acum.on('blur', function(cmp) {
        		this.validarDatosMov();
        	}, this);
 
        	//Grid
        	this.grid.on('cellclick', this.abrirEnlace, this);
+
+       	//Inicio #2: se aumenta botón para el detalle de la distribuición del monto
+        this.addButton('btnDist', {
+            text: 'Detalle',
+            iconCls: 'blist',
+            disabled: true,
+            handler: this.onButtonDist,
+            tooltip: '<b>Detalle</b><br/>Distribución del importe'
+       	});
+       	this.getBoton('btnDist').hide();
+       	//Fin #2
+
+       	this.cargarMonedaMovEspecial();
 	},
 
 	isNumeric: function (obj) {
 	    return !isNaN(obj - parseFloat(obj));
 	},
 
-	cargarResumenAf: function(data){
+	cargarResumenAf: function(data) {
+		var dt_res_fecha_ini_dep = new Date(data.fecha_ini_dep);
+
 		this.Cmp.res_codigo.setValue(data.codigo);
 		this.Cmp.res_denominacion.setValue(data.denominacion);
 		this.Cmp.res_descripcion.setValue(data.descripcion);
 		this.Cmp.res_mon_orig.setValue(data.desc_moneda_orig);
 		this.Cmp.res_monto_compra.setValue(data.monto_compra);
 		this.Cmp.res_vida_util.setValue(data.vida_util ? data.vida_util:data.vida_util_af);
-		this.Cmp.res_fecha_ini_dep.setValue(data.fecha_ini_dep);
-		this.Cmp.res_monto_vigente_real.setValue(data.monto_vigente_real_af);
+		this.Cmp.res_fecha_ini_dep.setValue(dt_res_fecha_ini_dep.format('d-m-Y'));
+		/*this.Cmp.res_monto_vigente_real.setValue(data.monto_vigente_real_af);
 		this.Cmp.res_dep_acum_real.setValue(data.depreciacion_acum_real_af);
 		this.Cmp.res_dep_per_real.setValue(data.depreciacion_per_real_af);
 		this.Cmp.res_vida_util_real.setValue(data.vida_util_real_af);
-		this.Cmp.res_fecha_ult_dep_real.setValue(data.fecha_ult_dep_real_af);
+		this.Cmp.res_fecha_ult_dep_real.setValue(data.fecha_ult_dep_real_af);*/
 	},
 
-	filter:{},
+	filter: {},
 
-	Atributos:[
+	Atributos: [
 		{
 			//configuracion del componente
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
+			config: {
+					labelSeparator: '',
+					inputType: 'hidden',
 					name: 'id_movimiento_af'
 			},
-			type:'Field',
-			form:true
+			type: 'Field',
+			form: true
 		},
 		{
 			//configuracion del componente
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'id_movimiento'
+			config: {
+				labelSeparator:'',
+				inputType:'hidden',
+				name: 'id_movimiento'
 			},
-			type:'Field',
-			form:true
+			type: 'Field',
+			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'cod_af',
 				fieldLabel: 'Código',
 				gwidth: 130,
 				maxLength:10,
-				renderer: function(value,p,record){
+				renderer: function(value,p,record) {
 					return String.format('{0}','<i class="fa fa-reply-all" aria-hidden="true"></i> '+record.data['cod_af']);
 				}
 			},
-			type:'TextField',
-			filters:{pfiltro:'af.codigo',type:'string'},
-			id_grupo:0,
-			grid:true,
-			form:false,
-			bottom_filter:true
+			type: 'TextField',
+			filters: {pfiltro:'af.codigo',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false,
+			bottom_filter: true
 		},
 		{
 			config: {
@@ -153,17 +177,17 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				anchor: '100%',
 				gwidth: 300,
 				minChars: 2,
-				renderer : function(value, p, record) {
+				renderer: function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
 				},
-				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p><p><b>Código SAP:</b> {codigo_ant}</p></div></tpl>',
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p><p><b>Código SAP:</b> {codigo_ant}</p></div></tpl>',
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
 			filters: {pfiltro: 'af.denominacion#af.codigo#af.codigo_ant#af.descripcion',type: 'string'},
 			grid: true,
 			form: true,
-			bottom_filter:true
+			bottom_filter: true
 		},
 		{
 			config: {
@@ -176,16 +200,16 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gdisplayField: 'estado_fun',
 				hiddenName: 'id_cat_estado_fun',
 				gwidth: 180,
-				baseParams:{
+				baseParams: {
 					cod_subsistema:'KAF',
 					catalogo_tipo:'tactivo_fijo__id_cat_estado_fun'
 				},
 				renderer: function (value,p,record) {
 					var resp;
-					if(this.maestro=='reval'||this.maestro=='ajuste'){
-						resp='<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> '+record.data['estado_fun']+'</p><p><b>Nuevo Importe: </b> <font color="blue">'+record.data['importe']+'</font></p><p><b>Nueva Vida util: </b>'+record.data['vida_util']+'</p></div></tpl>';
+					if(this.maestro == 'reval' || this.maestro == 'ajuste'){
+						resp = '<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> ' + record.data['estado_fun'] + '</p><p><b>Nuevo Importe: </b> <font color="blue">' + record.data['importe'] + '</font></p><p><b>Nueva Vida util: </b>' + record.data['vida_util'] + '</p></div></tpl>';
 					} else {
-						resp='<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> '+record.data['estado_fun']+'</p></div></tpl>';
+						resp='<tpl for="."><div class="x-combo-list-item"><p><b>Estado Funcional: </b> ' + record.data['estado_fun'] + '</p></div></tpl>';
 					}
 					return resp;
 				},
@@ -193,7 +217,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			},
 			type: 'ComboRec',
 			id_grupo: 1,
-			filters:{pfiltro:'cat.descripcion',type:'string'},
+			filters: {pfiltro:'cat.descripcion', type:'string'},
 			grid: true,
 			form: true
 		},
@@ -230,9 +254,10 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				anchor: '100%',
 				gwidth: 150,
 				minChars: 2,
-				renderer : function(value, p, record) {
+				renderer: function(value, p, record) {
 					return String.format('{0}', record.data['motivo']);
-				},hidden:true
+				},
+				hidden:true
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
@@ -241,7 +266,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'moneda_base',
 				fieldLabel: 'Expresado en ',
 				allowBlank: true,
@@ -250,13 +275,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'importe',
 				fieldLabel: '(A) Importe',
 				allowBlank: true,
@@ -264,14 +289,14 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:1179650
 			},
-			type:'NumberField',
-			filters:{pfiltro:'movaf.importe',type:'numeric'},
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'NumberField',
+			filters: {pfiltro:'movaf.importe',type:'numeric'},
+			id_grupo: 0,
+			grid: false,
+			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'respuesta',
 				fieldLabel: 'Respuesta',
 				allowBlank: true,
@@ -279,74 +304,74 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 200,
 				maxLength:-5
 			},
-			type:'TextField',
-			filters:{pfiltro:'movaf.respuesta',type:'string'},
-			id_grupo:0,
-			grid:true,
-			form:false
+			type: 'TextField',
+			filters: {pfiltro:'movaf.respuesta',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 85,
-				maxLength:10
+				maxLength: 10
 			},
-			type:'TextField',
-			filters:{pfiltro:'movaf.estado_reg',type:'string'},
-			id_grupo:0,
-			grid:true,
-			form:false
+			type: 'TextField',
+			filters: {pfiltro:'movaf.estado_reg',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'vida_util',
 				fieldLabel: '(B) Vida útil',
 				allowBlank: true,
 				anchor: '100%',
 				gwidth: 100,
-				maxLength:4
+				maxLength: 4
 			},
-			type:'NumberField',
-			filters:{pfiltro:'movaf.vida_util',type:'numeric'},
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'NumberField',
+			filters: {pfiltro:'movaf.vida_util',type:'numeric'},
+			id_grupo: 0,
+			grid: false,
+			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'depreciacion_acum',
 				fieldLabel: '(F) Depreciación Acum.',
 				allowBlank: true,
 				anchor: '100%',
 				gwidth: 100
 			},
-			type:'NumberField',
-			filters:{pfiltro:'movaf.depreciacion_acum',type:'numeric'},
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'NumberField',
+			filters: {pfiltro:'movaf.depreciacion_acum',type:'numeric'},
+			id_grupo: 0,
+			grid: false,
+			form: true
 		},
 		{
-			config:{
+			config: {
 				name: 'fecha_reg',
 				fieldLabel: 'Fecha creación',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y',
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				format: 'd/m/Y',
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'movaf.fecha_reg',type:'date'},
-				id_grupo:0,
-				grid:true,
-				form:false
+			type: 'DateField',
+			filters: {pfiltro:'movaf.fecha_reg',type:'date'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'usuario_ai',
 				fieldLabel: 'Funcionaro AI',
 				allowBlank: true,
@@ -354,14 +379,14 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:300
 			},
-				type:'TextField',
-				filters:{pfiltro:'movaf.usuario_ai',type:'string'},
-				id_grupo:0,
-				grid:true,
-				form:false
+			type: 'TextField',
+			filters: {pfiltro:'movaf.usuario_ai',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'usr_reg',
 				fieldLabel: 'Creado por',
 				allowBlank: true,
@@ -369,14 +394,14 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:0,
-				grid:true,
-				form:false
+			type: 'Field',
+			filters: {pfiltro:'usu1.cuenta',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'id_usuario_ai',
 				fieldLabel: 'Creado por',
 				allowBlank: true,
@@ -384,14 +409,14 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'movaf.id_usuario_ai',type:'numeric'},
-				id_grupo:0,
-				grid:false,
-				form:false
+			type: 'Field',
+			filters: {pfiltro:'movaf.id_usuario_ai',type:'numeric'},
+			id_grupo: 0,
+			grid: false,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'usr_mod',
 				fieldLabel: 'Modificado por',
 				allowBlank: true,
@@ -399,89 +424,89 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:0,
-				grid:true,
-				form:false
+			type: 'Field',
+			filters: {pfiltro:'usu2.cuenta',type:'string'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		},
 		{
-			config:{
+			config: {
 				name: 'fecha_mod',
 				fieldLabel: 'Fecha Modif.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y',
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+				format: 'd/m/Y',
+				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
-			filters:{pfiltro:'movaf.fecha_mod',type:'date'},
-			id_grupo:0,
-			grid:true,
-			form:false
+			filters: {pfiltro:'movaf.fecha_mod',type:'date'},
+			id_grupo: 0,
+			grid: true,
+			form: false
 		}, {
-			config:{
+			config: {
 				name: 'res_saldo_importe',
 				fieldLabel: 'Importe (A) - (C)',
 				readOnly: true,
 				width: '100%',
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_saldo_vida_util',
 				fieldLabel: 'Vida útil (B) - (E)',
 				readOnly: true,
 				width: '100%',
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_saldo_depreciacion_acum',
 				fieldLabel: 'Dep.Acum.(F)-(D)',
 				readOnly: true,
 				width: '100%',
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_codigo',
 				fieldLabel: 'Código Activo Fijo',
 				readOnly: true,
 				width: '100%',
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_denominacion',
 				fieldLabel: 'Denominación',
 				readOnly: true,
 				width: '100%',
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:0,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_descripcion',
 				fieldLabel: 'Descripción',
 				readOnly: true,
@@ -489,116 +514,138 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				style: 'background-color: #ddd; background-image: none;'
 			},
 			type:'TextArea',
-			id_grupo:0,
-			grid:false,
-			form:true
+			id_grupo: 0,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_mon_orig',
 				fieldLabel: 'Moneda original',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
+			type: 'Field',
 			id_grupo:1,
-			grid:false,
-			form:true
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_monto_compra',
 				fieldLabel: 'Monto Compra',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
+			type: 'Field',
 			id_grupo:1,
-			grid:false,
-			form:true
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_vida_util',
 				fieldLabel: 'Vida útil',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
+			type: 'Field',
 			id_grupo:1,
-			grid:false,
-			form:true
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_fecha_ini_dep',
 				fieldLabel: 'Fecha Ini. Dep.',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
+			type: 'Field',
 			id_grupo:1,
-			grid:false,
-			form:true
-		}, { ////////////
-			config:{
-				name: 'res_monto_vigente_real',
-				fieldLabel: '(C) Monto Vigente',
+			grid: false,
+			form: true
+		}, {
+			config: {
+				name: 'res_moneda_mov_esp',
+				fieldLabel: 'MONEDA',
 				readOnly: true,
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:2,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
+				name: 'res_monto_vigente_real',
+				fieldLabel: '(C) Valor Actualizado',
+				readOnly: true,
+				style: 'background-color: #ffffb3; background-image: none;'
+			},
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
+		}, {
+			config: {
 				name: 'res_dep_acum_real',
 				fieldLabel: '(D) Dep. Acumulada',
 				readOnly: true,
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:2,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_dep_per_real',
 				fieldLabel: 'Dep. Periodo',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:2,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_vida_util_real',
 				fieldLabel: '(E) Vida útil restante',
 				readOnly: true,
 				style: 'background-color: #ffffb3; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:2,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
 		}, {
-			config:{
+			config: {
 				name: 'res_fecha_ult_dep_real',
 				fieldLabel: 'Fecha Ult. Dep.',
 				readOnly: true,
 				style: 'background-color: #ddd; background-image: none;'
 			},
-			type:'Field',
-			id_grupo:2,
-			grid:false,
-			form:true
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
+		}, {
+			config: {
+				name: 'res_monto_vigente',
+				fieldLabel: 'Valor Neto',
+				readOnly: true,
+				style: 'background-color: #ddd; background-image: none;'
+			},
+			type: 'Field',
+			id_grupo: 2,
+			grid: false,
+			form: true
 		}
 	],
-	tam_pag:50,
-	title:'Detalle Movimiento',
-	ActSave:'../../sis_kactivos_fijos/control/MovimientoAf/insertarMovimientoAf',
-	ActDel:'../../sis_kactivos_fijos/control/MovimientoAf/eliminarMovimientoAf',
-	ActList:'../../sis_kactivos_fijos/control/MovimientoAf/listarMovimientoAf',
-	id_store:'id_movimiento_af',
+	tam_pag: 50,
+	title: 'Detalle Movimiento',
+	ActSave: '../../sis_kactivos_fijos/control/MovimientoAf/insertarMovimientoAf',
+	ActDel: '../../sis_kactivos_fijos/control/MovimientoAf/eliminarMovimientoAf',
+	ActList: '../../sis_kactivos_fijos/control/MovimientoAf/listarMovimientoAf',
+	id_store: 'id_movimiento_af',
 	fields: [
 		{name:'id_movimiento_af', type: 'numeric'},
 		{name:'id_movimiento', type: 'numeric'},
@@ -623,15 +670,15 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		{name:'motivo', type: 'string'},
 		'descripcion','monto_vigente_real_af','vida_util_real_af','fecha_ult_dep_real_af','depreciacion_acum_real_af','depreciacion_per_real_af','desc_moneda_orig','monto_compra','vida_util_af','fecha_ini_dep','depreciacion_acum'
 	],
-	sortInfo:{
+	sortInfo: {
 		field: 'id_movimiento_af',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true,
+	bdel: true,
+	bsave: true,
 
 	rowExpander: new Ext.ux.grid.RowExpander({
-        tpl : new Ext.Template(
+        tpl: new Ext.Template(
         	'<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Importe:&nbsp;&nbsp;</b> {importe}</p>',
             '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Vida Util:&nbsp;&nbsp;</b> {vida_util}</p>',
             '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Motivo:&nbsp;&nbsp;</b> {motivo}</p>','<hr>',
@@ -642,13 +689,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         )
     }),
 
-	onReloadPage : function(m) {
+	onReloadPage: function(m) {
 		this.maestro = m;
+		console.log('aqui', this.maestro);
 		this.Atributos[1].valorInicial = this.maestro.id_movimiento;
-		console.log('reload page',m);
 
 		//Crear ventana mov esp y componentes
-		if(this.maestro.cod_movimiento=='divis'||this.maestro.cod_movimiento=='desgl'||this.maestro.cod_movimiento=='intpar'){
+		if(this.maestro.cod_movimiento == 'divis' || this.maestro.cod_movimiento == 'desgl' || this.maestro.cod_movimiento == 'intpar'){
 			this.reinicializarParams();
 		} else {
 			this.eliminarComponentesMovEsp();
@@ -656,54 +703,69 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 		//Define the filter to apply to activos fijos drop down
 		this.Cmp.id_activo_fijo.store.baseParams = {
-		"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",fecha_mov: this.maestro.fecha_mov
+			start: 0,
+			limit: 15,
+			sort:"denominacion",
+			dir:"ASC",
+			par_filtro:"afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",
+			fecha_mov: this.maestro.fecha_mov
 		};
 		//este
-		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{codMov:this.maestro.cod_movimiento});
-		this.Cmp.id_activo_fijo.modificado=true;
+		Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {codMov: this.maestro.cod_movimiento});
+		this.Cmp.id_activo_fijo.modificado = true;
 
 		//Setea parametros de filtro para el combo de motivos
 		this.Cmp.id_movimiento_motivo.store.baseParams = {
-			"start":"0","limit":"15","sort":"denominacion","dir":"ASC","par_filtro":"mmot.motivo","id_cat_movimiento":this.maestro.id_cat_movimiento
+			start: 0,
+			limit: 15,
+			sort: "denominacion",
+			dir: "ASC",
+			par_filtro: "mmot.motivo",
+			id_cat_movimiento: this.maestro.id_cat_movimiento
 		}
-		this.Cmp.id_movimiento_motivo.modificado=true;
+		this.Cmp.id_movimiento_motivo.modificado = true;
 
 		//Cambio del titulo de la ventana y panel
 		var fecha = new Date (this.maestro.fecha_mov);
-		this.window.setTitle('Detalle del(a) '+this.maestro.movimiento+' (Al '+fecha.format("d/m/Y")+')');
+		this.window.setTitle('Detalle del(a) ' + this.maestro.movimiento + ' (Al ' + fecha.format("d/m/Y") + ')');
 
 		//Filtros para el listado de activos fijos por tipo de movimiento
-		if(this.maestro.cod_movimiento=='alta'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'registrado',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='baja'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta'/*'retiro'*/,id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='reval'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='mejora'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='deprec'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{depreciable:'si',estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='actua'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{depreciable:'no',estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='asig'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{en_deposito_mov:'si',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='devol'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario});
-		} else if(this.maestro.cod_movimiento=='transf'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{id_funcionario_mov: this.maestro.id_funcionario});
-		} else if(this.maestro.cod_movimiento=='retiro'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='ajuste'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='tranfdep'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta,registrado',en_deposito_mov:'si',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='divis'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='desgl'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
-		} else if(this.maestro.cod_movimiento=='intpar'){
-			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams,{estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		if(this.maestro.cod_movimiento == 'alta') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'registrado', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'baja') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta'/*'retiro'*/, id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'reval') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'mejora') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'deprec') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {depreciable: 'si', estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'actua') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {depreciable: 'no', estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'asig') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {en_deposito_mov: 'si', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'devol') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {id_funcionario_mov: this.maestro.id_funcionario});
+		} else if(this.maestro.cod_movimiento == 'transf') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {id_funcionario_mov: this.maestro.id_funcionario});
+		} else if(this.maestro.cod_movimiento == 'retiro') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'ajuste') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'tranfdep') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta,registrado', en_deposito_mov:'si', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'divis') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'desgl') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
+		} else if(this.maestro.cod_movimiento == 'intpar') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov: 'alta', id_depto_mov: this.maestro.id_depto});
 		}
+		//Inicio #2: filtro para el tipo de movimiento de distribución de valores
+		else if(this.maestro.cod_movimiento == 'dval') {
+			Ext.apply(this.Cmp.id_activo_fijo.store.baseParams, {estado_mov:'alta',id_depto_mov: this.maestro.id_depto});
+		}
+		//Fin #2
 
 		this.habilitarCampos();
 
@@ -712,7 +774,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.getBoton('edit').show();
 		this.getBoton('del').show();
 		this.getBoton('save').show();
-		if(this.maestro.estado!='borrador'){
+		if(this.maestro.estado != 'borrador'){
 			this.getBoton('new').hide();
 			this.getBoton('edit').hide();
 			this.getBoton('del').hide();
@@ -721,65 +783,73 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 		//Hide/show button
 		this.getBoton('btnDetDep').hide();
-		if(this.maestro.cod_movimiento=='deprec' || this.maestro.cod_movimiento=='actua'){
+		if(this.maestro.cod_movimiento == 'deprec' || this.maestro.cod_movimiento == 'actua'){
 			this.getBoton('btnDetDep').show();
 		}
 
+		//Inicio #2
+		this.getBoton('btnDist').hide();
+		if(this.maestro.cod_movimiento == 'dval'){
+			this.getBoton('btnDist').show();
+		}
+		//Fin #2
+
 		this.store.baseParams = {
-			id_movimiento : this.maestro.id_movimiento
+			id_movimiento: this.maestro.id_movimiento
 		};
 		this.load({
-			params : {
-				start : 0,
-				limit : 50
+			params: {
+				start: 0,
+				limit: 50
 			}
 		});
 	},
 
 	habilitarCampos: function(){
 		//Mostrar/ocultar componentes.
-		var swEstadoFun=false, swMotivo=false, swImporte=false, swVidaUtil=false,h=280,w=980,swDepAcum=false;
-		if(this.maestro.cod_movimiento=='alta'){
+		var swEstadoFun = false, swMotivo = false, swImporte = false, swVidaUtil = false, h = 280, w = 980, swDepAcum = false;
 
-		} else if(this.maestro.cod_movimiento=='baja'){
-			swMotivo=true;
-			h=313;//163;
-		} else if(this.maestro.cod_movimiento=='reval'){
-			swMotivo=true;
-			swImporte=true;
-			swVidaUtil=true;
-			h=355;//205;
-		} else if(this.maestro.cod_movimiento=='deprec'){
+		if(this.maestro.cod_movimiento == 'alta'){
 
-		} else if(this.maestro.cod_movimiento=='asig'){
+		} else if(this.maestro.cod_movimiento == 'baja'){
+			swMotivo = true;
+			h = 313;//163;
+		} else if(this.maestro.cod_movimiento == 'reval'){
+			swMotivo = true;
+			swImporte = true;
+			swVidaUtil = true;
+			h = 355;//205;
+		} else if(this.maestro.cod_movimiento == 'deprec'){
 
-		} else if(this.maestro.cod_movimiento=='devol'){
+		} else if(this.maestro.cod_movimiento == 'asig'){
 
-		} else if(this.maestro.cod_movimiento=='transf'){
+		} else if(this.maestro.cod_movimiento == 'devol'){
 
-		} else if(this.maestro.cod_movimiento=='retiro'){
-			swMotivo=true;
-			h=313;//163;
-		} else if(this.maestro.cod_movimiento=='ajuste'){
-			swMotivo=true;
-			swImporte=true;
-			swVidaUtil=true;
-			swDepAcum=true;
-			h=400;//205;
-		} else if(this.maestro.cod_movimiento=='tranfdep'){
+		} else if(this.maestro.cod_movimiento == 'transf'){
 
-		} else if(this.maestro.cod_movimiento=='mejora'){
-			swMotivo=true;
-			swImporte=true;
-			swVidaUtil=true;
-			h=355;//205;
-		} else if(this.maestro.cod_movimiento=='actua'){
+		} else if(this.maestro.cod_movimiento == 'retiro'){
+			swMotivo = true;
+			h = 313;//163;
+		} else if(this.maestro.cod_movimiento == 'ajuste'){
+			swMotivo = true;
+			swImporte = true;
+			swVidaUtil = true;
+			swDepAcum = true;
+			h = 400;//205;
+		} else if(this.maestro.cod_movimiento == 'tranfdep'){
 
-		} else if(this.maestro.cod_movimiento=='divis'){
+		} else if(this.maestro.cod_movimiento == 'mejora'){
+			swMotivo = true;
+			swImporte = true;
+			swVidaUtil = true;
+			h = 355;//205;
+		} else if(this.maestro.cod_movimiento == 'actua'){
 
-		} else if(this.maestro.cod_movimiento=='desgl'){
+		} else if(this.maestro.cod_movimiento == 'divis'){
 
-		} else if(this.maestro.cod_movimiento=='intpar'){
+		} else if(this.maestro.cod_movimiento == 'desgl'){
+
+		} else if(this.maestro.cod_movimiento == 'intpar'){
 
 		}
 
@@ -792,21 +862,23 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.Cmp.res_saldo_depreciacion_acum.setVisible(swDepAcum);
 		this.Cmp.moneda_base.setVisible(swImporte);
 
-		this.Cmp.id_cat_estado_fun.allowBlank=!swEstadoFun;
-		this.Cmp.importe.allowBlank=!swImporte;
-		this.Cmp.vida_util.allowBlank=!swVidaUtil;
-		this.Cmp.depreciacion_acum.allowBlank=!swDepAcum;
-		this.Cmp.res_saldo_importe.allowBlank=!swImporte;
-		this.Cmp.res_saldo_vida_util.allowBlank=!swVidaUtil;
-		this.Cmp.res_saldo_depreciacion_acum.allowBlank=!swDepAcum;
+		this.Cmp.id_cat_estado_fun.allowBlank = !swEstadoFun;
+		this.Cmp.importe.allowBlank = !swImporte;
+		this.Cmp.vida_util.allowBlank = !swVidaUtil;
+		this.Cmp.depreciacion_acum.allowBlank = !swDepAcum;
+		this.Cmp.res_saldo_importe.allowBlank = !swImporte;
+		this.Cmp.res_saldo_vida_util.allowBlank = !swVidaUtil;
+		this.Cmp.res_saldo_depreciacion_acum.allowBlank = !swDepAcum;
 
 		//Resize window
-    	this.window.setSize(w,h);
+    	this.window.setSize(w, h);
 	},
 
-	onButtonDetDep: function(){
-	    var rec=this.sm.getSelected();
-		Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDep.php',
+	onButtonDetDep: function() {
+	    var rec = this.sm.getSelected();
+
+		Phx.CP.loadWindows(
+			'../../../sis_kactivos_fijos/vista/activo_fijo_valores/ActivoFijoValoresDep.php',
 			'Detalle', {
 				width:'90%',
 				height:'90%'
@@ -816,7 +888,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		    'ActivoFijoValoresDep'
 		);
 	},
-	preparaMenu : function(n) {
+	preparaMenu: function(n) {
 		var tb = Phx.vista.MovimientoAf.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
 		if(this.maestro.estado != 'borrador'){
@@ -825,20 +897,22 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		    this.getBoton('del').disable();
 		}
 		this.getBoton('btnDetDep').enable();
+		this.getBoton('btnDist').enable();//#2
 		return tb;
 	},
-	liberaMenu : function() {
+	liberaMenu: function() {
 		var tb = Phx.vista.MovimientoAf.superclass.liberaMenu.call(this);
 		if(this.maestro.estado != 'borrador'){
 			this.getBoton('new').disable();
 		}
 		this.getBoton('btnDetDep').disable();
+		this.getBoton('btnDist').disable();//#2
 		return tb;
 	},
 	onButtonEdit: function() {
-		this.swAccion='edit';
-		if(this.maestro.cod_movimiento=='divis'||this.maestro.cod_movimiento=='desgl'||this.maestro.cod_movimiento=='intpar'){
-			var rec=this.sm.getSelected().data;
+		this.swAccion = 'edit';
+		if(this.maestro.cod_movimiento == 'divis' || this.maestro.cod_movimiento == 'desgl' || this.maestro.cod_movimiento == 'intpar'){
+			var rec = this.sm.getSelected().data;
 			this.reinicializarParams();
 			this.edicionCargarDataMovEsp(rec);
 		} else {
@@ -847,17 +921,20 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	    	this.habilitarCampos();
 	    	this.cargarResumenAf(this.sm.getSelected().data);
 	    	//Carga los inc. o dec. reales
-	    	var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
-	    	var temp1 = Ext.util.Format.round(this.Cmp.depreciacion_acum.getValue()-this.Cmp.res_dep_acum_real.getValue(),2);
+	    	var temp = Ext.util.Format.round(this.Cmp.importe.getValue() - this.Cmp.res_monto_vigente_real.getValue(),2);
+	    	var temp1 = Ext.util.Format.round(this.Cmp.depreciacion_acum.getValue() - this.Cmp.res_dep_acum_real.getValue(),2);
 	    	this.Cmp.res_saldo_importe.setValue(temp);
-			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
+			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue() - this.Cmp.res_vida_util_real.getValue());
 			this.Cmp.res_saldo_depreciacion_acum.setValue(temp1);
 		}
-		this.IdMovimientoAf=this.sm.getSelected().data.id_movimiento_af;
+		this.IdMovimientoAf = this.sm.getSelected().data.id_movimiento_af;
+
+		//Cargar la moneda especial
+    	this.Cmp.res_moneda_mov_esp.setValue(this.codigoMoneda);
     },
     onButtonNew: function(){
-    	this.swAccion='new';
-    	if(this.maestro.cod_movimiento=='divis'||this.maestro.cod_movimiento=='desgl'||this.maestro.cod_movimiento=='intpar'){
+    	this.swAccion = 'new';
+    	if(this.maestro.cod_movimiento == 'divis' || this.maestro.cod_movimiento == 'desgl' || this.maestro.cod_movimiento == 'intpar'){
     		this.reinicializarParams();
     		this.abrirVentanaMovEspeciales();
     	} else {
@@ -865,7 +942,10 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
     	}
     	this.cargarMonedaBase();
     	//Variable temporal
-    	this.IdMovimientoAf='';
+    	this.IdMovimientoAf = '';
+
+    	//Cargar la moneda especial
+    	this.Cmp.res_moneda_mov_esp.setValue(this.codigoMoneda);
     },
 	Grupos: [{
         layout: 'column',
@@ -875,94 +955,95 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
            border: false
         },
         items: [{
-			        bodyStyle: 'padding-right:5px;',
-			        items: [{
-			            xtype: 'fieldset',
-			            title: 'Movimiento',
-			            autoHeight: true,
-			            width: '95%',
-			            items: [],
-				        id_grupo:0
-			        }]
-			    }, {
-			        bodyStyle: 'padding-left:5px;',
-			        items: [{
-			            xtype: 'fieldset',
-			            title: 'Datos Originales',
-			            autoHeight: true,
-			            items: [],
-				        id_grupo:1
-			        }]
-			    }, {
-			        bodyStyle: 'padding-left:5px;',
-			        items: [{
-			            xtype: 'fieldset',
-			            title: 'Datos Vigentes',
-			            autoHeight: true,
-			            items: [],
-				        id_grupo:2
-			        }]
-			    }]
+	        bodyStyle: 'padding-right:5px;',
+	        items: [{
+	            xtype: 'fieldset',
+	            title: 'Movimiento',
+	            autoHeight: true,
+	            width: '95%',
+	            items: [],
+		        id_grupo:0
+	        }]
+	    }, {
+	        bodyStyle: 'padding-left:5px;',
+	        items: [{
+	            xtype: 'fieldset',
+	            title: 'Datos Originales',
+	            autoHeight: true,
+	            items: [],
+		        id_grupo:1
+	        }]
+	    }, {
+	        bodyStyle: 'padding-left:5px;',
+	        items: [{
+	            xtype: 'fieldset',
+	            title: 'Datos Vigentes',
+	            autoHeight: true,
+	            items: [],
+		        id_grupo:2
+	        }]
+	    }]
     }],
-    validarDatosMov: function(){
+    validarDatosMov: function() {
     	//Validación genérica
     	this.Cmp.importe.setMinValue(0);
     	this.Cmp.vida_util.setMinValue(0);
 
-    	if(this.maestro.cod_movimiento=='reval'){
+    	if(this.maestro.cod_movimiento == 'reval'){
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue() - this.Cmp.res_monto_vigente_real.getValue(), 2);
     			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
-    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
+    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue() - this.Cmp.res_vida_util_real.getValue());
     		}
-    	} else if(this.maestro.cod_movimiento=='mejora') {
+    	} else if(this.maestro.cod_movimiento == 'mejora') {
     		//Validación de mínimos específica
-    		this.Cmp.importe.setMinValue(parseFloat(this.Cmp.res_monto_vigente_real.getValue())+1);
+    		this.Cmp.importe.setMinValue(parseFloat(this.Cmp.res_monto_vigente_real.getValue()) + 1);
     		this.Cmp.vida_util.setMinValue(parseInt(this.Cmp.res_vida_util_real.getValue()));
 
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue() - this.Cmp.res_monto_vigente_real.getValue(), 2);
     			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
-    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
+    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue() - this.Cmp.res_vida_util_real.getValue());
     		}
 
     		//Validacion de importe post cálculo de inc. o dec.
-    		if(this.Cmp.res_saldo_importe.getValue()<=0){
+    		if(this.Cmp.res_saldo_importe.getValue() <= 0){
     			this.Cmp.res_saldo_importe.markInvalid('El importe de la mejora debe incrementar el valor');
     		}
-    		if(this.Cmp.res_saldo_vida_util.getValue()<0){
+    		if(this.Cmp.res_saldo_vida_util.getValue() < 0){
     			this.Cmp.res_saldo_vida_util.markInvalid('La vida útil de la mejora debe incrementar a la actual');
     		}
-    	} else if(this.maestro.cod_movimiento=='ajuste'){
+    	} else if(this.maestro.cod_movimiento == 'ajuste'){
     		//Obtener saldo real de la revalorización
     		if(this.Cmp.importe.getValue()){
-    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue()-this.Cmp.res_monto_vigente_real.getValue(),2);
+    			var temp = Ext.util.Format.round(this.Cmp.importe.getValue() - this.Cmp.res_monto_vigente_real.getValue(), 2);
     			this.Cmp.res_saldo_importe.setValue(temp);
     		}
     		if(this.Cmp.vida_util.getValue()){
-    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue()-this.Cmp.res_vida_util_real.getValue());
+    			this.Cmp.res_saldo_vida_util.setValue(this.Cmp.vida_util.getValue() - this.Cmp.res_vida_util_real.getValue());
     		}
     		if(this.Cmp.depreciacion_acum.getValue()){
-    			this.Cmp.res_saldo_depreciacion_acum.setValue(this.Cmp.depreciacion_acum.getValue()-this.Cmp.res_dep_acum_real.getValue());
+    			this.Cmp.res_saldo_depreciacion_acum.setValue(this.Cmp.depreciacion_acum.getValue() - this.Cmp.res_dep_acum_real.getValue());
     		}
     	} else {
 
     	}
     },
-    cargarMonedaBase: function(){
+    cargarMonedaBase: function() {
     	//Obtención de la moneda base
        	Ext.Ajax.request({
 	        url: '../../sis_parametros/control/Moneda/getMonedaBase',
 	        params: {moneda:'si'},
 	        success: function(res,params){
-	        	var response = Ext.decode(res.responseText).ROOT.datos.moneda;
-	        	this.Cmp.moneda_base.setValue(response);
+	        	var response = Ext.decode(res.responseText).ROOT.datos;
+	        	this.Cmp.moneda_base.setValue(response.moneda);
+	        	this.idMonedaBase = response.id_moneda;
 	        },
 	        argument: this.argumentSave,
 	        failure: this.conexionFailure,
@@ -970,7 +1051,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	        scope: this
 	    });
     },
-    crearVentanaMovEspeciales: function(movimiento){
+    crearVentanaMovEspeciales: function(movimiento) {
     	//////////
     	//Grupo 1
     	//Activo Fijo
@@ -1004,10 +1085,10 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             minChars:2,
             width:130,
             listWidth:300,
-            renderer : function(value, p, record) {
+            renderer: function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
 				},
-				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
+			tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
         });
         //Código del activo Fijo
         this.me_codigo = new Ext.form.Field({
@@ -1106,8 +1187,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         this.me_btn_nuevo = new Ext.Button({
         	text:'<i class="fa fa-file-o fa-lg" aria-hidden="true"></i>',
         	border: false,
-        	handler: function(btn,event){
-        		if(this.me_activo_fijo.getValue()){
+        	handler: function(btn,event) {
+        		if(this.me_activo_fijo.getValue()) {
         			this.openInputForm();
         		} else {
         			Ext.MessageBox.alert('Mensaje','Previamente debe seleccionar un activo fijo');
@@ -1119,7 +1200,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         this.me_btn_editar = new Ext.Button({
         	text:'<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>',
         	border: false,
-        	handler: function(btn,event){
+        	handler: function(btn,event) {
         		this.editNode(this.treeLeft.getSelectionModel().getSelectedNode());
         	},
         	disabled: true,
@@ -1129,7 +1210,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         this.me_btn_eliminar = new Ext.Button({
         	text:'<i class="fa fa-trash fa-lg" aria-hidden="true"></i>',
         	border: false,
-        	handler: function(btn,event){
+        	handler: function(btn,event) {
         		this.deleteNode(this.treeLeft.getSelectionModel().getSelectedNode());
         	},
         	disabled: true,
@@ -1139,7 +1220,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         this.me_btn_refresh = new Ext.Button({
         	text:'<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>',
         	border: false,
-        	handler: function(btn,event){
+        	handler: function(btn,event) {
         		this.treeLeft.getRootNode().reload();
         	},
         	scope: this
@@ -1147,7 +1228,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         this.me_btn_new_intpar = new Ext.Button({
         	text:'<i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>',
         	border: false,
-        	handler: function(btn,event){
+        	handler: function(btn,event) {
         		if(this.me_activo_fijo.getValue()){
         			this.abrirVentanaIntPar();
         		} else {
@@ -1169,7 +1250,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         			return;
         		}
         		Ext.MessageBox.confirm('Confirmación','¿Está seguro de quitar el Activo Fijo?',function(resp,cmp){
-					if(resp=='yes'){
+					if(resp == 'yes'){
 
 						//Llamada backend
 						Phx.CP.loadingShow();
@@ -1182,7 +1263,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 							url: '../../sis_kactivos_fijos/control/MovimientoAfEspecial/eliminarMovimientoAfEspecialPorActivo',
 							params: post,
 							isUpload: false,
-							success: function(res,params){
+							success: function(res,params) {
 								this.treeRight.getSelectionModel().getSelectedNode().remove();
 								Phx.CP.loadingHide();
 							},
@@ -1191,10 +1272,6 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				            timeout: this.timeout,
 				            scope: this
 						});
-
-
-
-
 					}
 				}, this);
         	},
@@ -1210,7 +1287,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
         //Si es División de valores deshabilita DD
         this.tmpDD = true;
-        if(this.maestro.cod_movimiento=='divis'){
+        if(this.maestro.cod_movimiento == 'divis'){
         	this.tmpDD = false;
         }
 
@@ -1255,7 +1332,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         ///////////////////////////////////////////////////////////////
         //Personalización por tipo de movimiento: divis, desgl, intpar
         ///////////////////////////////////////////////////////////////
-        if(this.maestro.cod_movimiento=='divis'){
+        if(this.maestro.cod_movimiento == 'divis'){
         	//Árbol izquierdo síncrono
         	var root = new Ext.tree.TreeNode({
 	            text: 'Valores AF (Saldo: )',
@@ -1286,7 +1363,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	        //Redimensión del left tree
 	        this.treeLeft.setSize(980,250);
 
-        } else if(this.maestro.cod_movimiento=='desgl'){
+        } else if(this.maestro.cod_movimiento == 'desgl'){
         	//Árbol izquierdo asíncrono
         	var root = new Ext.tree.AsyncTreeNode({
 	            text: 'Valores AF',
@@ -1302,8 +1379,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	            expanded: true
 	        });
 	        rootR.on('beforeappend',function(tree, old, node){
-        		var aux = this.treeRight.getRootNode().findChild('id_activo_fijo_valor',node.attributes.id_activo_fijo_valor);
-        		if(aux!==null){
+        		var aux = this.treeRight.getRootNode().findChild('id_activo_fijo_valor', node.attributes.id_activo_fijo_valor);
+        		if(aux !== null){
 					Ext.MessageBox.alert('Alerta','Este valor ya fue agregado previamente');
 					return false;
 				}
@@ -1329,7 +1406,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	        //Redimensión del left tree
 	        this.treeLeft.setSize(476,250);
 
-        } else if(this.maestro.cod_movimiento=='intpar'){
+        } else if(this.maestro.cod_movimiento == 'intpar'){
         	//Árbol izquierdo asíncrono
         	var root = new Ext.tree.AsyncTreeNode({
 	            text: 'Valores AF',
@@ -1367,54 +1444,20 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
         //Eventos
         this.treeLeft.loader.on('beforeload', function(treeLoader,node){
-        	var idActivoFijo='-1';
+        	var idActivoFijo = '-1';
         	if(this.me_activo_fijo.getValue()){
-        		idActivoFijo=this.me_activo_fijo.getValue();
+        		idActivoFijo = this.me_activo_fijo.getValue();
         	}
             Ext.apply(this.treeLeft.loader.baseParams,{
-                id_activo_fijo: idActivoFijo
+                id_activo_fijo: idActivoFijo,
+                id_moneda: this.idMonedaBase
             });
         },this);
 
         this.me_activo_fijo.on('select', function(combo, record, index){
-        	//Carga el resumen del activo fijo seleccionado
-        	this.cargarResumenAfMovEsp(record.data);
-        	//Inicialización de variables
-        	this.saldoDivis=0;
-        	Ext.apply(this.treeLeft.loader.baseParams,{
-                id_activo_fijo: '-1'
-            });
-            //Casos por tipos de mov. esp.
-        	if(this.maestro.cod_movimiento=='divis'){
-        		//Setea el saldo
-		        this.saldoDivis = this.me_monto_vigente_real.getValue();
-		        //Setea la etiqueta del árbol izquierdo
-		        this.treeLeft.getRootNode().setText('Valores AF (Saldo: '+this.saldoDivis+')');
-		        this.treeLeft.getRootNode().removeAll();
-        	} else if(this.maestro.cod_movimiento=='desgl'){
-	            //Actualiza los parámetros el treeleft
-	       		Ext.apply(this.treeLeft.loader.baseParams,{
-	                id_activo_fijo: this.me_activo_fijo.getValue()
-	            });
-	       		this.treeLeft.getRootNode().reload();
-	       		//Reinicializar tree right
-	        	this.treeRight.getRootNode().removeAll();
-
-        	} else if(this.maestro.cod_movimiento=='intpar'){
-        		Ext.apply(this.treeLeft.loader.baseParams,{
-	                id_activo_fijo: '-1'
-	            });
-	            //Carga el tree left
-	       		Ext.apply(this.treeLeft.loader.baseParams,{
-	                id_activo_fijo: this.me_activo_fijo.getValue()
-	            });
-	       		this.treeLeft.getRootNode().reload();
-	       		//Reinicializar tree right
-	        	this.treeRight.getRootNode().removeAll();
-        	}
-
+        	//Obtención de los datos valorados
+        	this.obtenerDatosValorados(record.data);
        	}, this);
-
 
         //Form
     	this.formMovEsp = new Ext.form.FormPanel({
@@ -1502,21 +1545,21 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             }]
         });
     },
-    abrirVentanaMovEspeciales: function(tipo='new'){
+    abrirVentanaMovEspeciales: function(tipo = 'new') {
     	if(this.windowMovEsp){
     		var fecha = new Date (this.maestro.fecha_mov);
     		var title;
-    		if(tipo=='edit'){
-    			title='Editar Registro - '+this.maestro.movimiento+' (Al '+fecha.format("d/m/Y")+')';
+    		if(tipo == 'edit') {
+    			title = 'Editar Registro - ' + this.maestro.movimiento + ' (Al ' + fecha.format("d/m/Y") + ')';
     		} else {
-    			title='Nuevo Registro - '+this.maestro.movimiento+' (Al '+fecha.format("d/m/Y")+')';
+    			title = 'Nuevo Registro - ' + this.maestro.movimiento + ' (Al ' + fecha.format("d/m/Y") + ')';
     		}
 
 	    	this.windowMovEsp.setTitle(title);
 	    	this.windowMovEsp.show();
     	}
     },
-    cargarResumenAfMovEsp: function(data){
+    cargarResumenAfMovEsp: function(data, response){
 		this.me_codigo.setValue(data.codigo?data.codigo:data.cod_af);
 		this.me_denominacion.setValue(data.denominacion);
 		this.me_descripcion.setValue(data.descripcion);
@@ -1524,15 +1567,16 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.me_monto_compra.setValue(data.monto_compra);
 		this.me_vida_util.setValue(data.vida_util ? data.vida_util:data.vida_util_af);
 		this.me_fecha_ini_dep.setValue(data.fecha_ini_dep);
-		this.me_monto_vigente_real.setValue(data.monto_vigente_real_af);
-		this.me_dep_acum_real.setValue(data.depreciacion_acum_real_af);
-		this.me_dep_per_real.setValue(data.depreciacion_per_real_af);
-		this.me_vida_util_real.setValue(data.vida_util_real_af);
-		this.me_fecha_ult_dep_real.setValue(data.fecha_ult_dep_real_af);
+
+		this.me_monto_vigente_real.setValue(response.valor_neto);
+		this.me_dep_acum_real.setValue(response.dep_acum);
+		this.me_dep_per_real.setValue(response.dep_periodo);
+		this.me_vida_util_real.setValue(response.vida_util_ant);
+		this.me_fecha_ult_dep_real.setValue(response.fecha_max);
 	},
 	openInputForm: function(){
-		Ext.MessageBox.prompt('Nuevo Valor','Introduzca el monto del nuevo valor', function(resp,val,cmp){
-			if(resp=='ok'){
+		Ext.MessageBox.prompt('Nuevo Valor','Introduzca el monto del nuevo valor', function(resp,val,cmp) {
+			if(resp == 'ok'){
 				if(this.isNumeric(val)){
 					//Verificar que no se pase del total
 					if(this.calculaSaldoDivis(val)){
@@ -1546,16 +1590,17 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			}
 		}, this);
 	},
-	addNode: function(node){
+	addNode: function(node) {
 		var newNode = new Ext.tree.TreeNode({
-            text: 'Valor: '+ node.importe,
+            text: 'Valor: ' + node.importe,
             leaf: true,
             monto_vigente_real: node.importe
 		});
-		newNode.on('click', function(cmp,event){
+		newNode.on('click', function(cmp,event) {
 			this.me_btn_editar.setDisabled(false);
 			this.me_btn_eliminar.setDisabled(false);
-		},this);
+		}, this);
+
 		//Llamada backend
 		Phx.CP.loadingShow();
 		var post = {
@@ -1589,8 +1634,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	},
 	editNode: function(node){
 		Ext.MessageBox.prompt('Edición de Valor','Introduzca el monto del valor', function(resp,val,cmp){
-			if(resp=='ok'){
-				if(this.isNumeric(val)){
+			if(resp == 'ok') {
+				if(this.isNumeric(val)) {
 					//Verificar que no se pase del total
 					if(this.calculaSaldoDivis(val,node.attributes.monto_vigente_real)){
 						//Llamada backend
@@ -1628,10 +1673,10 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			}
 		}, this, false, node.attributes.monto_vigente_real);
 	},
-	deleteNode: function(node){
+	deleteNode: function(node) {
 		this.treeLeft.getSelectionModel().getSelectedNode().attributes.monto_vigente_real
-		Ext.MessageBox.confirm('Confirmación','¿Está seguro de eliminar el Valor?',function(resp,cmp){
-			if(resp=='yes'){
+		Ext.MessageBox.confirm('Confirmación','¿Está seguro de eliminar el Valor?', function(resp,cmp) {
+			if(resp == 'yes'){
 				//Llamada backend
 				var post = {
 					id_movimiento_af: this.IdMovimientoAf,
@@ -1652,7 +1697,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 						this.treeLeft.getSelectionModel().getSelectedNode().remove();
 						//Actualiza el saldo
 						this.saldoDivis += parseFloat(node.attributes.monto_vigente_real);
-						this.treeLeft.getRootNode().setText('Valores AF (Saldo: '+this.saldoDivis+')');
+						this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
 
 						Phx.CP.loadingHide();
 					},
@@ -1664,7 +1709,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			}
 		},this);
 	},
-	eliminarComponentesMovEsp: function(){
+	eliminarComponentesMovEsp: function() {
 		this.me_activo_fijo = undefined;
 		this.me_codigo = undefined;
 		this.me_denominacion = undefined;
@@ -1711,15 +1756,15 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.formIntPar = undefined;
 		this.windowIntPar = undefined;
 	},
-	calculaSaldoDivis: function(importeNuevo,importeAnterior=undefined){
-		if(importeAnterior){
+	calculaSaldoDivis: function(importeNuevo,importeAnterior = undefined){
+		if(importeAnterior) {
 			//Edit
 			if(parseFloat(this.saldoDivis) - parseFloat(importeNuevo) + parseFloat(importeAnterior) < 0){
 				return false;
 			}
 			this.saldoDivis = parseFloat(this.saldoDivis) - parseFloat(importeNuevo) + parseFloat(importeAnterior);
-			this.saldoDivis = Math.round(this.saldoDivis*100)/100;
-			this.treeLeft.getRootNode().setText('Valores AF (Saldo: '+this.saldoDivis+')');
+			this.saldoDivis = Math.round(this.saldoDivis * 100) / 100;
+			this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
 			return true;
 		} else {
 			//Nuevo
@@ -1727,8 +1772,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				return false;
 			}
 			this.saldoDivis -= parseFloat(importeNuevo);
-			this.saldoDivis = Math.round(this.saldoDivis*100)/100;
-			this.treeLeft.getRootNode().setText('Valores AF (Saldo: '+this.saldoDivis+')');
+			this.saldoDivis = Math.round(this.saldoDivis * 100) / 100;
+			this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
 			return true;
 		}
 	},
@@ -1766,10 +1811,10 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             minChars:2,
             width:130,
             listWidth:300,
-            renderer : function(value, p, record) {
+            renderer: function(value, p, record) {
 					return String.format('{0}', record.data['denominacion']);
 				},
-				tpl : '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
+			tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Descripcion:</b> {descripcion}</p></div></tpl>',
         });
         //Código del activo Fijo
         this.me_intpar_codigo = new Ext.form.Field({
@@ -1918,7 +1963,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
     	//Window
     	this.windowIntPar = new Ext.Window({
-            width: 880,
+            width: 980,
             height: 270,
             modal: true,
             closeAction: 'hide',
@@ -1941,14 +1986,14 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
         });
 
 	},
-	abrirVentanaIntPar: function(){
-    	if(this.windowIntPar){
+	abrirVentanaIntPar: function() {
+    	if(this.windowIntPar) {
     		var fecha = new Date (this.maestro.fecha_mov);
-	    	this.windowIntPar.setTitle('Agregar Activo Fijo (Al '+fecha.format("d/m/Y")+')');
+	    	this.windowIntPar.setTitle('Agregar Activo Fijo (Al ' + fecha.format("d/m/Y") + ')');
 	    	this.windowIntPar.show();
     	}
     },
-	cargarResumenAfIntPar: function(data){
+	cargarResumenAfIntPar: function(data) {
 		this.me_intpar_codigo.setValue(data.codigo);
 		this.me_intpar_denominacion.setValue(data.denominacion);
 		this.me_intpar_descripcion.setValue(data.descripcion);
@@ -1962,20 +2007,20 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.me_intpar_vida_util_real.setValue(data.vida_util_real_af);
 		this.me_intpar_fecha_ult_dep_real.setValue(data.fecha_ult_dep_real_af);
 	},
-	agregarAfIntPar: function(){
+	agregarAfIntPar: function() {
 		if(this.me_intpar_activo_fijo.getValue()){
 			var IdActivoFijo = this.me_intpar_activo_fijo.getValue();
 			//Verificar si el activo fijo ya fue incluido en el árbol
 			var node = this.treeRight.getRootNode().findChild('id_activo_fijo',IdActivoFijo);
 
 			//Verifica que no sea el mismo activo fijo que el activo fijo padre
-			if(this.me_activo_fijo.getValue()==this.me_intpar_activo_fijo.getValue()){
+			if(this.me_activo_fijo.getValue() == this.me_intpar_activo_fijo.getValue()){
 				Ext.MessageBox.alert('Alerta','El Activo Fijo no puede ser el mismo que el padre');
 				return;
 			}
 
 			//Add node
-			if(node===null){
+			if(node === null){
 				var newNode = new Ext.tree.TreeNode({
 		            leaf: false,
 		            id_activo_fijo: IdActivoFijo,
@@ -1993,9 +2038,20 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 
 				//Evento cuando se agregue un nodo (drag and drop)
 				newNode.on('beforeappend',function(tree, old, node){
+					var importe = prompt('Introduza el Importe',"0");
+
+					if(this.isNumeric(importe)){
+						console.log('node',node,tree);
+						alert('positivo: '+importe)
+						return true;
+					} else{
+						alert('negativo: '+importe);
+						return false;
+					}
+
 	        		if(!node.attributes.swBd){
 		        		var aux = newNode.findChild('id_activo_fijo_valor',node.attributes.id_activo_fijo_valor);
-		        		if(aux!==null){
+		        		if(aux !== null){
 							Ext.MessageBox.alert('Alerta','Este valor ya fue agregado previamente');
 							return false;
 						}
@@ -2016,17 +2072,17 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			}
 		}
 	},
-	getNodeTextIntPar: function(parent){
-		var incremento=0;
+	getNodeTextIntPar: function(parent) {
+		var incremento = 0;
 		//Recorre todos los nodos hijos
-		Ext.each(parent.childNodes, function(node){
-			if(node){
-				incremento+=parseFloat(node.attributes.monto_vigente_real);
+		Ext.each(parent.childNodes, function(node) {
+			if(node) {
+				incremento += parseFloat(node.attributes.monto_vigente_real);
 			}
 		})
 		var monto = parseFloat(parent.attributes.monto_vigente_real) + parseFloat(incremento);
-		monto = Math.round(monto*100)/100;
-		var title = '['+parent.attributes.codigo+'] '+parent.attributes.denominacion+': '+parent.attributes.monto_vigente_real+' + '+incremento+' = '+ monto;
+		monto = Math.round(monto * 100) / 100;
+		var title = '[' + parent.attributes.codigo + '] ' + parent.attributes.denominacion + ': ' + parent.attributes.monto_vigente_real + ' + ' + incremento + ' = ' + monto;
 
 		return title;
 	},
@@ -2036,28 +2092,28 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		this.crearVentanaIntPar();
 		//Actualiza los parámetros del combo de activos de mov. esp.
 		this.me_activo_fijo.store.baseParams = {
-			start:"0",
-			limit:"15",
-			sort:"denominacion",
-			dir:"ASC",
-			par_filtro:"afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",
+			start: 0,
+			limit: 15,
+			sort: "denominacion",
+			dir: "ASC",
+			par_filtro: "afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",
 			fecha_mov: this.maestro.fecha_mov,
-			codMov:this.maestro.cod_movimiento
+			codMov: this.maestro.cod_movimiento
 		};
-		this.me_activo_fijo.modificado=true;
+		this.me_activo_fijo.modificado = true;
 		//Actualiza los parámetros del combo de activos de Intercambio de Partes
 		this.me_intpar_activo_fijo.store.baseParams = {
-			start:"0",
-			limit:"15",
-			sort:"denominacion",
-			dir:"ASC",
-			par_filtro:"afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",
+			start: 0,
+			limit: 15,
+			sort: "denominacion",
+			dir: "ASC",
+			par_filtro: "afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant",
 			fecha_mov: this.maestro.fecha_mov,
 			codMov:this.maestro.cod_movimiento
 		};
-		this.me_intpar_activo_fijo.modificado=true;
+		this.me_intpar_activo_fijo.modificado = true;
 	},
-	edicionCargarDataMovEsp: function(obj){
+	edicionCargarDataMovEsp: function(obj) {
 		Ext.Ajax.request({
 			url: '../../sis_kactivos_fijos/control/MovimientoAfEspecial/listarMovimientoAfEspecial',
 	        params: {
@@ -2074,12 +2130,12 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	        scope: this
 		});
 	},
-	edicionRenderDataMovEsp: function(res,params){
+	edicionRenderDataMovEsp: function(res,params) {
 		var response = Ext.decode(res.responseText).datos;
 		/////////////////////////
 		//Cargar datos cabecera
 		////////////////////////
-		var movimientoAf=this.sm.getSelected().data;
+		var movimientoAf = this.sm.getSelected().data;
 		//Combo activo fijo
 		var rec = new Ext.data.Record({
 			denominacion: movimientoAf.denominacion,
@@ -2095,9 +2151,9 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		//////////////////
 		//Cargar árboles
 		/////////////////
-		if(this.maestro.cod_movimiento=='divis'){
-			var saldoTmp=0;
-			for(var i=0;i<response.length;i++){
+		if(this.maestro.cod_movimiento == 'divis'){
+			var saldoTmp = 0;
+			for(var i = 0; i < response.length; i++){
 				var newNode = new Ext.tree.TreeNode({
 		            text: 'Valor: '+ response[i].importe,
 		            leaf: true,
@@ -2111,18 +2167,19 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				},this);
 				this.treeLeft.getRootNode().appendChild(newNode);
 
-				saldoTmp+=parseFloat(response[i].importe);
+				saldoTmp += parseFloat(response[i].importe);
 			}
 			//Actualiza el saldo
-			this.saldoDivis = parseFloat(this.me_monto_vigente_real.getValue())-parseFloat(saldoTmp);
+			this.saldoDivis = parseFloat(this.me_monto_vigente_real.getValue()) - parseFloat(saldoTmp);
 			//Actualiza el texto del root node
-			this.treeLeft.getRootNode().setText('Valores AF (Saldo: '+this.saldoDivis+')');
-		} else if(this.maestro.cod_movimiento=='desgl'){
+			this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
+		} else if(this.maestro.cod_movimiento == 'desgl'){
 			//////////////////////////////
 			//Carga los activo fijo valor
 			//////////////////////////////
-       		Ext.apply(this.treeLeft.loader.baseParams,{
-                id_activo_fijo: movimientoAf.id_activo_fijo
+       		Ext.apply(this.treeLeft.loader.baseParams, {
+                id_activo_fijo: movimientoAf.id_activo_fijo,
+                id_moneda: this.idMonedaBase
             });
        		this.treeLeft.getRootNode().reload();
        		///////////////////////
@@ -2130,9 +2187,9 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
        		///////////////////////
         	//this.treeRight.getRootNode().removeAll();
         	//Carga los activos fijos
-        	for(var i=0;i<response.length;i++){
+        	for(var i = 0; i < response.length; i++) {
         		var newNode = new Ext.tree.TreeNode({
-		            text: '['+response[i].codigo_afv+']-'+ response[i].tipo_afv + ' ' + response[i].monto_vigente_real_afv,
+		            text: '[' + response[i].codigo_afv + ']-' + response[i].tipo_afv + ' ' + response[i].monto_vigente_real_afv,
 		            leaf: false,
 		            monto_vigente_real: response[i].monto_vigente_real,
 		            id_movimiento_af_especial: response[i].id_movimiento_af_especial,
@@ -2144,12 +2201,13 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				this.treeRight.getRootNode().appendChild(newNode);
         	}
 
-		} else if(this.maestro.cod_movimiento=='intpar'){
+		} else if(this.maestro.cod_movimiento == 'intpar'){
 			//////////////////////////////
 			//Carga los activo fijo valor
 			//////////////////////////////
        		Ext.apply(this.treeLeft.loader.baseParams,{
-                id_activo_fijo: movimientoAf.id_activo_fijo
+                id_activo_fijo: movimientoAf.id_activo_fijo,
+                id_moneda: this.idMonedaBase
             });
        		this.treeLeft.getRootNode().reload();
        		///////////////////////
@@ -2157,17 +2215,17 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
        		///////////////////////
         	//this.treeRight.getRootNode().removeAll();
         	//Prepar datos
-        	var arr=[];
-        	var arrAux=[];
-        	for(var i=0;i<response.length;i++){
-        		if(arr.indexOf(response[i].id_activo_fijo)==-1){
+        	var arr = [];
+        	var arrAux = [];
+        	for(var i = 0; i < response.length; i++) {
+        		if(arr.indexOf(response[i].id_activo_fijo) == -1){
         			arr.push(response[i].id_activo_fijo);
         			arrAux.push(response[i]);
         		}
         	}
 
         	//Carga los activos fijos
-        	for(var i=0;i<arr.length;i++){
+        	for(var i = 0; i < arr.length; i++){
         		var newNode = new Ext.tree.TreeNode({
 		            leaf: false,
 		            monto_vigente_real: arrAux[i].monto_vigente_real,
@@ -2180,31 +2238,31 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		            draggable: false
 				});
 
-				newNode.on('remove',function(tree, old, node){
+				newNode.on('remove', function(tree, old, node) {
 	        		this.deleteNodeIntPar(tree, old, node);
 	        	},this);
 				//Evento cuando se agregue un nodo (drag and drop)
-				newNode.on('beforeappend',function(tree, old, node){
-					if(!node.attributes.swBd){
-		        		var aux = newNode.findChild('id_activo_fijo_valor',node.attributes.id_activo_fijo_valor);
-		        		if(aux!==null){
+				newNode.on('beforeappend', function(tree, old, node) {
+					if(!node.attributes.swBd) {
+		        		var aux = newNode.findChild('id_activo_fijo_valor', node.attributes.id_activo_fijo_valor);
+		        		if(aux !== null) {
 							Ext.MessageBox.alert('Alerta','Este valor ya fue agregado previamente');
 							return false;
 						}
 					}
-	        	},this);
-	        	newNode.on('append',function(tree, old, node, index){
+	        	}, this);
+	        	newNode.on('append', function(tree, old, node, index) {
 	        		this.addNodeIntPar(tree,old,node,index);
-	        	},this);
-	        	newNode.on('click', function(cmp,event){
+	        	}, this);
+	        	newNode.on('click', function(cmp,event) {
 					this.me_btn_eliminar_intpar.setDisabled(false);
-				},this);
+				}, this);
 
 				//Carga los valores a intercambiar
-	        	for(var j=0;j<response.length;j++){
+	        	for(var j = 0; j < response.length; j++) {
 	        		if(response[j].id_activo_fijo == arr[i]){
 	        			var depNode = new Ext.tree.TreeNode({
-				            text: '['+response[j].codigo_afv+']-'+ response[j].tipo_afv + ' ' + response[j].monto_vigente_real_afv,
+				            text: '[' + response[j].codigo_afv + ']-' + response[j].tipo_afv + ' ' + response[j].monto_vigente_real_afv,
 				            leaf: true,
 				            monto_vigente_real: response[j].importe,
 				            id_movimiento_af_especial: response[j].id_movimiento_af_especial,
@@ -2217,20 +2275,16 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 	        		}
 	        	}
 	        	newNode.setText(this.getNodeTextIntPar(newNode));
-
 	        	this.treeRight.getRootNode().appendChild(newNode);
         	}
-
-
 		}
-
 
 		//Abre la ventana
 		this.abrirVentanaMovEspeciales('edit');
 	},
-	addNodeDesgl: function (tree, old, node){
+	addNodeDesgl: function (tree, old, node) {
 		//Llamada backend
-		if(!node.attributes.swBd){
+		if(!node.attributes.swBd) {
 			Phx.CP.loadingShow();
 			var post = {
 				id_movimiento_af: this.IdMovimientoAf,
@@ -2264,7 +2318,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 			});
 		}
 	},
-	deleteNodeDesgl: function(tree, old, node){
+	deleteNodeDesgl: function(tree, old, node) {
 		//Llamada backend
 		Phx.CP.loadingShow();
 		var post = {
@@ -2289,7 +2343,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             scope: this
 		});
 	},
-	deleteNodeIntPar: function(tree, old, node){
+	deleteNodeIntPar: function(tree, old, node) {
 		//Llamada backend
 		Phx.CP.loadingShow();
 		var post = {
@@ -2316,8 +2370,8 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
             scope: this
 		});
 	},
-	addNodeIntPar: function(tree,old,node,index){
-		if(!node.attributes.swBd){
+	addNodeIntPar: function(tree,old,node,index) {
+		if(!node.attributes.swBd) {
 			Phx.CP.loadingShow();
 			var post = {
 				id_movimiento_af: this.IdMovimientoAf,
@@ -2334,7 +2388,7 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 				url: '../../sis_kactivos_fijos/control/MovimientoAfEspecial/insertarMovimientoAfEspecial',
 				params: post,
 				isUpload: false,
-				success: function(res,params){
+				success: function(res,params) {
 					var response = Ext.decode(res.responseText).ROOT.datos;
 					old.setText(this.getNodeTextIntPar(old));
 					//Carga los valores almacenados
@@ -2352,27 +2406,245 @@ Phx.vista.MovimientoAf=Ext.extend(Phx.gridInterfaz,{
 		}
 	},
 	abrirEnlace: function(cell,rowIndex,columnIndex,e){
-		if(cell.colModel.getColumnHeader(columnIndex)=='Código'){
+		if(cell.colModel.getColumnHeader(columnIndex) == 'Código'){
 			var data = this.sm.getSelected().data;
-			Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
-			'Detalle', {
-				width:'90%',
-				height:'90%'
-		    }, {
-		    	lnk_id_activo_fijo: data.id_activo_fijo,
-		    	link: true
-		    },
-		    this.idContenedor,
-		    'ActivoFijo'
+			Phx.CP.loadWindows(
+				'../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
+				'Detalle', {
+					width:'90%',
+					height:'90%'
+			    }, {
+			    	lnk_id_activo_fijo: data.id_activo_fijo,
+			    	link: true
+			    },
+			    this.idContenedor,
+			    'ActivoFijo'
 			);
 		}
 	},
-	agregarArgsExtraSubmit: function(){
+	agregarArgsExtraSubmit: function() {
 		//Inicializa el objeto de los argumentos extra
-		this.argumentExtraSubmit={};
+		this.argumentExtraSubmit = {};
 			//Añade los parámetros extra para mandar por submit
-		this.argumentExtraSubmit.importe_ant=this.Cmp.res_monto_compra.getValue();
-		this.argumentExtraSubmit.vida_util_ant=this.Cmp.res_vida_util_real.getValue();
-	}
+		this.argumentExtraSubmit.importe_ant = this.Cmp.res_monto_compra.getValue();
+		this.argumentExtraSubmit.vida_util_ant = this.Cmp.res_vida_util_real.getValue();
+	},
+	obtenerDatosValorados: function(data) {
+		Ext.Ajax.request({
+	        url: '../../sis_kactivos_fijos/control/MovimientoAfDep/listarDeprecFormatoTotales',
+	        params: {
+	        	start: 0,
+	        	limit: 15,
+	        	sort: 'id_activo_fijo_valor',
+	        	dir: 'ASC',
+	        	par_filtro: '',
+	        	id_activo_fijo: data.id_activo_fijo,
+	        	id_moneda: this.idMonedaBase,
+	        	fecha: this.maestro.fecha_mov
+	        },
+	        success: function(resp,params) {
+	        	var response = Ext.decode(resp.responseText);
+
+	        	//Si no encuentra datos a esa fecha, busca el último dato registrado
+	        	if(response,response.datos.length == 0) {
+	        		Ext.Ajax.request({
+				        url: '../../sis_kactivos_fijos/control/ActivoFijoValores/listarAfvUltVal',
+				        params: {
+				        	start: 0,
+				        	limit: 15,
+				        	sort: 'id_activo_fijo_valor',
+				        	dir: 'ASC',
+				        	par_filtro: '',
+				        	id_activo_fijo: data.id_activo_fijo,
+				        	id_moneda: this.idMonedaBase
+				        },
+				        success: function(resp,params) {
+				        	var response = Ext.decode(resp.responseText);
+				        	//this.Cmp.moneda_base.setValue(response);
+				        	//Carga el resumen del activo fijo seleccionado
+        					this.cargarResumenAfMovEsp(data, response.datos[0]);
+
+        					//Inicialización de variables
+				        	this.saldoDivis = 0;
+				        	Ext.apply(this.treeLeft.loader.baseParams, {
+				                id_activo_fijo: '-1',
+				                id_moneda: this.idMonedaBase,
+				                fecha: response.datos[0].fecha_max
+				            });
+				            //Casos por tipos de mov. esp.
+				        	if(this.maestro.cod_movimiento == 'divis') {
+				        		//Setea el saldo
+						        this.saldoDivis = this.me_monto_vigente_real.getValue();
+						        //Setea la etiqueta del árbol izquierdo
+						        this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
+						        this.treeLeft.getRootNode().removeAll();
+				        	} else if(this.maestro.cod_movimiento == 'desgl') {
+					            //Actualiza los parámetros el treeleft
+					       		Ext.apply(this.treeLeft.loader.baseParams,{
+					                id_activo_fijo: this.me_activo_fijo.getValue(),
+					                id_moneda: this.idMonedaBase
+					            });
+					       		this.treeLeft.getRootNode().reload();
+					       		//Reinicializar tree right
+					        	this.treeRight.getRootNode().removeAll();
+
+				        	} else if(this.maestro.cod_movimiento == 'intpar') {
+				        		Ext.apply(this.treeLeft.loader.baseParams,{
+					                id_activo_fijo: '-1',
+					                id_moneda: this.idMonedaBase
+					            });
+					            //Carga el tree left
+					       		Ext.apply(this.treeLeft.loader.baseParams,{
+					                id_activo_fijo: this.me_activo_fijo.getValue(),
+					                id_moneda: this.idMonedaBase
+					            });
+					       		this.treeLeft.getRootNode().reload();
+					       		//Reinicializar tree right
+					        	this.treeRight.getRootNode().removeAll();
+				        	}
+				        },
+				        argument: this.argumentSave,
+				        failure: this.conexionFailure,
+				        timeout: this.timeout,
+				        scope: this
+				    });
+	        	} else {
+	        		//Carga el resumen del activo fijo seleccionado
+        			this.cargarResumenAfMovEsp(data, response);
+
+        			//Inicialización de variables
+		        	this.saldoDivis = 0;
+		        	Ext.apply(this.treeLeft.loader.baseParams,{
+		                id_activo_fijo: '-1',
+		                id_moneda: this.idMonedaBase,
+		                fecha: this.maestro.fecha_mov
+		            });
+		            //Casos por tipos de mov. esp.
+		        	if(this.maestro.cod_movimiento == 'divis'){
+		        		//Setea el saldo
+				        this.saldoDivis = this.me_monto_vigente_real.getValue();
+				        //Setea la etiqueta del árbol izquierdo
+				        this.treeLeft.getRootNode().setText('Valores AF (Saldo: ' + this.saldoDivis + ')');
+				        this.treeLeft.getRootNode().removeAll();
+		        	} else if(this.maestro.cod_movimiento == 'desgl'){
+			            //Actualiza los parámetros el treeleft
+			       		Ext.apply(this.treeLeft.loader.baseParams,{
+			                id_activo_fijo: this.me_activo_fijo.getValue(),
+			                id_moneda: this.idMonedaBase
+			            });
+			       		this.treeLeft.getRootNode().reload();
+			       		//Reinicializar tree right
+			        	this.treeRight.getRootNode().removeAll();
+
+		        	} else if(this.maestro.cod_movimiento == 'intpar'){
+		        		Ext.apply(this.treeLeft.loader.baseParams,{
+			                id_activo_fijo: '-1',
+			                id_moneda: this.idMonedaBase
+			            });
+			            //Carga el tree left
+			       		Ext.apply(this.treeLeft.loader.baseParams,{
+			                id_activo_fijo: this.me_activo_fijo.getValue(),
+			                id_moneda: this.idMonedaBase
+			            });
+			       		this.treeLeft.getRootNode().reload();
+			       		//Reinicializar tree right
+			        	this.treeRight.getRootNode().removeAll();
+		        	}
+	        	}
+	        },
+	        argument: this.argumentSave,
+	        failure: this.conexionFailure,
+	        timeout: this.timeout,
+	        scope: this
+	    });
+	},
+
+	//Inicio #2
+	getValorActualActivoFijo: function(idActivoFijo) {
+		if(idActivoFijo) {
+			Ext.Ajax.request({
+		        url: '../../sis_kactivos_fijos/control/ActivoFijo/listarUltimosDatosActivoFijo',
+		        params: {
+		        	id_activo_fijo: idActivoFijo,
+		        	id_moneda: this.idMonedaMovEsp,
+		        	start: 0,
+					limit: 15,
+					sort: "afv.id_activo_fijo",
+					dir: "ASC"
+		        },
+		        success: function(res, params){
+		        	var response = Ext.decode(res.responseText).datos;
+		        	this.cargarValoresActualesAf(response[0]);
+		        },
+		        argument: this.argumentSave,
+		        failure: this.conexionFailure,
+		        timeout: this.timeout,
+		        scope: this
+		    });
+		}
+	},
+
+	cargarValoresActualesAf: function(data) {
+		var dt_res_fecha = new Date(data.fecha);
+
+		//Limpieza de los datos
+		this.Cmp.res_monto_vigente_real.setValue('');
+		this.Cmp.res_dep_acum_real.setValue('');
+		this.Cmp.res_dep_per_real.setValue('');
+		this.Cmp.res_vida_util_real.setValue('');
+		this.Cmp.res_fecha_ult_dep_real.setValue('');
+		this.Cmp.res_monto_vigente.setValue('');
+
+		//Carga de los datos
+		this.Cmp.res_monto_vigente_real.setValue(this.roundNumber(data.monto_actualiz, 2));
+		this.Cmp.res_dep_acum_real.setValue(this.roundNumber(data.depreciacion_acum, 2));
+		this.Cmp.res_dep_per_real.setValue(this.roundNumber(data.depreciacion_per, 2));
+		this.Cmp.res_vida_util_real.setValue(data.vida_util);
+		this.Cmp.res_fecha_ult_dep_real.setValue(dt_res_fecha.format('d-m-Y'));
+		this.Cmp.res_monto_vigente.setValue(this.roundNumber(data.monto_vigente, 2));
+	},
+
+	roundNumber: function(rnum, rlength) {
+        var newnumber = Math.round(rnum * Math.pow(10, rlength)) / Math.pow(10, rlength);
+        return newnumber;
+    },
+
+    onButtonDist: function() {
+    	var rec = this.sm.getSelected();
+
+    	//Se aumenta la fecha del movimiento para mandar al hijo
+	    Ext.apply(rec.data, { fecha_mov: this.maestro.fecha_mov} );
+
+	    //Abre la ventana de detalle
+    	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_especial/MovimientoAfEspecial.php',
+            'Detalle',
+            {
+                width:'50%',
+                height:'85%'
+            },
+            rec.data,
+            this.idContenedor,
+            'MovimientoAfEspecial'
+        )
+    },
+
+    cargarMonedaMovEspecial: function() {
+    	//Obtención de la moneda base
+       	Ext.Ajax.request({
+	        url: '../../sis_kactivos_fijos/control/MovimientoAf/obtenerMonedaMovEsp',
+	        params: { moneda: 'si' },
+	        success: function(res, params) {
+	        	var response = Ext.decode(res.responseText).ROOT;
+	        	this.idMonedaMovEsp = response.datos.id_moneda;
+	        	this.codigoMoneda = response.datos.codigo;
+	        },
+	        argument: this.argumentSave,
+	        failure: this.conexionFailure,
+	        timeout: this.timeout,
+	        scope: this
+	    });
+    },
+	//Fin #2
+
 })
 </script>

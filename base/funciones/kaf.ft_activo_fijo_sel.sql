@@ -13,13 +13,10 @@ $body$
  AUTOR:          (admin)
  FECHA:         29-10-2015 03:18:45
  COMENTARIOS:
-***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
-***************************************************************************/
+ ***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos (SKA_ULTDAT_SEL)
+ ***************************************************************************/
 
 DECLARE
 
@@ -42,7 +39,6 @@ BEGIN
     #AUTOR:     admin
     #FECHA:     29-10-2015 03:18:45
     ***********************************/
-
     if(p_transaccion='SKA_AFIJ_SEL')then
 
         begin
@@ -629,6 +625,84 @@ BEGIN
 
         end;
 
+    --Inicio #2: se agregan dos transacciones para el listado de los últimos datos de los activos fijos
+    /*********************************
+    #TRANSACCION:  'SKA_ULTDAT_SEL'
+    #DESCRIPCION:   Consulta de datos
+    #AUTOR:         RCM
+    #FECHA:         22/05/2019
+    ***********************************/
+    elsif(p_transaccion='SKA_ULTDAT_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='
+                WITH tmax_fecha AS (
+                    SELECT
+                    MAX(MDEP.fecha) AS fecha, AFV.id_activo_fijo
+                    FROM kaf.tmovimiento_af_dep MDEP
+                    INNER JOIN kaf.tactivo_fijo_valores AFV
+                    ON AFV.id_activo_fijo_valor = MDEP.id_activo_fijo_valor
+                    GROUP BY AFV.id_activo_fijo
+                )
+                SELECT
+                AFV.id_activo_fijo, MDEP.fecha, MDEP.monto_actualiz, MDEP.depreciacion_acum,
+                MDEP.depreciacion_per, MDEP.monto_vigente,
+                MDEP.vida_util, AFV.fecha_ini_dep
+                FROM kaf.tmovimiento_af_dep MDEP
+                INNER JOIN kaf.tactivo_fijo_valores AFV
+                ON AFV.id_activo_fijo_valor = MDEP.id_activo_fijo_valor
+                INNER JOIN tmax_fecha MF
+                ON MF.id_activo_fijo = AFV.id_activo_fijo
+                WHERE DATE_TRUNC(''month'', MDEP.fecha) = DATE_TRUNC(''month'', MF.fecha)
+                AND ';
+
+            --Definicion de la respuesta
+            v_consulta := v_consulta || v_parametros.filtro;
+            v_consulta := v_consulta || ' ORDER BY ' || v_parametros.ordenacion || ' ' || v_parametros.dir_ordenacion || ' LIMIT ' || v_parametros.cantidad || ' OFFSET ' || v_parametros.puntero;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************
+    #TRANSACCION:  'SKA_ULTDAT_CONT'
+    #DESCRIPCION:   Conteo de registros
+    #AUTOR:         RCM
+    #FECHA:         22/05/2019
+    ***********************************/
+    elsif(p_transaccion='SKA_ULTDAT_CONT')then
+
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='
+                WITH tmax_fecha AS (
+                    SELECT
+                    MAX(MDEP.fecha) AS fecha, AFV.id_activo_fijo
+                    FROM kaf.tmovimiento_af_dep MDEP
+                    INNER JOIN kaf.tactivo_fijo_valores AFV
+                    ON AFV.id_activo_fijo_valor = MDEP.id_activo_fijo_valor
+                    GROUP BY AFV.id_activo_fijo
+                )
+                SELECT
+                COUNT(1)
+                FROM kaf.tmovimiento_af_dep MDEP
+                INNER JOIN kaf.tactivo_fijo_valores AFV
+                ON AFV.id_activo_fijo_valor = MDEP.id_activo_fijo_valor
+                INNER JOIN tmax_fecha MF
+                ON MF.id_activo_fijo = AFV.id_activo_fijo
+                WHERE DATE_TRUNC(''month'',MDEP.fecha) = DATE_TRUNC(''month'',MF.fecha)
+                AND ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+        --Fin #2
 
     else
 

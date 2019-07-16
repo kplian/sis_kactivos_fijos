@@ -6,19 +6,22 @@
 *@date 04-05-2016 03:02:26
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
-
+/***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ ***************************************************************************/
 class MODActivoFijoValores extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarActivoFijoValores(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='kaf.ft_activo_fijo_valores_sel';
 		$this->transaccion='SKA_ACTVAL_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
 		$this->captura('id_activo_fijo','int4');
@@ -52,21 +55,21 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('monto_vigente_orig_100','numeric');
 		$this->captura('id_moneda','int4');
 		$this->captura('desc_moneda','varchar');
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarActivoFijoValores(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_activo_fijo_valores_ime';
 		$this->transaccion='SKA_ACTVAL_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
 		$this->setParametro('depreciacion_per','depreciacion_per','numeric');
@@ -95,13 +98,13 @@ class MODActivoFijoValores extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarActivoFijoValores(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_activo_fijo_valores_ime';
 		$this->transaccion='SKA_ACTVAL_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_activo_fijo_valor','id_activo_fijo_valor','int4');
 		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
@@ -131,13 +134,13 @@ class MODActivoFijoValores extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarActivoFijoValores(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_activo_fijo_valores_ime';
 		$this->transaccion='SKA_ACTVAL_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_activo_fijo_valor','id_activo_fijo_valor','int4');
 
@@ -155,7 +158,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->transaccion='SKA_ACTVAL_ARB';
 		$this->setCount(false);
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_activo_fijo_valor','int4');
 		$this->captura('id_activo_fijo','int4');
@@ -189,14 +192,74 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('tipo_nodo','varchar');
 		$this->captura('monto_vigente_real','numeric');
 		$this->captura('monto_vigente_orig_100','numeric');
-		
+		$this->captura('valor_neto','numeric');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
+	function listarAfvUltDep(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_valores_sel';
+		$this->transaccion='SKA_AFULTDEP_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','integer');
+		$this->captura('id_activo_fijo_valor','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('fecha_max','date');
+		$this->captura('id_moneda','integer');
+		$this->captura('valor_vigente_actualiz','numeric');
+		$this->captura('inc_actualiz','numeric');
+		$this->captura('valor_actualiz','numeric');
+		$this->captura('vida_util_ant','integer');
+		$this->captura('dep_acum_ant','numeric');
+		$this->captura('inc_actualiz_dep_acum','numeric');
+		$this->captura('dep_acum_ant_actualiz','numeric');
+		$this->captura('dep_mes','numeric');
+		$this->captura('dep_periodo','numeric');
+		$this->captura('dep_acum','numeric');
+		$this->captura('valor_neto','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	//Inicio #2: Actualización listado detalle depreciación interfaz
+	function listarAfvUltVal(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.ft_activo_fijo_valores_sel';
+		$this->transaccion='SKA_AFULTVAL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('fecha_max','date');
+		$this->captura('id_moneda','integer');
+		$this->captura('vida_util_ant','integer');
+		$this->captura('dep_periodo','numeric');
+		$this->captura('dep_acum','numeric');
+		$this->captura('valor_neto','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #2
+
 }
 ?>

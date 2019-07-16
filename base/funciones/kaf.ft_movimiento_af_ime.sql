@@ -14,45 +14,50 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'kaf.tmovimiento_af'
  AUTOR: 		 (admin)
  FECHA:	        18-03-2016 05:34:15
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     KAF       ETR           23/01/2019  RCM         Se corrige la eliminación
 ***************************************************************************/
 
 DECLARE
 
-	v_nro_requerimiento    integer;
-	v_parametros           record;
-	v_id_requerimiento     integer;
-	v_resp		           varchar;
-	v_nombre_funcion       text;
-	v_mensaje_error        text;
-	v_id_movimiento_af     integer;
-	v_id_cat_estado_fun	   integer;
-    v_registros		       record;
-    v_registros_mov        record;
-    v_id_moneda_base       integer;
-			    
+	v_nro_requerimiento     integer;
+	v_parametros            record;
+	v_id_requerimiento      integer;
+	v_resp		            varchar;
+	v_nombre_funcion        text;
+	v_mensaje_error         text;
+	v_id_movimiento_af      integer;
+	v_id_cat_estado_fun	    integer;
+    v_registros		        record;
+    v_registros_mov         record;
+    v_id_moneda_base        integer;
+    v_id_mov_esp            integer;
+    v_monto_actualiz        numeric;
+    v_monto_actualiz_usado2 numeric;
+    v_monto                 numeric;
+    v_monto_actualiz_usado  numeric;
+    v_saldo                 numeric;
+    v_id_moneda_mov_esp     integer;--#2
+    v_codigo_moneda         varchar;--#2
+
 BEGIN
 
   v_nombre_funcion = 'kaf.ft_movimiento_af_ime';
   v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVAF_INS'
  	#DESCRIPCION:	Insercion de registros, validaciones de estado y cantidad
- 	#AUTOR:		admin ,RAC	
+ 	#AUTOR:		admin ,RAC
  	#FECHA:		18-03-2016, 23/03/2017
 	***********************************/
 
 	if(p_transaccion='SKA_MOVAF_INS')then
-					
+
       begin
-        
+
         --Se setea los datos para llamar a la función de inserción
         select
         coalesce(v_parametros.id_movimiento,null) as id_movimiento,
@@ -69,9 +74,9 @@ BEGIN
 
         --Inserción del movimiento
         v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_registros));
-  			
-  			--Definicion de la respuesta
-  			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento almacenado(a) con exito (id_movimiento_af'||v_id_movimiento_af||')'); 
+
+		--Definicion de la respuesta
+		v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento almacenado(a) con exito (id_movimiento_af'||v_id_movimiento_af||')');
         v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento_af',v_id_movimiento_af::varchar);
 
         --Devuelve la respuesta
@@ -79,30 +84,30 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVAF_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		18-03-2016 05:34:15
 	***********************************/
 
 	elsif(p_transaccion='SKA_MOVAF_MOD')then
 
 		begin
-			
+
             select
               mov.estado,
               mov.codigo
-             INTO 
+             INTO
               v_registros
             from kaf.tmovimiento mov
             where mov.id_movimiento = v_parametros.id_movimiento;
-            
+
             IF v_registros.estado != 'borrador' THEN
                raise exception 'Solo puede modificar acctivos en movimientos en borrador';
             END IF;
-            
-            
+
+
             --Obtiene estado funcional del activo fijo
         	select
         	id_cat_estado_fun
@@ -110,17 +115,17 @@ BEGIN
         	v_id_cat_estado_fun
         	from kaf.tactivo_fijo
         	where id_activo_fijo = v_parametros.id_activo_fijo;
-            
+
            --  verificamos que el activo no este duplicado
-            
-            IF EXISTS(SELECT 1 
-                      from kaf.tmovimiento_af maf 
-                      where     maf.id_movimiento =  v_parametros.id_movimiento 
-                           and  maf.id_activo_fijo = v_parametros.id_activo_fijo 
+
+            IF EXISTS(SELECT 1
+                      from kaf.tmovimiento_af maf
+                      where     maf.id_movimiento =  v_parametros.id_movimiento
+                           and  maf.id_activo_fijo = v_parametros.id_activo_fijo
                            and maf.estado_reg = 'activo'  and maf.id_movimiento_af != v_parametros.id_movimiento_af) THEN
                  raise exception 'El activo ya se encuentre registro para este movimiento';
-            END IF; 
-            
+            END IF;
+
             IF not kaf.f_validar_ins_mov_af(v_parametros.id_movimiento,v_parametros.id_activo_fijo) THEN
                raise exception 'ERROR al validar activos';
             END IF;
@@ -145,67 +150,150 @@ BEGIN
                 importe_ant = v_parametros.importe_ant,
                 vida_util_ant = v_parametros.vida_util_ant
 			where id_movimiento_af=v_parametros.id_movimiento_af;
-               
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento_af',v_parametros.id_movimiento_af::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_MOVAF_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		18-03-2016 05:34:15
 	***********************************/
 
 	elsif(p_transaccion='SKA_MOVAF_ELI')then
 
 		begin
-        
+
             select
               mov.estado,
               mov.codigo
-             INTO 
+             INTO
               v_registros
             from kaf.tmovimiento mov
             inner join kaf.tmovimiento_af maf on maf.id_movimiento = mov.id_movimiento
             where maf.id_movimiento_af = v_parametros.id_movimiento_af;
-            
+
             IF v_registros.estado != 'borrador' THEN
                raise exception 'Solo puede retirar activos en movimientos en borrador';
             END IF;
+
+            --#2 inicio
+            --Elimina el detalle en movimiento especial si es que tuviera
+            delete from kaf.tmovimiento_af_especial
+            where id_movimiento_af = v_parametros.id_movimiento_af;
+            --#2 fin
+
 			--Sentencia de la eliminacion
 			delete from kaf.tmovimiento_af
-            where id_movimiento_af=v_parametros.id_movimiento_af;
-               
+            where id_movimiento_af = v_parametros.id_movimiento_af;
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Detalle Movimiento eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_movimiento_af',v_parametros.id_movimiento_af::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-         
+
+    --#2 inicio
+    /*********************************
+    #TRANSACCION:  'SKA_MOVAFSAL_LIS'
+    #DESCRIPCION:   Saldo utilizado en Distribución de Valores
+    #AUTOR:         RCM
+    #FECHA:         28/05/2019
+    ***********************************/
+    elsif (p_transaccion = 'SKA_MOVAFSAL_LIS') then
+
+        begin
+
+            v_id_mov_esp = null;
+            if pxp.f_existe_parametro(p_tabla, 'id_movimiento_af_especial') then
+                v_id_mov_esp = v_parametros.id_movimiento_af_especial;
+            end if;
+
+            --Obtención de importes del activo origen
+            select coalesce(importe, 0)
+            into v_monto_actualiz
+            from kaf.tmovimiento_af
+            where id_movimiento_af = v_parametros.id_movimiento_af;
+
+            --Obtiene el saldo utilizado
+            select coalesce(sum(importe), 0), coalesce(v_monto_actualiz * sum(porcentaje) / 100, 0)
+            into v_monto_actualiz_usado, v_monto_actualiz_usado2
+            from kaf.tmovimiento_af_especial mafe
+            where mafe.id_movimiento_af = v_parametros.id_movimiento_af
+            and (v_id_mov_esp is null or mafe.id_movimiento_af_especial <> v_id_mov_esp);
+
+            if v_monto_actualiz_usado2 = 0 and v_monto_actualiz_usado = 0 then
+                v_saldo = v_monto_actualiz;
+            else
+                v_saldo = v_monto_actualiz - v_monto_actualiz_usado;
+            end if;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Saldo obtenido)');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_movimiento_af', v_parametros.id_movimiento_af::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp, 'saldo', v_saldo::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
+
+    /*********************************
+    #TRANSACCION:  'SKA_MONESP_LIS'
+    #DESCRIPCION:   Obtiene la moneda definida para los movimientos especiales
+    #AUTOR:         RCM
+    #FECHA:         30/05/2019
+    ***********************************/
+    elsif (p_transaccion = 'SKA_MONESP_LIS') then
+
+        begin
+
+            select
+            id_moneda, codigo
+            into
+            v_id_moneda_mov_esp, v_codigo_moneda
+            from param.tmoneda
+            where lower(codigo) = lower(pxp.f_get_variable_global('kaf_mov_especial_moneda'));
+
+            if coalesce(v_id_moneda_mov_esp, 0) = 0 then
+                raise exception 'No está parametrizada la variable global de la Moneda para la Distribución de Valores (kaf_mov_especial_moneda)';
+            end if;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Moneda para movimientos especiales obtenida');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_moneda', v_id_moneda_mov_esp::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp, 'codigo', v_codigo_moneda::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
+    --#2 fin
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

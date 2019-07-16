@@ -5,6 +5,11 @@
 *@author  (admin)
 *@date 29-10-2015 03:18:45
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
+***************************************************************************
 */
 
 class MODActivoFijo extends MODbase{
@@ -610,6 +615,32 @@ class MODActivoFijo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	//Inicio #2
+	function listarUltimosDatosActivoFijo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.ft_activo_fijo_sel';
+		$this->transaccion = 'SKA_ULTDAT_SEL';
+		$this->tipo_procedimiento = 'SEL';
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_activo_fijo', 'integer');
+		$this->captura('fecha', 'date');
+		$this->captura('monto_actualiz', 'numeric');
+		$this->captura('depreciacion_acum', 'numeric');
+        $this->captura('depreciacion_per', 'numeric');
+        $this->captura('monto_vigente', 'numeric');
+        $this->captura('vida_util',  'integer');
+        $this->captura('fecha_ini_dep', 'date');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #2
 
 }
 ?>

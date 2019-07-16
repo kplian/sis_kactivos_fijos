@@ -1502,3 +1502,12 @@ ALTER TABLE kaf.tmovimiento_af_especial
 COMMENT ON COLUMN kaf.tmovimiento_af_especial.id_almacen
 IS 'Para el caso de tipo = af_almacen';
 /***********************************F-SCP-RCM-KAF-2-06/06/2019****************************************/
+
+
+/***********************************I-SCP-RCM-KAF-2-24/06/2019****************************************/
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN mov_esp VARCHAR(50);
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.mov_esp
+IS 'Valor comodín para deshacer el procesamiento de movimientos especiales';
+/***********************************F-SCP-RCM-KAF-2-24/06/2019****************************************/

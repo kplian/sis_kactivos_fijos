@@ -377,3 +377,11 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCCC','SUBIRC
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCMES','SUBIRCC','si','dd/mm/yyyy',NULL,'2','Mes','mes','date',NULL,'activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','SCCHRA','SUBIRCC','si',NULL,NULL,'4','Horas','cantidad_horas','numeric','.','activo');
 /***********************************F-DAT-RCM-KAF-15-17/06/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-16-18/06/2019****************************************/
+INSERT INTO pxp.variable_global (
+	variable, valor, descripcion
+) VALUES (
+	E'kaf_activo_fijo_cc', E'720', E'Horas por mes para prorrateo de CC por activos fijos'
+);
+/***********************************F-DAT-RCM-KAF-16-18/06/2019****************************************/
