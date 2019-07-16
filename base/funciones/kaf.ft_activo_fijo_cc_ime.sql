@@ -42,7 +42,6 @@ DECLARE
     v_codigo_activo		varchar;
     v_tope_mensual      numeric;
     v_resp_fun          varchar;
-    v_tope_mensual      numeric;
 
 BEGIN
 
