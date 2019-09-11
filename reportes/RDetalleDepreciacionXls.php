@@ -9,7 +9,9 @@
 /***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
-***************************************************************************/
+ #55    KAF       ETR           01/08/2019  RCM         Corrección por actualización de PHP 7. Se cambia el string Arial por cadena 'Arial'
+****************************************************************************
+*/
 class RDetalleDepreciacionXls
 {
 	private $objParam;
@@ -68,23 +70,23 @@ class RDetalleDepreciacionXls
 
 		//Título Principal
 		$titulo1 = "DEPRECIACIÓN ACTIVOS FIJOS";
-		$this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,Arial);
+		$this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,'Arial');//#55
 		$sheet->mergeCells('A1:W1');
 
 		//Título 1
 		$titulo1 = "Al ".date("d/m/Y",strtotime($this->objParam->getParametro('fecha_hasta')));
-		$this->cell($sheet,$titulo1,'A2',0,2,"center",true,$this->tam_letra_titulo,Arial);
+		$this->cell($sheet,$titulo1,'A2',0,2,"center",true,$this->tam_letra_titulo,'Arial');//#55
 		$sheet->mergeCells('A2:W2');
 
 		//Título 2
 		/*$fecha_hasta = date("d/m/Y",strtotime($this->objParam->getParametro('fecha_hasta')));
 		$titulo2 = "Depto.: ";
-		$this->cell($sheet,$titulo2.$this->paramDepto,'A3',0,3,"center",true,$this->tam_letra_subtitulo,Arial);
+		$this->cell($sheet,$titulo2.$this->paramDepto,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial');//#55
 		$sheet->mergeCells('A3:W3');*/
 
 		//Título 3
 		$titulo3="(Expresado en".$this->objParam->getParametro('desc_moneda').")";
-		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,Arial);
+		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial');//#55
 		$sheet->mergeCells('A3:W3');
 
 		//Logo
@@ -99,7 +101,7 @@ class RDetalleDepreciacionXls
 	}
 
 
-	function cell($sheet,$texto,$cell,$x,$y,$align="left",$bold=true,$size=10,$name=Arial,$wrap=false,$border=false,$valign='center',$number=false){
+	function cell($sheet,$texto,$cell,$x,$y,$align="left",$bold=true,$size=10,$name='Arial',$wrap=false,$border=false,$valign='center',$number=false){ //#55
 		$sheet->getStyle($cell)->getFont()->applyFromArray(array('bold'=>$bold,'size'=>$size,'name'=>$name));
 		//Alineación horizontal
 		if($align=='left'){
@@ -146,64 +148,64 @@ class RDetalleDepreciacionXls
 	function mainBox($sheet){
 		//Cabecera caja
 		$f = $this->fila;
-		$this->cell($sheet,'Nro.'						,"A$f" ,0, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Código'						,"B$f" ,1, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Código SAP'					,"C$f" ,2, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Denominación'				,"D$f" ,3, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Fecha Ini.Dep.'				,"E$f" ,4, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Cantidad'					,"F$f" ,5, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Unidad de Medida'			,"G$f" ,6, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Centro de Costo'			,"H$f" ,7, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Nro. Serie'					,"I$f" ,8, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Lugar'						,"J$f" ,9, $f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Responsable Actual'			,"K$f" ,10,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Valor Compra'				,"L$f" ,11,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Valor Inicial'				,"M$f" ,12,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Altas'						,"N$f" ,13,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Bajas'						,"O$f" ,14,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Traspasos'					,"P$f" ,15,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Inc.x Actualiz.'			,"Q$f" ,16,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
-		$this->cell($sheet,'Valor Actualiz.'			,"R$f" ,17,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//Q->N
-		$this->cell($sheet,'Vida Útil Original (meses)'	,"S$f" ,18,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//N->O
-		$this->cell($sheet,'Vida Útil Transcurrida (meses)'	,"T$f" ,19,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//N->O
-		$this->cell($sheet,'Vida Útil Residual (meses)'	,"U$f" ,20,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);//O->P
-		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"V$f" ,21,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación del Mes'		,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Bajas'			,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Acum. Traspasos'		,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Acum.'			,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Gestión'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Valor Neto'					,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Cuenta Activo'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Cuenta Dep. Acum'			,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Cuenta Deprec.'				,"AF$f",31,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Agrupador AE'				,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Clasificador AE'			,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Nro.'						,"A$f" ,0, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Código'						,"B$f" ,1, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Código SAP'					,"C$f" ,2, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Denominación'				,"D$f" ,3, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Fecha Ini.Dep.'				,"E$f" ,4, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cantidad'					,"F$f" ,5, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Unidad de Medida'			,"G$f" ,6, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Centro de Costo'			,"H$f" ,7, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Nro. Serie'					,"I$f" ,8, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Lugar'						,"J$f" ,9, $f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Responsable Actual'			,"K$f" ,10,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Valor Compra'				,"L$f" ,11,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Valor Inicial'				,"M$f" ,12,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Altas'						,"N$f" ,13,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Bajas'						,"O$f" ,14,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Traspasos'					,"P$f" ,15,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Inc.x Actualiz.'			,"Q$f" ,16,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//Q->N//#55
+		$this->cell($sheet,'Valor Actualiz.'			,"R$f" ,17,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//Q->N//#55
+		$this->cell($sheet,'Vida Útil Original (meses)'	,"S$f" ,18,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//N->O//#55
+		$this->cell($sheet,'Vida Útil Transcurrida (meses)'	,"T$f" ,19,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//N->O//#55
+		$this->cell($sheet,'Vida Útil Residual (meses)'	,"U$f" ,20,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//O->P//#55
+		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"V$f" ,21,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación del Mes'		,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Acum. Bajas'			,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Acum. Traspasos'		,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Acum.'			,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Gestión'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Valor Neto'					,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cuenta Activo'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cuenta Dep. Acum'			,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cuenta Deprec.'				,"AF$f",31,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Agrupador AE'				,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Clasificador AE'			,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 
 		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
-		$this->cell($sheet,'Código 2018'   				,"AJ$f",35,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 1'   					,"AK$f",36,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 1'   			,"AL$f",37,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 2'   					,"AM$f",38,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 2'   			,"AN$f",39,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 3'   					,"AO$f",40,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 3'   			,"AP$f",41,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 4'   					,"AQ$f",42,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 4'   			,"AR$f",43,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 5'   					,"AS$f",44,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 5'   			,"AT$f",45,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 6'   					,"AU$f",46,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 6'   			,"AV$f",47,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 7'   					,"AW$f",48,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 7'   			,"AX$f",49,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 8'   					,"AY$f",50,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 8'   			,"AZ$f",51,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 9'   					,"BA$f",52,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 9'   			,"BB$f",53,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'CC 10'   					,"BC$f",54,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
-		$this->cell($sheet,'Dep.Mes. CC 10'   			,"BD$f",55,$f,"center",true,$this->tam_letra_detalle,Arial,true,true);
+		$this->cell($sheet,'Código 2018'   				,"AJ$f",35,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 1'   					,"AK$f",36,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 1'   			,"AL$f",37,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 2'   					,"AM$f",38,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 2'   			,"AN$f",39,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 3'   					,"AO$f",40,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 3'   			,"AP$f",41,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 4'   					,"AQ$f",42,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 4'   			,"AR$f",43,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 5'   					,"AS$f",44,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 5'   			,"AT$f",45,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 6'   					,"AU$f",46,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 6'   			,"AV$f",47,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 7'   					,"AW$f",48,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 7'   			,"AX$f",49,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 8'   					,"AY$f",50,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 8'   			,"AZ$f",51,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 9'   					,"BA$f",52,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 9'   			,"BB$f",53,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 10'   					,"BC$f",54,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 10'   			,"BD$f",55,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		//Fin #9
 
 		$this->fila++;
@@ -269,44 +271,44 @@ class RDetalleDepreciacionXls
 
 		//Totales
 		$f=count($this->dataSet)+6;
-		$this->cell($sheet,'TOTALES',"A$f",0,$f,"center",true,$this->tam_letra_detalle,Arial,false,false);
+		$this->cell($sheet,'TOTALES',"A$f",0,$f,"center",true,$this->tam_letra_detalle,'Arial',false,false);//#55
 		$this->cellBorder($sheet,"A$f:K$f");
 		$sheet->mergeCells("A$f:K$f");
 
 		$range_sum='=SUM(L'.($this->fila).':L'.($f-1).')';
-		$this->cell($sheet,$range_sum,"L$f",11,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"L$f",11,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(M'.($this->fila).':M'.($f-1).')';
-		$this->cell($sheet,$range_sum,"M$f",12,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"M$f",12,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(N'.($this->fila).':N'.($f-1).')';
-		$this->cell($sheet,$range_sum,"N$f",13,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"N$f",13,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(O'.($this->fila).':O'.($f-1).')';
-		$this->cell($sheet,$range_sum,"O$f",14,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"O$f",14,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(P'.($this->fila).':P'.($f-1).')';
-		$this->cell($sheet,$range_sum,"P$f",15,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"P$f",15,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(Q'.($this->fila).':Q'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Q$f",16,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"Q$f",16,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(R'.($this->fila).':R'.($f-1).')';
-		$this->cell($sheet,$range_sum,"R$f",17,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
-		$this->cell($sheet,'',"S$f",18,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
-		$this->cell($sheet,'',"T$f",19,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
-		$this->cell($sheet,'',"U$f",20,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"R$f",17,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+		$this->cell($sheet,'',"S$f",18,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+		$this->cell($sheet,'',"T$f",19,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+		$this->cell($sheet,'',"U$f",20,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(V'.($this->fila).':V'.($f-1).')';
-		$this->cell($sheet,$range_sum,"V$f",21,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"V$f",21,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(W'.($this->fila).':W'.($f-1).')';
-		$this->cell($sheet,$range_sum,"W$f",22,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"W$f",22,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(X'.($this->fila).':X'.($f-1).')';
-		$this->cell($sheet,$range_sum,"X$f",23,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"X$f",23,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(Y'.($this->fila).':Y'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Y$f",24,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"Y$f",24,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(Z'.($this->fila).':Z'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Z$f",25,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"Z$f",25,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(AA'.($this->fila).':AA'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AA$f",26,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"AA$f",26,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(AB'.($this->fila).':AB'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AB$f",27,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"AB$f",27,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(AC'.($this->fila).':AC'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
-		$this->cell($sheet,'',"AD$f",29,$f,"right",true,$this->tam_letra_detalle,Arial,true,true,'center',true);
+		$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+		$this->cell($sheet,'',"AD$f",29,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 
 		//Inicio #9: se estira el  merge cell de AH hasta BC y también el borde
 		$sheet->mergeCells("AD$f:BD$f");
@@ -359,9 +361,9 @@ class RDetalleDepreciacionXls
 
 	function firmas($sheet){
 		/*$f=$this->fila;
-		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,Arial,false,false);
+		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,'Arial',false,false);//#55
 		$f++;
-		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,Arial,false,false);*/
+		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,'Arial',false,false);*///#55
 	}
 
 	function initializeColumnWidth($sheet){

@@ -3,6 +3,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #25    KAF       ETR           07/08/2019  RCM         Modificación reporte Inventario Activos Form. 605
+ #55    KAF       ETR           01/08/2019  RCM         Corrección por actualización de PHP 7. Se cambia el string Arial por cadena 'Arial'
 ***************************************************************************
 */
 class RForm605xls
@@ -59,16 +60,18 @@ class RForm605xls
 
 		//Título Principal
 		$titulo1 = "IUE FORM 605";
-		$this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,'Arial');
+    $this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,'Arial'); //#55
+
 		$sheet->mergeCells('A1:H1');
 
 		//Título 2
 		$titulo2 = " Gestión  " . $this->objParam->getParametro('gestion'); //#25
-		$this->cell($sheet,$titulo2,'A2',0,2,"center",true,$this->tam_letra_subtitulo,'Arial');
+    $this->cell($sheet,$titulo2,'A2',0,2,"center",true,$this->tam_letra_subtitulo,'Arial'); //#55
 		$sheet->mergeCells('A2:H2');
 
 		$titulo3="(Expresado en " . $this->objParam->getParametro('desc_moneda') .")"; //#25
-		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial');
+    $this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial'); //#55
+
 		$sheet->mergeCells('A3:H3');
 
 		//Logo
@@ -140,6 +143,7 @@ class RForm605xls
 		$this->cell($sheet, 'IMPORTE DE BAJAS EN LA GESTION (VALOR NETO O RESIDUAL)'	,"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'NOMBRE CON UNIDAD DE MEDIDA'								,"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		//Fin #25
+
 		$this->fila++;
 
 		//////////////////
@@ -177,6 +181,7 @@ class RForm605xls
 			$formula = "=SUM(G" . $this->fila . ":G" . ($range - 1) . ")";
 			$this->cell($sheet, $formula, "G$range", 6, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
 		}
+
 
 		//Actualización variables
 		$this->fila = $f + 6;
@@ -217,6 +222,7 @@ class RForm605xls
 		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,'Arial',false,false);
 		$f++;
 		$this->cell($sheet,'',"C$f",2,$f,"left",true,$this->tam_letra_cabecera,'Arial',false,false);*/
+
 	}
 
 	function initializeColumnWidth($sheet){
