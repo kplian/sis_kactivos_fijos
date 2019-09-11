@@ -1,31 +1,30 @@
 <?php
 /**
 *@package pXP
-*@file ReporteForm605.php
+*@file ReporteImpuestosVehiculos.php
 *@author RCM
-*@date 16/10/2017
-*@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+*@date 14/08/2019
+*@description Reporte en grilla de Impuestos de Vehículos
 
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #0     KAF 	  ETR 			16/10/2017  RCM 		Creación del archivo
- #25    KAF       ETR           05/08/2019  RCM         Nuevo formato de reporte
+ #19    KAF       ETR           14/08/2019  RCM         Creación
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ReporteImpuestosVehiculos = Ext.extend(Phx.gridInterfaz, {
 	bnew: false,
 	bedit: false,
 	bdel: false,
 	bsave: false,
-	metodoList: 'listarForm605',
+	metodoList: 'listarImpuestosVehiculos',
 
-	constructor:function(config){
-		this.maestro=config;
+	constructor: function(config){
+		this.maestro = config;
     	//llama al constructor de la clase padre
-		Phx.vista.ReporteForm605.superclass.constructor.call(this,config);
+		Phx.vista.ReporteImpuestosVehiculos.superclass.constructor.call(this, config);
 		this.init();
 		this.store.baseParams = {
 			start: 0,
@@ -60,7 +59,8 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 			monto_sup: this.maestro.paramsRep.monto_sup,
 			fecha_compra_max: this.maestro.paramsRep.fecha_compra_max,
 			gestion: this.maestro.paramsRep.gestion,
-			id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi
+			id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi,
+			id_ubicacion: this.maestro.paramsRep.id_ubicacion
 		};
 		this.load();
 
@@ -82,140 +82,209 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Código',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 120
+				gwidth: 160
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'codigo', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'nro_cuenta',
-				fieldLabel: 'Cuenta',
-				allowBlank: true,
-				gwidth: 200
-			},
-			type:'TextField',
-			filters:{pfiltro:'cue.nro_cuenta',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-	    {
-			config:{
-				name: 'denominacion',
-				fieldLabel: 'Detalle de Inventario de Activos Fijos y o bienes de uso',
+				name: 'ubicacion',
+				fieldLabel: 'Ubicación',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 200,
+				gwidth: 160
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.denominacion',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'ubicacion', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'codigo_moneda',
+				name: 'clasificacion',
+				fieldLabel: 'Clasificación',
+				allowBlank: true,
+				gwidth: 230
+			},
+			type: 'TextField',
+			filters: {pfiltro:'clasificacion', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'moneda',
 				fieldLabel: 'Moneda',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 80,
+				gwidth: 230
 			},
-			type:'TextField',
-			filters:{pfiltro:'mon.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'moneda', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'unidad_medida',
-				fieldLabel: 'Unidad Medida',
+				name: 'denominacion',
+				fieldLabel: 'Denominación',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
+				gwidth: 230
 			},
-			type:'TextField',
-			filters:{pfiltro:'ume.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro:'denominacion', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'cantidad_af',
-				fieldLabel: 'Cantidad',
+				name: 'placa',
+				fieldLabel: 'Placa',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 80,
+				gwidth: 230
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.cantidad_af',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro:'placa', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'radicatoria',
+				fieldLabel: 'Radicatoria',
+				allowBlank: true,
+				gwidth: 230
+			},
+			type: 'TextField',
+			filters: {pfiltro:'radicatoria', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'fecha_ini_dep',
+				fieldLabel: 'Fecha Incorporación',
+				allowBlank: true,
+				gwidth: 230
+			},
+			type: 'TextField',
+			filters: {pfiltro:'fecha_ini_dep', type: 'date'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 	    {
 			config:{
-				name: 'inventario_final',
-				fieldLabel: 'Inventario Final Valorado (Valor Neto o Residual)',
+				name: 'valor_actualiz_gest_ant',
+				fieldLabel: 'Valor Actualiz Gestión Ant.',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 125,
+				gwidth: 130,
 			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'deprec_acum_gest_ant',
+				fieldLabel: 'Depreciación Acum. Gestión Ant.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 130,
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'valor_actualiz',
+				fieldLabel: 'Valor Actualiz.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 130,
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'deprec_per',
+				fieldLabel: 'Depreciación Per.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 130,
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 	    {
 			config:{
-				name: 'inventario_bajas',
-				fieldLabel: 'Importe de Bajas en la Gestión(Valor Neto o Residual)',
+				name: 'deprec_acum',
+				fieldLabel: 'Depreciación Acumulada',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 125
+				gwidth: 130,
 			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 	    {
 			config:{
-				name: 'nombre_con_unidad',
-				fieldLabel: 'Nombre con Unidad de Medida',
+				name: 'valor_neto',
+				fieldLabel: 'Valor Neto',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 300,
+				gwidth: 130
 			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
 		}
 	],
-	tam_pag:50,
-	title:'INVENTARIO DETALLADO DE ACTIVOS FIJOS POR GRUPO CONTABLE',
-	ActList:'../../sis_kactivos_fijos/control/Reportes/ReporteGralAF',
+	tam_pag: 50,
+	title: 'IMPUESTOS DE VEHÍCULOS',
+	ActList: '../../sis_kactivos_fijos/control/Reportes/ReporteGralAF',
 	fields: [
-        {name:'codigo', type: 'string'},
-        {name:'nro_cuenta', type: 'string'},
-        {name:'denominacion', type: 'string'},
-        {name:'unidad_medida', type: 'string'},
-        {name:'cantidad_af', type: 'numeric'},
-        {name:'inventario_final', type: 'numeric'},
-        {name:'inventario_bajas', type: 'numeric'},
-        {name:'nombre_con_unidad', type: 'numeric'},
-        {name:'codigo_moneda', type: 'string'},
-        {name:'desc_moneda', type: 'string'}
+		{name:'codigo',  type: 'string'},
+		{name:'ubicacion', type: 'string'},
+		{name:'clasificacion', type: 'string'},
+		{name:'moneda', type: 'string'},
+		{name:'denominacion', type: 'string'},
+		{name:'placa', type: 'string'},
+		{name:'radicatoria', type: 'string'},
+		{name:'fecha_ini_dep', type: 'date'},
+		{name:'valor_actualiz_gest_ant', type: 'numeric'},
+		{name:'deprec_acum_gest_ant', type: 'numeric'},
+		{name:'valor_actualiz', type: 'numeric'},
+		{name:'deprec_per', type: 'numeric'},
+		{name:'deprec_acum', type: 'numeric'},
+		{name:'valor_neto', type: 'numeric'},
+		{name:'codigo_ant', type: 'string'},
+		{name:'bk_codigo', type: 'string'},
+		{name:'local', type: 'string'}
 	],
 	sortInfo:{
-		field: 'afij.codigo',
+		field: 'codigo',
 		direction: 'ASC'
 	},
 	title2: '',
@@ -223,6 +292,7 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	repFilaInicioEtiquetas: 25,
 	repFilaInicioDatos: 20,
 	pdfOrientacion: 'L',
+
 	definirReporteCabecera: function(){
 		this.colMaestro= [{
 			label: 'Moneda',
@@ -233,7 +303,7 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	imprimirReporte: function(){
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Reportes/ReporteForm605Xls',
+            url:'../../sis_kactivos_fijos/control/Reportes/ReporteImpuestosVehiculosXls',
             params:{
             	titulo_reporte: this.maestro.paramsRep.titleReporte,
 				reporte: this.maestro.paramsRep.reporte,
@@ -267,7 +337,8 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 				af_deprec: this.maestro.paramsRep.af_deprec,
 				nro_cbte_asociado: this.maestro.paramsRep.nro_cbte_asociado,
 				gestion: this.maestro.paramsRep.gestion,
-				id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi
+				id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi,
+				id_ubicacion: this.maestro.paramsRep.id_ubicacion
             },
             success: this.successExport,
             failure: this.conexionFailure,

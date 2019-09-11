@@ -1,31 +1,30 @@
 <?php
 /**
 *@package pXP
-*@file ReporteForm605.php
+*@file ReporteAltaOrigen.php
 *@author RCM
-*@date 16/10/2017
-*@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+*@date 22/08/2019
+*@description Reporte en grilla de Origen de Altas
 
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #0     KAF 	  ETR 			16/10/2017  RCM 		Creación del archivo
- #25    KAF       ETR           05/08/2019  RCM         Nuevo formato de reporte
+ #26    KAF       ETR           22/08/2019  RCM         Creación
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
 	bnew: false,
 	bedit: false,
 	bdel: false,
 	bsave: false,
-	metodoList: 'listarForm605',
+	metodoList: 'listarAltaOrigen',
 
-	constructor:function(config){
-		this.maestro=config;
+	constructor: function(config) {
+		this.maestro = config;
     	//llama al constructor de la clase padre
-		Phx.vista.ReporteForm605.superclass.constructor.call(this,config);
+		Phx.vista.ReporteAltaOrigen.superclass.constructor.call(this, config);
 		this.init();
 		this.store.baseParams = {
 			start: 0,
@@ -60,8 +59,12 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 			monto_sup: this.maestro.paramsRep.monto_sup,
 			fecha_compra_max: this.maestro.paramsRep.fecha_compra_max,
 			gestion: this.maestro.paramsRep.gestion,
-			id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi
+			id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi,
+			id_ubicacion: this.maestro.paramsRep.id_ubicacion,
+			tipo_activacion: this.maestro.paramsRep.tipo_activacion,
+			nro_tramite: this.maestro.paramsRep.nro_tramite
 		};
+		console.log('store',this.store)
 		this.load();
 
 		this.definirReporteCabecera();
@@ -78,144 +81,160 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	Atributos:[
 		{
 			config:{
+				name: 'tipo',
+				fieldLabel: 'Tipo',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 160
+			},
+			type: 'TextField',
+			filters: {pfiltro: 'tipo', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
 				name: 'codigo',
 				fieldLabel: 'Código',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 120
+				gwidth: 160
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'codigo', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
-			config:{
-				name: 'nro_cuenta',
-				fieldLabel: 'Cuenta',
-				allowBlank: true,
-				gwidth: 200
-			},
-			type:'TextField',
-			filters:{pfiltro:'cue.nro_cuenta',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-	    {
 			config:{
 				name: 'denominacion',
-				fieldLabel: 'Detalle de Inventario de Activos Fijos y o bienes de uso',
+				fieldLabel: 'Denominación',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 200,
+				gwidth: 230
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.denominacion',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro:'denominacion', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'codigo_moneda',
-				fieldLabel: 'Moneda',
+				name: 'estado',
+				fieldLabel: 'Estado',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 80,
+				gwidth: 80
 			},
-			type:'TextField',
-			filters:{pfiltro:'mon.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'estado', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'unidad_medida',
-				fieldLabel: 'Unidad Medida',
+				name: 'fecha_ini_dep',
+				fieldLabel: 'Fecha Ini. Dep.',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
+				format: 'd/m/Y',
+				renderer: function(value, p, record) {
+	                return value ? value.dateFormat('d/m/Y') : ''
+	            }
 			},
-			type:'TextField',
-			filters:{pfiltro:'ume.codigo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			filters: {pfiltro: 'fecha_ini_dep', type: 'date'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config:{
-				name: 'cantidad_af',
-				fieldLabel: 'Cantidad',
+				name: 'monto_activo',
+				fieldLabel: 'Valor Actualiz.',
 				allowBlank: true,
-				anchor: '80%',
-				gwidth: 80,
+				gwidth: 130
 			},
-			type:'TextField',
-			filters:{pfiltro:'afij.cantidad_af',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'dep_acum_inicial',
+				fieldLabel: 'Dep. Acum. Inicial',
+				allowBlank: true,
+				gwidth: 130
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'vida_util_orig',
+				fieldLabel: 'Vida útil Original (Meses)',
+				allowBlank: true,
+				gwidth: 130
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'nro_tramite',
+				fieldLabel: 'Nro.Trámite',
+				allowBlank: true,
+				gwidth: 130
+			},
+			type: 'TextField',
+			filters: {pfiltro:'nro_tramite', type: 'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 	    {
 			config:{
-				name: 'inventario_final',
-				fieldLabel: 'Inventario Final Valorado (Valor Neto o Residual)',
+				name: 'descripcion',
+				fieldLabel: 'Descripción',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 125,
+				gwidth: 250,
 			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-	    {
-			config:{
-				name: 'inventario_bajas',
-				fieldLabel: 'Importe de Bajas en la Gestión(Valor Neto o Residual)',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 125
-			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-	    {
-			config:{
-				name: 'nombre_con_unidad',
-				fieldLabel: 'Nombre con Unidad de Medida',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 300,
-			},
-			type:'TextField',
-			id_grupo:1,
-			grid:true,
-			form:true
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
 		}
 	],
-	tam_pag:50,
-	title:'INVENTARIO DETALLADO DE ACTIVOS FIJOS POR GRUPO CONTABLE',
-	ActList:'../../sis_kactivos_fijos/control/Reportes/ReporteGralAF',
+	tam_pag: 50,
+	title: 'IMPUESTOS DE VEHÍCULOS',
+	ActList: '../../sis_kactivos_fijos/control/Reportes/ReporteGralAF',
 	fields: [
-        {name:'codigo', type: 'string'},
-        {name:'nro_cuenta', type: 'string'},
-        {name:'denominacion', type: 'string'},
-        {name:'unidad_medida', type: 'string'},
-        {name:'cantidad_af', type: 'numeric'},
-        {name:'inventario_final', type: 'numeric'},
-        {name:'inventario_bajas', type: 'numeric'},
-        {name:'nombre_con_unidad', type: 'numeric'},
-        {name:'codigo_moneda', type: 'string'},
-        {name:'desc_moneda', type: 'string'}
+		{name: 'tipo', type: 'string'},
+		{name: 'codigo', type: 'string'},
+		{name: 'denominacion', type: 'string'},
+		{name: 'estado', type: 'string'},
+		{name: 'fecha_ini_dep', type: 'date', dateFormat: 'Y-m-d'},
+		{name: 'monto_activo', type: 'numeric'},
+		{name: 'dep_acum_inicial', type: 'numeric'},
+		{name: 'vida_util_orig', type: 'numeric'},
+		{name: 'nro_tramite', type: 'string'},
+		{name: 'descripcion', type: 'string'},
+		{name: 'id_moneda', type: 'numeric'},
+		{name: 'id_estado_wf', type: 'numeric'},
+		{name: 'identificador', type: 'numeric'},
+		{name: 'tabla', type: 'string'}
 	],
-	sortInfo:{
-		field: 'afij.codigo',
+	sortInfo: {
+		field: 'codigo',
 		direction: 'ASC'
 	},
 	title2: '',
@@ -223,6 +242,7 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	repFilaInicioEtiquetas: 25,
 	repFilaInicioDatos: 20,
 	pdfOrientacion: 'L',
+
 	definirReporteCabecera: function(){
 		this.colMaestro= [{
 			label: 'Moneda',
@@ -233,7 +253,7 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	imprimirReporte: function(){
 	    Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url:'../../sis_kactivos_fijos/control/Reportes/ReporteForm605Xls',
+            url:'../../sis_kactivos_fijos/control/Reportes/ReporteAltaOrigenXls',
             params:{
             	titulo_reporte: this.maestro.paramsRep.titleReporte,
 				reporte: this.maestro.paramsRep.reporte,
@@ -267,7 +287,10 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 				af_deprec: this.maestro.paramsRep.af_deprec,
 				nro_cbte_asociado: this.maestro.paramsRep.nro_cbte_asociado,
 				gestion: this.maestro.paramsRep.gestion,
-				id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi
+				id_activo_fijo_multi: this.maestro.paramsRep.id_activo_fijo_multi,
+				id_ubicacion: this.maestro.paramsRep.id_ubicacion,
+				tipo_activacion: this.maestro.paramsRep.tipo_activacion,
+				nro_tramite: this.maestro.paramsRep.nro_tramite
             },
             success: this.successExport,
             failure: this.conexionFailure,

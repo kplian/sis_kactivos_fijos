@@ -5,6 +5,13 @@
 *@author RCM
 *@date 18/10/2017
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #0     KAF                     18/10/2017  RCM         Creación del archivo
+ #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda. Corrección timeout
+***************************************************************************
+
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -21,10 +28,11 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 	col1: '#c2f0cc',
     col2: '#EAA8A8',
     col3: '#fafbd9',
+    timeout: 1200000, //#25 seteo timeout a 20 minutos
 
 	constructor:function(config){
 		this.maestro=config;
-		console.log(config);
+
     	//llama al constructor de la clase padre
 		Phx.vista.ReporteDepreciacion.superclass.constructor.call(this,config);
 		this.init();
@@ -53,7 +61,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 			af_estado_mov: this.maestro.paramsRep.af_estado_mov,
 			id_depto: this.maestro.paramsRep.id_depto,
 			id_deposito: this.maestro.paramsRep.id_deposito,
-			id_moneda: this.maestro.paramsRep.id_moneda,
+			id_moneda_dep: this.maestro.paramsRep.id_moneda_dep, //#25
+			id_moneda: this.maestro.paramsRep.id_moneda, //#25
 			desc_moneda: this.maestro.paramsRep.desc_moneda,
 			tipo_salida: 'grid',
 			rep_metodo_list: this.metodoList,
@@ -1212,7 +1221,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				af_estado_mov: this.maestro.paramsRep.af_estado_mov,
 				id_depto: this.maestro.paramsRep.id_depto,
 				id_deposito: this.maestro.paramsRep.id_deposito,
-				id_moneda: this.maestro.paramsRep.id_moneda,
+				id_moneda_dep: this.maestro.paramsRep.id_moneda_dep, //#25
+				id_moneda: this.maestro.paramsRep.id_moneda, //#25
 				desc_moneda: this.maestro.paramsRep.desc_moneda,
 				tipo_salida: 'grid',
 				rep_metodo_list: this.metodoList,
@@ -1255,7 +1265,8 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
 				af_estado_mov: this.maestro.paramsRep.af_estado_mov,
 				id_depto: this.maestro.paramsRep.id_depto,
 				id_deposito: this.maestro.paramsRep.id_deposito,
-				id_moneda: this.maestro.paramsRep.id_moneda,
+				id_moneda_dep: this.maestro.paramsRep.id_moneda_dep, //#25
+				id_moneda: this.maestro.paramsRep.id_moneda, //#25
 				desc_moneda: this.maestro.paramsRep.desc_moneda,
 				tipo_salida: 'grid',
 				rep_metodo_list: this.metodoList,

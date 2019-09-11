@@ -9,6 +9,7 @@
 /***************************************************************************
 #ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #2     KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
+ #23    KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación F y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -144,7 +145,7 @@ Phx.vista.MovimientoPrincipal = {
         this.addButton('btnCbte1',
             {
                 text: 'Cbte.1',
-                iconCls: 'bchecklist',
+                iconCls: 'bpdf', //#23 cambio de icono
                 disabled: false,
                 handler: this.mostrarCbte,
                 tooltip: '<b>Comprobante 1</b><br/>Impresión del comprobante relacionado.',
@@ -156,7 +157,7 @@ Phx.vista.MovimientoPrincipal = {
         this.addButton('btnCbte2',
             {
                 text: 'Cbte.2',
-                iconCls: 'bchecklist',
+                iconCls: 'bpdf', //#23 cambio de icono
                 disabled: false,
                 handler: this.mostrarCbte,
                 tooltip: '<b>Comprobante 2</b><br/>Impresión del comprobante relacionado.',
@@ -168,7 +169,7 @@ Phx.vista.MovimientoPrincipal = {
         this.addButton('btnCbte3',
             {
                 text: 'Cbte.3',
-                iconCls: 'bchecklist',
+                iconCls: 'bpdf', //#23 cambio de icono
                 disabled: false,
                 handler: this.mostrarCbte,
                 tooltip: '<b>Comprobante 3</b><br/>Impresión del comprobante relacionado.',
@@ -180,7 +181,7 @@ Phx.vista.MovimientoPrincipal = {
         this.addButton('btnCbte4',
             {
                 text: 'Cbte.4',
-                iconCls: 'bchecklist',
+                iconCls: 'bpdf', //#23 cambio de icono
                 disabled: false,
                 handler: this.mostrarCbte,
                 tooltip: '<b>Comprobante 4</b><br/>Impresión del comprobante relacionado.',
@@ -189,10 +190,25 @@ Phx.vista.MovimientoPrincipal = {
             }
         );
 
+        //Inicio #23
+        this.addButton('btnRepCompAfConta',
+            {
+                text: 'Comparación',
+                iconCls: 'bsee',
+                disabled: false,
+                handler: this.generarReporteCompAfConta,
+                tooltip: '<b>Comparación</b><br/>Compara los saldos de depreciación de Activos Fijos con los mayores Contables',
+                grupo: [0,5]
+            }
+        );
+        //Fin #23
+
         //Oculta los botones
         this.getBoton('btnCbte1').hide();
         this.getBoton('btnCbte2').hide();
         this.getBoton('btnCbte3').hide();
+        this.getBoton('btnCbte4').hide(); //#23
+        this.getBoton('btnRepCompAfConta').hide(); //#23
 
     },
 
@@ -424,13 +440,15 @@ Phx.vista.MovimientoPrincipal = {
         }
        return tb
     },
-    preparaMenu:function(n){
+
+    preparaMenu: function(n) {
         var tb = Phx.vista.Movimiento.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
         var tb = this.tbar;
-
+console.log(data);
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
+
         if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
             this.getBoton('btnReporte').enable();
         }
@@ -438,24 +456,24 @@ Phx.vista.MovimientoPrincipal = {
             this.getBoton('btnAsignacion').enable();
         }
 
-
         //Enable/disable WF buttons by status
         this.getBoton('ant_estado').enable();
         this.getBoton('sig_estado').enable();
-        if(data.estado=='borrador'){
+
+        if(data.estado == 'borrador'){
             this.getBoton('ant_estado').disable();
-        } else if (data.estado=='cbte'){
+        } else if (data.estado == 'cbte'){
             this.getBoton('ant_estado').disable();
             this.getBoton('sig_estado').disable();
         }
         else {
             //Deshabilita el botón siguiente cuando no está en borrador para la vista transaccional, porque las aprobaciones se deben hacer por la interfaz de VoBo
-            if(this.nombreVista=='MovimientoPrincipal'){
+            if(this.nombreVista == 'MovimientoPrincipal'){
                 this.getBoton('sig_estado').disable();
             }
         }
 
-        if(data.estado=='finalizado'||data.estado=='cancelado'){
+        if(data.estado == 'finalizado' || data.estado == 'cancelado'){
         	this.getBoton('ant_estado').disable();
         	this.getBoton('sig_estado').disable();
         }
@@ -465,6 +483,8 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnCbte2').hide();
         this.getBoton('btnCbte3').hide();
         this.getBoton('btnCbte4').hide();
+        this.getBoton('btnRepCompAfConta').hide(); //#23
+
         if(data.id_int_comprobante){
             this.getBoton('btnCbte1').show();
         }
@@ -478,8 +498,16 @@ Phx.vista.MovimientoPrincipal = {
             this.getBoton('btnCbte4').show();
         }
 
+        //Inicio #23
+        //Habilita el botón de comparación sólo para el caso de depreciación
+        if(data.cod_movimiento == 'deprec') {
+            this.getBoton('btnRepCompAfConta').show();
+        }
+        //Fin #23
+
         return tb;
     },
+
     antEstado:function(){
         var rec=this.sm.getSelected();
             Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
@@ -610,19 +638,20 @@ Phx.vista.MovimientoPrincipal = {
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
             )
-    }) ,
-    mostrarCbte: function(args){
+    }),
+
+    mostrarCbte: function(args) {
         var rec = this.sm.getSelected(),
             data = rec.data,
             param;
 
-        if(args.cbte==1){
+        if(args.cbte == 1){
             param = data.id_proceso_wf_cbte1;
-        } else if(args.cbte==2){
+        } else if(args.cbte == 2){
             param = data.id_proceso_wf_cbte2;
-        } else if(args.cbte==3){
+        } else if(args.cbte == 3){
             param = data.id_proceso_wf_cbte3;
-        } else if(args.cbte==4){
+        } else if(args.cbte == 4){
             param = data.id_proceso_wf_cbte4;
         } else {
             return;
@@ -632,18 +661,42 @@ Phx.vista.MovimientoPrincipal = {
         if (data) {
             Phx.CP.loadingShow();
             Ext.Ajax.request({
-                url : '../../sis_contabilidad/control/IntComprobante/reporteCbte',
-                params : {
-                    'id_proceso_wf' : param
+                url: '../../sis_contabilidad/control/IntComprobante/reporteCbte',
+                params: {
+                    id_proceso_wf: param
                 },
-                success : this.successExport,
-                failure : this.conexionFailure,
-                timeout : this.timeout,
-                scope : this
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
             });
         }
-    }
+    },
+    //Inicio #23
+    generarReporteCompAfConta: function() {
+        Phx.CP.loadingShow();
 
+        var rec = this.sm.getSelected(),
+            data = rec.data;
+
+        if (data) {
+            var fecha = new Date(data.fecha_mov);
+
+            Ext.Ajax.request({
+                url:'../../sis_kactivos_fijos/control/Reportes/ReporteComparacionAfContaXls',
+                params:{
+                    fecha: fecha.format('d-m-Y'),
+                    id_movimiento: data.id_movimiento
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+        }
+
+    }
+    //Fin #23
 
 };
 </script>

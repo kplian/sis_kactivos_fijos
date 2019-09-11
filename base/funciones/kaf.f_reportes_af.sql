@@ -1071,7 +1071,8 @@ raise notice '%',v_consulta;
                 id_activo_fijo_valor_padre integer,
                 depreciacion numeric(18,2),
                 depreciacion_per_ant numeric,
-                importe_modif numeric
+                importe_modif numeric,
+                incremento_otra_gestion varchar(2) default 'no'
             ) on commit drop;
 
             --Carga los datos en la tabla temporal
@@ -1146,7 +1147,7 @@ raise notice '%',v_consulta;
             where date_trunc('month',mdep.fecha) = date_trunc('month',v_parametros.fecha_hasta::date)
             and mdep.id_moneda_dep = v_parametros.id_moneda
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
-                                                            --and afv.codigo not like '%-G%'
+            --and afv.id_activo_fijo_valor = 276602
             and af.estado <> 'eliminado'
             and date_trunc('year',coalesce(af.fecha_baja,'01-01-1900'::date)) <> date_trunc('year',v_parametros.fecha_hasta::date);
 
@@ -1241,6 +1242,7 @@ raise notice '%',v_consulta;
                                                 from tt_detalle_depreciacion)
             and af.estado <> 'eliminado'
             --and af.fecha_baja >= v_parametros.fecha_hasta::date
+            --and afv.id_activo_fijo_valor = 276602
             and date_trunc('year',af.fecha_baja) = date_trunc('year',v_parametros.fecha_hasta::date)
             and date_trunc('month',af.fecha_baja) = date_trunc('month',afv.fecha_fin + '1 month'::interval);
 
@@ -1255,6 +1257,38 @@ raise notice '%',v_consulta;
             monto_vigente_orig = (select monto_vigente_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor_padre),
             vida_util_orig = (select vida_util_orig from kaf.tactivo_fijo_valores where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor_padre)
             where coalesce(id_activo_fijo_valor_original,0) <> 0;
+
+            --09/09/2019: Para los incremento por cierre de proyectos, cuya depreciación del padre es de diferente gestión que del nuevo
+            UPDATE tt_detalle_depreciacion DEST SET
+            monto_vigente_orig = ORIG.monto_actualiz_ant,
+            incremento_otra_gestion = 'si'
+            FROM (
+              WITH tdeprec AS (
+                  SELECT id_activo_fijo_valor, id_moneda,
+                  CASE MIN(fecha)
+                      WHEN '01-12-2017' THEN '01-01-2018'
+                      ELSE MIN(fecha)
+                  END AS fecha_min
+                  FROM kaf.tmovimiento_af_dep
+                  GROUP BY id_activo_fijo_valor, id_moneda
+              )
+              SELECT
+              afv.id_activo_fijo_valor, mdep.monto_actualiz_ant
+              FROM kaf.tactivo_fijo_valores afv
+              INNER JOIN kaf.tactivo_fijo_valores afv1
+              ON afv1.id_activo_fijo_valor = afv.id_activo_fijo_valor_original
+              INNER JOIN tdeprec dep
+              ON dep.id_activo_fijo_valor = afv1.id_activo_fijo_valor
+              AND dep.id_moneda = afv1.id_moneda
+              INNER JOIN kaf.tmovimiento_af_dep mdep
+              ON mdep.id_activo_fijo_valor = dep.id_activo_fijo_valor
+              AND mdep.id_moneda = dep.id_moneda
+              AND DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('year', afv.fecha_ini_dep)
+              WHERE afv.id_activo_fijo_valor_original IS NOT NULL
+              AND COALESCE(afv.importe_modif, 0) <> 0
+              AND DATE_TRUNC('year', afv.fecha_ini_dep) > DATE_TRUNC('year', dep.fecha_min)
+            ) ORIG
+            WHERE DEST.id_activo_fijo_valor = ORIG.id_activo_fijo_valor;
 
             --------------------------------------------------
             --------------------------------------------------
@@ -1351,8 +1385,9 @@ raise notice '%',v_consulta;
                 dep_mes_cc7 numeric(24,2),
                 dep_mes_cc8 numeric(24,2),
                 dep_mes_cc9 numeric(24,2),
-                dep_mes_cc10 numeric(24,2)
+                dep_mes_cc10 numeric(24,2),
                 --Fin #9
+                incremento_otra_gestion varchar(2) default 'no'
             ) on commit drop;
 
             --Inserta los totales por clasificacióm
@@ -1381,8 +1416,9 @@ raise notice '%',v_consulta;
             sum(depreciacion_per_ant),
             null,
             --Inicio #9: Inclusión de nuevas columnas
-            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null
+            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null
             from tt_detalle_depreciacion
             group by codigo_padre, denominacion_padre;
 
@@ -1415,8 +1451,9 @@ raise notice '%',v_consulta;
             depreciacion_per_ant,
             importe_modif,
             --Inicio #9: Inclusión de nuevas columnas
-            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null
+            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            incremento_otra_gestion
             from tt_detalle_depreciacion;
 
             --Inserta los totales finales
@@ -1445,8 +1482,9 @@ raise notice '%',v_consulta;
             sum(depreciacion_per_ant),
             null,
             --Inicio #9: Inclusión de nuevas columnas
-            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null
+            null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null
             from tt_detalle_depreciacion;
 
             --Inicio #9: Se actualiza las columnas a partir del prorrateo registrado en tactivo_fijo_cc en el mes de la depreciación
@@ -1579,6 +1617,8 @@ raise notice '%',v_consulta;
             v_where = '(''total'',''detalle'',''clasif'')';
             if v_parametros.af_deprec = 'clasif' then
                 v_where = '(''total'',''clasif'')';
+            elsif  v_parametros.af_deprec = 'detalle' then
+                v_where = '(''detalle'')';
             end if;
 
             v_consulta = '
@@ -1624,7 +1664,12 @@ raise notice '%',v_consulta;
                                 case coalesce(tt.importe_modif,0)
                                   when 0 then tt.monto_vigente_orig
                                   else
-                                        tt.importe_modif
+                                        case incremento_otra_gestion
+                                            --Cuando es incremente y es de otra gestión, muestra el importe modificado sin actualización por lo que aplica X = importe modif / factor
+                                            when ''si'' then tt.importe_modif / ( param.f_get_tipo_cambio(3, (date_trunc(''month'', tt.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
+                        param.f_get_tipo_cambio(3, date_trunc(''year'', tt.fecha_ini_dep)::date, ''O''))
+                                            else tt.importe_modif
+                                        end
                                 end
                             else 0
                         end as af_altas,
@@ -1639,7 +1684,12 @@ raise notice '%',v_consulta;
                         case coalesce(tt.importe_modif,0)
                             when 0 then (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2)
                             else
-                                (tt.monto_actualiz - tt.monto_vigente_orig /*- tt.importe_modif*/)::numeric(18,2)
+                                case incremento_otra_gestion
+                                    --Cuando es incremente y es de otra gestión, resta además el importe modificado sin actualización por lo que aplica X = importe modif / factor
+                                    when ''si'' then (tt.monto_actualiz - tt.monto_vigente_orig - (tt.importe_modif / ( param.f_get_tipo_cambio(3, (date_trunc(''month'', tt.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
+                        param.f_get_tipo_cambio(3, date_trunc(''year'', tt.fecha_ini_dep)::date, ''O''))))::numeric(18,2)
+                                    else (tt.monto_actualiz - tt.monto_vigente_orig /*- tt.importe_modif*/)::numeric(18,2)
+                                end
                         end as inc_actualiz,
                         --Se aumenta lógica para el caso de ajustes que incementen el monto
                         case coalesce(tt.importe_modif,0)
@@ -2657,3 +2707,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION kaf.f_reportes_af (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

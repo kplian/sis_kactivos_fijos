@@ -1511,3 +1511,62 @@ ALTER TABLE kaf.tactivo_fijo_valores
 COMMENT ON COLUMN kaf.tactivo_fijo_valores.mov_esp
 IS 'Valor comodín para deshacer el procesamiento de movimientos especiales';
 /***********************************F-SCP-RCM-KAF-2-24/06/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-17-10/07/2019****************************************/
+CREATE TABLE kaf.tgrupo_clasif (
+  id_grupo_clasif SERIAL,
+  codigo VARCHAR(30) NOT NULL UNIQUE,
+  descripcion VARCHAR(300) NOT NULL,
+  PRIMARY KEY(id_grupo_clasif)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+CREATE TABLE kaf.tgrupo_clasif_rel (
+  id_grupo_clasif_rel SERIAL,
+  id_grupo_clasif INTEGER NOT NULL,
+  id_clasificacion INTEGER NOT NULL,
+  PRIMARY KEY(id_grupo_clasif_rel)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE kaf.tubicacion
+  ADD COLUMN orden INTEGER;
+/***********************************F-SCP-RCM-KAF-17-10/07/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-18-15/07/2019****************************************/
+ALTER TABLE kaf.tclasificacion_variable
+  ADD COLUMN regex VARCHAR(200);
+
+COMMENT ON COLUMN kaf.tclasificacion_variable.regex
+IS 'Expresión regular para validar enla entrada de datos';
+
+ALTER TABLE kaf.tclasificacion_variable
+  ADD COLUMN regex_ejemplo VARCHAR(200);
+
+COMMENT ON COLUMN kaf.tclasificacion_variable.regex_ejemplo
+IS 'Ejemplo de la Expresión Regular';
+/***********************************F-SCP-RCM-KAF-18-15/07/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-20-23/07/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af
+  ADD COLUMN id_movimiento_af_dep INTEGER;
+
+COMMENT ON COLUMN kaf.tmovimiento_af.id_movimiento_af_dep
+IS 'Campo auxiliar para guardar el ID de movimiento af dep, para el caso de Distribución de Valores (dval)';
+/***********************************F-SCP-RCM-KAF-20-23/07/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-23-29/08/2019****************************************/
+CREATE TABLE kaf.tcomparacion_af_conta (
+	id_comparacion_af_conta SERIAL,
+    id_movimiento INTEGER,
+    id_int_comprobante INTEGER,
+    id_cuenta INTEGER,
+    fecha DATE,
+    saldo_af NUMERIC,
+    saldo_conta NUMERIC,
+    diferencia_af_conta NUMERIC,
+    CONSTRAINT pk_tcomparacion_af_conta__id_comparacion_af_conta PRIMARY KEY (id_comparacion_af_conta)
+) INHERITS (pxp.tbase) WITHOUT OIDS;
+/***********************************F-SCP-RCM-KAF-23-29/08/2019****************************************/

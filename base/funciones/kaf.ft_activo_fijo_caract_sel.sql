@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION "kaf"."ft_activo_fijo_caract_sel"(	
+CREATE OR REPLACE FUNCTION "kaf"."ft_activo_fijo_caract_sel"(
 				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
 RETURNS character varying AS
 $BODY$
@@ -8,13 +8,11 @@ $BODY$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tactivo_fijo_caract'
  AUTOR: 		 (admin)
  FECHA:	        17-04-2016 07:14:58
- COMENTARIOS:	
-***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ COMENTARIOS:
+ ***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ 		KAF 					17-04-2019  RCM 		Creación
+ #18    KAF       ETR           15/07/2019  RCM         Corrección Activo Fijo Característica para la visualización
 ***************************************************************************/
 
 DECLARE
@@ -23,21 +21,21 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'kaf.ft_activo_fijo_caract_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_AFCARACT_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-04-2016 07:14:58
 	***********************************/
 
 	if(p_transaccion='SKA_AFCARACT_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -64,20 +62,20 @@ BEGIN
 						inner join segu.tusuario usu1 on usu1.id_usuario = afcaract.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afcaract.id_usuario_mod
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_AFCARACT_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-04-2016 07:14:58
 	***********************************/
 
@@ -92,8 +90,8 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = afcaract.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = afcaract.id_usuario_mod
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
@@ -101,7 +99,7 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_CARALL_SEL'
  	#DESCRIPCION:	Todas las caracteristicas
  	#AUTOR:			RCM
@@ -109,26 +107,28 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='SKA_CARALL_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select distinct clave
-						from kaf.tactivo_fijo_caract ac
-				        where  ';
-			
+			v_consulta:='SELECT DISTINCT cv.nombre --#18
+						FROM kaf.tactivo_fijo_caract ac
+						INNER JOIN kaf.tclasificacion_variable cv --#18 se añade join
+						ON cv.id_clasificacion_variable = ac.id_clasificacion_variable --#18 se añade join
+				        WHERE  ';
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			v_consulta:=v_consulta||' ORDER BY ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' LIMIT ' || v_parametros.cantidad || ' OFFSET ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'SKA_CARALL_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-04-2016 07:14:58
 	***********************************/
 
@@ -136,26 +136,28 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(distinct clave)
-						from kaf.tactivo_fijo_caract
-						where ';
-			
-			--Definicion de la respuesta		    
+			v_consulta:='SELECT COUNT(DISTINCT cv.nombre)
+						FROM kaf.tactivo_fijo_caract ac
+						INNER JOIN kaf.tclasificacion_variable cv --#18 se añade join
+						ON cv.id_clasificacion_variable = ac.id_clasificacion_variable --#18 se añade join
+						WHERE ';
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

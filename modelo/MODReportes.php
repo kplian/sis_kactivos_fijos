@@ -9,6 +9,13 @@
 /***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
+ #20    KAF       ETR           03/08/2019  RCM         Reporte Activos Fijos con Distribución de Valores
+ #25 	KAF 	  ETR 			05/08/2019  RCM 		Adición reporte 2 Form.605
+ #24 	KAF 	  ETR 			12/08/2019  RCM 		Adición método para Reporte Inventario Detallado
+ #17    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos a la Propiedad e Inmuebles
+ #19    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos de Vehículos
+ #26    KAF       ETR           16/08/2019  RCM         Adición método para Reporte Altas por Origen
+ #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
 ***************************************************************************/
 
 class MODReportes extends MODbase{
@@ -364,6 +371,7 @@ class MODReportes extends MODbase{
 		$this->setParametro('af_deprec','af_deprec','varchar');
 		$this->setParametro('tipoReporte','tipo_reporte','varchar');
 		$this->setParametro('tipo_reporte','tipoReporte','varchar');
+		$this->setParametro('id_moneda_dep','id_moneda_dep','integer'); //#25 se aumenta por corrección de nombre de parámetro
 
 		//Definicion de la lista del resultado del query
 		$this->captura('numero','bigint');
@@ -540,10 +548,11 @@ class MODReportes extends MODbase{
 		return $this->respuesta;
 	}
 
+	//#Inicio #25
 	function listarForm605(){
 		//Definicion de variables para ejecucion del procedimientp
-		$this->procedimiento='kaf.f_reportes_af_2';
-		$this->transaccion='SKA_FRM605_SEL';
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_FRM605_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
 		if($this->objParam->getParametro('tipo_salida')!='grid'){
@@ -551,19 +560,23 @@ class MODReportes extends MODbase{
 		}
 
 		//Define los parametros para la funcion
-		$this->setParametro('id_activo_fijo','id_activo_fijo','integer');
 		$this->setParametro('tipo_salida','tipo_salida','varchar');
-		$this->setParametro('fecha_hasta','fecha_hasta','date');
 		$this->setParametro('id_moneda','id_moneda','integer');
+		$this->setParametro('denominacion','denominacion','varchar');
+		$this->setParametro('gestion','gestion','varchar');
+		$this->setParametro('id_activo_fijo_multi','id_activo_fijo_multi','varchar');
 
 		//Definicion de la lista del resultado del query
-        $this->captura('codigo','varchar');
-        $this->captura('codigo_ant','varchar');
-        $this->captura('fecha_ini_dep','date');
-        $this->captura('denominacion','varchar');
-        $this->captura('valor_actualiz','numeric');
-        $this->captura('depreciacion_acum','numeric');
-        $this->captura('valor_neto','numeric');
+        $this->captura('codigo', 'varchar');
+        $this->captura('nro_cuenta', 'varchar');
+        $this->captura('denominacion', 'varchar');
+        $this->captura('unidad_medida', 'varchar');
+        $this->captura('cantidad_af', 'integer');
+        $this->captura('inventario_final', 'numeric');
+        $this->captura('inventario_bajas', 'numeric');
+        $this->captura('nombre_con_unidad', 'varchar');
+        $this->captura('codigo_moneda', 'varchar');
+        $this->captura('desc_moneda', 'varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -573,6 +586,7 @@ class MODReportes extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	//Fin #25
 
 	function listadoActivosFijos(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -678,6 +692,271 @@ class MODReportes extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	//Inicio #20
+	function reporteAfDistValores() {
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_REAFDVCAB_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		//Define los parametros para la funcion
+        $this->captura('id_movimiento_af', 'integer');
+        $this->captura('id_activo_fijo', 'integer');
+		$this->captura('id_movimiento', 'integer');
+		$this->captura('id_moneda', 'integer');
+		$this->captura('id_movimiento_af_dep', 'integer');
+		$this->captura('codigo', 'varchar');
+		$this->captura('denominacion', 'varchar');
+		$this->captura('num_tramite', 'varchar');
+		$this->captura('fecha_mov', 'date');
+		$this->captura('estado', 'varchar');
+		$this->captura('monto_actualiz','numeric');
+		$this->captura('depreciacion_acum','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function reporteAfDistValoresDetalle() {
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_REAFDVDET_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		//Define los parametros para la funcion
+		$this->captura('fecha_mov','date');
+		$this->captura('codigo_activo_origen','varchar');
+		$this->captura('denominacion_activo_origen','varchar');
+		$this->captura('num_tramite','varchar');
+		$this->captura('monto_actualiz_orig','numeric');
+		$this->captura('depreciacion_acum_orig','numeric');
+		$this->captura('tipo','varchar');
+		$this->captura('codigo_activo_dest','varchar');
+		$this->captura('denominacion_activo_dest','varchar');
+		$this->captura('estado_af','varchar');
+		$this->captura('codigo_almacen','varchar');
+		$this->captura('nombre_almacen','varchar');
+		$this->captura('porcentaje','numeric');
+		$this->captura('monto_actualiz','numeric');
+		$this->captura('depreciacion_acum','numeric');
+		$this->captura('id_movimiento_af_especial','integer');
+		$this->captura('id_movimiento_af','integer');
+		$this->captura('id_moneda','integer');
+		$this->captura('glosa','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('fecha','date');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #20
+
+	//Inicio #24
+	function listarInventarioDetallado(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_INVDETGC_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida', 'tipo_salida', 'varchar');
+		$this->setParametro('id_moneda', 'id_moneda', 'integer');
+		$this->setParametro('denominacion', 'denominacion', 'varchar');
+		$this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+		$this->setParametro('id_activo_fijo_multi', 'id_activo_fijo_multi', 'varchar');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('nro_cuenta', 'VARCHAR');
+		$this->captura('codigo', 'VARCHAR');
+		$this->captura('fecha_ini_dep', 'DATE');
+		$this->captura('denominacion', 'VARCHAR');
+		$this->captura('monto_actualiz', 'NUMERIC');
+		$this->captura('depreciacion_acum', 'NUMERIC');
+		$this->captura('valor_actual', 'NUMERIC');
+		$this->captura('codigo_moneda', 'VARCHAR');
+		$this->captura('desc_moneda', 'VARCHAR');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #24
+
+	//Inicio #17
+	function listarImpuestosPropiedad(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_RIMPPROP_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida', 'tipo_salida', 'varchar');
+		$this->setParametro('id_moneda', 'id_moneda', 'integer');
+		$this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('ubicacion', 'VARCHAR');
+		$this->captura('clasificacion', 'VARCHAR');
+		$this->captura('moneda', 'VARCHAR');
+		$this->captura('valor_actualiz_gest_ant', 'NUMERIC');
+		$this->captura('deprec_acum_gest_ant', 'NUMERIC');
+		$this->captura('valor_actualiz', 'NUMERIC');
+		$this->captura('deprec_sin_actualiz', 'NUMERIC');
+		$this->captura('deprec_acum', 'NUMERIC');
+		$this->captura('valor_neto', 'NUMERIC');
+		$this->captura('orden', 'INTEGER');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #17
+
+	//Inicio #19
+	function listarImpuestosVehiculos(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_RIMPVEH_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida', 'tipo_salida', 'varchar');
+		$this->setParametro('id_moneda', 'id_moneda', 'integer');
+		$this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('codigo', 'varchar');
+		$this->captura('ubicacion', 'varchar');
+		$this->captura('clasificacion', 'varchar');
+		$this->captura('moneda', 'varchar');
+		$this->captura('denominacion', 'varchar');
+		$this->captura('placa', 'varchar');
+		$this->captura('radicatoria', 'varchar');
+		$this->captura('fecha_ini_dep', 'date');
+		$this->captura('valor_actualiz_gest_ant', 'numeric');
+		$this->captura('deprec_acum_gest_ant', 'numeric');
+		$this->captura('valor_actualiz', 'numeric');
+		$this->captura('deprec_per', 'numeric');
+		$this->captura('deprec_acum', 'numeric');
+		$this->captura('valor_neto', 'numeric');
+		$this->captura('codigo_ant', 'varchar');
+		$this->captura('bk_codigo', 'varchar');
+		$this->captura('local', 'varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #19
+
+	//Inicio #26
+	function listarAltaOrigen(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_RALORIG_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida', 'tipo_salida', 'varchar');
+		$this->setParametro('id_moneda', 'id_moneda', 'integer');
+		$this->setParametro('fecha_desde', 'fecha_desde', 'date');
+		$this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('tipo', 'text');
+		$this->captura('codigo', 'varchar');
+		$this->captura('denominacion', 'varchar');
+		$this->captura('estado', 'varchar');
+		$this->captura('fecha_ini_dep', 'date');
+		$this->captura('monto_activo', 'numeric');
+		$this->captura('dep_acum_inicial', 'numeric');
+		$this->captura('vida_util_orig', 'integer');
+		$this->captura('nro_tramite', 'varchar');
+		$this->captura('descripcion', 'varchar');
+		$this->captura('id_moneda', 'integer');
+		$this->captura('id_estado_wf', 'integer');
+		$this->captura('identificador', 'integer');
+		$this->captura('tabla', 'text');
+		$this->captura('cod_tipo', 'text');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #26
+
+	//Inicio #23
+	function listarComparacionAfConta(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_RCOMPAFCT_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Define los parametros para la funcion
+		$this->setParametro('fecha', 'fecha', 'date');
+		$this->setParametro('id_movimiento', 'id_movimiento', 'integer');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('fecha', 'date');
+		$this->captura('nro_cuenta', 'varchar');
+		$this->captura('nombre_cuenta', 'varchar');
+		$this->captura('saldo_af', 'numeric');
+		$this->captura('saldo_conta', 'numeric');
+		$this->captura('diferencia_af_conta', 'numeric');
+		$this->captura('id_int_comprobante', 'integer');
+		$this->captura('id_usuario_reg', 'integer');
+		$this->captura('fecha_reg', 'timestamp');
+		$this->captura('estado_reg', 'varchar');
+		$this->captura('id_movimiento', 'integer');
+		$this->captura('id_cuenta', 'integer');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #23
 
 }
 ?>

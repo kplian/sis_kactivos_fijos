@@ -2,10 +2,10 @@
 /*
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #25    KAF       ETR           07/08/2019  RCM         Modificación reporte Inventario Activos Form. 605
+ #17    KAF       ETR           14/08/2019  RCM         Reporte Impuestos a la Propiedad e Inmuebles
 ***************************************************************************
 */
-class RForm605xls
+class RImpuestosPropiedadXls
 {
 	private $objParam;
 	public  $url_archivo;
@@ -58,16 +58,16 @@ class RForm605xls
 		$sheet->setCellValueByColumnAndRow(0,1,$this->objParam->getParametro('titulo_rep'));
 
 		//Título Principal
-		$titulo1 = "IUE FORM 605";
+		$titulo1 = "IMPUESTOS A LA PROPIEDAD E INMUEBLES";
 		$this->cell($sheet,$titulo1,'A1',0,1,"center",true,16,'Arial');
 		$sheet->mergeCells('A1:H1');
 
 		//Título 2
-		$titulo2 = " Gestión  " . $this->objParam->getParametro('gestion'); //#25
+		$titulo2 = " Al   " . $this->objParam->getParametro('fecha_hasta');
 		$this->cell($sheet,$titulo2,'A2',0,2,"center",true,$this->tam_letra_subtitulo,'Arial');
 		$sheet->mergeCells('A2:H2');
 
-		$titulo3="(Expresado en " . $this->objParam->getParametro('desc_moneda') .")"; //#25
+		$titulo3="(Expresado en " . $this->objParam->getParametro('desc_moneda') .")";
 		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial');
 		$sheet->mergeCells('A3:H3');
 
@@ -130,16 +130,16 @@ class RForm605xls
 	function mainBox($sheet){
 		//Cabecera caja
 		$f = $this->fila;
-		//Inicio #25
-		$this->cell($sheet, 'CÓDIGO'													,"A$f", 0, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'CUENTA'													,"B$f" ,1, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'DETALLE DE INVENTARIO DE ACTIVOS FIJOS Y O BIENES DE USO'	,"C$f", 2, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'UNIDAD MEDIDA'												,"D$f", 3, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'CANTIDAD DE UNIDADES'										,"E$f", 4, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'INVENTARIO FINAL VALORADOS (VALOR NETO O RESIDUAL)'	 	,"F$f", 5, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'IMPORTE DE BAJAS EN LA GESTION (VALOR NETO O RESIDUAL)'	,"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'NOMBRE CON UNIDAD DE MEDIDA'								,"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		//Fin #25
+
+		$this->cell($sheet, 'UBICACIÓN'						,"A$f", 0, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'CLASIFICACIÓN'					,"B$f" ,1, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'MONEDA'						,"C$f", 2, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'VALOR ACTUALIZ. GESTIÓN ANT.' 	,"D$f", 3, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'DEPREC. ACUM. GESTIÓN ANT.'	,"E$f", 4, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'VALOR ACTUALIZ.'	 			,"F$f", 5, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'DEP. ACUM. SIN ACTUALIZ.'		,"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'DEPREC. ACUM.'					,"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'VALOR N ETO'					,"I$f", 8, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->fila++;
 
 		//////////////////
@@ -168,14 +168,22 @@ class RForm605xls
 		$range = count($this->dataSet) + 6;
 
 		//Totales
-		$this->cell($sheet, 'TOTAL GENERAL', "C$range", 2, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+		$this->cell($sheet, 'TOTALES', "C$range", 2, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
 
 		//Sólo calcula os totales si hay datos
 		if($range > 6){
+			$formula = "=SUM(D" . $this->fila . ":D" . ($range - 1) . ")";
+			$this->cell($sheet, $formula, "D$range", 3, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+			$formula = "=SUM(E" . $this->fila . ":E" . ($range - 1) . ")";
+			$this->cell($sheet, $formula, "E$range", 4, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
 			$formula = "=SUM(F" . $this->fila . ":F" . ($range - 1) . ")";
 			$this->cell($sheet, $formula, "F$range", 5, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
 			$formula = "=SUM(G" . $this->fila . ":G" . ($range - 1) . ")";
 			$this->cell($sheet, $formula, "G$range", 6, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+			$formula = "=SUM(H" . $this->fila . ":H" . ($range - 1) . ")";
+			$this->cell($sheet, $formula, "H$range", 7, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+			$formula = "=SUM(I" . $this->fila . ":I" . ($range - 1) . ")";
+			$this->cell($sheet, $formula, "I$range", 8, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
 		}
 
 		//Actualización variables
@@ -220,15 +228,15 @@ class RForm605xls
 	}
 
 	function initializeColumnWidth($sheet){
-		$sheet->getColumnDimension('A')->setWidth(15);
-		$sheet->getColumnDimension('B')->setWidth(20);
-		$sheet->getColumnDimension('C')->setWidth(40);
-		$sheet->getColumnDimension('D')->setWidth(15);
-		$sheet->getColumnDimension('E')->setWidth(15);
+		$sheet->getColumnDimension('A')->setWidth(30);
+		$sheet->getColumnDimension('B')->setWidth(60);
+		$sheet->getColumnDimension('C')->setWidth(16);
+		$sheet->getColumnDimension('D')->setWidth(20);
+		$sheet->getColumnDimension('E')->setWidth(20);
 		$sheet->getColumnDimension('F')->setWidth(20);
 		$sheet->getColumnDimension('G')->setWidth(20);
-		$sheet->getColumnDimension('H')->setWidth(60);
-		$sheet->getColumnDimension('I')->setWidth(0);
+		$sheet->getColumnDimension('H')->setWidth(20);
+		$sheet->getColumnDimension('I')->setWidth(20);
 		$sheet->getColumnDimension('J')->setWidth(0);
 	}
 

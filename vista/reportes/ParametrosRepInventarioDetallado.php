@@ -1,61 +1,57 @@
 <?php
+/**
+*@package pXP
+*@file ParametrosRepInventarioDetallado.php
+*@author RCM
+*@date 12/08/2019
+*@description Parámetros para generación del Reporte Inventario Detallado por Grupo Contable
 /*
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #25    KAF       ETR           01/08/2019  RCM         Modificación reporte Inventario Activos Form. 605
+ #24    KAF       ETR           12/08/2019  RCM         Creación
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ParametrosRepForm605 = {
+Phx.vista.ParametrosRepInventarioDetallado = {
 	require: '../../../sis_kactivos_fijos/vista/reportes/ParametrosBase.php',
 	requireclase: 'Phx.vista.ParametrosBase',
+
 	constructor: function(config){
-		Phx.vista.ParametrosRepForm605.superclass.constructor.call(this,config);
+		Phx.vista.ParametrosRepInventarioDetallado.superclass.constructor.call(this,config);
 		this.definicionRutareporte();
 		this.definirParametros();
 
 		//Eventos
 		this.definirEventos();
 	},
+
 	definirEventos: function(){
-		this.cmbActivo.on('select',function(){
-			this.cmbClasificacion.setValue('');
-		},this);
-		this.cmbClasificacion.on('select',function(){
-			this.cmbActivo.setValue('');
-		},this);
-		//Responsable
-		this.cmbResponsable.on('select',function(combo,record,index){
-			this.repResponsable = record.data['desc_funcionario1'];
-			this.repCargo = record.data['nombre_cargo'];
-		}, this);
-		//Depto
-		this.repDepto = '%'
-		this.cmbDepto.on('select',function(combo,record,index){
-			this.repDepto = record.data['nombre'];
-		}, this);
-		//Oficina
-		this.repOficina = '%'
-		this.cmbOficina.on('select',function(combo,record,index){
-			this.repOficina = record.data['nombre'];
-		}, this);
+
 	},
+
 	definicionRutareporte: function(report){
-		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteForm605.php';
-		this.claseReporte = 'ReporteForm605';
-		this.titleReporte = 'Formulario 605';
+		this.rutaReporte = '../../../sis_kactivos_fijos/vista/reportes/ReporteInventarioDetallado.php';
+		this.claseReporte = 'ReporteInventarioDetallado';
+		this.titleReporte = 'Inventario Detallado Activos Fijos por Grupo Contable';
 	},
+
 	definirParametros: function(report){
 		this.inicializarParametros();
 
-		this.configElement(this.dteFechaDesde, false, true);
-		this.configElement(this.dteFechaHasta, false, true);
-		this.configElement(this.cmbActivo, false, true);
-
-		this.configElement(this.cmbClasificacion,false,true);
+		//Visibles
+		this.configElement(this.dteFechaHasta, true, false);
+		this.configElement(this.cmpFechas, true, false);
+		this.configElement(this.lblHasta, false, true);
+		this.configElement(this.cmbMoneda,true,false);
+		this.configElement(this.cmbActivoFijoMulti,true,true);
 		this.configElement(this.txtDenominacion,true,true);
+
+		//No Visibles
+		this.configElement(this.dteFechaDesde, false, true);
+		this.configElement(this.cmbActivo, false, true);
+		this.configElement(this.cmbClasificacion,false,true);
 		this.configElement(this.dteFechaCompra,false,true);
 		this.configElement(this.dteFechaIniDep,false,true);
 		this.configElement(this.cmbEstado,false,true);
@@ -71,26 +67,21 @@ Phx.vista.ParametrosRepForm605 = {
 		this.configElement(this.cmbDepto,false,true);
 		this.configElement(this.cmbDeposito,false,true);
 		this.configElement(this.lblDesde,false,true);
-		this.configElement(this.lblHasta,true,true);
-		this.configElement(this.cmpFechas,false,true);
 		this.configElement(this.txtMontoInf,true,true);
 		this.configElement(this.txtMontoSup,true,true);
 		this.configElement(this.lblMontoInf,true,true);
 		this.configElement(this.lblMontoSup,true,true);
 		this.configElement(this.txtNroCbteAsociado,false,true);
 		this.configElement(this.cmpMontos,false,true);
-		this.configElement(this.cmbMoneda,true,false);
 		this.configElement(this.radGroupEstadoMov,false,true);
 		this.configElement(this.cmpFechaCompra,false,true);
 		this.configElement(this.radGroupDeprec,false,true);
-
-		this.configElement(this.cmbGestion,true,false);
-		this.configElement(this.cmbActivoFijoMulti,true,true);
-
+		this.configElement(this.cmbGestion, false, true);
 		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,false,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
+
 	onSubmit: function(){
 		if(this.formParam.getForm().isValid()){
 			var win = Phx.CP.loadWindows(
@@ -106,8 +97,8 @@ Phx.vista.ParametrosRepForm605 = {
             );
 		}
 	},
+
 	getExtraParams: function(){
-		console.log('asdasd',this.cmbMoneda)
 		var params = {
 			repResponsable: this.repResponsable,
 			repCargo: this.repCargo,
