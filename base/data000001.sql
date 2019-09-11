@@ -385,3 +385,34 @@ INSERT INTO pxp.variable_global (
 	E'kaf_activo_fijo_cc', E'720', E'Horas por mes para prorrateo de CC por activos fijos'
 );
 /***********************************F-DAT-RCM-KAF-16-18/06/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-20-19/07/2019****************************************/
+select pxp.f_insert_tgui ('Distribución de Valores', 'Activos fijos con Distribución de Valores', 'KAF.REP.09', 'si', 13, 'sis_kactivos_fijos/vista/reportes/ReporteAfDistValores.php', 3, '', 'ReporteAfDistValores', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.09', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-20-19/07/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-24-31/07/2019****************************************/
+select pxp.f_insert_tgui ('Inventario Detallado por Grupo Contable', 'Inventario Detallado por Grupo Contable', 'KAF.REP.10', 'si', 10, 'sis_kactivos_fijos/vista/reportes/ParametrosRepInventarioDetallado.php', 3, '', 'ParametrosRepInventarioDetallado', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.10', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-24-31/07/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-17-13/08/2019****************************************/
+select pxp.f_insert_tgui ('Impuestos a la Propiedad e Inmuebles', 'Impuestos a la Propiedad e Inmuebles', 'KAF.REP.11', 'si', 11, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosPropiedad.php', 3, '', 'ParametrosRepImpuestosPropiedad', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.11', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-17-13/08/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-19-14/08/2019****************************************/
+select pxp.f_insert_tgui ('Impuestos de Vehículos', 'Impuestos de Vehículos', 'KAF.REP.12', 'si', 12, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosVehiculos.php', 3, '', 'ParametrosRepImpuestosVehiculos', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.12', 'KAFREP');
+/***********************************F-DAT-RCM-KAF-19-14/08/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-26-16/08/2019****************************************/
+select pxp.f_insert_tgui ('Altas por Origen de Activación', 'Altas por Origen de Activación', 'KAF.REP.13', 'si', 14, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAltaOrigen.php', 3, '', 'ParametrosRepAltaOrigen', 'KAF');
+select pxp.f_insert_testructura_gui ('KAF.REP.13', 'KAFREP');
+
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Activos Fijos','activos_fijos','');
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Cierre Proyectos','cierre_proy','');
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Distribución de Valores','distribucion_val','');
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Preingresos','preingreso','');
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Todos','todos','');
+/***********************************F-DAT-RCM-KAF-26-16/08/2019****************************************/

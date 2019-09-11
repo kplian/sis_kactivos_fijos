@@ -5,6 +5,11 @@
 *@author  (admin)
 *@date 17-04-2016 07:14:58
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #18    KAF       ETR           15/07/2019  RCM         Inclusión de expresión regular como máscara para validación
+***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -19,7 +24,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 		this.bloquearMenus();
 
 		//Eventos
-		this.Cmp.id_clasificacion_variable.on('select',function(combo,record,index){
+		this.Cmp.id_clasificacion_variable.on('select', function(combo, record, index) {
 			this.Cmp.fecha.hide();
 			this.Cmp.fecha.allowBlank = true;
 			this.Cmp.fecha.setValue('');
@@ -31,15 +36,26 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.texto.setValue('');
 			this.Cmp.valor.setValue('');
 
-			if(record.data.tipo_dato=='fecha'){
+
+			if(record.data.tipo_dato == 'fecha') {
 				this.Cmp.fecha.show();
 				this.Cmp.fecha.allowBlank = false;
-			} else if(record.data.tipo_dato=='numero'){
+			} else if(record.data.tipo_dato == 'numero') {
 				this.Cmp.numero.show();
 				this.Cmp.numero.allowBlank = false;
 			} else {
 				this.Cmp.texto.show();
 				this.Cmp.texto.allowBlank = false;
+
+				//Si tiene máscara la aplica
+				/*this.Cmp.texto.maskRe = /^[0-9]{4}-{1}[A-Z]{3}$/i;
+				this.Cmp.texto.regex = /^[0-9]{4}-{1}[A-Z]{3}$/i;
+				this.Cmp.texto.regexText = 'Formato: 9999-ZZZ';*/
+
+				//Si tiene máscara la aplica
+				/*this.Cmp.texto.maskRe = record.data.regex;
+				this.Cmp.texto.regex = record.data.regex;
+				this.Cmp.texto.regexText = 'Formato: ' + record.data.regex_ejemplo;*/
 			}
 		},this);
 
@@ -54,7 +70,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.valor.setValue(this.Cmp.texto.getValue());
 		},this);
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -64,7 +80,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_activo_fijo_caract'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -74,7 +90,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_activo_fijo'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config: {
@@ -91,7 +107,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_clasificacion_variable', 'nombre','descripcion','obligatorio','tipo_dato','orden_var'],
+					fields: ['id_clasificacion_variable', 'nombre', 'descripcion', 'obligatorio', 'tipo_dato', 'orden_var', 'regex', 'regex_ejemplo'], //#18 se agregan nuevas columnas
 					remoteSort: true,
 					baseParams: {par_filtro: 'clavar.nombre#clavar.descripcion'}
 				}),
@@ -138,9 +154,8 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Valor',
 				allowBlank: true,
 				anchor: '80%',
-				gwidth: 100,
-				maxLength:1000,
-				hidden: true
+				gwidth: 300,
+				maxLength:1000
 			},
 			type:'TextField',
 			filters:{pfiltro:'afcaract.valor',type:'string'},
@@ -201,7 +216,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -232,7 +247,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -263,7 +278,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				name: 'nombre_variable'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -272,7 +287,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				name: 'tipo_dato'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -281,7 +296,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 				name: 'obligatorio'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -318,7 +333,7 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 		}
 
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Caracteristicas',
 	ActSave:'../../sis_kactivos_fijos/control/ActivoFijoCaract/insertarActivoFijoCaract',
 	ActDel:'../../sis_kactivos_fijos/control/ActivoFijoCaract/eliminarActivoFijoCaract',
@@ -372,12 +387,14 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
 
 	onButtonNew: function() {
         Phx.vista.ActivoFijoCaract.superclass.onButtonNew.call(this);
+        this.Cmp.valor.setVisible(false);
         //this.Cmp.clave.allowBlank=false;
         //this.Cmp.clave.show();
         this.Cmp.id_clasificacion_variable.modificado=true;
     },
     onButtonEdit: function() {
         Phx.vista.ActivoFijoCaract.superclass.onButtonEdit.call(this);
+        this.Cmp.valor.setVisible(false);
         //this.Cmp.clave.allowBlank=true;
         //this.Cmp.clave.hide();
         var data = this.sm.getSelected().data;
@@ -401,10 +418,10 @@ Phx.vista.ActivoFijoCaract=Ext.extend(Phx.gridInterfaz,{
         	this.Cmp.texto.show();
 			this.Cmp.texto.allowBlank = false;
 			this.Cmp.texto.setValue(data.valor);
+
         }
         this.Cmp.id_clasificacion_variable.modificado=true;
     }
 })
 </script>
-		
-		
+

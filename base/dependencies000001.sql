@@ -3068,3 +3068,251 @@ AS
        JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
        JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
 /***********************************F-DEP-RCM-KAF-2-06/06/2019****************************************/
+
+/***********************************I-DEP-RCM-KAF-23-29/08/2019****************************************/
+ALTER TABLE kaf.tcomparacion_af_conta
+  ADD CONSTRAINT fk_tcomparacion_af_conta__id_movimiento FOREIGN KEY (id_movimiento)
+    REFERENCES kaf.tmovimiento(id_movimiento)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tcomparacion_af_conta
+  ADD CONSTRAINT fk_tcomparacion_af_conta__id_int_comprobante FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tcomparacion_af_conta
+  ADD CONSTRAINT fk_tcomparacion_af_conta__id_cuenta FOREIGN KEY (id_cuenta)
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-23-29/08/2019****************************************/
+
+/***********************************I-DEP-RCM-KAF-23-09/09/2019****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_activo(
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    monto_actualiz,
+    id_movimiento,
+    id_moneda,
+    codigo_tcc)
+AS
+WITH trel_contable AS(
+  SELECT rc_1.id_tabla AS id_clasificacion,
+         (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::
+           character varying)::text) || '}'::text)::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+       JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+         = tb.id_tabla_relacion_contable
+       JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+         trc.id_tipo_relacion_contable
+  WHERE tb.esquema::text = 'KAF'::text AND
+        tb.tabla::text = 'tclasificacion'::text AND
+        trc.codigo_tipo_relacion::text = 'ALTAAF'::text)
+    SELECT rc.id_clasificacion,
+           cla.codigo_completo_tmp,
+           cla.nombre,
+           /*sum(round(mdep.monto_actualiz, 2) - round(mdep.monto_actualiz_ant, 2)
+             ) AS monto_actualiz,*/
+           CASE COALESCE(afv.importe_modif, 0)
+                WHEN 0 THEN SUM(round(mdep.monto_actualiz, 2) - round(mdep.monto_actualiz_ant, 2))
+
+                ELSE
+                    CASE
+                            WHEN date_trunc('month', mdep.fecha) = date_trunc('month',afv.fecha_ini_dep) THEN
+                                SUM(round(mdep.monto_actualiz, 2) - round(mdep.monto_actualiz_ant, 2) + round(
+                                (SELECT po_inc_actualiz FROM kaf.f_calculo_aux_deprec
+                                (
+                                    date_trunc('year', afv.fecha_ini_dep)::date,
+                                    (date_trunc('month', afv.fecha_ini_dep) - interval '1 day')::date,
+                                    (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', afv.fecha_ini_dep) - interval '1 day')::date, date_trunc('year', afv.fecha_ini_dep)::date))*12 + EXTRACT(month FROM age((date_trunc('month', afv.fecha_ini_dep) - interval '1 day')::date,date_trunc('year', afv.fecha_ini_dep)::date)) + 1)::integer + 1,
+                                    afv.importe_modif / ( param.f_get_tipo_cambio(3, (date_trunc('month', afv.fecha_ini_dep) - interval '1 day')::date, 'O') /
+                        param.f_get_tipo_cambio(3, date_trunc('year', afv.fecha_ini_dep)::date, 'O')),
+                                    afv.id_moneda
+                                )) , 2))
+                            ELSE SUM(round(mdep.monto_actualiz, 2) - round(mdep.monto_actualiz_ant, 2))
+                        END
+
+
+           END AS monto_actualiz,
+           maf.id_movimiento,
+           mdep.id_moneda,
+           cc.codigo_tcc
+    FROM kaf.tmovimiento_af maf
+         JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af =
+           maf.id_movimiento_af
+         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+         JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+         JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
+           rc.id_clasificacion
+         LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
+           af.id_centro_costo
+         inner join kaf.tactivo_fijo_valores afv
+           on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+    WHERE mdep.id_moneda = param.f_get_moneda_base()
+    GROUP BY rc.id_clasificacion,
+             cla.codigo_completo_tmp,
+             cla.nombre,
+             maf.id_movimiento,
+             mdep.id_moneda,
+             cc.codigo_tcc,
+             afv.importe_modif,
+             mdep.fecha,
+             afv.fecha_ini_dep;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_debe_af
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('ALTAAF')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta < 0;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_haber_af
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('ALTAAF')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta > 0;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_debe_dep
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('DEPACCLAS')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta < 0;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_haber_dep
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('DEPACCLAS')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta > 0;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_debe_act
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('KAF-ACT-DEPER')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta < 0;
+
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_haber_act
+AS
+WITH tcuenta AS (
+    SELECT DISTINCT
+    rc.id_cuenta, rc.id_partida, rc.id_gestion
+    FROM conta.ttipo_relacion_contable trc
+    INNER JOIN conta.trelacion_contable rc
+    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+    WHERE trc.codigo_tipo_relacion IN ('KAF-ACT-DEPER')
+)
+SELECT
+mov.id_movimiento, com.id_cuenta, abs(com.diferencia_af_conta) as importe
+FROM kaf.tcomparacion_af_conta com
+INNER JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = com.id_movimiento
+INNER JOIN tcuenta pa
+ON pa.id_cuenta = com.id_cuenta
+AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
+WHERE com.diferencia_af_conta > 0;
+
+CREATE VIEW kaf.vdeprec_igualacion_conta_haber_cab
+AS
+SELECT mov.id_movimiento,
+         mov.id_depto AS id_depto_af,
+         mov.fecha_mov,
+         mov.id_cat_movimiento,
+         cat.codigo AS codigo_catalogo,
+         cat.descripcion AS desc_catalogo,
+         mov.num_tramite,
+         mov.fecha_hasta,
+         mov.glosa,
+         depc.id_depto AS id_depto_conta,
+         depc.codigo AS codigo_depto_conta,
+         per.id_gestion,
+         ges.gestion,
+         md.id_moneda,
+         md.descripcion,
+         'Comprobante para igualar saldos del cálculo de depreciación con saldos contables por diferencias por redondeo, correspondiente a depreciación de '
+           ::text || to_char(mov.fecha_mov::timestamp with time zone, 'mm/YYYY'
+           ::text) AS glosa_cbte
+  FROM kaf.tmovimiento mov
+       JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+       JOIN param.tdepto_depto dd ON dd.id_depto_origen = mov.id_depto
+       JOIN param.tdepto depc ON depc.id_depto = dd.id_depto_destino
+       JOIN segu.tsubsistema sis ON sis.id_subsistema = depc.id_subsistema AND
+         sis.codigo::text = 'CONTA'::text
+       JOIN param.tperiodo per ON mov.fecha_mov >= per.fecha_ini AND
+         mov.fecha_mov <= per.fecha_fin
+       JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
+       JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
+/***********************************F-DEP-RCM-KAF-23-09/09/2019****************************************/

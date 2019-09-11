@@ -4,15 +4,18 @@ CREATE OR REPLACE FUNCTION kaf.f_insercion_movimiento_af (
 )
 RETURNS integer AS
 $body$
-/*
-Autor: RCM
-Fecha: 03/08/2017
-Descripción: Función para crear un nuevo movimiento
+/**************************************************************************
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.f_insercion_movimiento_af
+ DESCRIPCION:   Función para crear un nuevo movimiento activo fijo
+ AUTOR:         RCM
+ FECHA:         03/08/2018
+ COMENTARIOS:
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           27/05/2019  RCM         Distribución de valores, se añade update para guardar valor actualizado y dep. acumulada
-***************************************************************************
-*/
+ #20    KAF       ETR           23/07/2019  RCM         Distribución de valores, se aumenta id_movimiento_af_dep en la actualización del registro
+***************************************************************************/
 DECLARE
 
     v_nombre_funcion		varchar;
@@ -27,6 +30,7 @@ DECLARE
     v_depreciacion_acum     numeric;
     v_id_moneda_mov_esp     integer;
     --Fin #2
+    v_id_movimiento_af_dep  integer; --#20
 
 BEGIN
 
@@ -144,9 +148,9 @@ BEGIN
             GROUP BY afv.id_activo_fijo
         )
         SELECT
-        mdep.monto_actualiz, mdep.depreciacion_acum
+        mdep.monto_actualiz, mdep.depreciacion_acum, mdep.id_movimiento_af_dep
         INTO
-        v_monto_actualiz, v_depreciacion_acum
+        v_monto_actualiz, v_depreciacion_acum, v_id_movimiento_af_dep --#20
         FROM kaf.tactivo_fijo_valores  afv
         INNER JOIN tult_dep dult
         ON dult.id_activo_fijo = afv.id_activo_fijo
@@ -161,7 +165,8 @@ BEGIN
         importe = v_monto_actualiz,
         depreciacion_acum = v_depreciacion_acum,
         id_moneda = v_id_moneda_mov_esp,
-        importe_ant = null
+        importe_ant = null,
+        id_movimiento_af_dep = v_id_movimiento_af_dep --#20
         WHERE id_movimiento_af = v_id_movimiento_af;
 
     END IF;
@@ -170,7 +175,7 @@ BEGIN
     ------------
 	--Respuesta
     ------------
-    return v_id_movimiento_af;
+    RETURN v_id_movimiento_af;
 
 EXCEPTION
 

@@ -683,9 +683,18 @@ BEGIN
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = movaf.id_activo_fijo
                                               where movaf.id_movimiento = v_movimiento.id_movimiento
-                                              and not exists(select id_activo_fijo
+                                              and (
+                                                    not exists(select id_activo_fijo
                                                             from pro.tproyecto_activo
                                                             where id_activo_fijo = movaf.id_activo_fijo) --condición para que no genere AFV para activos que viene de cierre de proyectos
+                                                    OR
+                                                    not exists(select mafe.id_activo_fijo
+                                                                from kaf.tmovimiento_af maf
+                                                                inner join kaf.tmovimiento_af_especial mafe
+                                                                on mafe.id_movimiento_af = maf.id_movimiento_af
+                                                                and mafe.tipo = 'af_nuevo'
+                                                                where mafe.id_activo_fijo = movaf.id_activo_fijo) --condición para que no genere AFV para activos que viene de cierre de proyectos
+                                                    )
                     ) loop
 
                         --Recorrido de las monedas configuradas para insertar un registro para cada una

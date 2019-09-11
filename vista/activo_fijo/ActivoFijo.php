@@ -10,6 +10,7 @@
 #ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #8     KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
  #16    KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
+ #18    KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -302,14 +303,14 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                 id: 'clave',
                 root: 'datos',
                 sortInfo:{
-                    field: 'clave',
+                    field: 'cv.nombre',
                     direction: 'ASC'
                 },
                 totalProperty: 'total',
                 fields: ['clave'],
                 // turn on remote sorting
                 remoteSort: true,
-                baseParams:{par_filtro:'clave'}
+                baseParams:{par_filtro:'cv.nombre'} //#18 cambio de filtro
             }),
             valueField: 'clave',
             displayField: 'clave',

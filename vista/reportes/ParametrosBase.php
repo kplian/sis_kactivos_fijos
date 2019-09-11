@@ -1,4 +1,17 @@
 <?php
+/**
+*@package pXP
+*@file ParametrosBase.php
+*@author  (admin)
+*@date 01-01-2017
+*@description Formulario con los parámetros generales para los reportes de activos fijos
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #24    KAF       ETR           01/08/2019  RCM         Adición de parámetros de combo gestión y multiselect de activos fijos
+ #26	KAF 	  ETR 			20/08/2019  RCM 		Adición parámetros combo Tipo Activación y Nro Trámite
+***************************************************************************
+*/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -137,13 +150,13 @@ Ext.define('Phx.vista.ParametrosBase', {
 		});
 		this.dteFechaCompra = new Ext.form.DateField({
 			fieldLabel: 'Fecha Compra Inf.',
-			//format: 'd/m/Y', 
+			//format: 'd/m/Y',
 			dateFormat:'Y-m-d',
 			style: this.setBackgroundColor('dteFechaCompra')
 		});
 		this.dteFechaCompraMax = new Ext.form.DateField({
 			fieldLabel: 'Fecha Compra Sup.',
-			//format: 'd/m/Y', 
+			//format: 'd/m/Y',
 			dateFormat:'Y-m-d',
 			style: this.setBackgroundColor('dteFechaCompraMax')
 		});
@@ -159,7 +172,7 @@ Ext.define('Phx.vista.ParametrosBase', {
         });
 		this.dteFechaIniDep = new Ext.form.DateField({
 			fieldLabel: 'Fecha Ini.Dep.',
-			format: 'd/m/Y', 
+			format: 'd/m/Y',
 			style: this.setBackgroundColor('dteFechaIniDep')
 		});
 		this.cmbEstado = new Ext.form.ComboBox({
@@ -282,12 +295,12 @@ Ext.define('Phx.vista.ParametrosBase', {
 			fieldLabel: 'Responsable',
 			anchor: '100%',
 			emptyText: 'Elija un funcionario...',
-			store: new Ext.data.JsonStore({  
+			store: new Ext.data.JsonStore({
 				url: '../../sis_organigrama/control/Funcionario/listarFuncionarioCargo',
 				id: 'id_uo',
 				root: 'datos',
 				sortInfo:{
-					field: 'desc_funcionario1', 
+					field: 'desc_funcionario1',
 					direction: 'ASC'
 				},
 				totalProperty: 'total',
@@ -295,7 +308,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 				// turn on remote sorting
 				remoteSort: true,
 				baseParams: {par_filtro:'desc_funcionario1#email_empresa#codigo#nombre_cargo'}
-				
+
 			}),
 			style: this.setBackgroundColor('cmbResponsable'),
 			valueField: 'id_funcionario',
@@ -454,7 +467,7 @@ Ext.define('Phx.vista.ParametrosBase', {
                 url: '../../sis_kactivos_fijos/control/MonedaDep/listarMonedaDep',
                 id: 'id_moneda_dep',
                 root: 'datos',
-                fields: ['id_moneda_dep','desc_moneda','descripcion'],
+                fields: ['id_moneda_dep','desc_moneda','descripcion','id_moneda'],
                 totalProperty: 'total',
                 sortInfo: {
                     field: 'descripcion',
@@ -543,6 +556,125 @@ Ext.define('Phx.vista.ParametrosBase', {
             minChars: 2,
             style: this.setBackgroundColor('cmbUbicacion')
 		});
+		//Inicio #24
+		this.cmbGestion = new Ext.form['ComboRec']({
+            name: 'gestion',
+            fieldLabel: 'Gestión',
+            allowBlank: true,
+            tinit: false,
+            origen: 'CATALOGO',
+            gdisplayField: 'descripcion',
+            width: 350,
+            listWidth: 350,
+            gwidth: 300,
+			valueField: 'codigo',
+            renderer: function (value, p, record){return String.format('{0}',record.data['descripcion']);},
+            store: new Ext.data.JsonStore({
+				url: '../../sis_parametros/control/Catalogo/listarCatalogoCombo',
+				id: 'id_catalogo',
+				root: 'datos',
+				sortInfo:{
+					field: 'orden',
+					direction: 'DESC'
+				},
+				totalProperty: 'total',
+				fields: ['id_catalogo','codigo','descripcion'],
+				// turn on remote sorting
+				remoteSort: true,
+				baseParams: {
+					par_filtro:'descripcion',
+					cod_subsistema:'PARAM',
+					catalogo_tipo:'tgral__gestion'
+				}
+			})
+        });
+
+        this.cmbActivoFijoMulti = new Ext.form['AwesomeCombo']({
+        	name: 'id_activo_fijo_multi',
+        	enableMultiSelect: true,
+        	fieldLabel: 'Activos Fijos',
+			qtip: 'Multiselección de activos fijos',
+			allowBlank: true,
+			emptyText: 'Elija una o más opciones...',
+			store: new Ext.data.JsonStore({
+				url: '../../sis_kactivos_fijos/control/ActivoFijo/listarActivoFijo',
+				id: 'id_activo_fijo',
+				root: 'datos',
+				sortInfo: {
+					field: 'codigo',
+					direction: 'asc'
+				},
+				totalProperty: 'total',
+				fields: ['id_activo_fijo', 'codigo', 'denominacion', 'codigo_ant'],
+				remoteSort: true,
+				baseParams: {
+					par_filtro: 'afij.codigo#afij.denominacion#afij.codigo_ant'
+				}
+			}),
+			tpl: new Ext.XTemplate('<tpl for="."><div class="awesomecombo-5item {checked}">', '<p><b>Código:</b> {codigo}</p>', '<p><b>Denominación:</b> <strong>{denominacion}</strong></p>', '<p><b>Código SAP:</b> {codigo_ant}</p>', '</div></tpl>'),
+			itemSelector: 'div.awesomecombo-5item',
+			valueField: 'id_activo_fijo',
+			displayField: 'codigo',
+			gdisplayField: 'denominacion',
+			forceSelection: true,
+			typeAhead: false,
+			triggerAction: 'all',
+			lazyRender: true,
+			mode: 'remote',
+			pageSize: 15,
+			queryDelay: 1000,
+			anchor: '100%',
+			gwidth: 150,
+			minChars: 2,
+			resizable: true,
+			renderer: function(value, p, record) {
+				return String.format('{0}', record.data['denominacion']);
+			}
+        });
+		//Fin #24
+
+		//Inicio #26
+		this.cmbTipoActivacion = new Ext.form.ComboBox({
+			fieldLabel: 'Tipo Activación',
+			anchor: '100%',
+			emptyText: 'Tipo Activación...',
+			store: new Ext.data.JsonStore({
+				url: '../../sis_parametros/control/Catalogo/listarCatalogoCombo',
+				id: 'id_catalogo',
+				root: 'datos',
+				sortInfo: {
+					field: 'codigo',
+					direction: 'ASC'
+				},
+				totalProperty: 'total',
+				fields: ['id_catalogo','codigo','descripcion'],
+				remoteSort: true,
+				baseParams: {
+					par_filtro: 'descripcion',
+					cod_subsistema:'KAF',
+					catalogo_tipo:'reportes__tipo_alta'
+				}
+			}),
+			valueField: 'codigo',
+			displayField: 'descripcion',
+			forceSelection: true,
+			typeAhead: false,
+			triggerAction: 'all',
+			lazyRender: true,
+			mode: 'remote',
+			pageSize: 10,
+			queryDelay: 1000,
+			width: 250,
+			minChars: 2,
+			style: this.setBackgroundColor('cmbTipoActivacion')
+		});
+
+		this.txtNrotramite = new Ext.form.TextField({
+			fieldLabel: 'Nro.Trámite',
+			width: '100%',
+			style: this.setBackgroundColor('txtNrotramite')
+		});
+		//Fin #26
 	},
 	layout: function(){
 		//Fieldsets
@@ -551,7 +683,7 @@ Ext.define('Phx.vista.ParametrosBase', {
         	title: 'General',
         	items: [this.cmpFechas,this.cmbClasificacion,this.cmbActivo,this.txtDenominacion,this.cmbMoneda,this.cmpFechaCompra,this.cmpMontos,this.cmbTipo,this.cmbLugar,this.txtNroCbteAsociado,
         		this.dteFechaIniDep,this.cmbEstado,this.cmbCentroCosto,this.txtUbicacionFisica,
-				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.cmbUbicacion,this.radGroupDeprec]
+				this.cmbOficina,this.cmbResponsable,this.cmbDepto,this.cmbDeposito,this.cmbUbicacion,this.radGroupDeprec, this.cmbGestion, this.cmbActivoFijoMulti, this.cmbTipoActivacion, this.txtNrotramite] //#24 agrega al form; //#26 se agregan nuevos parámetros al form
         });
 
         this.fieldSetIncluir = new Ext.form.FieldSet({
@@ -604,7 +736,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 	render: function(){
 		this.panel.add(this.viewPort);
         this.panel.doLayout();
-        this.addEvents('init'); 
+        this.addEvents('init');
 	},
 	onReset: function(){
 		this.dteFechaDesde.setValue('');
@@ -636,6 +768,10 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.radGroupDeprec.setValue('completo');
 		this.cmbTipo.setValue('');
 		this.cmbUbicacion.setValue('');
+		this.cmbGestion.setValue(''); //#24
+		this.cmbActivoFijoMulti.setValue(''); //#24
+		this.cmbTipoActivacion.setValue(''); //#26
+		this.txtNrotramite.setValue(''); //#26
 
 		this.cmbClasificacion.selectedIndex=-1;
 	},
@@ -650,7 +786,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 	                this.titleReporte, {
 	                    width: 870,
 	                    height : 620
-	                }, { 
+	                }, {
 	                    paramsRep: this.getParams()
 	                },
 	                this.idContenedor,
@@ -680,6 +816,15 @@ Ext.define('Phx.vista.ParametrosBase', {
 		if(this.dteFechaIniDep.getValue()) _fecha_ini_dep = this.dteFechaIniDep.getValue().dateFormat('Y-m-d');
 		if(this.dteFechaCompraMax.getValue()) _fecha_compra_max = this.dteFechaCompraMax.getValue().dateFormat('Y-m-d');
 
+		//Inicio #24
+		var index = this.cmbMoneda.store.find('id_moneda_dep', this.cmbMoneda.getValue());
+
+		if(index!=-1){
+	        var id_moneda = this.cmbMoneda.store.getAt(index).data.id_moneda;
+	        this.moneda = this.cmbMoneda.store.getAt(index).data.descripcion;
+		}
+		//Fin #24
+
 		//Parametros
 		var params = {
 			titleReporte: this.titleReporte,
@@ -704,7 +849,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 			af_estado_mov: this.radGroupEstadoMov.getValue().inputValue,
 			id_depto: this.cmbDepto.getValue(),
 			id_deposito: this.cmbDeposito.getValue(),
-			id_moneda: this.cmbMoneda.getValue(),
+			id_moneda_dep: this.cmbMoneda.getValue(), //Se refiere a id_moneda_dep
 			desc_moneda: this.moneda,
 			monto_inf: this.txtMontoInf.getValue(),
 			monto_sup: this.txtMontoSup.getValue(),
@@ -712,7 +857,17 @@ Ext.define('Phx.vista.ParametrosBase', {
 			fecha_compra_max: _fecha_compra_max,
 			af_deprec: this.radGroupDeprec.getValue().inputValue,
 			tipo: this.cmbTipo.getValue(),
-			id_ubicacion: this.cmbUbicacion.getValue()
+			id_ubicacion: this.cmbUbicacion.getValue(),
+			//Inicio #24
+			gestion: this.cmbGestion.getValue(),
+			id_activo_fijo_multi: this.cmbActivoFijoMulti.getValue(),
+			id_moneda: id_moneda,
+			//Fin #24
+
+			//Inicio #26
+			tipo_activacion: this.cmbTipoActivacion.getValue(),
+			nro_tramite: this.txtNrotramite.getValue()
+			//Fin #26
 		};
 
 		Ext.apply(params,this.getExtraParams());
@@ -766,7 +921,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 			                this.titleReporte, {
 			                    width: '97%',//870,
 			                    height: '97%'//620
-			                }, { 
+			                }, {
 			                    paramsRep: this.getParams()
 			                },
 			                this.idContenedor,
@@ -774,7 +929,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 			            );
             		}
             	},this);
-            	
+
             },
             argument: this.argumentSave,
             failure: this.conexionFailure,
@@ -817,6 +972,15 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.configElement(this.radGroupDeprec,false,true);
 		this.configElement(this.cmbTipo,false,true);
 		this.configElement(this.cmbUbicacion,false,true);
+		//Inicio #24
+		this.configElement(this.cmbGestion,false,true);
+		this.configElement(this.cmbActivoFijoMulti,false,true);
+		//Fin #24
+
+		//Inicio #26
+		this.configElement(this.cmbTipoActivacion,false,true);
+		this.configElement(this.txtNrotramite,false,true);
+		//Fin #26
 
 		this.configElement(this.fieldSetGeneral,false,true);
 		this.configElement(this.fieldSetIncluir,false,true);
@@ -832,7 +996,7 @@ Ext.define('Phx.vista.ParametrosBase', {
     	Phx.CP.loadingHide();
         var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
         var nomRep = objRes.ROOT.detalle.archivo_generado;
-        if(Phx.CP.config_ini.x==1){  			
+        if(Phx.CP.config_ini.x==1){
         	nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
         }
         window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())

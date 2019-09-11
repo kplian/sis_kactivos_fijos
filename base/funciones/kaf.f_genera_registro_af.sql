@@ -93,7 +93,7 @@ BEGIN
             and pdet.sw_generar = 'si'
             and pdet.estado = 'mod'
             and pdet.estado_reg = 'activo' loop
-raise exception '%',p_id_preingreso;
+
         --Vida útil
         select vida_util
         into v_vida_util

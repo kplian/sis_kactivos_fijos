@@ -14,6 +14,7 @@ $body$
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           06/06/2019  RCM         Creación del archivo
+ #21    KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
 ***************************************************************************
 */
 DECLARE
@@ -108,7 +109,8 @@ BEGIN
         depreciacion_acum_bs          numeric,
         depreciacion_acum_usd         numeric,
         depreciacion_acum_ufv         numeric,
-        tipo                          varchar
+        tipo                          varchar,
+        glosa                         varchar --#21 adición de columna para la glosa
     ) ON COMMIT DROP;
 
     --Inserción de los valores a contabilizar, caso activos fijos nuevos
@@ -134,7 +136,8 @@ BEGIN
     rc_dacum1.id_cuenta, rc_dacum1.id_partida, mafe.id_centro_costo,
     0, 0, afv.monto_vigente_orig,
     0, 0, afv.depreciacion_acum,
-    mafe.tipo
+    mafe.tipo,
+    (af.codigo || ' => ' || mafe.id_movimiento_af_especial::varchar || ' (' || mafe.tipo || ') ')::varchar as glosa --#21 adición de columna para la glosa
     FROM kaf.tmovimiento mov
     INNER JOIN kaf.tmovimiento_af maf
     ON maf.id_movimiento = mov.id_movimiento
@@ -363,7 +366,8 @@ BEGIN
         mov.fecha_mov, mdep.id_activo_fijo_valor, mdep.monto_actualiz, mdep.depreciacion_acum,
         mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento,
         rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
-        rc_dacum.id_cuenta as id_cuenta_dep_acum_orig, rc_dacum.id_partida as id_partida_dep_acum_orig, af.id_centro_costo as id_centro_costo_dep_acum_orig
+        rc_dacum.id_cuenta as id_cuenta_dep_acum_orig, rc_dacum.id_partida as id_partida_dep_acum_orig, af.id_centro_costo as id_centro_costo_dep_acum_orig,
+        af.codigo as codigo_orig --#21 adición de código para usarlo en la glosa
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -423,7 +427,8 @@ BEGIN
         mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mafe.id_activo_fijo,
         mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento,
         rc_af.id_cuenta, rc_af.id_partida, mafe.tipo, af.id_centro_costo,
-        rc_dacum.id_cuenta as id_cuenta_dep_acum_dest, rc_dacum.id_partida as id_partida_dep_acum_dest, af.id_centro_costo as id_centro_costo_dep_acum_dest
+        rc_dacum.id_cuenta as id_cuenta_dep_acum_dest, rc_dacum.id_partida as id_partida_dep_acum_dest, af.id_centro_costo as id_centro_costo_dep_acum_dest,
+        af.codigo as codigo_dest --#21 adición de código para usarlo en la glosa
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -474,7 +479,8 @@ BEGIN
     END AS monto_vigente_orig,
     0, 0,
     (tao.depreciacion_acum * tad.porcentaje / 100) AS depreciacion_acum,
-    tad.tipo
+    tad.tipo,
+    (tao.codigo_orig || ' => ' || tad.codigo_dest || ' (' || tad.tipo || ') ')::varchar as glosa --#21 adición de columna para la glosa
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
@@ -814,7 +820,8 @@ BEGIN
     END AS monto_vigente_orig,
     0, 0,
     (mdep.depreciacion_acum * mafe.porcentaje / 100) as depreciacion_acum,
-    mafe.tipo
+    mafe.tipo,
+    (af.codigo || ' => ' || alm.codigo || ' (' || mafe.tipo || ') ')::varchar as glosa --#21 adición de columna para la glosa
     FROM kaf.tmovimiento mov
     INNER JOIN kaf.tmovimiento_af maf
     ON maf.id_movimiento = mov.id_movimiento
@@ -1069,7 +1076,8 @@ BEGIN
         importe_recurso_mt,
         importe_recurso_ma,
         id_usuario_reg,
-        fecha_reg
+        fecha_reg,
+        glosa --#21 adición de columna para la glosa
     )
     SELECT
     id_partida_dest,
@@ -1094,7 +1102,8 @@ BEGIN
     0,
     0,
     p_id_usuario,
-    now()
+    now(),
+    glosa --#21 adición de columna para la glosa
     FROM tt_transaccion;
 
     --Debe: Depreciación acumulada
@@ -1122,7 +1131,8 @@ BEGIN
         importe_recurso_mt,
         importe_recurso_ma,
         id_usuario_reg,
-        fecha_reg
+        fecha_reg,
+        glosa --#21 adición de columna para la glosa
     )
     SELECT
     id_partida_dest,
@@ -1147,7 +1157,8 @@ BEGIN
     0,
     0,
     p_id_usuario,
-    now()
+    now(),
+    glosa --#21 adición de columna para la glosa
     FROM tt_transaccion;
 
     --Haber: Monto activo fijo
@@ -1175,7 +1186,8 @@ BEGIN
         importe_recurso_mt,
         importe_recurso_ma,
         id_usuario_reg,
-        fecha_reg
+        fecha_reg,
+        glosa --#21 adición de columna para la glosa
     )
     SELECT
     id_partida,
@@ -1200,7 +1212,8 @@ BEGIN
     importe_usd,
     importe_ufv,
     p_id_usuario,
-    now()
+    now(),
+    glosa --#21 adición de columna para la glosa
     FROM tt_transaccion;
 
     --Haber: Depreciación acumulada
@@ -1228,7 +1241,8 @@ BEGIN
         importe_recurso_mt,
         importe_recurso_ma,
         id_usuario_reg,
-        fecha_reg
+        fecha_reg,
+        glosa --#21 adición de columna para la glosa
     )
     SELECT
     id_partida,
@@ -1253,7 +1267,8 @@ BEGIN
     depreciacion_acum_usd,
     depreciacion_acum_ufv,
     p_id_usuario,
-    now()
+    now(),
+    glosa --#21 adición de columna para la glosa
     FROM tt_transaccion;
 
 

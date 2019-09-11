@@ -5,19 +5,24 @@
 *@author  (admin)
 *@date 27-06-2017 09:34:29
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #18    KAF       ETR           15/07/2019  RCM         Inclusión de expresión regular como máscara para validación
+***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ClasificacionVariable = Ext.extend(Phx.gridInterfaz, {
 
-	constructor:function(config){
+	constructor: function(config){
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.ClasificacionVariable.superclass.constructor.call(this,config);
 		this.init();
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -27,7 +32,7 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_clasificacion_variable'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -36,7 +41,7 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_clasificacion'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -44,14 +49,14 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Nombre Variable',
 				allowBlank: false,
 				anchor: '95%',
-				gwidth: 100,
+				gwidth: 130,
 				maxLength:50
 			},
-				type:'TextField',
-				filters:{pfiltro:'clavar.nombre',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextField',
+			filters:{pfiltro:'clavar.nombre',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
 		{
 			config:{
@@ -59,14 +64,14 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Descripción',
 				allowBlank: true,
 				anchor: '95%',
-				gwidth: 100,
-				maxLength:500
+				gwidth: 200,
+				maxLength: 500
 			},
-				type:'TextArea',
-				filters:{pfiltro:'clavar.descripcion',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'TextArea',
+			filters:{pfiltro:'clavar.descripcion',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
 		{
 			config: {
@@ -78,7 +83,7 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'tipo_dato',
 				hiddenName: 'tipo_dato',
-				gwidth: 180,
+				gwidth: 90,
 				baseParams:{
 					cod_subsistema:'KAF',
 					catalogo_tipo:'tclasificacion_variable__tipo_dato'
@@ -101,7 +106,7 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				origen: 'CATALOGO',
 				gdisplayField: 'obligatorio',
 				hiddenName: 'obligatorio',
-				gwidth: 180,
+				gwidth: 130,
 				baseParams:{
 					cod_subsistema:'KAF',
 					catalogo_tipo:'tclasificacion_variable__obligatorio'
@@ -120,18 +125,49 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Orden',
 				allowBlank: true,
 				anchor: '30%',
-				gwidth: 100,
+				gwidth: 80,
 				maxLength:4,
 				maxValue: 50,
 				minValue: 0,
 				allowDecimals: false
 			},
-				type:'NumberField',
-				filters:{pfiltro:'clavar.orden_var',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
+			type:'NumberField',
+			filters:{pfiltro:'clavar.orden_var',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
 		},
+		//#18 Inicio: se agrega columna
+		{
+			config: {
+				name: 'regex',
+				fieldLabel: 'Expresión Regular',
+				allowBlank: true,
+				anchor: '95%',
+				gwidth: 150,
+				maxLength: 200
+			},
+			type: 'TextField',
+			filters: {pfiltro:'clavar.regex', type:'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		}, {
+			config: {
+				name: 'regex_ejemplo',
+				fieldLabel: 'Ejemplo Expr.Regular',
+				allowBlank: true,
+				anchor: '95%',
+				gwidth: 150,
+				maxLength: 200
+			},
+			type: 'TextField',
+			filters: {pfiltro:'clavar.regex_ejemplo', type:'string'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		//#18 Fin
 		{
 			config:{
 				name: 'estado_reg',
@@ -141,11 +177,11 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:10
 			},
-				type:'TextField',
-				filters:{pfiltro:'clavar.estado_reg',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'clavar.estado_reg',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -156,11 +192,11 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'clavar.id_usuario_ai',type:'numeric'},
-				id_grupo:1,
-				grid:false,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'clavar.id_usuario_ai',type:'numeric'},
+			id_grupo:1,
+			grid:false,
+			form:false
 		},
 		{
 			config:{
@@ -171,11 +207,11 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:300
 			},
-				type:'TextField',
-				filters:{pfiltro:'clavar.usuario_ai',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'TextField',
+			filters:{pfiltro:'clavar.usuario_ai',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -184,14 +220,14 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'clavar.fecha_reg',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'DateField',
+			filters:{pfiltro:'clavar.fecha_reg',type:'date'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -202,11 +238,11 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu1.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'usu1.cuenta',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -217,11 +253,11 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 100,
 				maxLength:4
 			},
-				type:'Field',
-				filters:{pfiltro:'usu2.cuenta',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'Field',
+			filters:{pfiltro:'usu2.cuenta',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		},
 		{
 			config:{
@@ -230,17 +266,17 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'clavar.fecha_mod',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+			type:'DateField',
+			filters:{pfiltro:'clavar.fecha_mod',type:'date'},
+			id_grupo:1,
+			grid:true,
+			form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Variables',
 	ActSave:'../../sis_kactivos_fijos/control/ClasificacionVariable/insertarClasificacionVariable',
 	ActDel:'../../sis_kactivos_fijos/control/ClasificacionVariable/eliminarClasificacionVariable',
@@ -263,28 +299,28 @@ Phx.vista.ClasificacionVariable=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+		{name:'regex', type: 'string'}, //#18 Se agrega columna
+		{name:'regex_ejemplo', type: 'string'} //#18 Se agrega columna
 	],
-	sortInfo:{
+	sortInfo: {
 		field: 'id_clasificacion_variable',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true,
+	bdel: true,
+	bsave: true,
 	onReloadPage: function(m){
 		this.maestro = m;
 		this.Atributos[1].valorInicial = this.maestro.id_clasificacion;
 		this.store.baseParams = {
-			id_clasificacion : this.maestro.id_clasificacion
+			id_clasificacion: this.maestro.id_clasificacion
 		};
 		this.load({
-			params : {
-				start : 0,
-				limit : 50
+			params: {
+				start: 0,
+				limit: 50
 			}
 		});
 	}
 })
 </script>
-		
-		
+

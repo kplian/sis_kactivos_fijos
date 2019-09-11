@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
+ #18    KAF       ETR           15/07/2019  RCM         Corrección de filtro por característica
 ***************************************************************************
 */
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
@@ -61,7 +62,12 @@ class ACTActivoFijo extends ACTbase{
 
 			//Por caracteristicas
 			if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
-				$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
+				$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo
+																	from kaf.tactivo_fijo_caract acar
+																	inner join kaf.tclasificacion_variable cv
+																	on cv.id_clasificacion_variable = acar.id_clasificacion_variable
+																	where cv.nombre ilike ''%".$this->objParam->getParametro('caractFilter')."%''
+																	and acar.valor ilike ''%".$this->objParam->getParametro('caractValue')."%'')"); //#18 Corrección del filtro
 			}
 		}
 
@@ -85,7 +91,12 @@ class ACTActivoFijo extends ACTbase{
 
 		//Por caracteristicas
 		if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
-			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
+			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo
+																from kaf.tactivo_fijo_caract acar
+																inner join kaf.tclasificacion_variable cv
+																on cv.id_clasificacion_variable = acar.id_clasificacion_variable
+																where cv.nombre ilike ''%".$this->objParam->getParametro('caractFilter')."%''
+																and acar.valor ilike ''%".$this->objParam->getParametro('caractValue')."%'')"); //#18 Corrección del filtro
 		}
 
 		//Si es abierto desde link de otra grilla
