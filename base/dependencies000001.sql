@@ -3285,7 +3285,7 @@ ON pa.id_cuenta = com.id_cuenta
 AND pa.id_gestion = (SELECT id_gestion FROM param.tgestion where date_trunc('year',fecha_ini) = date_trunc('year', mov.fecha_mov))
 WHERE com.diferencia_af_conta > 0;
 
-CREATE VIEW kaf.vdeprec_igualacion_conta_haber_cab
+CREATE OR REPLACE VIEW kaf.vdeprec_igualacion_conta_haber_cab
 AS
 SELECT mov.id_movimiento,
          mov.id_depto AS id_depto_af,
