@@ -23,6 +23,7 @@ $body$
  #19    KAF       ETR           14/08/2019  RCM         Reporte 4 Impuestos de Vehículos
  #26    KAF       ETR           22/08/2019  RCM         Reporte 7 Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
+ #29    KAF       ETR           23/08/2019  RCM         Reporte 7, corrección lógica monto original
 ****************************************************************************/
 DECLARE
 
@@ -915,7 +916,13 @@ BEGIN
             SELECT
             ''cierre_proy'' AS cod_tipo,
             ''Cierre Proyectos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             py.nro_tramite_cierre AS nro_tramite, py.nombre AS descripcion, py.id_estado_wf_cierre AS id_estado_wf,
             py.id_proyecto AS id, ''pro.tproyecto'' AS tabla
@@ -932,7 +939,13 @@ BEGIN
             --Preingresos
             SELECT ''preingreso'' AS cod_tipo,
             ''Preingresos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             cot.num_tramite, sol.justificacion AS descripcion, cot.id_estado_wf,
             cot.id_cotizacion AS id, ''adq.tcotizacion'' AS tabla
@@ -957,7 +970,13 @@ BEGIN
             --Distribución de valores, caso activo fijo nuevo
             SELECT ''distribucion_val'' AS cod_tipo,
             ''Distribución de Valores'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             mov.num_tramite AS nro_tramite, mov.glosa AS descripcion, mov.id_estado_wf AS id_estado_wf,
             mov.id_movimiento AS id, ''kaf.tmovimiento'' AS tabla
@@ -976,7 +995,13 @@ BEGIN
             --Resto de Activos Fijos
             SELECT ''activos_fijos'' AS cod_tipo,
             ''Activos Fijos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             mov.num_tramite AS nro_tramite, mov.glosa AS descripcion, mov.id_estado_wf AS id_estado_wf,
             mov.id_movimiento AS id, ''kaf.tmovimiento'' AS tabla
@@ -1030,7 +1055,13 @@ BEGIN
             SELECT
             ''cierre_proy'' AS cod_tipo,
             ''Cierre Proyectos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             py.nro_tramite_cierre AS nro_tramite, py.nombre AS descripcion, py.id_estado_wf_cierre AS id_estado_wf,
             py.id_proyecto AS id, ''pro.tproyecto'' AS tabla
@@ -1047,7 +1078,13 @@ BEGIN
             --Preingresos
             SELECT ''preingreso'' AS cod_tipo,
             ''Preingresos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             cot.num_tramite, sol.justificacion AS descripcion, cot.id_estado_wf,
             cot.id_cotizacion AS id, ''adq.tcotizacion'' AS tabla
@@ -1072,7 +1109,13 @@ BEGIN
             --Distribución de valores, caso activo fijo nuevo
             SELECT ''distribucion_val'' AS cod_tipo,
             ''Distribución de Valores'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             mov.num_tramite AS nro_tramite, mov.glosa AS descripcion, mov.id_estado_wf AS id_estado_wf,
             mov.id_movimiento AS id, ''kaf.tmovimiento'' AS tabla
@@ -1091,7 +1134,13 @@ BEGIN
             --Resto de Activos Fijos
             SELECT ''activos_fijos'' AS cod_tipo,
             ''Activos Fijos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
-            afv.id_moneda, COALESCE(afv.monto_vigente_actualiz_inicial, afv.monto_vigente_orig) AS monto_activo,
+            afv.id_moneda,
+            --Inicio #29
+            CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
+                WHEN 0 THEN ROUND(afv.monto_vigente_orig, 2)
+                ELSE ROUND(afv.monto_vigente_actualiz_inicial, 2)
+            END AS monto_activo,
+            --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
             mov.num_tramite AS nro_tramite, mov.glosa AS descripcion, mov.id_estado_wf AS id_estado_wf,
             mov.id_movimiento AS id, ''kaf.tmovimiento'' AS tabla
@@ -1238,7 +1287,6 @@ BEGIN
                     ON c.id_cuenta = tr.id_cuenta
                     WHERE cb.estado_reg = 'validado'
                     AND cb.fecha BETWEEN DATE_TRUNC('year', v_parametros.fecha::date) AND v_parametros.fecha::date
-                    AND cb.id_int_comprobante <>  61496 ---OJO BORRAR!!!
                     GROUP BY c.nro_cuenta, c.nombre_cuenta, c.id_cuenta
                 )
                 INSERT INTO kaf.tcomparacion_af_conta (
