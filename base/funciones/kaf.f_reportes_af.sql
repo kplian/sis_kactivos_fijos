@@ -18,6 +18,7 @@ $body$
  #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación (Múltiples CC)
  #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda.
+ #22    KAF       ETR           13/09/2019  RCM         Generar reporte con opción de agrupadores o no
 ***************************************************************************/
 
 DECLARE
@@ -1636,7 +1637,7 @@ raise notice '%',v_consulta;
                           trc.codigo_tipo_relacion::text in (''ALTAAF''::text,''DEPACCLAS''::text,''DEPCLAS''::text)
                         )
                         select
-                        row_number() over(order by tt.codigo) -1 as numero,
+                        row_number() over(order by tt.codigo) as numero, --#22 Se quita el -1
                         tt.codigo,
                         tt.codigo_ant,
                         tt.denominacion,
@@ -2384,7 +2385,7 @@ raise notice '%',v_consulta;
                           trc.codigo_tipo_relacion::text in (''ALTAAF''::text,''DEPACCLAS''::text,''DEPCLAS''::text)
                         )
                         select
-                        row_number() over(order by tt.codigo) -1 as numero,
+                        row_number() over(order by tt.codigo) as numero,  --#22 Se quita el -1
                         tt.codigo,
                         tt.codigo_ant,
                         tt.denominacion,

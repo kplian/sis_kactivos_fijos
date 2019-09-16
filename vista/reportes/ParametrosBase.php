@@ -10,6 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #24    KAF       ETR           01/08/2019  RCM         Adición de parámetros de combo gestión y multiselect de activos fijos
  #26	KAF 	  ETR 			20/08/2019  RCM 		Adición parámetros combo Tipo Activación y Nro Trámite
+ #22	KAF 	  ETR 			16/09/2019  RCM 		Modificación de parámetro para reporte detalle depreciación, para incluir o no subtotales
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -521,7 +522,8 @@ Ext.define('Phx.vista.ParametrosBase', {
 			fieldLabel: 'Nivel',
 			items: [
 				{boxLabel: 'Sólo Totales', name: 'rb-auto3', inputValue: 'clasif'},
-                {boxLabel: 'Detallado', name: 'rb-auto3', inputValue: 'completo', checked: true}
+				{boxLabel: 'Incluir Subtotales por Grupos', name: 'rb-auto3', inputValue: 'completo'},//#22 Valor agregado
+                {boxLabel: 'Sin Subtotales', name: 'rb-auto3', inputValue: 'detalle', checked: true}//#22 cambio de etiqueta y valor
             ]
 		});
 		//Ubicación (table kaf.tubicacion)
@@ -765,7 +767,7 @@ Ext.define('Phx.vista.ParametrosBase', {
 		this.txtMontoInf.setValue('');
 		this.txtMontoSup.setValue('');
 		this.txtNroCbteAsociado.setValue('');
-		this.radGroupDeprec.setValue('completo');
+		this.radGroupDeprec.setValue('detalle');//#22 cambio de valor por defecto
 		this.cmbTipo.setValue('');
 		this.cmbUbicacion.setValue('');
 		this.cmbGestion.setValue(''); //#24

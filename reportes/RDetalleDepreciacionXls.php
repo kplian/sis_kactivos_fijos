@@ -10,6 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
  #55    KAF       ETR           01/08/2019  RCM         Corrección por actualización de PHP 7. Se cambia el string Arial por cadena 'Arial'
+ #22	KAF 	  ETR 			13/09/2019	RCM 		Generar reporte con opción de agrupadores o no
 ****************************************************************************
 */
 class RDetalleDepreciacionXls
@@ -85,7 +86,7 @@ class RDetalleDepreciacionXls
 		$sheet->mergeCells('A3:W3');*/
 
 		//Título 3
-		$titulo3="(Expresado en".$this->objParam->getParametro('desc_moneda').")";
+		$titulo3="(Expresado en ".$this->objParam->getParametro('desc_moneda').")";//#22
 		$this->cell($sheet,$titulo3,'A3',0,3,"center",true,$this->tam_letra_subtitulo,'Arial');//#55
 		$sheet->mergeCells('A3:W3');
 
@@ -225,10 +226,6 @@ class RDetalleDepreciacionXls
 			  ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
 
-		//Quita las filas de los totales (la primera y la última)
-		unset($this->dataSet[0]);
-		unset($this->dataSet[count($this->dataSet)]);
-
 		//Renderiza los datos
 		$sheet->fromArray(
 		    $this->dataSet,  // The data to set
@@ -241,7 +238,7 @@ class RDetalleDepreciacionXls
 		$range=count($this->dataSet)+6;
 
 		//Coloreado de las columnas que se utilizan para la generación del comprobante contable
-		/*$sheet->getStyle('R5:R'.$range)->applyFromArray(
+		$sheet->getStyle('R5:R'.$range)->applyFromArray(
 		    array(
 		        'fill' => array(
 		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -266,7 +263,7 @@ class RDetalleDepreciacionXls
 		            'color' => array('rgb' => '#ffff99')
 		        )
 		    )
-		);//Depreciación Mensual*/
+		);//Depreciación Mensual
 
 
 		//Totales
