@@ -16,6 +16,7 @@
  #19    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos de Vehículos
  #26    KAF       ETR           16/08/2019  RCM         Adición método para Reporte Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
+ #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ***************************************************************************/
 
 class MODReportes extends MODbase{
@@ -403,6 +404,12 @@ class MODReportes extends MODbase{
         $this->captura('depreciacion_acum','numeric');//******
         $this->captura('depreciacion_per','numeric');
         $this->captura('monto_vigente','numeric');
+
+        //Inicio #31
+		$this->captura('aitb_dep_acum','numeric');
+		$this->captura('aitb_dep','numeric');
+        //Fin #31
+
         //$this->captura('afecta_concesion','varchar');
 		$this->captura('cuenta_activo','text');
 		$this->captura('cuenta_dep_acum','text');
@@ -469,6 +476,7 @@ class MODReportes extends MODbase{
 		$this->setParametro('af_deprec','af_deprec','varchar');
 		$this->setParametro('tipoReporte','tipo_reporte','varchar');
 		$this->setParametro('tipo_reporte','tipoReporte','varchar');
+		$this->setParametro('id_moneda_dep','id_moneda_dep','integer'); //#25 se aumenta por corrección de nombre de parámetro
 
 		//Definicion de la lista del resultado del query
 		$this->captura('numero','bigint');
@@ -488,18 +496,24 @@ class MODReportes extends MODbase{
         $this->captura('af_bajas','numeric');
         $this->captura('af_traspasos','numeric');
         $this->captura('inc_actualiz','numeric');
-        $this->captura('monto_actualiz','numeric');
+        $this->captura('monto_actualiz','numeric');//*****
         $this->captura('vida_util_orig','integer');
-        $this->captura('vida_util_usada','integer');
         $this->captura('vida_util','integer');
+        $this->captura('vida_util_usada','integer');
         $this->captura('depreciacion_acum_gest_ant','numeric');
         $this->captura('depreciacion_acum_actualiz_gest_ant','numeric');
         $this->captura('depreciacion','numeric');
         $this->captura('depreciacion_acum_bajas','numeric');
         $this->captura('depreciacion_acum_traspasos','numeric');
-        $this->captura('depreciacion_acum','numeric');
+        $this->captura('depreciacion_acum','numeric');//******
         $this->captura('depreciacion_per','numeric');
         $this->captura('monto_vigente','numeric');
+
+        //Inicio #31
+		$this->captura('aitb_dep_acum','numeric');
+		$this->captura('aitb_dep','numeric');
+        //Fin #31
+
         //$this->captura('afecta_concesion','varchar');
 		$this->captura('cuenta_activo','text');
 		$this->captura('cuenta_dep_acum','text');
@@ -508,14 +522,9 @@ class MODReportes extends MODbase{
         $this->captura('desc_grupo','varchar');
         $this->captura('desc_grupo_clasif','varchar');
         $this->captura('cuenta_dep_acum_dos','text');
-		$this->captura('id_activo_fijo','integer');
-        $this->captura('nivel','integer');
-        $this->captura('orden','bigint');
-        $this->captura('tipo','varchar(10)');
-
         $this->captura('bk_codigo','varchar');
 
-		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
+        //Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
 		$this->captura('cc1', 'varchar(50)');
 		$this->captura('dep_mes_cc1', 'numeric(24,2)');
 		$this->captura('cc2', 'varchar(50)');
@@ -536,6 +545,11 @@ class MODReportes extends MODbase{
 		$this->captura('dep_mes_cc9', 'numeric(24,2)');
 		$this->captura('cc10', 'varchar(50)');
 		$this->captura('dep_mes_cc10', 'numeric(24,2)');
+
+		$this->captura('id_activo_fijo','integer');
+        $this->captura('nivel','integer');
+        $this->captura('orden','bigint');
+        $this->captura('tipo','varchar(10)');
 		//Fin #9
 
 		//Ejecuta la instruccion

@@ -10,16 +10,17 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #0     KAF                     18/10/2017  RCM         Creación del archivo
  #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda. Corrección timeout
+ #22	KAF 	  ETR 			13/09/2019	RCM 		Generar reporte con opción de agrupadores o no. Limpieza de botón
 ***************************************************************************
 
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-var COLOR1='#c2f0cc',
-	COLOR2= '#EAA8A8',
-    COLOR3= '#fafbd9';
-Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
+var COLOR1 = '#c2f0cc',
+	COLOR2 = '#EAA8A8',
+    COLOR3 = '#fafbd9';
+Phx.vista.ReporteDepreciacion = Ext.extend(Phx.gridInterfaz, {
 	bnew: false,
 	bedit: false,
 	bdel: false,
@@ -30,11 +31,11 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
     col3: '#fafbd9',
     timeout: 1200000, //#25 seteo timeout a 20 minutos
 
-	constructor:function(config){
-		this.maestro=config;
+	constructor: function(config){
+		this.maestro = config;
 
     	//llama al constructor de la clase padre
-		Phx.vista.ReporteDepreciacion.superclass.constructor.call(this,config);
+		Phx.vista.ReporteDepreciacion.superclass.constructor.call(this, config);
 		this.init();
 		this.store.baseParams = {
 			start: 0,
@@ -84,12 +85,14 @@ Phx.vista.ReporteDepreciacion=Ext.extend(Phx.gridInterfaz,{
             tooltip: '<b>Imprimir reporte</b><br/>Genera el reporte en el formato para impresión.'
          });
 
-		this.addButton('btnReport', {
+		//Inicio #22
+		/*this.addButton('btnReport', {
             text: 'Test',
             disabled: false,
             handler: this.imprimirReporte2,
             tooltip: '<b>Imprimir reporte 2</b><br/>Genera el reporte en el formato para impresión.'
-         });
+         });*/
+		//Fin #22
 	},
 
 	Atributos:[

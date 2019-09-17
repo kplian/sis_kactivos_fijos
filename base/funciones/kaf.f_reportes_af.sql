@@ -17,6 +17,9 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación (Múltiples CC)
+ #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda.
+ #22    KAF       ETR           13/09/2019  RCM         Generar reporte con opción de agrupadores o no
+ #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ***************************************************************************/
 
 DECLARE
@@ -33,11 +36,12 @@ DECLARE
     v_sql             varchar;
     v_aux             varchar;
 
-    v_lugar   varchar = '';
-    v_filtro      varchar;
-    v_record      record;
+    v_lugar           varchar = '';
+    v_filtro          varchar;
+    v_record          record;
     v_desc_nombre     varchar;
-    v_id_moneda_base    integer;
+    v_id_moneda_base  integer;
+    v_id_movimiento   integer; --#31
 
 BEGIN
 
@@ -206,12 +210,12 @@ BEGIN
                         on proc.id_catalogo = mov.id_cat_movimiento
                         left join kaf.tactivo_fijo_valores afv
                         on afv.id_movimiento_af = movaf.id_movimiento_af
-                        and afv.id_moneda_dep = '|| v_parametros.id_moneda ||'
+                        and afv.id_moneda_dep = '|| v_parametros.id_moneda_dep ||' --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                         left join param.tmoneda mon
                         on mon.id_moneda = afv.id_moneda
                         left join kaf.tmovimiento_af_dep mdep
                         on mdep.id_movimiento_af = movaf.id_movimiento_af
-                        and mdep.id_moneda_dep = '|| v_parametros.id_moneda ||'
+                        and mdep.id_moneda_dep = '|| v_parametros.id_moneda_dep ||' --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                         left join param.tmoneda mon1
                         on mon1.id_moneda = mdep.id_moneda
                         left join param.tcatalogo met
@@ -1025,6 +1029,16 @@ raise notice '%',v_consulta;
             --Obtiene la moneda base
             v_id_moneda_base = param.f_get_moneda_base();
 
+            --Inicio #31
+            SELECT mov.id_movimiento
+            INTO v_id_movimiento
+            FROM kaf.tmovimiento mov
+            INNER JOIN param.tcatalogo cat
+            ON cat.id_catalogo = mov.id_cat_movimiento
+            WHERE DATE_TRUNC('month', mov.fecha_mov) = DATE_TRUNC('month', v_parametros.fecha_hasta::date)
+            AND cat.codigo = 'deprec';
+            --Fin #31
+
             --Creacion de tabla temporal de los actios fijos a filtrar
             create temp table tt_af_filtro (
                 id_activo_fijo integer
@@ -1145,7 +1159,7 @@ raise notice '%',v_consulta;
             inner join kaf.tmoneda_dep mon
             on mon.id_moneda =  afv.id_moneda
             where date_trunc('month',mdep.fecha) = date_trunc('month',v_parametros.fecha_hasta::date)
-            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and mdep.id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
             --and afv.id_activo_fijo_valor = 276602
             and af.estado <> 'eliminado'
@@ -1236,7 +1250,7 @@ raise notice '%',v_consulta;
                                                     --and date_trunc('month',fecha) <> date_trunc('month',v_parametros.fecha_hasta::date)
                                                     and date_trunc('month',fecha) <= date_trunc('month',v_parametros.fecha_hasta::date) --between date_trunc('month',('01-01-'||extract(year from v_parametros.fecha_hasta)::varchar)::date) and date_trunc('month',v_parametros.fecha_hasta)
                                                 )
-            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and mdep.id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
             and afv.id_activo_fijo_valor not in (select id_activo_fijo_valor
                                                 from tt_detalle_depreciacion)
@@ -1299,21 +1313,21 @@ raise notice '%',v_consulta;
                 select depreciacion_acum
                 from kaf.tmovimiento_af_dep
                 where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor
-                and id_moneda_dep = v_parametros.id_moneda
+                and id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                 and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta::date)::integer -1 )::date)
             ),0),
             depreciacion_acum_actualiz_gest_ant = (((tt_detalle_depreciacion.tipo_cambio_fin/(param.f_get_tipo_cambio_v2(tt_detalle_depreciacion.id_moneda_act,tt_detalle_depreciacion.id_moneda /*v_parametros.id_moneda*/, ('31/12/'||extract(year from v_parametros.fecha_hasta::date)::integer -1)::date, 'O'))))-1)*(coalesce((
                             select depreciacion_acum
                             from kaf.tmovimiento_af_dep
                             where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor
-                            and id_moneda_dep = v_parametros.id_moneda
+                            and id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                             and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta)::integer -1 )::date)
                         ),0)),
             monto_vigente_orig = coalesce((
                 select monto_actualiz
                 from kaf.tmovimiento_af_dep
                 where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor
-                and id_moneda_dep = v_parametros.id_moneda
+                and id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                 and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta::date)::integer -1 )::date)
             ), monto_vigente_orig);
 
@@ -1324,7 +1338,7 @@ raise notice '%',v_consulta;
                 from kaf.tmovimiento_af_dep
                 where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor_padre/*tt_detalle_depreciacion.id_activo_fijo_valor_original*/ /*kaf.f_get_afv_padre(tt_detalle_depreciacion.id_activo_fijo_valor)*/
                 and tipo = tt_detalle_depreciacion.tipo
-                and id_moneda_dep = v_parametros.id_moneda
+                and id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                 and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta::date)::integer -1 )::date)
             ),0),
             depreciacion_acum_actualiz_gest_ant = (((tt_detalle_depreciacion.tipo_cambio_fin/(param.f_get_tipo_cambio_v2(tt_detalle_depreciacion.id_moneda_act,tt_detalle_depreciacion.id_moneda/*v_parametros.id_moneda*/, ('31/12/'||extract(year from v_parametros.fecha_hasta::date)::integer -1)::date, 'O'))))-1)*(coalesce((
@@ -1332,7 +1346,7 @@ raise notice '%',v_consulta;
                             from kaf.tmovimiento_af_dep
                             where id_activo_fijo_valor = tt_detalle_depreciacion.id_activo_fijo_valor_padre/*tt_detalle_depreciacion.id_activo_fijo_valor_original*/  /*kaf.f_get_afv_padre(tt_detalle_depreciacion.id_activo_fijo_valor)*/
                             and tipo = tt_detalle_depreciacion.tipo
-                            and id_moneda_dep = v_parametros.id_moneda
+                            and id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
                             and date_trunc('month',fecha) = date_trunc('month',('01-12-'||extract(year from v_parametros.fecha_hasta::date)::integer -1 )::date)
                         ),0))
             where coalesce(depreciacion_acum_gest_ant,0) = 0
@@ -1387,7 +1401,11 @@ raise notice '%',v_consulta;
                 dep_mes_cc9 numeric(24,2),
                 dep_mes_cc10 numeric(24,2),
                 --Fin #9
-                incremento_otra_gestion varchar(2) default 'no'
+                incremento_otra_gestion varchar(2) default 'no',
+                --Inicio #31
+                aitb_dep_acum numeric(24, 2),
+                aitb_dep numeric(24, 2)
+                --Fin #31
             ) on commit drop;
 
             --Inserta los totales por clasificacióm
@@ -1418,7 +1436,11 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null,
+            --Inicio #31
+            null,
             null
+            --Fin #31
             from tt_detalle_depreciacion
             group by codigo_padre, denominacion_padre;
 
@@ -1453,11 +1475,15 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
-            incremento_otra_gestion
+            incremento_otra_gestion,
+            --Inicio #31
+            null,
+            null
+            --Fin #31
             from tt_detalle_depreciacion;
 
             --Inserta los totales finales
-            insert into tt_detalle_depreciacion_totales
+            /*insert into tt_detalle_depreciacion_totales
             select
             'TOTAL FINAL',
             null,
@@ -1484,8 +1510,12 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null,
+            --Inicio #31
+            null,
             null
-            from tt_detalle_depreciacion;
+            --Fin #31
+            from tt_detalle_depreciacion;*/
 
             --Inicio #9: Se actualiza las columnas a partir del prorrateo registrado en tactivo_fijo_cc en el mes de la depreciación
             --Creación de tabla temporal con el prorrateo del mes
@@ -1614,6 +1644,23 @@ raise notice '%',v_consulta;
             and DAT.nro_columna = 10;
             --Fin #9
 
+
+            --Inicio #31
+            --Actualización depreciación acumulada
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep_acum = ANX.dep_acum_actualiz
+            FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
+            AND ANX.id_movimiento = v_id_movimiento;
+
+            --Actualización depreciación
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep = ANX.dep_per_actualiz
+            FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
+            AND ANX.id_movimiento = v_id_movimiento;
+            --Fin #31
+
             v_where = '(''total'',''detalle'',''clasif'')';
             if v_parametros.af_deprec = 'clasif' then
                 v_where = '(''total'',''clasif'')';
@@ -1635,7 +1682,7 @@ raise notice '%',v_consulta;
                           trc.codigo_tipo_relacion::text in (''ALTAAF''::text,''DEPACCLAS''::text,''DEPCLAS''::text)
                         )
                         select
-                        row_number() over(order by tt.codigo) -1 as numero,
+                        row_number() over(order by tt.codigo) as numero, --#22 Se quita el -1
                         tt.codigo,
                         tt.codigo_ant,
                         tt.denominacion,
@@ -1731,6 +1778,11 @@ raise notice '%',v_consulta;
                                 0
                             else tt.monto_actualiz - tt.depreciacion_acum
                         end as monto_vigente,
+
+                        --Inicio #31
+                        tt.aitb_dep_acum,
+                        tt.aitb_dep,
+                        --Fin #31
 
                         --tt.afecta_concesion,
                         (select c.nro_cuenta||''-''||c.nombre_cuenta
@@ -1947,7 +1999,7 @@ raise notice '%',v_consulta;
             inner join kaf.tmoneda_dep mon
             on mon.id_moneda =  afv.id_moneda
             where date_trunc('month',mdep.fecha) = date_trunc('month',v_parametros.fecha_hasta::date)
-            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and mdep.id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
                                                             --and afv.codigo not like '%-G%'
             and af.estado <> 'eliminado';
@@ -2015,7 +2067,7 @@ raise notice '%',v_consulta;
                                                     and date_trunc('month',fecha) <> date_trunc('month',v_parametros.fecha_hasta::date)
                                                     and date_trunc('month',fecha) < date_trunc('month',v_parametros.fecha_hasta::date) --between date_trunc('month',('01-01-'||extract(year from v_parametros.fecha_hasta)::varchar)::date) and date_trunc('month',v_parametros.fecha_hasta)
                                                 )
-            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and mdep.id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
             and afv.id_activo_fijo_valor not in (select id_activo_fijo_valor
                                                 from tt_detalle_depreciacion)
@@ -2090,7 +2142,7 @@ raise notice '%',v_consulta;
                                 where mdep1.id_activo_fijo_valor = afv.id_activo_fijo_valor
                                 and fecha between ('01-01-'||extract(year from mdep.fecha))::date and v_parametros.fecha_hasta::date)
 
-            and mdep.id_moneda_dep = v_parametros.id_moneda
+            and mdep.id_moneda_dep = v_parametros.id_moneda_dep --#25 cambio de v_parametros.id_moneda por v_parametros.id_moneda_dep
             and af.id_activo_fijo in (select id_activo_fijo from tt_af_filtro)
                                                             --and afv.codigo not like '%-G%'
             and afv.id_activo_fijo_valor not in (select id_activo_fijo_valor
@@ -2383,7 +2435,7 @@ raise notice '%',v_consulta;
                           trc.codigo_tipo_relacion::text in (''ALTAAF''::text,''DEPACCLAS''::text,''DEPCLAS''::text)
                         )
                         select
-                        row_number() over(order by tt.codigo) -1 as numero,
+                        row_number() over(order by tt.codigo) as numero,  --#22 Se quita el -1
                         tt.codigo,
                         tt.codigo_ant,
                         tt.denominacion,

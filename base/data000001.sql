@@ -334,7 +334,7 @@ select pxp.f_insert_testructura_gui ('KAFUBI', 'CONFAF');
 /***********************************F-DAT-RCM-KAF-0-15/06/2018****************************************/
 
 /***********************************I-DAT-RCM-KAF-1-25/06/2018****************************************/
-select pxp.f_insert_tgui ('Formulario 605', 'Reporte con el formato del formulario 605 para impuestos', 'KAF.REP.08', 'si', 6, 'sis_kactivos_fijos/vista/reportes/ParametrosRepForm605.php', 3, '', 'ParametrosRepForm605', 'KAF');
+select pxp.f_insert_tgui ('2 Formulario 605', 'Reporte con el formato del formulario 605 para impuestos', 'KAF.REP.08', 'si', 6, 'sis_kactivos_fijos/vista/reportes/ParametrosRepForm605.php', 3, '', 'ParametrosRepForm605', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.08', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-1-25/06/2018****************************************/
 
@@ -387,27 +387,27 @@ INSERT INTO pxp.variable_global (
 /***********************************F-DAT-RCM-KAF-16-18/06/2019****************************************/
 
 /***********************************I-DAT-RCM-KAF-20-19/07/2019****************************************/
-select pxp.f_insert_tgui ('Distribución de Valores', 'Activos fijos con Distribución de Valores', 'KAF.REP.09', 'si', 13, 'sis_kactivos_fijos/vista/reportes/ReporteAfDistValores.php', 3, '', 'ReporteAfDistValores', 'KAF');
+select pxp.f_insert_tgui ('6 Distribución de Valores', 'Activos fijos con Distribución de Valores', 'KAF.REP.09', 'si', 13, 'sis_kactivos_fijos/vista/reportes/ReporteAfDistValores.php', 3, '', 'ReporteAfDistValores', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.09', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-20-19/07/2019****************************************/
 
 /***********************************I-DAT-RCM-KAF-24-31/07/2019****************************************/
-select pxp.f_insert_tgui ('Inventario Detallado por Grupo Contable', 'Inventario Detallado por Grupo Contable', 'KAF.REP.10', 'si', 10, 'sis_kactivos_fijos/vista/reportes/ParametrosRepInventarioDetallado.php', 3, '', 'ParametrosRepInventarioDetallado', 'KAF');
+select pxp.f_insert_tgui ('1 Inventario Detallado por Grupo Contable', 'Inventario Detallado por Grupo Contable', 'KAF.REP.10', 'si', 10, 'sis_kactivos_fijos/vista/reportes/ParametrosRepInventarioDetallado.php', 3, '', 'ParametrosRepInventarioDetallado', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.10', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-24-31/07/2019****************************************/
 
 /***********************************I-DAT-RCM-KAF-17-13/08/2019****************************************/
-select pxp.f_insert_tgui ('Impuestos a la Propiedad e Inmuebles', 'Impuestos a la Propiedad e Inmuebles', 'KAF.REP.11', 'si', 11, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosPropiedad.php', 3, '', 'ParametrosRepImpuestosPropiedad', 'KAF');
+select pxp.f_insert_tgui ('3 Impuestos a la Propiedad e Inmuebles', 'Impuestos a la Propiedad e Inmuebles', 'KAF.REP.11', 'si', 11, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosPropiedad.php', 3, '', 'ParametrosRepImpuestosPropiedad', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.11', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-17-13/08/2019****************************************/
 
 /***********************************I-DAT-RCM-KAF-19-14/08/2019****************************************/
-select pxp.f_insert_tgui ('Impuestos de Vehículos', 'Impuestos de Vehículos', 'KAF.REP.12', 'si', 12, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosVehiculos.php', 3, '', 'ParametrosRepImpuestosVehiculos', 'KAF');
+select pxp.f_insert_tgui ('4 Impuestos de Vehículos', 'Impuestos de Vehículos', 'KAF.REP.12', 'si', 12, 'sis_kactivos_fijos/vista/reportes/ParametrosRepImpuestosVehiculos.php', 3, '', 'ParametrosRepImpuestosVehiculos', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.12', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-19-14/08/2019****************************************/
 
 /***********************************I-DAT-RCM-KAF-26-16/08/2019****************************************/
-select pxp.f_insert_tgui ('Altas por Origen de Activación', 'Altas por Origen de Activación', 'KAF.REP.13', 'si', 14, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAltaOrigen.php', 3, '', 'ParametrosRepAltaOrigen', 'KAF');
+select pxp.f_insert_tgui ('7 Altas por Origen de Activación', 'Altas por Origen de Activación', 'KAF.REP.13', 'si', 14, 'sis_kactivos_fijos/vista/reportes/ParametrosRepAltaOrigen.php', 3, '', 'ParametrosRepAltaOrigen', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.13', 'KAFREP');
 
 select pxp.f_add_catalog('KAF','reportes__tipo_alta','Activos Fijos','activos_fijos','');
@@ -416,3 +416,25 @@ select pxp.f_add_catalog('KAF','reportes__tipo_alta','Distribución de Valores',
 select pxp.f_add_catalog('KAF','reportes__tipo_alta','Preingresos','preingreso','');
 select pxp.f_add_catalog('KAF','reportes__tipo_alta','Todos','todos','');
 /***********************************F-DAT-RCM-KAF-26-16/08/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-17-11/09/2019****************************************/
+INSERT INTO kaf.tgrupo_clasif ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_usuario_ai", "usuario_ai", "codigo", "descripcion")
+VALUES
+  (1, NULL, now(), NULL, E'activo', NULL, NULL, E'RIMPINM', E'Agrupador para Reporte de Impuestos a la Propiedad e Inmuebles'),
+  (1, NULL, now(), NULL, E'activo', NULL, NULL, E'RIMPVEH', E'Agrupador para Reporte de Impuestos Vehículos');
+
+select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-IGUAL','kaf.f_gestionar_cbte_igualacion_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','','{$tabla.fecha_mov}','activo','ENDE TRANSMISIÓN S.A.','{$tabla.id_depto_conta}','contable','','kaf.vdeprec_igualacion_conta_haber_cab','DIARIOCON','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','no','no','no','','','','','{$tabla.num_tramite}','','','','','','Comprobante para igualar saldos del cálculo de depreciación con saldos contables por diferencias por redondeo','','','','','');
+
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','AF DEBE','debe','si','si','','ACTIVOS','DEPACTIVO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','AF Transacción al Debe','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_af',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','AF HABER','haber','si','si','','ACTIVOS','DEPACTIVO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','AF Transacción al Haber','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_af',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','AF DEBE CC','haber','si','si','','ACTIVOS CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','AF DEBE Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_af',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','AF HABER CC','debe','si','si','','ACTIVOS CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','AF HABER Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_af',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','DEP DEBE','haber','si','si','','DEPREC','DEPGASTO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','DEP Transacción al Debe','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_dep',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','DEP HABER','debe','si','si','','DEPREC','DEPGASTO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','DEP Transacción al Haber','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_dep',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','DEP DEBE CC','debe','si','si','','DEPREC CC','DEPGASTO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','DEP DEBE Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_dep',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','DEP HABER CC','haber','si','si','','DEPREC CC','DEPGASTO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','DEP HABER Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_dep',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT DEBE','debe','si','si','','ACT','DEPACTIVO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT Transacción al Debe','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_act',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT HABER','haber','si','si','','ACT','DEPACTIVO','{$tabla.id_cuenta}','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT Transacción al Haber','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_act',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT DEBE CC','haber','si','si','','ACT CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT DEBE Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_act',NULL,'','CCDEPCON','','','todos','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT HABER CC','debe','si','si','','ACT CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT HABER Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_act',NULL,'','CCDEPCON','','','todos','','si');
+/***********************************F-DAT-RCM-KAF-17-11/09/2019****************************************/
