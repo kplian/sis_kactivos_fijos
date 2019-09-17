@@ -19,6 +19,7 @@ $body$
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación (Múltiples CC)
  #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda.
  #22    KAF       ETR           13/09/2019  RCM         Generar reporte con opción de agrupadores o no
+ #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ***************************************************************************/
 
 DECLARE
@@ -35,11 +36,12 @@ DECLARE
     v_sql             varchar;
     v_aux             varchar;
 
-    v_lugar   varchar = '';
-    v_filtro      varchar;
-    v_record      record;
+    v_lugar           varchar = '';
+    v_filtro          varchar;
+    v_record          record;
     v_desc_nombre     varchar;
-    v_id_moneda_base    integer;
+    v_id_moneda_base  integer;
+    v_id_movimiento   integer; --#31
 
 BEGIN
 
@@ -1027,6 +1029,16 @@ raise notice '%',v_consulta;
             --Obtiene la moneda base
             v_id_moneda_base = param.f_get_moneda_base();
 
+            --Inicio #31
+            SELECT mov.id_movimiento
+            INTO v_id_movimiento
+            FROM kaf.tmovimiento mov
+            INNER JOIN param.tcatalogo cat
+            ON cat.id_catalogo = mov.id_cat_movimiento
+            WHERE DATE_TRUNC('month', mov.fecha_mov) = DATE_TRUNC('month', v_parametros.fecha_hasta::date)
+            AND cat.codigo = 'deprec';
+            --Fin #31
+
             --Creacion de tabla temporal de los actios fijos a filtrar
             create temp table tt_af_filtro (
                 id_activo_fijo integer
@@ -1389,7 +1401,11 @@ raise notice '%',v_consulta;
                 dep_mes_cc9 numeric(24,2),
                 dep_mes_cc10 numeric(24,2),
                 --Fin #9
-                incremento_otra_gestion varchar(2) default 'no'
+                incremento_otra_gestion varchar(2) default 'no',
+                --Inicio #31
+                aitb_dep_acum numeric(24, 2),
+                aitb_dep numeric(24, 2)
+                --Fin #31
             ) on commit drop;
 
             --Inserta los totales por clasificacióm
@@ -1420,7 +1436,11 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null,
+            --Inicio #31
+            null,
             null
+            --Fin #31
             from tt_detalle_depreciacion
             group by codigo_padre, denominacion_padre;
 
@@ -1455,11 +1475,15 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
-            incremento_otra_gestion
+            incremento_otra_gestion,
+            --Inicio #31
+            null,
+            null
+            --Fin #31
             from tt_detalle_depreciacion;
 
             --Inserta los totales finales
-            insert into tt_detalle_depreciacion_totales
+            /*insert into tt_detalle_depreciacion_totales
             select
             'TOTAL FINAL',
             null,
@@ -1486,8 +1510,12 @@ raise notice '%',v_consulta;
             --Inicio #9: Inclusión de nuevas columnas
             null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
             --Fin #9
+            null,
+            --Inicio #31
+            null,
             null
-            from tt_detalle_depreciacion;
+            --Fin #31
+            from tt_detalle_depreciacion;*/
 
             --Inicio #9: Se actualiza las columnas a partir del prorrateo registrado en tactivo_fijo_cc en el mes de la depreciación
             --Creación de tabla temporal con el prorrateo del mes
@@ -1616,6 +1644,23 @@ raise notice '%',v_consulta;
             and DAT.nro_columna = 10;
             --Fin #9
 
+
+            --Inicio #31
+            --Actualización depreciación acumulada
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep_acum = ANX.dep_acum_actualiz
+            FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
+            AND ANX.id_movimiento = v_id_movimiento;
+
+            --Actualización depreciación
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep = ANX.dep_per_actualiz
+            FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
+            AND ANX.id_movimiento = v_id_movimiento;
+            --Fin #31
+
             v_where = '(''total'',''detalle'',''clasif'')';
             if v_parametros.af_deprec = 'clasif' then
                 v_where = '(''total'',''clasif'')';
@@ -1733,6 +1778,11 @@ raise notice '%',v_consulta;
                                 0
                             else tt.monto_actualiz - tt.depreciacion_acum
                         end as monto_vigente,
+
+                        --Inicio #31
+                        tt.aitb_dep_acum,
+                        tt.aitb_dep,
+                        --Fin #31
 
                         --tt.afecta_concesion,
                         (select c.nro_cuenta||''-''||c.nombre_cuenta

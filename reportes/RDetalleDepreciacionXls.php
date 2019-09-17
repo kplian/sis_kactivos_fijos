@@ -11,6 +11,7 @@
  #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
  #55    KAF       ETR           01/08/2019  RCM         Corrección por actualización de PHP 7. Se cambia el string Arial por cadena 'Arial'
  #22	KAF 	  ETR 			13/09/2019	RCM 		Generar reporte con opción de agrupadores o no
+ #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ****************************************************************************
 */
 class RDetalleDepreciacionXls
@@ -178,35 +179,39 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,'Depreciación Acum.'			,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		$this->cell($sheet,'Depreciación Gestión'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		$this->cell($sheet,'Valor Neto'					,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Cuenta Activo'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Cuenta Dep. Acum'			,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Cuenta Deprec.'				,"AF$f",31,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Agrupador AE'				,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Clasificador AE'			,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+
+		$this->cell($sheet,'AITB Dep.Acum.'				,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#31
+		$this->cell($sheet,'AITB Dep.'					,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#31
+
+		$this->cell($sheet,'Cuenta Activo'				,"AF$f",31,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cuenta Dep. Acum'			,"AG$f",32,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Cuenta Deprec.'				,"AH$f",33,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Agrupador AE'				,"AI$f",34,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Clasificador AE'			,"AJ$f",35,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Acum. Nueva'   ,"AK$f",36,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 
 		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
-		$this->cell($sheet,'Código 2018'   				,"AJ$f",35,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 1'   					,"AK$f",36,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 1'   			,"AL$f",37,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 2'   					,"AM$f",38,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 2'   			,"AN$f",39,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 3'   					,"AO$f",40,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 3'   			,"AP$f",41,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 4'   					,"AQ$f",42,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 4'   			,"AR$f",43,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 5'   					,"AS$f",44,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 5'   			,"AT$f",45,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 6'   					,"AU$f",46,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 6'   			,"AV$f",47,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 7'   					,"AW$f",48,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 7'   			,"AX$f",49,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 8'   					,"AY$f",50,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 8'   			,"AZ$f",51,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 9'   					,"BA$f",52,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 9'   			,"BB$f",53,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'CC 10'   					,"BC$f",54,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Mes. CC 10'   			,"BD$f",55,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Código 2018'   				,"AL$f",37,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 1'   					,"AM$f",38,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 1'   			,"AN$f",39,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 2'   					,"AO$f",40,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 2'   			,"AP$f",41,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 3'   					,"AQ$f",42,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 3'   			,"AR$f",43,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 4'   					,"AS$f",44,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 4'   			,"AT$f",45,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 5'   					,"AU$f",46,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 5'   			,"AV$f",47,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 6'   					,"AW$f",48,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 6'   			,"AX$f",49,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 7'   					,"AY$f",50,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 7'   			,"AZ$f",51,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 8'   					,"BA$f",52,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 8'   			,"BB$f",53,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 9'   					,"BC$f",54,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 9'   			,"BD$f",55,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'CC 10'   					,"BE$f",56,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Mes. CC 10'   			,"BF$f",57,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		//Fin #9
 
 		$this->fila++;
@@ -305,7 +310,12 @@ class RDetalleDepreciacionXls
 		$this->cell($sheet,$range_sum,"AB$f",27,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 		$range_sum='=SUM(AC'.($this->fila).':AC'.($f-1).')';
 		$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$this->cell($sheet,'',"AD$f",29,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+
+		$range_sum='=SUM(AD'.($this->fila).':AD'.($f-1).')';
+		$this->cell($sheet,$range_sum,"AD$f",29,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#31
+		$range_sum='=SUM(AE'.($this->fila).':AE'.($f-1).')';
+		$this->cell($sheet,$range_sum,"AE$f",30,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#31
+
 
 		//Inicio #9: se estira el  merge cell de AH hasta BC y también el borde
 		$sheet->mergeCells("AD$f:BD$f");
@@ -393,20 +403,22 @@ class RDetalleDepreciacionXls
 		$sheet->getColumnDimension('AA')->setWidth(15);
 		$sheet->getColumnDimension('AB')->setWidth(15);
 		$sheet->getColumnDimension('AC')->setWidth(15);
-		$sheet->getColumnDimension('AD')->setWidth(60);
-		$sheet->getColumnDimension('AE')->setWidth(60);
+
+		$sheet->getColumnDimension('AD')->setWidth(15);//#31
+		$sheet->getColumnDimension('AE')->setWidth(15);//#31
+
 		$sheet->getColumnDimension('AF')->setWidth(60);
 		$sheet->getColumnDimension('AG')->setWidth(60);
 		$sheet->getColumnDimension('AH')->setWidth(60);
 		$sheet->getColumnDimension('AI')->setWidth(60);
-		$sheet->getColumnDimension('AJ')->setWidth(15);
-		$sheet->getColumnDimension('AK')->setWidth(15);
+		$sheet->getColumnDimension('AJ')->setWidth(60);
+		$sheet->getColumnDimension('AK')->setWidth(60);
 		$sheet->getColumnDimension('AL')->setWidth(15);
 		$sheet->getColumnDimension('AM')->setWidth(15);
-
-		//Inicio #9: Seteo del ancho de nuevas columnas
 		$sheet->getColumnDimension('AN')->setWidth(15);
 		$sheet->getColumnDimension('AO')->setWidth(15);
+
+		//Inicio #9: Seteo del ancho de nuevas columnas
 		$sheet->getColumnDimension('AP')->setWidth(15);
 		$sheet->getColumnDimension('AQ')->setWidth(15);
 		$sheet->getColumnDimension('AR')->setWidth(15);
@@ -422,11 +434,13 @@ class RDetalleDepreciacionXls
 		$sheet->getColumnDimension('BB')->setWidth(15);
 		$sheet->getColumnDimension('BC')->setWidth(15);
 		$sheet->getColumnDimension('BD')->setWidth(15);
+		$sheet->getColumnDimension('BE')->setWidth(15);
+		$sheet->getColumnDimension('BF')->setWidth(15);
 
-		$sheet->getColumnDimension('BE')->setWidth(0);
-		$sheet->getColumnDimension('BF')->setWidth(0);
 		$sheet->getColumnDimension('BG')->setWidth(0);
 		$sheet->getColumnDimension('BH')->setWidth(0);
+		$sheet->getColumnDimension('BI')->setWidth(0);
+		$sheet->getColumnDimension('BJ')->setWidth(0);
 		//Fin #9
 	}
 
