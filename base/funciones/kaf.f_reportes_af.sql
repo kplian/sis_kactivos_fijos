@@ -1403,8 +1403,10 @@ raise notice '%',v_consulta;
                 --Fin #9
                 incremento_otra_gestion varchar(2) default 'no',
                 --Inicio #31
-                aitb_dep_acum numeric(24, 2),
-                aitb_dep numeric(24, 2)
+                aitb_dep_acum       numeric(24, 2),
+                aitb_dep            numeric(24, 2),
+                aitb_dep_acum_anual numeric(24, 2),
+                aitb_dep_anual      numeric(24, 2)
                 --Fin #31
             ) on commit drop;
 
@@ -1659,6 +1661,42 @@ raise notice '%',v_consulta;
             FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle ANX
             WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
             AND ANX.id_movimiento = v_id_movimiento;
+
+            --Actualización depreciación acumulada anual
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep_acum_anual = ANX.dep_acum_actualiz
+            FROM (
+                SELECT id_activo_fijo, sum(dep_acum_actualiz) as dep_acum_actualiz
+                FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle
+                WHERE id_movimiento IN (
+                    SELECT mov.id_movimiento
+                    FROM kaf.tmovimiento mov
+                    INNER JOIN param.tcatalogo cat
+                    ON cat.id_catalogo = mov.id_cat_movimiento
+                    WHERE DATE_TRUNC('month', mov.fecha_mov) BETWEEN DATE_TRUNC('year', v_parametros.fecha_hasta::date) AND DATE_TRUNC('month', v_parametros.fecha_hasta::date)
+                    AND cat.codigo = 'deprec'
+                )
+                GROUP BY id_activo_fijo
+            ) ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
+
+            --Actualización depreciación anual
+            UPDATE tt_detalle_depreciacion_totales DEP SET
+            aitb_dep_anual = ANX.dep_per_actualiz
+            FROM (
+                SELECT id_activo_fijo, sum(dep_per_actualiz) as dep_per_actualiz
+                FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle
+                WHERE id_movimiento IN (
+                    SELECT mov.id_movimiento
+                    FROM kaf.tmovimiento mov
+                    INNER JOIN param.tcatalogo cat
+                    ON cat.id_catalogo = mov.id_cat_movimiento
+                    WHERE DATE_TRUNC('month', mov.fecha_mov) BETWEEN DATE_TRUNC('year', v_parametros.fecha_hasta::date) AND DATE_TRUNC('month', v_parametros.fecha_hasta::date)
+                    AND cat.codigo = 'deprec'
+                )
+                GROUP BY id_activo_fijo
+            ) ANX
+            WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
             --Fin #31
 
             v_where = '(''total'',''detalle'',''clasif'')';
@@ -1782,6 +1820,8 @@ raise notice '%',v_consulta;
                         --Inicio #31
                         tt.aitb_dep_acum,
                         tt.aitb_dep,
+                        tt.aitb_dep_acum_anual,
+                        tt.aitb_dep_anual,
                         --Fin #31
 
                         --tt.afecta_concesion,

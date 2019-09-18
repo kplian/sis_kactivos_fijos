@@ -24,6 +24,7 @@ $body$
  #26    KAF       ETR           22/08/2019  RCM         Reporte 7 Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
  #29    KAF       ETR           23/08/2019  RCM         Reporte 7, corrección lógica monto original
+ #31    KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ****************************************************************************/
 DECLARE
 
@@ -1233,9 +1234,9 @@ BEGIN
                         p_id_usuario, NULL, NULL::varchar,
                         'gau0s6qa8lo8kl2r11riers2j2', 99999, '127.0.0.1', '99:99:99:99:99:99',
                         'kaf.f_reportes_af', 'SKA_RDEPREC_SEL', NULL, NULL,
-                        array ['filtro', 'ordenacion', 'dir_ordenacion', 'puntero', 'cantidad', '_id_usuario_ai', '_nombre_usuario_ai', 'tipo_salida', 'fecha_hasta', 'id_moneda', 'af_deprec'],
-                        array [E' 0 = 0 ',E'codigo ASC', E' ', E'0', E'100000', E'NULL', E'NULL', E'grid', (''''||v_parametros.fecha::varchar||'''')::varchar, (''''||v_id_moneda_dep::varchar||'''')::varchar, E'completo'],
-                        array ['varchar', 'varchar', 'varchar', 'integer','integer', 'int4', 'varchar', 'varchar', 'date', 'integer', 'varchar'],
+                        array ['filtro', 'ordenacion', 'dir_ordenacion', 'puntero', 'cantidad', '_id_usuario_ai', '_nombre_usuario_ai', 'tipo_salida', 'fecha_hasta', 'id_moneda', 'af_deprec', 'id_moneda_dep'], --#29 se agrega parámetro id_moneda_dep
+                        array [E' 0 = 0 ',E'codigo ASC', E' ', E'0', E'100000', E'NULL', E'NULL', E'grid', (''''||v_parametros.fecha::varchar||'''')::varchar, (''''||v_id_moneda_dep::varchar||'''')::varchar, E'completo', (''''||v_id_moneda_dep::varchar||'''')::varchar],--#29 se agrega parámetro id_moneda_dep
+                        array ['varchar', 'varchar', 'varchar', 'integer','integer', 'int4', 'varchar', 'varchar', 'date', 'integer', 'varchar', 'integer'],
                         false, 'varchar', NULL
                     ) AS
                     (
@@ -1249,6 +1250,7 @@ BEGIN
                         depreciacion_acum_actualiz_gest_ant numeric,    depreciacion numeric,
                         depreciacion_acum_bajas numeric,                depreciacion_acum_traspasos numeric,
                         depreciacion_acum numeric,                      depreciacion_per numeric,   monto_vigente numeric,
+                        aitb_dep_acum numeric,                          aitb_dep numeric,           aitb_dep_acum_anual numeric,        aitb_dep_anual numeric, --#31
                         cuenta_activo text,                             cuenta_dep_acum text,       cuenta_deprec text,                 desc_grupo varchar,
                         desc_grupo_clasif varchar,                      cuenta_dep_acum_dos text,   bk_codigo varchar,
                         cc1 varchar,                                    dep_mes_cc1 numeric,        cc2 varchar,                        dep_mes_cc2 numeric,    cc3 varchar,
