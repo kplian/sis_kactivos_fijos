@@ -10,6 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #0     KAF 	  ETR 			16/10/2017  RCM 		Creación del archivo
  #25    KAF       ETR           05/08/2019  RCM         Nuevo formato de reporte
+ #29    KAF       ETR           23/08/2019  RCM         reporte 2 se aumenta timeout
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -21,6 +22,7 @@ Phx.vista.ReporteForm605=Ext.extend(Phx.gridInterfaz,{
 	bdel: false,
 	bsave: false,
 	metodoList: 'listarForm605',
+	timeout: 1200000, //#29 se aumenta timeout a 20 min
 
 	constructor:function(config){
 		this.maestro=config;
