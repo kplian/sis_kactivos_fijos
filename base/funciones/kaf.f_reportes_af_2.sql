@@ -23,7 +23,8 @@ $body$
  #19    KAF       ETR           14/08/2019  RCM         Reporte 4 Impuestos de Vehículos
  #26    KAF       ETR           22/08/2019  RCM         Reporte 7 Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
- #29    KAF       ETR           23/08/2019  RCM         Reporte 7, corrección lógica monto original
+ #29    KAF       ETR           23/08/2019  RCM         Corrección reportes
+ #31    KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ****************************************************************************/
 DECLARE
 
@@ -115,7 +116,7 @@ BEGIN
                         CASE
                             WHEN (date_trunc(''year'',afv.fecha_ini_dep) = date_trunc(''year'', ''' || v_fecha ||'''::date)) AND afij.fecha_baja IS NULL THEN
                                 0
-                            ELSE ROUND(mdep.monto_actualiz - mdep.depreciacion_acum, 2)
+                            ELSE ROUND(mdep.monto_actualiz /*- mdep.depreciacion_acum*/, 2) --#29: se solicita que en caso de bajas muestre el monto actualizado únicamente
                         END AS inventario_bajas,
                         (pxp.f_limpiar_cadena(afij.denominacion, ''' || v_caract_invalidos || ''') || '', '' || ume.codigo)::varchar as nombre_con_unidad,
                         mon.codigo as codigo_moneda,
@@ -912,10 +913,10 @@ BEGIN
             tabla,
             cod_tipo
             FROM (
-            --Cierre de Proyectos
+            --Cierre de Proyectos activos nuevos
             SELECT
             ''cierre_proy'' AS cod_tipo,
-            ''Cierre Proyectos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
+            ''Cierre Proyectos'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
             afv.id_moneda,
             --Inicio #29
             CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
@@ -936,9 +937,31 @@ BEGIN
             AND afv.tipo = ''alta''
             WHERE af.estado <> ''registrado''
             UNION
+            --Cierre de Proyectos activos existentes
+            SELECT
+            ''cierre_proy_inc'' AS cod_tipo,
+            ''Cierre Proyectos Incrementos'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
+            afv.id_moneda,
+            --Inicio #29
+            afv.importe_modif as monto_activo,
+            --Fin #29
+            COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
+            py.nro_tramite_cierre AS nro_tramite, py.nombre AS descripcion, py.id_estado_wf_cierre AS id_estado_wf,
+            py.id_proyecto AS id, ''pro.tproyecto'' AS tabla
+            FROM kaf.tactivo_fijo af
+            INNER JOIN pro.tproyecto_activo pa
+            on pa.id_activo_fijo = af.id_activo_fijo
+            INNER JOIN pro.tproyecto py
+            ON py.id_proyecto = pa.id_proyecto
+            INNER JOIN kaf.tactivo_fijo_valores afv
+            ON afv.id_activo_fijo = af.id_activo_fijo
+            AND afv.tipo = ''ajuste''
+            WHERE af.estado <> ''registrado''
+            AND COALESCE(afv.importe_modif, 0) > 0
+            UNION
             --Preingresos
             SELECT ''preingreso'' AS cod_tipo,
-            ''Preingresos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
+            ''Preingresos'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
             afv.id_moneda,
             --Inicio #29
             CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
@@ -969,7 +992,7 @@ BEGIN
             UNION
             --Distribución de valores, caso activo fijo nuevo
             SELECT ''distribucion_val'' AS cod_tipo,
-            ''Distribución de Valores'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
+            ''Distribución de Valores'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
             afv.id_moneda,
             --Inicio #29
             CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
@@ -994,7 +1017,7 @@ BEGIN
             UNION
             --Resto de Activos Fijos
             SELECT ''activos_fijos'' AS cod_tipo,
-            ''Activos Fijos'' AS tipo, af.codigo, af.denominacion, af.estado, af.fecha_ini_dep,
+            ''Activos Fijos'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
             afv.id_moneda,
             --Inicio #29
             CASE COALESCE(afv.monto_vigente_actualiz_inicial, 0)
@@ -1233,9 +1256,9 @@ BEGIN
                         p_id_usuario, NULL, NULL::varchar,
                         'gau0s6qa8lo8kl2r11riers2j2', 99999, '127.0.0.1', '99:99:99:99:99:99',
                         'kaf.f_reportes_af', 'SKA_RDEPREC_SEL', NULL, NULL,
-                        array ['filtro', 'ordenacion', 'dir_ordenacion', 'puntero', 'cantidad', '_id_usuario_ai', '_nombre_usuario_ai', 'tipo_salida', 'fecha_hasta', 'id_moneda', 'af_deprec'],
-                        array [E' 0 = 0 ',E'codigo ASC', E' ', E'0', E'100000', E'NULL', E'NULL', E'grid', (''''||v_parametros.fecha::varchar||'''')::varchar, (''''||v_id_moneda_dep::varchar||'''')::varchar, E'completo'],
-                        array ['varchar', 'varchar', 'varchar', 'integer','integer', 'int4', 'varchar', 'varchar', 'date', 'integer', 'varchar'],
+                        array ['filtro', 'ordenacion', 'dir_ordenacion', 'puntero', 'cantidad', '_id_usuario_ai', '_nombre_usuario_ai', 'tipo_salida', 'fecha_hasta', 'id_moneda', 'af_deprec', 'id_moneda_dep'], --#29 se agrega parámetro id_moneda_dep
+                        array [E' 0 = 0 ',E'codigo ASC', E' ', E'0', E'100000', E'NULL', E'NULL', E'grid', (''''||v_parametros.fecha::varchar||'''')::varchar, (''''||v_id_moneda_dep::varchar||'''')::varchar, E'completo', (''''||v_id_moneda_dep::varchar||'''')::varchar],--#29 se agrega parámetro id_moneda_dep
+                        array ['varchar', 'varchar', 'varchar', 'integer','integer', 'int4', 'varchar', 'varchar', 'date', 'integer', 'varchar', 'integer'],
                         false, 'varchar', NULL
                     ) AS
                     (
@@ -1249,6 +1272,7 @@ BEGIN
                         depreciacion_acum_actualiz_gest_ant numeric,    depreciacion numeric,
                         depreciacion_acum_bajas numeric,                depreciacion_acum_traspasos numeric,
                         depreciacion_acum numeric,                      depreciacion_per numeric,   monto_vigente numeric,
+                        aitb_dep_acum numeric,                          aitb_dep numeric,           aitb_dep_acum_anual numeric,        aitb_dep_anual numeric, --#31
                         cuenta_activo text,                             cuenta_dep_acum text,       cuenta_deprec text,                 desc_grupo varchar,
                         desc_grupo_clasif varchar,                      cuenta_dep_acum_dos text,   bk_codigo varchar,
                         cc1 varchar,                                    dep_mes_cc1 numeric,        cc2 varchar,                        dep_mes_cc2 numeric,    cc3 varchar,

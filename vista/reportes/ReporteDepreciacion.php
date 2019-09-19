@@ -11,6 +11,7 @@
  #0     KAF                     18/10/2017  RCM         Creación del archivo
  #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda. Corrección timeout
  #22	KAF 	  ETR 			13/09/2019	RCM 		Generar reporte con opción de agrupadores o no. Limpieza de botón
+ #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
 ***************************************************************************
 
 */
@@ -652,6 +653,129 @@ Phx.vista.ReporteDepreciacion = Ext.extend(Phx.gridInterfaz, {
 		},
 		{
 			config:{
+				name:'monto_vigente',
+				fieldLabel: 'Valor Neto',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value,metadata,rec,index){
+					var mask='{0}';
+		            if(rec.data.tipo=='total'){
+		                metadata.style="background-color:"+COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo=='clasif'){
+		            	metadata.style="background-color:"+COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value,'0,000.00')):'';
+		        }
+			},
+			type:'TextField',
+			filters:{pfiltro:'monto_vigente',type:'numeric'},
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		//Inicio #31
+		{
+			config:{
+				name:'aitb_dep_acum',
+				fieldLabel: 'AITB Dep.Acum.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, Ext.util.Format.number(value, '0,000.00')) : '';
+		        }
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name:'aitb_dep',
+				fieldLabel: 'AITB Dep.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, Ext.util.Format.number(value, '0,000.00')) : '';
+		        }
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name:'aitb_dep_acum_anual',
+				fieldLabel: 'AITB Dep.Acum. Anual',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, Ext.util.Format.number(value, '0,000.00')) : '';
+		        }
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name:'aitb_dep_anual',
+				fieldLabel: 'AITB Dep.Anual',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value?String.format(mask, Ext.util.Format.number(value, '0,000.00')) : '';
+		        }
+			},
+			type: 'TextField',
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		//Fin #31
+		{
+			config:{
 				name:'codigo_tcc',
 				fieldLabel: 'Centro Costo',
 				allowBlank: true,
@@ -675,231 +799,7 @@ Phx.vista.ReporteDepreciacion = Ext.extend(Phx.gridInterfaz, {
 			grid:true,
 			form:true
 		},
-		/*{
-			config:{
-				name:'cod_raiz',
-				fieldLabel: 'Cod.Raíz',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'cod_raiz',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'cod_grupo',
-				fieldLabel: 'Cod.Grupo',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'cod_grupo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'cod_clase',
-				fieldLabel: 'Cod.Clase',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'cod_clase',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'cod_subgrupo',
-				fieldLabel: 'Cod.Subgrupo',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'cod_subgrupo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'desc_raiz',
-				fieldLabel: 'Raíz',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'desc_raiz',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'desc_grupo',
-				fieldLabel: 'Grupo',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'desc_grupo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'desc_clase',
-				fieldLabel: 'Clase',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'desc_clase',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},
-		{
-			config:{
-				name:'desc_subgrupo',
-				fieldLabel: 'Subgrupo',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'desc_subgrupo',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},*/
-		/*{
-			config:{
-				name:'afecta_concesion',
-				fieldLabel: 'Afecta Concesión',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				renderer: function(value,metadata,rec,index){
-					var mask='{0}';
-		            if(rec.data.tipo=='total'){
-		                metadata.style="background-color:"+COLOR1;
-		                mask = '<u><b>{0}</b></u>';
-		            } else if(rec.data.tipo=='clasif'){
-		            	metadata.style="background-color:"+COLOR2;
-		            	mask = '<b>{0}</b>';
-		            }
-		            return value?String.format(mask, value):'';
-		        }
-			},
-			type:'TextField',
-			filters:{pfiltro:'afecta_concesion',type:'string'},
-			id_grupo:1,
-			grid:true,
-			form:true
-		},*/
+
 		{
 			config:{
 				name:'desc_ubicacion',
@@ -1121,7 +1021,489 @@ Phx.vista.ReporteDepreciacion = Ext.extend(Phx.gridInterfaz, {
 			id_grupo:1,
 			grid:true,
 			form:true
+		},
+		//Inicio #31
+		{
+			config:{
+				name:'cc1',
+				fieldLabel: 'CC1',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc1',
+				fieldLabel: 'Dep.Mes CC1',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc2',
+				fieldLabel: 'CC2',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc2',
+				fieldLabel: 'Dep.Mes CC2',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc3',
+				fieldLabel: 'CC3',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc3',
+				fieldLabel: 'Dep.Mes CC3',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc4',
+				fieldLabel: 'CC4',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc4',
+				fieldLabel: 'Dep.Mes CC4',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc5',
+				fieldLabel: 'CC5',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc5',
+				fieldLabel: 'Dep.Mes CC5',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc6',
+				fieldLabel: 'CC6',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc6',
+				fieldLabel: 'Dep.Mes CC6',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc7',
+				fieldLabel: 'CC7',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc7',
+				fieldLabel: 'Dep.Mes CC7',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc8',
+				fieldLabel: 'CC8',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc8',
+				fieldLabel: 'Dep.Mes CC8',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc9',
+				fieldLabel: 'CC9',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc9',
+				fieldLabel: 'Dep.Mes CC9',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'cc10',
+				fieldLabel: 'CC10',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
+		},
+		{
+			config:{
+				name:'dep_mes_cc10',
+				fieldLabel: 'Dep.Mes CC10',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 90,
+				renderer: function(value, metadata, rec, index){
+					var mask = '{0}';
+		            if(rec.data.tipo == 'total'){
+		                metadata.style = "background-color:" + COLOR1;
+		                mask = '<u><b>{0}</b></u>';
+		            } else if(rec.data.tipo == 'clasif'){
+		            	metadata.style = "background-color:" + COLOR2;
+		            	mask = '<b>{0}</b>';
+		            }
+		            return value ? String.format(mask, value) : '';
+		        }
+			},
+			type:'TextField',
+			id_grupo:1,
+			grid:true,
+			form:true
 		}
+		//Fin #31
 	],
 	tam_pag:50,
 	title:'Reporte',
@@ -1171,7 +1553,36 @@ Phx.vista.ReporteDepreciacion = Ext.extend(Phx.gridInterfaz, {
         {name:'depreciacion_acum_bajas', type: 'numeric'},
         {name:'depreciacion_acum_traspasos', type: 'numeric'},
         {name:'desc_grupo', type: 'string'},
-        {name:'desc_grupo_clasif', type: 'string'}
+        {name:'desc_grupo_clasif', type: 'string'},
+        //Inicio #31
+        {name: 'aitb_dep_acum',type: 'numeric'},
+		{name: 'aitb_dep',type: 'numeric'},
+		{name: 'aitb_dep_acum_anual',type: 'numeric'},
+		{name: 'aitb_dep_anual',type: 'numeric'},
+        {name:'cuenta_dep_acum_dos', type: 'string'},
+        {name:'bk_codigo', type: 'string'},
+		{name:'cc1', type: 'string'},
+		{name:'dep_mes_cc1', type: 'numeric'},
+		{name:'cc2', type: 'string'},
+		{name:'dep_mes_cc2', type: 'numeric'},
+		{name:'cc3', type: 'string'},
+		{name:'dep_mes_cc3', type: 'numeric'},
+		{name:'cc4', type: 'string'},
+		{name:'dep_mes_cc4', type: 'numeric'},
+		{name:'cc5', type: 'string'},
+		{name:'dep_mes_cc5', type: 'numeric'},
+		{name:'cc6', type: 'string'},
+		{name:'dep_mes_cc6', type: 'numeric'},
+		{name:'cc7', type: 'string'},
+		{name:'dep_mes_cc7', type: 'numeric'},
+		{name:'cc8', type: 'string'},
+		{name:'dep_mes_cc8', type: 'numeric'},
+		{name:'cc9', type: 'string'},
+		{name:'dep_mes_cc9', type: 'numeric'},
+		{name:'cc10', type: 'string'},
+		{name:'dep_mes_cc10', type: 'numeric'},
+		{name:'id_activo_fijo', type: 'numeric'}
+		//Fin #31
 	],
 	sortInfo:{
 		field: 'codigo',

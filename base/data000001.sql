@@ -438,3 +438,7 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT DEBE CC','haber','si','si','','ACT CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT DEBE Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_debe_act',NULL,'','CCDEPCON','','','todos','','si');
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','ACT HABER CC','debe','si','si','','ACT CC','DEPACTIVO','','{$tabla.importe}','','','no','','','','si','','id_movimiento','','ACT HABER Contracuenta','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','kaf.vdeprec_igualacion_conta_haber_act',NULL,'','CCDEPCON','','','todos','','si');
 /***********************************F-DAT-RCM-KAF-17-11/09/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-29-18/09/2019****************************************/
+select pxp.f_add_catalog('KAF','reportes__tipo_alta','Cierre Proyectos Incrementos','cierre_proy_inc','');
+/***********************************F-DAT-RCM-KAF-29-18/09/2019****************************************/

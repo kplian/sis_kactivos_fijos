@@ -16,6 +16,7 @@ $body$
  ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #17    KAF       ETR           11/07/2019  RCM         Reporte Impuestos a las Propiedades e Inmuebles por gestión
+ #29    KAF       ETR           17/09/2019  RCM         Reporte 3, cambio de columna Clasificación por la de la variable Tipo Activo
  ***************************************************************************/
 DECLARE
 
@@ -108,7 +109,8 @@ BEGIN
     af.id_ubicacion,
 	af.codigo,
 	ub.nombre AS ubicacion,
-	cl.nombre AS clasificacion,
+	--cl.nombre AS clasificacion, --#29
+	kaf.f_get_activo_fijo_caract(p_id_usuario, af.id_activo_fijo, 'Tipo Activo'), --#29
 	mon.codigo AS moneda,
 	mdepant.monto_actualiz AS valor_actualiz_gest_ant,
 	mdepant.depreciacion_acum AS deprec_acum_gest_ant,
@@ -130,7 +132,7 @@ BEGIN
 	INNER JOIN kaf.tubicacion ub
 	ON ub.id_ubicacion = af.id_ubicacion
 	INNER JOIN param.tmoneda mon
-	ON mon.id_moneda = af.id_moneda
+	ON mon.id_moneda = afv.id_moneda
 	LEFT JOIN tult_dep_gest_ant udant
 	ON udant.id_activo_fijo = afv.id_activo_fijo
 	AND udant.id_moneda = afv.id_moneda
@@ -147,7 +149,8 @@ BEGIN
     af.id_ubicacion,
 	af.codigo,
 	ub.nombre AS ubicacion,
-	cl.nombre AS clasificacion,
+	--cl.nombre AS clasificacion, --#29
+	kaf.f_get_activo_fijo_caract(p_id_usuario, af.id_activo_fijo, 'Tipo Activo'), --#29
 	mon.codigo AS moneda,
 	mdep.monto_actualiz AS valor_actualiz_gest_ant,
 	mdep.depreciacion_acum AS deprec_acum_gest_ant,
@@ -169,7 +172,7 @@ BEGIN
 	INNER JOIN kaf.tubicacion ub
 	ON ub.id_ubicacion = af.id_ubicacion
 	INNER JOIN param.tmoneda mon
-	ON mon.id_moneda = af.id_moneda
+	ON mon.id_moneda = afv.id_moneda
 	WHERE afv.id_moneda = p_id_moneda
 	AND (af.fecha_baja IS NOT NULL AND date_trunc('year',af.fecha_baja) = date_trunc('year',p_fecha)); --p_fecha
 

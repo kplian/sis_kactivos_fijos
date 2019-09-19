@@ -16,6 +16,7 @@ $body$
  ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #19    KAF       ETR           15/07/2019  RCM         Creación
+ #29    KAF       ETR           16/09/2019  RCM         Corrección error al desplegar moneda
  ***************************************************************************/
 DECLARE
 
@@ -151,7 +152,7 @@ BEGIN
 	LEFT JOIN kaf.tubicacion ub
 	ON ub.id_ubicacion = af.id_ubicacion
 	INNER JOIN param.tmoneda mon
-	ON mon.id_moneda = af.id_moneda
+	ON mon.id_moneda = afv.id_moneda --#29 cambio de af.id_moneda por afv.id_moneda
 	LEFT JOIN tult_dep_gest_ant udant
 	ON udant.id_activo_fijo = afv.id_activo_fijo
 	AND udant.id_moneda = afv.id_moneda
@@ -197,7 +198,7 @@ BEGIN
 	LEFT JOIN kaf.tubicacion ub
 	ON ub.id_ubicacion = af.id_ubicacion
 	INNER JOIN param.tmoneda mon
-	ON mon.id_moneda = af.id_moneda
+	ON mon.id_moneda = afv.id_moneda--#29 cambio de af.id_moneda por afv.id_moneda
 	WHERE afv.id_moneda = p_id_moneda
 	AND (af.fecha_baja IS NOT NULL AND date_trunc('year',af.fecha_baja) = date_trunc('year',p_fecha)); --p_fecha
 

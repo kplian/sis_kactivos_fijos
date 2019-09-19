@@ -408,6 +408,8 @@ class MODReportes extends MODbase{
         //Inicio #31
 		$this->captura('aitb_dep_acum','numeric');
 		$this->captura('aitb_dep','numeric');
+		$this->captura('aitb_dep_acum_anual','numeric');
+		$this->captura('aitb_dep_anual','numeric');
         //Fin #31
 
         //$this->captura('afecta_concesion','varchar');
@@ -512,6 +514,8 @@ class MODReportes extends MODbase{
         //Inicio #31
 		$this->captura('aitb_dep_acum','numeric');
 		$this->captura('aitb_dep','numeric');
+		$this->captura('aitb_dep_acum_anual','numeric');
+		$this->captura('aitb_dep_anual','numeric');
         //Fin #31
 
         //$this->captura('afecta_concesion','varchar');
