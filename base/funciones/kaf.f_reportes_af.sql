@@ -1566,7 +1566,7 @@ raise notice '%',v_consulta;
 
             update tt_detalle_depreciacion_totales DEP set
             cc2 = case when DAT.nro_columna = 2 then DAT.cc else DEP.cc2 end,
-            dep_mes_cc2 = case when DAT.nro_columna = 2 then DAT.dep_mes else -99 end
+            dep_mes_cc2 = case when DAT.nro_columna = 2 then DAT.dep_mes else dep_mes_cc2 end
             from (
                 select * from tt_prorrateo_af
             ) DAT
@@ -1575,7 +1575,7 @@ raise notice '%',v_consulta;
 
             update tt_detalle_depreciacion_totales DEP set
             cc3 = case when DAT.nro_columna = 3 then DAT.cc else DEP.cc3 end,
-            dep_mes_cc3 = case when DAT.nro_columna = 3 then DAT.dep_mes else -99 end
+            dep_mes_cc3 = case when DAT.nro_columna = 3 then DAT.dep_mes else dep_mes_cc3 end
             from (
                 select * from tt_prorrateo_af
             ) DAT
@@ -1903,7 +1903,7 @@ raise notice '%',v_consulta;
                         left join kaf.tgrupo gr1 on gr1.id_grupo = af.id_grupo_clasif
                         left join param.tunidad_medida um on um.id_unidad_medida = af.id_unidad_medida
                         left join kaf.tactivo_fijo_cta_tmp act on act.id_activo_fijo = tt.id_activo_fijo
-                        left join conta.tcuenta cta on cta.nro_cuenta = act.nro_cuenta AND cta.id_gestion = 2
+                        left join conta.tcuenta cta on cta.nro_cuenta = act.nro_cuenta AND cta.id_gestion = (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC(''year'', fecha_ini) = DATE_TRUNC(''year'', '''||v_parametros.fecha_hasta||'''::date))
                         where tt.tipo in '||v_where||'
                         order by tt.codigo';
 

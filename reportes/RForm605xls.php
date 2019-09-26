@@ -139,8 +139,8 @@ class RForm605xls
 		$this->cell($sheet, 'DETALLE DE INVENTARIO DE ACTIVOS FIJOS Y O BIENES DE USO'	,"C$f", 2, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'UNIDAD MEDIDA'												,"D$f", 3, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'CANTIDAD DE UNIDADES'										,"E$f", 4, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'INVENTARIO FINAL VALORADOS (VALOR NETO O RESIDUAL)'	 	,"F$f", 5, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'IMPORTE DE BAJAS EN LA GESTION (VALOR NETO O RESIDUAL)'	,"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'INVENTARIO FINAL VALORADO'	 								,"F$f", 5, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'IMPORTE DE BAJAS EN LA GESTION'							,"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'NOMBRE CON UNIDAD DE MEDIDA'								,"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		//Fin #25
 
