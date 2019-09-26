@@ -1570,3 +1570,76 @@ CREATE TABLE kaf.tcomparacion_af_conta (
     CONSTRAINT pk_tcomparacion_af_conta__id_comparacion_af_conta PRIMARY KEY (id_comparacion_af_conta)
 ) INHERITS (pxp.tbase) WITHOUT OIDS;
 /***********************************F-SCP-RCM-KAF-23-29/08/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-32-24/09/2019****************************************/
+CREATE TABLE kaf.treporte_detalle_dep (
+    id_movimiento integer,
+    id_moneda integer,
+    fecha_reg date,
+    fecha timestamp,
+    numero bigint,
+    codigo varchar,
+    codigo_ant varchar,
+    denominacion varchar,
+    fecha_ini_dep date,
+    cantidad_af integer,
+    desc_unidad_medida varchar,
+    codigo_tcc varchar, --10
+    nro_serie varchar,
+    desc_ubicacion varchar,
+    responsable text,
+    monto_vigente_orig_100 numeric,
+    monto_vigente_orig numeric,
+    af_altas numeric,
+    af_bajas numeric,
+    af_traspasos numeric,
+    inc_actualiz numeric,
+    monto_actualiz numeric, --20
+    vida_util_orig integer,
+    vida_util integer,
+    vida_util_usada integer,
+    depreciacion_acum_gest_ant numeric,
+    depreciacion_acum_actualiz_gest_ant numeric,
+    depreciacion numeric,
+    depreciacion_acum_bajas numeric,
+    depreciacion_acum_traspasos numeric,
+    depreciacion_acum numeric,
+    depreciacion_per numeric, --30
+    monto_vigente numeric,
+    aitb_dep_acum numeric,
+    aitb_dep numeric,
+    aitb_dep_acum_anual numeric,
+    aitb_dep_anual numeric,
+    cuenta_activo text,
+    cuenta_dep_acum text,
+    cuenta_deprec text,
+    desc_grupo varchar,
+    desc_grupo_clasif varchar, --40
+    cuenta_dep_acum_dos text,
+    bk_codigo varchar,
+    cc1 varchar(50),
+    dep_mes_cc1 numeric(24,2),
+    cc2 varchar(50),
+    dep_mes_cc2 numeric(24,2),
+    cc3 varchar(50),
+    dep_mes_cc3 numeric(24,2),
+    cc4 varchar(50),
+    dep_mes_cc4 numeric(24,2), --50
+    cc5 varchar(50),
+    dep_mes_cc5 numeric(24,2),
+    cc6 varchar(50),
+    dep_mes_cc6 numeric(24,2),
+    cc7 varchar(50),
+    dep_mes_cc7 numeric(24,2),
+    cc8 varchar(50),
+    dep_mes_cc8 numeric(24,2),
+    cc9 varchar(50),
+    dep_mes_cc9 numeric(24,2), --60
+    cc10 varchar(50),
+    dep_mes_cc10 numeric(24,2),
+    id_activo_fijo integer,
+    nivel integer,
+    orden bigint,
+    tipo varchar(10) --66
+) WITHOUT OIDS;
+/***********************************F-SCP-RCM-KAF-32-24/09/2019****************************************/
