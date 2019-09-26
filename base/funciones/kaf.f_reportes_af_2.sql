@@ -51,6 +51,10 @@ DECLARE
     v_sw_insert        boolean;
     v_id_estado_wf     integer;
     --Fin #23
+    --Inicio #25
+    v_fecha_dep        date;
+    v_max_fecha        date;
+    --Fin #25
 
 BEGIN
 
@@ -697,12 +701,22 @@ BEGIN
             ubicacion,
             clasificacion,
             moneda,
-            valor_actualiz_gest_ant,
-            deprec_acum_gest_ant,
-            valor_actualiz,
-            deprec_sin_actualiz,
-            deprec_acum,
-            valor_neto,
+            ROUND(COALESCE(valor_actualiz_gest_ant, 0), 2) AS valor_actualiz_gest_ant,
+            ROUND(COALESCE(deprec_acum_gest_ant, 0), 2) AS deprec_acum_gest_ant,
+            ROUND(COALESCE(valor_actualiz, 0), 2) AS valor_actualiz,
+            --Inicio #29: se cambia deprec_sin_actualiz por la resta de deprec acum - deprec acum gest ant
+            CASE COALESCE(deprec_acum, 0)
+                WHEN 0 THEN -1 * ROUND(COALESCE(deprec_acum_gest_ant, 0), 2)
+                ELSE CASE COALESCE(deprec_acum_gest_ant, 0)
+                        WHEN 0 THEN
+                            ROUND(COALESCE(deprec_acum, 0), 2)
+                        ELSE
+                            ROUND(COALESCE(deprec_acum - deprec_acum_gest_ant, 0), 2)
+                    END
+            END AS deprec_sin_actualiz,
+            --Fin #29
+            ROUND(COALESCE(deprec_acum, 0), 2) AS deprec_acum,
+            ROUND(COALESCE(valor_neto, 0), 2) AS valor_neto,
             orden
             FROM kaf.f_reporte_impuestos_inmueb(' || p_id_usuario || ', ''' || v_parametros.fecha_hasta || ''', ' || v_parametros.id_moneda || ', ''no'') AS
             (
@@ -903,7 +917,7 @@ BEGIN
             estado,
             fecha_ini_dep,
             monto_activo,
-            dep_acum_inicial,
+            --dep_acum_inicial,  --#29
             vida_util_orig,
             nro_tramite,
             descripcion,
@@ -925,7 +939,13 @@ BEGIN
             END AS monto_activo,
             --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
-            py.nro_tramite_cierre AS nro_tramite, py.nombre AS descripcion, py.id_estado_wf_cierre AS id_estado_wf,
+            py.nro_tramite_cierre AS nro_tramite,
+            (SELECT ''['' || pxp.list(tcc.codigo) || ''] ''
+            FROM pro.tproyecto_activo_detalle pad
+            INNER JOIN param.ttipo_cc tcc
+            ON tcc.id_tipo_cc = pad.id_tipo_cc
+            WHERE pad.id_proyecto_activo = pa.id_proyecto_activo) || py.nombre AS descripcion,
+            py.id_estado_wf_cierre AS id_estado_wf,
             py.id_proyecto AS id, ''pro.tproyecto'' AS tabla
             FROM kaf.tactivo_fijo af
             INNER JOIN pro.tproyecto_activo pa
@@ -943,10 +963,19 @@ BEGIN
             ''Cierre Proyectos Incrementos'' AS tipo, af.codigo, af.denominacion, af.estado, afv.fecha_ini_dep,
             afv.id_moneda,
             --Inicio #29
-            afv.importe_modif as monto_activo,
+            ROUND((
+                param.f_get_tipo_cambio(3, date_trunc(''year'', py.fecha_fin)::date, ''O'') /
+                param.f_get_tipo_cambio(3, (date_trunc(''month'', py.fecha_fin) - interval ''1 day'')::date, ''O'')
+            ) * afv.importe_modif, 2) AS monto_activo,
             --Fin #29
             COALESCE(afv.depreciacion_acum_inicial,0) AS dep_acum_inicial, afv.vida_util_orig,
-            py.nro_tramite_cierre AS nro_tramite, py.nombre AS descripcion, py.id_estado_wf_cierre AS id_estado_wf,
+            py.nro_tramite_cierre AS nro_tramite,
+            (SELECT ''['' || pxp.list(tcc.codigo) || ''] ''
+            FROM pro.tproyecto_activo_detalle pad
+            INNER JOIN param.ttipo_cc tcc
+            ON tcc.id_tipo_cc = pad.id_tipo_cc
+            WHERE pad.id_proyecto_activo = pa.id_proyecto_activo) || py.nombre AS descripcion,
+            py.id_estado_wf_cierre AS id_estado_wf,
             py.id_proyecto AS id, ''pro.tproyecto'' AS tabla
             FROM kaf.tactivo_fijo af
             INNER JOIN pro.tproyecto_activo pa
@@ -1520,6 +1549,89 @@ BEGIN
 
         END;
     --Fin #23
+
+    --Inicio #29
+    /*********************************
+     #TRANSACCION:  'SKA_FORM605V2_SEL'
+     #DESCRIPCION:  Reporte Form605 V2
+     #AUTOR:        RCM
+     #FECHA:        25/09/2019
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_FORM605V2_SEL') THEN
+
+        BEGIN
+
+            --Obtiene la fecha máxima de depreciación en base a la fecha enviada
+            v_fecha_dep = ('31-12-' || v_parametros.gestion)::date;
+
+            SELECT MAX(fecha)
+            INTO v_max_fecha
+            FROM kaf.tmovimiento_af_dep
+            WHERE DATE_TRUNC('month', fecha) <= DATE_TRUNC('month', v_fecha_dep);
+
+            v_caract_invalidos = pxp.f_get_variable_global('kaf_caracteres_no_validos_form605');
+
+            v_consulta = 'SELECT
+                        rd.codigo,
+                        rd.cuenta_activo AS nro_cuenta,
+                        rd.denominacion,
+                        rd.desc_unidad_medida AS unidad_medida,
+                        rd.cantidad_af,
+                        rd.monto_vigente AS inventario_final,
+                        rd.af_bajas AS inventario_bajas,
+                        (pxp.f_limpiar_cadena(rd.denominacion, ''' || v_caract_invalidos || ''') || '', '' || rd.codigo)::varchar as nombre_con_unidad,
+                        mon.codigo as codigo_moneda,
+                        mon.moneda as desc_moneda
+                        FROM kaf.treporte_detalle_dep rd
+                        INNER JOIN param.tmoneda mon
+                        ON mon.id_moneda = rd.id_moneda
+                        WHERE DATE_TRUNC(''month'', fecha) = DATE_TRUNC(''month'', ''' || v_max_fecha || '''::date)
+                        AND rd.id_moneda = ' || v_parametros.id_moneda || ' ';
+
+            IF v_parametros.tipo_salida = 'grid' THEN
+                --Definicion de la respuesta
+                --v_consulta = v_consulta || v_parametros.filtro;
+                --v_consulta = v_consulta || ' ORDER BY ' || v_parametros.ordenacion || ' ' || v_parametros.dir_ordenacion || ' LIMIT ' || COALESCE(v_parametros.cantidad, 9999999) || ' OFFSET ' || COALESCE(v_parametros.puntero, 0);
+            ELSE
+                v_consulta = v_consulta || ' ORDER BY 1';
+            END IF;
+
+            RETURN v_consulta;
+
+        END;
+
+    /*********************************
+     #TRANSACCION:  'SKA_FORM605V2_CONT'
+     #DESCRIPCION:  Reporte Form605 V2
+     #AUTOR:        RCM
+     #FECHA:        25/09/2019
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_FORM605V2_CONT') THEN
+
+        BEGIN
+
+            --Obtiene la fecha máxima de depreciación en base a la fecha enviada
+            v_fecha_dep = ('31-12-' || v_parametros.gestion)::date;
+
+            SELECT MAX(fecha)
+            INTO v_max_fecha
+            FROM kaf.tmovimiento_af_dep
+            WHERE DATE_TRUNC('month', fecha) <= DATE_TRUNC('month', v_fecha_dep);
+
+            v_caract_invalidos = pxp.f_get_variable_global('kaf_caracteres_no_validos_form605');
+
+            v_consulta = 'SELECT
+                        COUNT(1) AS total
+                        FROM kaf.treporte_detalle_dep rd
+                        INNER JOIN param.tmoneda mon
+                        ON mon.id_moneda = rd.id_moneda
+                        WHERE DATE_TRUNC(''month'', fecha) = DATE_TRUNC(''month'', ''' || v_max_fecha || '''::date)
+                        AND rd.id_moneda = ' || v_parametros.id_moneda;
+
+            RETURN v_consulta;
+
+        END;
+    --Fin #29
 
     ELSE
         RAISE EXCEPTION 'Transacción inexistente';

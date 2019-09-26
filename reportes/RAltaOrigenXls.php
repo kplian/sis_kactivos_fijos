@@ -3,6 +3,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #26    KAF       ETR           22/08/2019  RCM         Reporte Origen de Altas
+ #29    KAF       ETR           23/09/2019  RCM         Corrección reportes
 ***************************************************************************
 */
 class RAltaOrigenXls
@@ -137,10 +138,12 @@ class RAltaOrigenXls
 		$this->cell($sheet, 'ESTADO', 						"D$f", 3, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'FECHA INI. DEP.', 				"E$f", 4, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
 		$this->cell($sheet, 'VALOR ACTUALIZ.', 				"F$f", 5, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'DEP. ACUM. INICIAL', 			"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'VIDA ÚTIL ORIG. (MESES)',		"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'NRO. TRÁMITE', 				"I$f", 8, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
-		$this->cell($sheet, 'DESCRIPCIÓN MOVIMIENTO ALTA', 	"J$f", 9, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		//Inicio #29: se quita columna dep. acum. inicial
+		//$this->cell($sheet, 'DEP. ACUM. INICIAL', 			"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'VIDA ÚTIL ORIG. (MESES)',		"G$f", 6, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'NRO. TRÁMITE', 				"H$f", 7, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		$this->cell($sheet, 'DESCRIPCIÓN MOVIMIENTO ALTA', 	"I$f", 8, $f, "center", true, $this->tam_letra_detalle, 'Arial', true, true);
+		//Fin #29
 		$this->fila++;
 
 		//////////////////
@@ -175,8 +178,10 @@ class RAltaOrigenXls
 		if($range > 6){
 			$formula = "=SUM(F" . $this->fila . ":F" . ($range - 1) . ")";
 			$this->cell($sheet, $formula, "F$range", 5, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
-			$formula = "=SUM(G" . $this->fila . ":G" . ($range - 1) . ")";
-			$this->cell($sheet, $formula, "G$range", 6, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+			//Inicio #29
+			//$formula = "=SUM(G" . $this->fila . ":G" . ($range - 1) . ")";
+			//$this->cell($sheet, $formula, "G$range", 6, $range, "right", true, $this->tam_letra_detalle, 'Arial', true, false);
+			//Fin #29
 		}
 
 		//Actualización variables
@@ -227,15 +232,17 @@ class RAltaOrigenXls
 		$sheet->getColumnDimension('D')->setWidth(15);
 		$sheet->getColumnDimension('E')->setWidth(15);
 		$sheet->getColumnDimension('F')->setWidth(20);
+		//Inicio #29
+		//$sheet->getColumnDimension('G')->setWidth(20);
 		$sheet->getColumnDimension('G')->setWidth(20);
 		$sheet->getColumnDimension('H')->setWidth(20);
-		$sheet->getColumnDimension('I')->setWidth(20);
-		$sheet->getColumnDimension('J')->setWidth(50);
+		$sheet->getColumnDimension('I')->setWidth(50);
+		$sheet->getColumnDimension('J')->setWidth(0);
 		$sheet->getColumnDimension('K')->setWidth(0);
 		$sheet->getColumnDimension('L')->setWidth(0);
 		$sheet->getColumnDimension('M')->setWidth(0);
 		$sheet->getColumnDimension('N')->setWidth(0);
-		$sheet->getColumnDimension('O')->setWidth(0);
+		//Fin #29
 	}
 
 }

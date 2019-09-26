@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #26    KAF       ETR           22/08/2019  RCM         Creación
+ #29    KAF       ETR           20/09/2019  RCM         Corrección reportes
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -64,7 +65,7 @@ Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
 			tipo_activacion: this.maestro.paramsRep.tipo_activacion,
 			nro_tramite: this.maestro.paramsRep.nro_tramite
 		};
-		console.log('store',this.store)
+
 		this.load();
 
 		this.definirReporteCabecera();
@@ -163,7 +164,8 @@ Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
 			grid: true,
 			form: true
 		},
-		{
+		//Inicio #29:se quita columna dep_acum_inici
+		/*{
 			config:{
 				name: 'dep_acum_inicial',
 				fieldLabel: 'Dep. Acum. Inicial',
@@ -174,7 +176,8 @@ Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
 			id_grupo: 1,
 			grid: true,
 			form: true
-		},
+		},*/
+		//Fin #29
 		{
 			config:{
 				name: 'vida_util_orig',
@@ -224,7 +227,7 @@ Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
 		{name: 'estado', type: 'string'},
 		{name: 'fecha_ini_dep', type: 'date', dateFormat: 'Y-m-d'},
 		{name: 'monto_activo', type: 'numeric'},
-		{name: 'dep_acum_inicial', type: 'numeric'},
+		//{name: 'dep_acum_inicial', type: 'numeric'},//#29 se quita columna dep_acum_inici
 		{name: 'vida_util_orig', type: 'numeric'},
 		{name: 'nro_tramite', type: 'string'},
 		{name: 'descripcion', type: 'string'},
@@ -294,8 +297,8 @@ Phx.vista.ReporteAltaOrigen = Ext.extend(Phx.gridInterfaz, {
             },
             success: this.successExport,
             failure: this.conexionFailure,
-            timeout:this.timeout,
-            scope:this
+            timeout: this.timeout,
+            scope: this
         });
 	}
 })

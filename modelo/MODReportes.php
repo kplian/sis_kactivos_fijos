@@ -17,6 +17,7 @@
  #26    KAF       ETR           16/08/2019  RCM         Adición método para Reporte Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
  #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
+ #29    KAF       ETR           20/09/2019  RCM         Corrección reportes
 ***************************************************************************/
 
 class MODReportes extends MODbase{
@@ -569,7 +570,7 @@ class MODReportes extends MODbase{
 	//#Inicio #25
 	function listarForm605(){
 		//Definicion de variables para ejecucion del procedimientp
-		$this->procedimiento = 'kaf.f_reportes_af_2';
+		/*$this->procedimiento = 'kaf.f_reportes_af_2';
 		$this->transaccion = 'SKA_FRM605_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
@@ -587,6 +588,34 @@ class MODReportes extends MODbase{
 		//Definicion de la lista del resultado del query
         $this->captura('codigo', 'varchar');
         $this->captura('nro_cuenta', 'varchar');
+        $this->captura('denominacion', 'varchar');
+        $this->captura('unidad_medida', 'varchar');
+        $this->captura('cantidad_af', 'integer');
+        $this->captura('inventario_final', 'numeric');
+        $this->captura('inventario_bajas', 'numeric');
+        $this->captura('nombre_con_unidad', 'varchar');
+        $this->captura('codigo_moneda', 'varchar');
+        $this->captura('desc_moneda', 'varchar');*/
+
+        //Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_2';
+		$this->transaccion = 'SKA_FORM605V2_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida','tipo_salida','varchar');
+		$this->setParametro('id_moneda','id_moneda','integer');
+		$this->setParametro('denominacion','denominacion','varchar');
+		$this->setParametro('gestion','gestion','varchar');
+		$this->setParametro('id_activo_fijo_multi','id_activo_fijo_multi','varchar');
+
+		//Definicion de la lista del resultado del query
+        $this->captura('codigo', 'varchar');
+        $this->captura('nro_cuenta', 'text');
         $this->captura('denominacion', 'varchar');
         $this->captura('unidad_medida', 'varchar');
         $this->captura('cantidad_af', 'integer');
@@ -921,10 +950,10 @@ class MODReportes extends MODbase{
 		$this->captura('estado', 'varchar');
 		$this->captura('fecha_ini_dep', 'date');
 		$this->captura('monto_activo', 'numeric');
-		$this->captura('dep_acum_inicial', 'numeric');
+		//$this->captura('dep_acum_inicial', 'numeric'); //#29
 		$this->captura('vida_util_orig', 'integer');
 		$this->captura('nro_tramite', 'varchar');
-		$this->captura('descripcion', 'varchar');
+		$this->captura('descripcion', 'text');//#29
 		$this->captura('id_moneda', 'integer');
 		$this->captura('id_estado_wf', 'integer');
 		$this->captura('identificador', 'integer');
