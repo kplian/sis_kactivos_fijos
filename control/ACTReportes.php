@@ -164,10 +164,12 @@ class ACTReportes extends ACTbase {
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacionExportar');
+			//$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacionExportar'); //#33
+			$this->res = $this->objReporte->generarReporteListado('MODReportes','listarRepDepreciacionOpt');
 		} else {
 			$this->objFunc=$this->create('MODReportes');
-			$this->res=$this->objFunc->listarRepDepreciacion($this->objParam);
+			//$this->res=$this->objFunc->listarRepDepreciacion($this->objParam); //#33
+			$this->res=$this->objFunc->listarRepDepreciacionOpt($this->objParam);
 		}
 
 		$this->res->imprimirRespuesta($this->res->generarJson());
@@ -430,7 +432,7 @@ class ACTReportes extends ACTbase {
 	//Fin #25
 
 
-	function generarReporteDetalleDepreciacion(){
+	function generarReporteDetalleDepreciacion() {
 		$nombreArchivo = uniqid('RDetalleDepreciacionXls'.md5(session_id())).'.xls';
 		//$dataSourceMaster = $this->obtenerMovimientoID();
 		$dataSource = $this->obtenerDetalleDepreciacion();
@@ -459,7 +461,8 @@ class ACTReportes extends ACTbase {
 	function obtenerDetalleDepreciacion(){
 		$this->definirFiltros();
 		$this->objFunc=$this->create('MODReportes');
-		$data = $this->objFunc->listarRepDepreciacion($this->objParam);
+		//$data = $this->objFunc->listarRepDepreciacion($this->objParam);
+		$data = $this->objFunc->listarRepDepreciacionOpt($this->objParam);
 
 		if($data->getTipo() == 'EXITO'){
 			return $data;

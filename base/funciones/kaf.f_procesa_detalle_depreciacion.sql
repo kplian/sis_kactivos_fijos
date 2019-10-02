@@ -16,6 +16,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #0     KAF       ETR           22/10/2018  RCM         Creación
  #32    KAF       ETR           24/09/2019  RCM         Actualización función
+ #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum. que suman a la depreciación del mes y al incremento
 ***************************************************************************/
 DECLARE
 
@@ -88,7 +89,9 @@ BEGIN
         depreciacion numeric(18,2),
         depreciacion_per_ant numeric,
         importe_modif numeric,
-        incremento_otra_gestion varchar(2) DEFAULT 'no'
+        incremento_otra_gestion varchar(2) DEFAULT 'no',
+        aux_depmes_tot_del_inc numeric, --#33
+        aux_inc_dep_acum_del_inc numeric --#33
     ) ON COMMIT DROP;
 
     -------------------------
@@ -100,7 +103,8 @@ BEGIN
     monto_actualiz, vida_util_orig, vida_util,
     depreciacion_per, depreciacion_acum, monto_vigente, codigo_padre, denominacion_padre, tipo, tipo_cambio_fin, id_moneda_act,
     id_activo_fijo_valor_original, codigo_ant,id_moneda, id_centro_costo, id_activo_fijo, codigo_activo, afecta_concesion,
-    depreciacion, depreciacion_per_ant, importe_modif
+    depreciacion, depreciacion_per_ant, importe_modif,
+    aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
     )
     SELECT
     afv.id_activo_fijo_valor,
@@ -156,7 +160,11 @@ BEGIN
     af.afecta_concesion,
     mdep.depreciacion,
     mdep.depreciacion_per_ant,
-    afv.importe_modif
+    afv.importe_modif,
+    --Inicio #33
+    mdep.aux_depmes_tot_del_inc,
+    mdep.aux_inc_dep_acum_del_inc
+    --Fin #33
     FROM kaf.tmovimiento_af_dep mdep
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -176,7 +184,8 @@ BEGIN
     monto_actualiz,vida_util_orig,vida_util,
     depreciacion_per,depreciacion_acum,monto_vigente,codigo_padre,denominacion_padre,tipo,tipo_cambio_fin,id_moneda_act,
     id_activo_fijo_valor_original,codigo_ant,id_moneda,id_centro_costo,id_activo_fijo,codigo_activo,afecta_concesion,
-    depreciacion,depreciacion_per_ant,importe_modif
+    depreciacion,depreciacion_per_ant,importe_modif,
+    aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
     )
     SELECT
     afv.id_activo_fijo_valor,
@@ -232,7 +241,11 @@ BEGIN
     af.afecta_concesion,
     mdep.depreciacion,
     mdep.depreciacion_per_ant,
-    afv.importe_modif
+    afv.importe_modif,
+    --Inicio #33
+    mdep.aux_depmes_tot_del_inc,
+    mdep.aux_inc_dep_acum_del_inc
+    --Fin #33
     FROM kaf.tmovimiento_af_dep mdep
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -442,7 +455,7 @@ BEGIN
     id_activo_fijo,
     codigo,
     afecta_concesion,
-    depreciacion,
+    depreciacion + COALESCE(aux_depmes_tot_del_inc, 0), --#33 se suma la dep total del mes del inc
     depreciacion_per_ant,
     importe_modif,
     --Inicio #9: Inclusión de nuevas columnas
@@ -631,7 +644,7 @@ BEGIN
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
 
     --Actualización depreciación acumulada anual
-    /*UPDATE tt_detalle_depreciacion_totales DEP SET
+    UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum_anual = ANX.dep_acum_actualiz
     FROM (
         SELECT id_activo_fijo, SUM(dep_acum_actualiz) AS dep_acum_actualiz
@@ -664,7 +677,7 @@ BEGIN
         )
         GROUP BY id_activo_fijo
     ) ANX
-    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;*/
+    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
     --Fin #31
 
 

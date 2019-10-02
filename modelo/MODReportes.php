@@ -1005,5 +1005,117 @@ class MODReportes extends MODbase{
 	}
 	//Fin #23
 
+	//Inicio #33
+	function listarRepDepreciacionOpt(){
+		///////////////////////////////////////////////////////////////////////////////////
+		//OJO: Si se modifica este método, también cambiar : listarRepDepreciacionExportar
+		///////////////////////////////////////////////////////////////////////////////////
+
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.f_reportes_af';
+		$this->transaccion='SKA_RDEPRECV2_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		//$this->setCount(false);
+
+		if($this->objParam->getParametro('tipo_salida')!='grid'){
+			$this->setCount(false);
+		}
+
+		//Define los parametros para la funcion
+		$this->setParametro('tipo_salida','tipo_salida','varchar');
+		$this->setParametro('fecha_hasta','fecha_hasta','date');
+		$this->setParametro('id_moneda','id_moneda','integer');
+		$this->setParametro('af_deprec','af_deprec','varchar');
+		$this->setParametro('tipoReporte','tipo_reporte','varchar');
+		$this->setParametro('tipo_reporte','tipoReporte','varchar');
+		$this->setParametro('id_moneda_dep','id_moneda_dep','integer'); //#25 se aumenta por corrección de nombre de parámetro
+
+		//Definicion de la lista del resultado del query
+		$this->captura('numero','bigint');
+		$this->captura('codigo','varchar');
+        $this->captura('codigo_ant','varchar');
+        $this->captura('denominacion','varchar');
+        $this->captura('fecha_ini_dep','date');
+        $this->captura('cantidad_af','integer');
+		$this->captura('desc_unidad_medida','varchar');
+        $this->captura('codigo_tcc','varchar');
+        $this->captura('nro_serie','varchar');
+		$this->captura('desc_ubicacion','varchar');
+        $this->captura('responsable','text');
+        $this->captura('monto_vigente_orig_100','numeric');
+        $this->captura('monto_vigente_orig','numeric');
+        $this->captura('af_altas','numeric');
+        $this->captura('af_bajas','numeric');
+        $this->captura('af_traspasos','numeric');
+        $this->captura('inc_actualiz','numeric');
+        $this->captura('monto_actualiz','numeric');//*****
+        $this->captura('vida_util_orig','integer');
+        $this->captura('vida_util','integer');
+        $this->captura('vida_util_usada','integer');
+        $this->captura('depreciacion_acum_gest_ant','numeric');
+        $this->captura('depreciacion_acum_actualiz_gest_ant','numeric');
+        $this->captura('depreciacion','numeric');
+        $this->captura('depreciacion_acum_bajas','numeric');
+        $this->captura('depreciacion_acum_traspasos','numeric');
+        $this->captura('depreciacion_acum','numeric');//******
+        $this->captura('depreciacion_per','numeric');
+        $this->captura('monto_vigente','numeric');
+
+        //Inicio #31
+		$this->captura('aitb_dep_acum','numeric');
+		$this->captura('aitb_dep','numeric');
+		$this->captura('aitb_dep_acum_anual','numeric');
+		$this->captura('aitb_dep_anual','numeric');
+        //Fin #31
+
+        //$this->captura('afecta_concesion','varchar');
+		$this->captura('cuenta_activo','text');
+		$this->captura('cuenta_dep_acum','text');
+		$this->captura('cuenta_deprec','text');
+
+        $this->captura('desc_grupo','varchar');
+        $this->captura('desc_grupo_clasif','varchar');
+        $this->captura('cuenta_dep_acum_dos','text');
+        $this->captura('bk_codigo','varchar');
+
+        //Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
+		$this->captura('cc1', 'varchar(50)');
+		$this->captura('dep_mes_cc1', 'numeric(24,2)');
+		$this->captura('cc2', 'varchar(50)');
+		$this->captura('dep_mes_cc2', 'numeric(24,2)');
+		$this->captura('cc3', 'varchar(50)');
+		$this->captura('dep_mes_cc3', 'numeric(24,2)');
+		$this->captura('cc4', 'varchar(50)');
+		$this->captura('dep_mes_cc4', 'numeric(24,2)');
+		$this->captura('cc5', 'varchar(50)');
+		$this->captura('dep_mes_cc5', 'numeric(24,2)');
+		$this->captura('cc6', 'varchar(50)');
+		$this->captura('dep_mes_cc6', 'numeric(24,2)');
+		$this->captura('cc7', 'varchar(50)');
+		$this->captura('dep_mes_cc7', 'numeric(24,2)');
+		$this->captura('cc8', 'varchar(50)');
+		$this->captura('dep_mes_cc8', 'numeric(24,2)');
+		$this->captura('cc9', 'varchar(50)');
+		$this->captura('dep_mes_cc9', 'numeric(24,2)');
+		$this->captura('cc10', 'varchar(50)');
+		$this->captura('dep_mes_cc10', 'numeric(24,2)');
+
+		$this->captura('id_activo_fijo','integer');
+        $this->captura('nivel','integer');
+        $this->captura('orden','bigint');
+        $this->captura('tipo','varchar(10)');
+		//Fin #9
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo $this->consulta;exit;
+		$this->ejecutarConsulta();
+
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #33
+
 }
 ?>

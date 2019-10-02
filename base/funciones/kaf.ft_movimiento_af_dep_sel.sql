@@ -15,7 +15,8 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ #2    KAF       ETR           11/01/2019   RCM         Actualización de listado detalle depreciación interfaz
+ #33   KAF       ETR      	   01/10/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
  ***************************************************************************/
 
 DECLARE
@@ -124,13 +125,15 @@ BEGIN
 						mafdep.id_movimiento_af_dep, mafdep.id_movimiento_af, mafdep.id_activo_fijo_valor,
 						mafdep.fecha, mafdep.depreciacion_acum_ant, mafdep.depreciacion_per_ant, mafdep.monto_actualiz_ant, mafdep.vida_util_ant,
 						mafdep.depreciacion_acum_actualiz, mafdep.depreciacion_per_actualiz, mafdep.monto_actualiz,
-						mafdep.depreciacion, mafdep.depreciacion_acum,mafdep.depreciacion_per, mafdep.monto_vigente, mafdep.vida_util,
-						mafdep.tipo_cambio_ini,mafdep.tipo_cambio_fin, mafdep.factor,
+						mafdep.depreciacion + COALESCE(mafdep.aux_depmes_tot_del_inc, 0), --#33
+						mafdep.depreciacion_acum,
+						mafdep.depreciacion_per, mafdep.monto_vigente, mafdep.vida_util,
+						mafdep.tipo_cambio_ini, mafdep.tipo_cambio_fin, mafdep.factor,
 						mafdep.monto_actualiz-mafdep.monto_actualiz_ant as inc_monto_actualiz,
 						case mafdep.meses_acum
-							when ''si'' then mafdep.tmp_inc_actualiz_dep_acum
+							when ''si'' then mafdep.tmp_inc_actualiz_dep_acum + COALESCE(mafdep.aux_inc_dep_acum_del_inc, 0) --#33
 							else
-								mafdep.depreciacion_acum_actualiz - mafdep.depreciacion_acum_ant
+								mafdep.depreciacion_acum_actualiz - mafdep.depreciacion_acum_ant + COALESCE(mafdep.aux_inc_dep_acum_del_inc, 0) --#33
 						end as inc_depreciacion_acum_actualiz
 						from kaf.tmovimiento_af_dep mafdep
 				        where  ';

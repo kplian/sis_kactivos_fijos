@@ -20,6 +20,7 @@ $body$
  #25    KAF       ETR           07/08/2019  RCM         Corrección nombre parámetro. Antes id_moneda, ahora id_moneda_dep. Se agrega tamién el parámetro id_moneda.
  #22    KAF       ETR           13/09/2019  RCM         Generar reporte con opción de agrupadores o no
  #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
+ #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum. que suman a la depreciación del mes y al incremento
 ***************************************************************************/
 
 DECLARE
@@ -1086,7 +1087,9 @@ raise notice '%',v_consulta;
                 depreciacion numeric(18,2),
                 depreciacion_per_ant numeric,
                 importe_modif numeric,
-                incremento_otra_gestion varchar(2) default 'no'
+                incremento_otra_gestion varchar(2) default 'no',
+                aux_depmes_tot_del_inc numeric, --#33
+                aux_inc_dep_acum_del_inc numeric --#33
             ) on commit drop;
 
             --Carga los datos en la tabla temporal
@@ -1095,7 +1098,8 @@ raise notice '%',v_consulta;
             monto_actualiz,vida_util_orig,vida_util,
             depreciacion_per,depreciacion_acum,monto_vigente,codigo_padre,denominacion_padre,tipo,tipo_cambio_fin,id_moneda_act,
             id_activo_fijo_valor_original,codigo_ant,id_moneda,id_centro_costo,id_activo_fijo,codigo_activo,afecta_concesion,
-            depreciacion,depreciacion_per_ant,importe_modif
+            depreciacion,depreciacion_per_ant,importe_modif,
+            aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
             )
             select
             afv.id_activo_fijo_valor,
@@ -1150,7 +1154,11 @@ raise notice '%',v_consulta;
             af.afecta_concesion,
             mdep.depreciacion,
             mdep.depreciacion_per_ant,
-            afv.importe_modif
+            afv.importe_modif,
+            --Inicio #33
+            mdep.aux_depmes_tot_del_inc,
+            mdep.aux_inc_dep_acum_del_inc
+            --Fin #33
             from kaf.tmovimiento_af_dep mdep
             inner join kaf.tactivo_fijo_valores afv
             on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -1171,7 +1179,8 @@ raise notice '%',v_consulta;
             monto_actualiz,vida_util_orig,vida_util,
             depreciacion_per,depreciacion_acum,monto_vigente,codigo_padre,denominacion_padre,tipo,tipo_cambio_fin,id_moneda_act,
             id_activo_fijo_valor_original,codigo_ant,id_moneda,id_centro_costo,id_activo_fijo,codigo_activo,afecta_concesion,
-            depreciacion,depreciacion_per_ant,importe_modif
+            depreciacion,depreciacion_per_ant,importe_modif,
+            aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
             )
             select
             afv.id_activo_fijo_valor,
@@ -1227,7 +1236,11 @@ raise notice '%',v_consulta;
             af.afecta_concesion,
             mdep.depreciacion,
             mdep.depreciacion_per_ant,
-            afv.importe_modif
+            afv.importe_modif,
+            --Inicio #33
+            mdep.aux_depmes_tot_del_inc,
+            mdep.aux_inc_dep_acum_del_inc
+            --Fin #33
             from kaf.tmovimiento_af_dep mdep
             inner join kaf.tactivo_fijo_valores afv
             on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -1471,7 +1484,7 @@ raise notice '%',v_consulta;
             id_activo_fijo,
             codigo,
             afecta_concesion,
-            depreciacion,
+            depreciacion + COALESCE(aux_depmes_tot_del_inc, 0), --#33 se suma la dep total del mes del inc
             depreciacion_per_ant,
             importe_modif,
             --Inicio #9: Inclusión de nuevas columnas
@@ -2781,6 +2794,119 @@ raise notice '%',v_consulta;
             return v_consulta;
 
         end;
+
+    --Inicio #33
+    /*********************************
+     #TRANSACCION:  'SKA_RDEPRECV2_SEL'
+     #DESCRIPCION:  Reporte Detalle Depreciación optimizado
+     #AUTOR:        RCM
+     #FECHA:        01/10/2019
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_RDEPRECV2_SEL') THEN
+
+        BEGIN
+
+            v_consulta = 'SELECT
+                        numero,
+                        codigo,
+                        codigo_ant,
+                        denominacion,
+                        fecha_ini_dep,
+                        cantidad_af,
+                        desc_unidad_medida,
+                        codigo_tcc,
+                        nro_serie,
+                        desc_ubicacion,
+                        responsable,
+                        monto_vigente_orig_100,
+                        monto_vigente_orig,
+                        af_altas,
+                        af_bajas,
+                        af_traspasos,
+                        inc_actualiz,
+                        monto_actualiz,
+                        vida_util_orig,
+                        vida_util,
+                        vida_util_usada,
+                        depreciacion_acum_gest_ant,
+                        depreciacion_acum_actualiz_gest_ant,
+                        depreciacion,
+                        depreciacion_acum_bajas,
+                        depreciacion_acum_traspasos,
+                        depreciacion_acum,
+                        depreciacion_per,
+                        monto_vigente,
+                        aitb_dep_acum,
+                        aitb_dep,
+                        aitb_dep_acum_anual,
+                        aitb_dep_anual,
+                        cuenta_activo,
+                        cuenta_dep_acum,
+                        cuenta_deprec,
+                        desc_grupo,
+                        desc_grupo_clasif,
+                        cuenta_dep_acum_dos,
+                        bk_codigo,
+                        cc1,
+                        dep_mes_cc1,
+                        cc2,
+                        dep_mes_cc2,
+                        cc3,
+                        dep_mes_cc3,
+                        cc4,
+                        dep_mes_cc4,
+                        cc5,
+                        dep_mes_cc5,
+                        cc6,
+                        dep_mes_cc6,
+                        cc7,
+                        dep_mes_cc7,
+                        cc8,
+                        dep_mes_cc8,
+                        cc9,
+                        dep_mes_cc9,
+                        cc10,
+                        dep_mes_cc10,
+                        id_activo_fijo,
+                        nivel,
+                        orden,
+                        tipo
+                        FROM kaf.treporte_detalle_dep rd
+                        WHERE DATE_TRUNC(''month'', fecha) = DATE_TRUNC(''month'', ''' || v_parametros.fecha_hasta || '''::date)
+                        AND rd.id_moneda = ' || v_parametros.id_moneda || ' ';
+
+            IF v_parametros.tipo_salida = 'grid' THEN
+                --Definicion de la respuesta
+                --v_consulta = v_consulta || v_parametros.filtro;
+                --v_consulta = v_consulta || ' ORDER BY ' || v_parametros.ordenacion || ' ' || v_parametros.dir_ordenacion || ' LIMIT ' || COALESCE(v_parametros.cantidad, 9999999) || ' OFFSET ' || COALESCE(v_parametros.puntero, 0);
+            ELSE
+                v_consulta = v_consulta || ' ORDER BY 1';
+            END IF;
+
+            RETURN v_consulta;
+
+        END;
+
+    /*********************************
+     #TRANSACCION:  'SKA_RDEPRECV2_CONT'
+     #DESCRIPCION:  Conteo Reporte Detalle Depreciación optimizado
+     #AUTOR:        RCM
+     #FECHA:        25/09/2019
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_RDEPRECV2_CONT') THEN
+
+        BEGIN
+
+            v_consulta = 'SELECT
+                        COUNT(1) AS total
+                        FROM kaf.treporte_detalle_dep rd
+                        WHERE DATE_TRUNC(''month'', fecha) = DATE_TRUNC(''month'', ''' || v_parametros.fecha_hasta || '''::date)
+                        AND rd.id_moneda = ' || v_parametros.id_moneda;
+
+            RETURN v_consulta;
+
+        END;
+    --Fin #33
 
     else
         raise exception 'Transacción inexistente';
