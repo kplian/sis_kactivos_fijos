@@ -1643,3 +1643,17 @@ CREATE TABLE kaf.treporte_detalle_dep (
     tipo varchar(10) --66
 ) WITHOUT OIDS;
 /***********************************F-SCP-RCM-KAF-32-24/09/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-33-30/09/2019****************************************/
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN aux_depmes_tot_del_inc NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.aux_depmes_tot_del_inc
+IS 'Columna auxiliar para guardar el total de la depreciación mensual del incremento desde el comienzo de gestion';
+
+ALTER TABLE kaf.tactivo_fijo_valores
+  ADD COLUMN aux_inc_dep_acum_del_inc NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.aux_depmes_tot_del_inc
+IS 'Columna auxiliar para guardar el total del incremento de la dep. acum. del incremento desde el comienzo de gestion';
+/***********************************F-SCP-RCM-KAF-33-30/09/2019****************************************/
