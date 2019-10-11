@@ -25,6 +25,7 @@ $body$
  #23    KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
  #29    KAF       ETR           23/08/2019  RCM         Corrección reportes
  #31    KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
+ #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
 ****************************************************************************/
 DECLARE
 
@@ -1271,7 +1272,8 @@ BEGIN
             IF v_sw_insert THEN
 
                 WITH tdetalle_dep AS (
-                    SELECT
+                    --Inicio #34
+                    /*SELECT
                     cuenta_activo,
                     cuenta_dep_acum,
                     cuenta_deprec,
@@ -1310,7 +1312,21 @@ BEGIN
                         dep_mes_cc8 numeric,                            cc9 varchar,                dep_mes_cc9 numeric,                cc10 varchar,           dep_mes_cc10 numeric,
                         id_activo_fijo integer,                         nivel integer,              orden bigint,                       tipo varchar
                     )
+                    GROUP BY cuenta_activo, cuenta_dep_acum, cuenta_deprec, cuenta_dep_acum_dos*/
+                    SELECT
+                    cuenta_activo,
+                    cuenta_dep_acum,
+                    cuenta_deprec,
+                    cuenta_dep_acum_dos,
+                    SUM(monto_actualiz) AS monto_actualiz,
+                    SUM(depreciacion) AS depreciacion,
+                    SUM(depreciacion_per) AS depreciacion_per,
+                    SUM(depreciacion_acum) AS depreciacion_acum
+                    FROM kaf.treporte_detalle_dep
+                    WHERE fecha = v_parametros.fecha
+                    AND id_moneda = v_id_moneda_base
                     GROUP BY cuenta_activo, cuenta_dep_acum, cuenta_deprec, cuenta_dep_acum_dos
+                    --Fin #34
                 ), tdetalle_conta AS (
                     WITH tcuenta_activo AS (
                         SELECT DISTINCT
@@ -1405,6 +1421,26 @@ BEGIN
                                         NULL,
                                         NULL
                                     );
+
+                    --Marcación del comprobante como actualización
+                    UPDATE conta.tint_comprobante SET
+                    cbte_aitb = 'si'
+                    WHERE id_int_comprobante = v_id_int_cbte;
+
+                    --Inicio #34
+                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+                    UPDATE conta.tint_transaccion SET
+                    importe_debe_mt = 0,
+                    importe_haber_mt = 0,
+                    importe_recurso_mt = 0,
+                    importe_gasto_mt = 0,
+                    importe_debe_ma = 0,
+                    importe_haber_ma = 0,
+                    importe_recurso_ma = 0,
+                    importe_gasto_ma = 0,
+                    actualizacion = 'si'
+                    WHERE id_int_comprobante = v_id_int_cbte;
+                    --Fin #34
 
                     UPDATE kaf.tcomparacion_af_conta SET
                     id_int_comprobante = v_id_int_cbte
