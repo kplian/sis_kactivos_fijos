@@ -411,6 +411,11 @@ class ACTActivoFijo extends ACTbase{
 		if($this->objParam->getParametro('caractFilter')!=''&&$this->objParam->getParametro('caractValue')!=''){
 			$this->objParam->addFiltro("afij.id_activo_fijo in (select id_activo_fijo from kaf.tactivo_fijo_caract acar where acar.clave like ''%".$this->objParam->getParametro('caractFilter')."%'' and acar.valor like ''%".$this->objParam->getParametro('caractValue')."%'')");
 		}
+		//Inicio #36
+		if($this->objParam->getParametro('id_activo_fijo')!=''){
+			$this->objParam->addFiltro("afij.id_activo_fijo = ''".$this->objParam->getParametro('id_activo_fijo')."''");
+		}
+		//Fin #36
 
 		//Filtro por movimientos
 		//Transferencia, Devolucion

@@ -442,3 +442,11 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-IGUAL','
 /***********************************I-DAT-RCM-KAF-29-18/09/2019****************************************/
 select pxp.f_add_catalog('KAF','reportes__tipo_alta','Cierre Proyectos Incrementos','cierre_proy_inc','');
 /***********************************F-DAT-RCM-KAF-29-18/09/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-36-18/10/2019****************************************/
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__tipo','Activo Fijo','af_exist','');
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__tipo','Nuevo Activo Fijo','af_nuevo','');
+select pxp.f_add_catalog('KAF','tmovimiento_af_especial__tipo','Salida a Almacén','af_almacen','');
+
+select conta.f_import_tplantilla_comprobante ('insert','KAF_MOVESP','kaf.f_gestionar_cbte_mov_especial_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','kaf.f_gestionar_cbte_mov_especial','{$tabla.fecha_mov}','activo','ENDE TRANSMISION S.A.','{$tabla.id_depto_conta}','contable','','kaf.v_cbte_mov_especial','DIARIOCON','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','no','no','no','','','','','{$tabla.num_tramite}','','','','','','Distribución de valores a Nuevos Activos Fijos, Existentes y Salida a Almacén','','','','','');
+/***********************************F-DAT-RCM-KAF-36-18/10/2019****************************************/

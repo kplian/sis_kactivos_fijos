@@ -15,6 +15,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           06/06/2019  RCM         Creación del archivo
  #21    KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
+ #36    KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud
 ***************************************************************************
 */
 DECLARE
@@ -31,6 +32,7 @@ DECLARE
     v_id_moneda_usd         integer;
     v_id_moneda_ufv         integer;
     v_cantidad              integer;
+    v_fecha_mov             date;
 
 BEGIN
 
@@ -46,8 +48,8 @@ BEGIN
     v_kaf_cbte = 'KAF_MOVESP';
 
     --Obtención de valores del movimiento
-    SELECT id_estado_wf
-    INTO v_id_estado_wf
+    SELECT id_estado_wf, fecha_mov
+    INTO v_id_estado_wf, v_fecha_mov
     FROM kaf.tmovimiento
     WHERE id_movimiento = p_id_movimiento;
 
@@ -113,7 +115,10 @@ BEGIN
         glosa                         varchar --#21 adición de columna para la glosa
     ) ON COMMIT DROP;
 
-    --Inserción de los valores a contabilizar, caso activos fijos nuevos
+    --Inserción de los valores a contabilizar
+    -------------------------------
+    --1 Caso activos fijos nuevos
+    -------------------------------
     INSERT INTO tt_transaccion
     WITH tclasif_rel AS (
         SELECT
@@ -164,7 +169,6 @@ BEGIN
     AND rc_af1.estado_reg = 'activo'
     AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
     AND rc_af1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
-
     INNER JOIN tclasif_rel clrdacum
     ON mafe.id_clasificacion = ANY(clrdacum.nodos)
     AND clrdacum.codigo = 'DEPACCLAS'
@@ -181,7 +185,6 @@ BEGIN
     AND rc_dacum1.estado_reg = 'activo'
     AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
     AND rc_dacum1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
-
     WHERE mov.id_movimiento = p_id_movimiento
     AND afv.id_moneda = v_id_moneda_ufv
     AND (rc_af.id_cuenta <> rc_af1.id_cuenta
@@ -338,7 +341,10 @@ BEGIN
     WHERE tr.id_trans = dt.id_movimiento_af_especial;
 
 
-    --Inserción de los valores a contabilizar, caso activos fijos existentes
+    --Inserción de los valores a contabilizar
+    -----------------------------------
+    --2 Caso activos fijos existentes
+    -----------------------------------
     INSERT INTO tt_transaccion
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -781,7 +787,9 @@ BEGIN
     WHERE tr.id_trans = dt.id_movimiento_af_especial;
 
 
-    --Almacen
+    -------------------------------
+    --3 Caso Salida a Almacen
+    -------------------------------
     INSERT INTO tt_transaccion
     WITH tult_dep AS (
         SELECT
@@ -1048,9 +1056,9 @@ BEGIN
     WHERE tr.id_trans = dt.id_movimiento_af_especial;
 
 
-    ----------------------------------
-    --Inserción de las transacciones
-    ----------------------------------
+    ------------------------------------------------------------
+    --GENERACIÓN DE COMPROBANTE: Inserción de las transacciones
+    ------------------------------------------------------------
     --Debe: Monto activo fijo
     INSERT INTO conta.tint_transaccion
     (
@@ -1079,20 +1087,21 @@ BEGIN
         fecha_reg,
         glosa --#21 adición de columna para la glosa
     )
+    --Inicio #36
     SELECT
-    id_partida_dest,
-    id_centro_costo_dest,
+    t.id_partida_dest,
+    cc1.id_centro_costo,
     'activo',
-    id_cuenta_dest,
+    t.id_cuenta_dest,
     v_id_int_comprobante,
-    importe_bs,
-    importe_bs,
-    importe_usd,
-    importe_ufv,
-    importe_bs,
-    importe_bs,
-    importe_usd,
-    importe_ufv,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
     0,
     0,
     0,
@@ -1103,8 +1112,14 @@ BEGIN
     0,
     p_id_usuario,
     now(),
-    glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion;
+    t.glosa --#21 adición de columna para la glosa
+    FROM tt_transaccion t
+    INNER JOIN param.tcentro_costo cc
+    ON cc.id_centro_costo = t.id_centro_costo_dest
+    INNER JOIN param.tcentro_costo cc1
+    ON cc1.id_tipo_cc = cc.id_tipo_cc
+    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
+    --Fin #36
 
     --Debe: Depreciación acumulada
     INSERT INTO conta.tint_transaccion
@@ -1134,20 +1149,21 @@ BEGIN
         fecha_reg,
         glosa --#21 adición de columna para la glosa
     )
+    --Inicio #36
     SELECT
-    id_partida_dest,
-    id_centro_costo_dest,
+    t.id_partida_dest,
+    cc1.id_centro_costo,
     'activo',
-    id_cuenta_dest,
+    t.id_cuenta_dest,
     v_id_int_comprobante,
-    depreciacion_acum_bs,
-    depreciacion_acum_bs,
-    depreciacion_acum_usd,
-    depreciacion_acum_ufv,
-    depreciacion_acum_bs,
-    depreciacion_acum_bs,
-    depreciacion_acum_usd,
-    depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
     0,
     0,
     0,
@@ -1158,8 +1174,14 @@ BEGIN
     0,
     p_id_usuario,
     now(),
-    glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion;
+    t.glosa --#21 adición de columna para la glosa
+    FROM tt_transaccion t
+    --Inicio #36
+    INNER JOIN param.tcentro_costo cc
+    ON cc.id_centro_costo = t.id_centro_costo_dest
+    INNER JOIN param.tcentro_costo cc1
+    ON cc1.id_tipo_cc = cc.id_tipo_cc
+    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
 
     --Haber: Monto activo fijo
     INSERT INTO conta.tint_transaccion
@@ -1189,11 +1211,12 @@ BEGIN
         fecha_reg,
         glosa --#21 adición de columna para la glosa
     )
+    --Inicio #36
     SELECT
-    id_partida,
-    id_centro_costo,
+    t.id_partida,
+    cc1.id_centro_costo,
     'activo',
-    id_cuenta,
+    t.id_cuenta,
     v_id_int_comprobante,
     0,
     0,
@@ -1203,18 +1226,24 @@ BEGIN
     0,
     0,
     0,
-    importe_bs,
-    importe_bs,
-    importe_usd,
-    importe_ufv,
-    importe_bs,
-    importe_bs,
-    importe_usd,
-    importe_ufv,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
     p_id_usuario,
     now(),
-    glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion;
+    t.glosa --#21 adición de columna para la glosa
+    FROM tt_transaccion t
+    INNER JOIN param.tcentro_costo cc
+    ON cc.id_centro_costo = t.id_centro_costo
+    INNER JOIN param.tcentro_costo cc1
+    ON cc1.id_tipo_cc = cc.id_tipo_cc
+    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
+    --Fin #36
 
     --Haber: Depreciación acumulada
     INSERT INTO conta.tint_transaccion
@@ -1244,11 +1273,12 @@ BEGIN
         fecha_reg,
         glosa --#21 adición de columna para la glosa
     )
+    --Inicio #36
     SELECT
-    id_partida,
-    id_centro_costo,
+    t.id_partida,
+    cc1.id_centro_costo,
     'activo',
-    id_cuenta,
+    t.id_cuenta,
     v_id_int_comprobante,
     0,
     0,
@@ -1258,19 +1288,24 @@ BEGIN
     0,
     0,
     0,
-    depreciacion_acum_bs,
-    depreciacion_acum_bs,
-    depreciacion_acum_usd,
-    depreciacion_acum_ufv,
-    depreciacion_acum_bs,
-    depreciacion_acum_bs,
-    depreciacion_acum_usd,
-    depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
     p_id_usuario,
     now(),
-    glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion;
-
+    t.glosa --#21 adición de columna para la glosa
+    FROM tt_transaccion t
+    INNER JOIN param.tcentro_costo cc
+    ON cc.id_centro_costo = t.id_centro_costo
+    INNER JOIN param.tcentro_costo cc1
+    ON cc1.id_tipo_cc = cc.id_tipo_cc
+    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
+    --Fin #36
 
     -------------------------------------------------
     --Actualizar el ID comprobante en el Movimiento
