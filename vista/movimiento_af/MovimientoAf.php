@@ -25,6 +25,8 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 	codigoMoneda: '', //#2 código moneda movimentos especiales
 
 	constructor: function(config) {
+		Ext.util.Format.thousandSeparator = '.';
+        Ext.util.Format.decimalSeparator = ',';
 		this.maestro = config.maestro;
 
     	//llama al constructor de la clase padre
@@ -95,7 +97,7 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 		this.Cmp.res_denominacion.setValue(data.denominacion);
 		this.Cmp.res_descripcion.setValue(data.descripcion);
 		this.Cmp.res_mon_orig.setValue(data.desc_moneda_orig);
-		this.Cmp.res_monto_compra.setValue(Ext.util.Format.usMoney(data.monto_compra)); //#36, antes: this.Cmp.res_monto_compra.setValue(data.monto_compra);
+		this.Cmp.res_monto_compra.setValue(data.monto_compra); //#36 se vuelve al original por error en backend
 		this.Cmp.res_vida_util.setValue(data.vida_util ? data.vida_util:data.vida_util_af);
 		this.Cmp.res_fecha_ini_dep.setValue(dt_res_fecha_ini_dep.format('d-m-Y'));
 		/*this.Cmp.res_monto_vigente_real.setValue(data.monto_vigente_real_af);
@@ -2604,19 +2606,12 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 		this.Cmp.res_monto_vigente.setValue('');
 
 		//Carga de los datos
-		/*this.Cmp.res_monto_vigente_real.setValue(this.roundNumber(data.monto_actualiz, 2));
+		this.Cmp.res_monto_vigente_real.setValue(this.roundNumber(data.monto_actualiz, 2));
 		this.Cmp.res_dep_acum_real.setValue(this.roundNumber(data.depreciacion_acum, 2));
 		this.Cmp.res_dep_per_real.setValue(this.roundNumber(data.depreciacion_per, 2));
 		this.Cmp.res_vida_util_real.setValue(data.vida_util);
 		this.Cmp.res_fecha_ult_dep_real.setValue(dt_res_fecha.format('d-m-Y'));
-		this.Cmp.res_monto_vigente.setValue(this.roundNumber(data.monto_vigente, 2));*/
-
-		this.Cmp.res_monto_vigente_real.setValue(Ext.util.Format.usMoney(data.monto_actualiz));
-		this.Cmp.res_dep_acum_real.setValue(Ext.util.Format.usMoney(data.depreciacion_acum));
-		this.Cmp.res_dep_per_real.setValue(Ext.util.Format.usMoney(data.depreciacion_per));
-		this.Cmp.res_vida_util_real.setValue(data.vida_util);
-		this.Cmp.res_fecha_ult_dep_real.setValue(dt_res_fecha.format('d-m-Y'));
-		this.Cmp.res_monto_vigente.setValue(Ext.util.Format.usMoney(data.monto_vigente));
+		this.Cmp.res_monto_vigente.setValue(this.roundNumber(data.monto_vigente, 2));
 	},
 
 	roundNumber: function(rnum, rlength) {
@@ -2632,7 +2627,7 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 
 	    //Abre la ventana de detalle
     	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_especial/MovimientoAfEspecial.php',
-            'Detalle',
+            'Detalle División de Valores expresado en: ' + this.codigoMoneda, //#36
             {
                 width:'50%',
                 height:'85%'

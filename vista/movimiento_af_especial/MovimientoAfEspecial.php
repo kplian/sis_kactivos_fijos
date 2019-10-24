@@ -188,7 +188,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{
 			config: {
 				name: 'importe',
-				fieldLabel: 'Importe UFV', //#36 cambio de etiqueta de Bs por UFV
+				fieldLabel: 'Importe', //#36 cambio de etiqueta de Bs por UFV
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
