@@ -17,6 +17,7 @@ $body$
  #0     KAF       ETR           22/10/2018  RCM         Creación
  #32    KAF       ETR           24/09/2019  RCM         Actualización función
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum. que suman a la depreciación del mes y al incremento
+ #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
 ***************************************************************************/
 DECLARE
 
@@ -598,15 +599,15 @@ BEGIN
     AND DAT.nro_columna = 10;
     --Fin #9
 
-    --Inicio #31
-    --Actualización depreciación acumulada
+    --Inicio #34
+    --Actualización depreciación acumulada (2do cbte)
     UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum = ANX.dep_acum_actualiz
     FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
     AND ANX.id_movimiento = v_id_movimiento;
 
-    --Actualización depreciación
+    --Actualización depreciación (4to cbte)
     UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep = ANX.dep_per_actualiz
     FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle ANX
@@ -622,7 +623,6 @@ BEGIN
     WHERE DATE_TRUNC('month', mov.fecha_mov) BETWEEN DATE_TRUNC('year', p_fecha) AND DATE_TRUNC('month', p_fecha)
     AND cat.codigo = 'deprec';
 
-
     UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum_anual = ANX.dep_acum_actualiz
     FROM (
@@ -643,42 +643,7 @@ BEGIN
     ) ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
 
-    --Actualización depreciación acumulada anual
-    UPDATE tt_detalle_depreciacion_totales DEP SET
-    aitb_dep_acum_anual = ANX.dep_acum_actualiz
-    FROM (
-        SELECT id_activo_fijo, SUM(dep_acum_actualiz) AS dep_acum_actualiz
-        FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle
-        WHERE id_movimiento IN (
-            SELECT mov.id_movimiento
-            FROM kaf.tmovimiento mov
-            INNER JOIN param.tcatalogo cat
-            ON cat.id_catalogo = mov.id_cat_movimiento
-            WHERE DATE_TRUNC('month', mov.fecha_mov) BETWEEN DATE_TRUNC('year', p_fecha) AND DATE_TRUNC('month', p_fecha)
-            AND cat.codigo = 'deprec'
-        )
-        GROUP BY id_activo_fijo
-    ) ANX
-    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
-
-    --Actualización depreciación anual
-    UPDATE tt_detalle_depreciacion_totales DEP SET
-    aitb_dep_anual = ANX.dep_per_actualiz
-    FROM (
-        SELECT id_activo_fijo, SUM(dep_per_actualiz) AS dep_per_actualiz
-        FROM kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle
-        WHERE id_movimiento IN (
-            SELECT mov.id_movimiento
-            FROM kaf.tmovimiento mov
-            INNER JOIN param.tcatalogo cat
-            ON cat.id_catalogo = mov.id_cat_movimiento
-            WHERE DATE_TRUNC('month', mov.fecha_mov) BETWEEN DATE_TRUNC('year', p_fecha) AND DATE_TRUNC('month', p_fecha)
-            AND cat.codigo = 'deprec'
-        )
-        GROUP BY id_activo_fijo
-    ) ANX
-    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
-    --Fin #31
+    --Fin #34
 
 
     --------------

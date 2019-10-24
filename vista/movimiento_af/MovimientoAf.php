@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           21/01/2019  RCM         Opción para traspasar valores de un activo fijo a otro
+ #36	KAF		  ETR 			21/10/2019	RCM			Modificación de proceso de División de Valores
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -20,10 +21,12 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 	swAccion: 'new',
 	IdMovimientoAf: '',
 	idMonedaBase: 0, //#2 id de la moneda base
-	idMonedaMovEsp: 0,//#2 id moneda movimentos especiales
-	codigoMoneda: '',//#2 código moneda movimentos especiales
+	idMonedaMovEsp: 0, //#2 id moneda movimentos especiales
+	codigoMoneda: '', //#2 código moneda movimentos especiales
 
 	constructor: function(config) {
+		Ext.util.Format.thousandSeparator = '.';
+        Ext.util.Format.decimalSeparator = ',';
 		this.maestro = config.maestro;
 
     	//llama al constructor de la clase padre
@@ -94,7 +97,7 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 		this.Cmp.res_denominacion.setValue(data.denominacion);
 		this.Cmp.res_descripcion.setValue(data.descripcion);
 		this.Cmp.res_mon_orig.setValue(data.desc_moneda_orig);
-		this.Cmp.res_monto_compra.setValue(data.monto_compra);
+		this.Cmp.res_monto_compra.setValue(data.monto_compra); //#36 se vuelve al original por error en backend
 		this.Cmp.res_vida_util.setValue(data.vida_util ? data.vida_util:data.vida_util_af);
 		this.Cmp.res_fecha_ini_dep.setValue(dt_res_fecha_ini_dep.format('d-m-Y'));
 		/*this.Cmp.res_monto_vigente_real.setValue(data.monto_vigente_real_af);
@@ -915,6 +918,13 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 			var rec = this.sm.getSelected().data;
 			this.reinicializarParams();
 			this.edicionCargarDataMovEsp(rec);
+		} //Inicio #36
+		else if(this.maestro.cod_movimiento == 'dval') {
+			this.cargarDatosEdicionDistVal();
+			Phx.vista.MovimientoAf.superclass.onButtonEdit.call(this);
+	    	this.cargarMonedaBase();
+	    	this.habilitarCampos();
+		//Fin #36
 		} else {
 			Phx.vista.MovimientoAf.superclass.onButtonEdit.call(this);
 	    	this.cargarMonedaBase();
@@ -2617,7 +2627,7 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 
 	    //Abre la ventana de detalle
     	Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/movimiento_af_especial/MovimientoAfEspecial.php',
-            'Detalle',
+            'Detalle División de Valores expresado en: ' + this.codigoMoneda, //#36
             {
                 width:'50%',
                 height:'85%'
@@ -2645,6 +2655,35 @@ Phx.vista.MovimientoAf = Ext.extend(Phx.gridInterfaz, {
 	    });
     },
 	//Fin #2
+
+	//Inicio #36
+	cargarDatosEdicionDistVal: function() {
+		var rec = this.sm.getSelected();
+		Ext.Ajax.request({
+	        url: '../../sis_kactivos_fijos/control/ActivoFijo/listarActivoFijoFecha',
+	        params: {
+	        	id_activo_fijo: rec.data.id_activo_fijo,
+	        	fecha_mov: this.maestro.fecha_mov,
+	        	start: 0,
+				limit: 15,
+				sort: 'denominacion',
+				dir: 'ASC',
+	        	par_filtro: 'afij.denominacion#afij.codigo#afij.descripcion#afij.codigo_ant'
+	        },
+	        success: function(res, params) {
+	        	var response = Ext.decode(res.responseText);
+	        	console.log('resp', response.datos)
+	        	this.cargarResumenAf(response.datos[0]);
+       			this.validarDatosMov();
+       			this.getValorActualActivoFijo(response.datos[0].id_activo_fijo);
+	        },
+	        argument: this.argumentSave,
+	        failure: this.conexionFailure,
+	        timeout: this.timeout,
+	        scope: this
+	    });
+	},
+	//Fin #36
 
 })
 </script>

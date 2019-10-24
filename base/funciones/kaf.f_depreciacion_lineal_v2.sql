@@ -16,6 +16,7 @@ $body$
         KAF       ETR           24/10/2017  RCM         Creación del archivo
  #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
+ #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
 ***************************************************************************/
 DECLARE
 
@@ -374,22 +375,17 @@ BEGIN
                 v_ant_monto_actualiz,
                 v_rec.id_moneda,
                 v_rec.id_moneda_dep,
-                --Inicio #33
-                v_rec.aux_depmes_tot_del_inc,
-                v_rec.aux_inc_dep_acum_del_inc
-                --Fin #33
+                --Inicio #34
+                CASE COALESCE(v_rec.fecha_ult_dep, '01-01-1900'::DATE)
+                    WHEN '01-01-1900'::DATE THEN v_rec.aux_depmes_tot_del_inc
+                    ELSE NULL
+                END,
+                CASE COALESCE(v_rec.fecha_ult_dep, '01-01-1900'::DATE)
+                    WHEN '01-01-1900'::DATE THEN v_rec.aux_inc_dep_acum_del_inc
+                    ELSE NULL
+                END
+                --Fin #34
                 ) RETURNING id_movimiento_af_dep into v_id_movimiento_af_dep;
-
-                --Inicio #33
-                IF COALESCE(v_rec.aux_depmes_tot_del_inc, 0) > 0 OR COALESCE(v_rec.aux_inc_dep_acum_del_inc, 0) > 0 THEN
-
-                    UPDATE kaf.tactivo_fijo_valores SET
-                    aux_depmes_tot_del_inc = 0,
-                    aux_inc_dep_acum_del_inc = 0
-                    WHERE id_activo_fijo_valor = v_rec.id_activo_fijo_valor;
-
-                END IF;
-                --Fin #33
 
             else
                 raise exception 'El Activo Fijo % ya fue depreciado en  %, %',v_rec.codigo_afv,v_mes_dep,v_rec.id_activo_fijo_valor;

@@ -9,6 +9,7 @@
 ***************************************************************************
 #ISSUE	SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
  #2		KAF		ETR 		22-05-2019	RCM		Opción para traspasar valores de un activo fijo a otro
+ #36	KAF		ETR 		21/10/2019	RCM		Modificación de proceso de División de Valores
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -26,7 +27,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 
 		//Seteo del ID del padre
 		this.Atributos[2].valorInicial = this.maestro.id_movimiento_af;
-		this.Atributos[4].valorInicial = this.maestro.importe;
+		this.Atributos[4].valorInicial = Ext.util.Format.usMoney(this.maestro.importe); //#36 adicion de formato
 
 		//Eventos
 		this.Cmp.tipo.on('select', this.onSelectTipo, this);
@@ -101,7 +102,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				maxValue: 100,
 				disabled: true
 			},
-			type: 'NumberField',
+			type: 'TextField', //#36 cambio de Number a Textfield
 			id_grupo: 1,
 			grid: false,
 			form: true
@@ -116,7 +117,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				maxLength: 1179650,
 				disabled: true
 			},
-			type: 'NumberField',
+			type: 'TextField', //#36 cambio de NumberField a textField
 			filters: {pfiltro: 'moafes.importe', type: 'numeric'},
 			id_grupo: 1,
 			grid: false,
@@ -175,7 +176,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 125,
-				maxLength: 3,
+				maxLength: 6, //#36 aumento de tamaño de 3 a 6
 				maxValue: 100
 			},
 			type: 'NumberField',
@@ -187,11 +188,16 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{
 			config: {
 				name: 'importe',
-				fieldLabel: 'Importe Bs.',
+				fieldLabel: 'Importe', //#36 cambio de etiqueta de Bs por UFV
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength: 1179650
+				maxLength: 1179650,
+				//Inicio #36
+				renderer: function(value, metadata, rec, index){
+		            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+		        }
+		        //Fin #36
 			},
 			type: 'NumberField',
 			filters: {pfiltro: 'moafes.importe', type: 'numeric'},
@@ -540,6 +546,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{name:'denominacion_af', type: 'string'},
 		{name:'opcion', type: 'string'},
 		{name:'desc_almacen', type: 'string'},
+		{name:'id_almacen', type: 'numeric'}, //#36 adicion
 	],
 	sortInfo: {
 		field: 'id_movimiento_af_especial',
@@ -614,7 +621,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		var rec = this.sm.getSelected();
 		this.desplegarComponentes(rec.data.tipo, true);
 		this.cargarSaldo(this.maestro.id_movimiento_af);
-    	this.Cmp.importe_orig.setValue(this.maestro.importe);
+    	this.Cmp.importe_orig.setValue(Ext.util.Format.usMoney(this.maestro.importe)); //#36 adicion formato
     },
 
     onButtonNew: function() {
@@ -656,7 +663,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 	        params: { id_movimiento_af: idMovimientoAf },
 	        success: function(res, params) {
 	        	var response = Ext.decode(res.responseText).ROOT;
-	        	this.Cmp.saldo_ant.setValue(response.datos.saldo);
+	        	this.Cmp.saldo_ant.setValue(Ext.util.Format.usMoney(response.datos.saldo)); //#36 adición de formato
 	        },
 	        argument: this.argumentSave,
 	        failure: this.conexionFailure,
@@ -681,4 +688,3 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 
 })
 </script>
-
