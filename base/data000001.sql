@@ -450,3 +450,11 @@ select pxp.f_add_catalog('KAF','tmovimiento_af_especial__tipo','Salida a Almacé
 
 select conta.f_import_tplantilla_comprobante ('insert','KAF_MOVESP','kaf.f_gestionar_cbte_mov_especial_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','kaf.f_gestionar_cbte_mov_especial','{$tabla.fecha_mov}','activo','ENDE TRANSMISION S.A.','{$tabla.id_depto_conta}','contable','','kaf.v_cbte_mov_especial','DIARIOCON','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','no','no','no','','','','','{$tabla.num_tramite}','','','','','','Distribución de valores a Nuevos Activos Fijos, Existentes y Salida a Almacén','','','','','');
 /***********************************F-DAT-RCM-KAF-36-18/10/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-36-24/10/2019****************************************/
+select conta.f_import_ttipo_relacion_contable ('insert','ALINGT','TALM','Ingreso Almacén por Transferencia AF','activo','si-general','si','no','flujo','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','ALINGTA','TALM','Ingreso Almacén por Transferencia para Valor Activo','activo','si-general','si','no','flujo','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','ALINGTD','TALM','Ingreso Almacén por Transferencia para Depreciación Acumulada','activo','si-general','si','no','flujo','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','TRAFALAC',NULL,'Transferencia Activos Fijos a Almacén Activo Fijo','activo','si-unico','si','no','flujo','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','TRAFALDAC',NULL,'Transferencia Activos Fijos a Almacén Depreciación Acumulada','activo','si-unico','si','no','flujo','recurso_gasto','no','no','no',NULL);
+/***********************************F-DAT-RCM-KAF-36-24/10/2019****************************************/

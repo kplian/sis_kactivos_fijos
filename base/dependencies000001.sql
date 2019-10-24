@@ -3995,7 +3995,6 @@ WITH trel_contable AS(
  WHERE mdep.id_moneda = param.f_get_moneda_base();
 /***********************************F-DEP-RCM-KAF-33-01/10/2019****************************************/
 
-
 /***********************************I-DEP-RCM-KAF-34-08/10/2019****************************************/
 CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_dep_per__cta_detalle(
     id_clasificacion,
@@ -4024,22 +4023,40 @@ WITH trel_contable AS(
          trc.id_tipo_relacion_contable
   WHERE tb.esquema::text = 'KAF'::text AND
         tb.tabla::text = 'tclasificacion'::text AND
-        trc.codigo_tipo_relacion::text = 'DEPCLAS'::text
-)
-
-SELECT rc.id_clasificacion,
-           cla.codigo_completo_tmp,
-           cla.nombre,
-           /*sum(round(mdep.depreciacion_per, 2) - round(
-             mdep.depreciacion_per_ant, 2) - round(mdep.depreciacion, 2)) AS
-             dep_per_actualiz,*/
-
-            CASE
+        trc.codigo_tipo_relacion::text = 'DEPCLAS'::text), tprorrateo_af AS(
+    SELECT acc_1.id_activo_fijo,
+           sum(acc_1.cantidad_horas) AS total_hrs_af
+    FROM kaf.tactivo_fijo_cc acc_1
+    WHERE acc_1.estado_reg::text = 'activo'::text
+    GROUP BY acc_1.id_activo_fijo)
+      SELECT rc.id_clasificacion,
+             cla.codigo_completo_tmp,
+             cla.nombre,
+             CASE
                WHEN COALESCE(acc.id_centro_costo, 0) = 0 THEN CASE
                                                                 WHEN
                                                                   mdep.id_activo_fijo_valor
                                                                   = ANY (ARRAY [
-                                                                  276597,276598,276596,276611,276612,276613,276599,276601,276600,276614,276616,276615,276603,276604,276602,276608,276610,276609,276606,276605, 276607
+                                                                  276597,
+                                                                  276598,
+                                                                  276596,
+                                                                  276611,
+                                                                  276612,
+                                                                  276613,
+                                                                  276599,
+                                                                  276601,
+                                                                  276600,
+                                                                  276614,
+                                                                  276616,
+                                                                  276615,
+                                                                  276603,
+                                                                  276604,
+                                                                  276602,
+                                                                  276608,
+                                                                  276610,
+                                                                  276609,
+                                                                  276606,
+                                                                  276605, 276607
                                                                   ]) THEN sum(
                                                                   round(
 
@@ -4050,7 +4067,11 @@ SELECT rc.id_clasificacion,
                                                                   2) - round(
 
                                                                   mdep.depreciacion,
-                                                                  2) - COALESCE(round(mdep.aux_depmes_tot_del_inc,2), 0::numeric
+                                                                  2) - COALESCE(
+                                                                  round(
+
+                                                                  mdep.aux_depmes_tot_del_inc,
+                                                                  2), 0::numeric
                                                                   ))
                                                                 ELSE sum(round(
 
@@ -4073,103 +4094,102 @@ SELECT rc.id_clasificacion,
                  acc.cantidad_horas / paf.total_hrs_af, 2) - round(
                  mdep.depreciacion * acc.cantidad_horas / paf.total_hrs_af, 2))
              END AS dep_per_actualiz,
-
-
-
-
-           maf.id_movimiento,
-           mdep.id_moneda,
-           cc.codigo_tcc,
-           af.id_centro_costo,
-           CASE COALESCE(act.nro_cuenta, ''::character varying)
-             WHEN ''::text THEN (
-                                  SELECT rc1.id_cuenta
-                                  FROM conta.trelacion_contable rc1
-                                       JOIN conta.ttipo_relacion_contable trc ON
-                                         trc.id_tipo_relacion_contable =
-                                         rc1.id_tipo_relacion_contable
-                                  WHERE trc.codigo_tipo_relacion::text =
-                                    'DEPCLAS'::text AND
-                                        rc1.id_gestion =((
-                                                           SELECT
-                                                             f_get_periodo_gestion.po_id_gestion
-                                                           FROM
-                                                             param.f_get_periodo_gestion
-                                                             (mov.fecha_hasta)
-                                                             f_get_periodo_gestion
-                                                             (po_id_periodo,
-                                                             po_id_gestion,
-                                                             po_id_periodo_subsistema
-                                                             )
-                                        )) AND
-                                        rc1.estado_reg::text = 'activo'::text
-  AND
-                                        rc1.id_tabla = rc.id_clasificacion
-           )
-             ELSE cta.id_cuenta
-           END AS id_cuenta,
-           (
-             SELECT rc1.id_partida
-             FROM conta.trelacion_contable rc1
-                  JOIN conta.ttipo_relacion_contable trc ON
-                    trc.id_tipo_relacion_contable =
-                    rc1.id_tipo_relacion_contable
-             WHERE trc.codigo_tipo_relacion::text = 'DEPCLAS'::text AND
-                   rc1.id_gestion =((
-                                      SELECT f_get_periodo_gestion.po_id_gestion
-                                      FROM param.f_get_periodo_gestion(
-                                        mov.fecha_hasta) f_get_periodo_gestion(
-                                        po_id_periodo, po_id_gestion,
-                                        po_id_periodo_subsistema)
-                   )) AND
-                   rc1.estado_reg::text = 'activo'::text AND
-                   rc1.id_tabla = rc.id_clasificacion
-           ) AS id_partida,
-           af.denominacion,
-           af.codigo,
-           af.codigo_ant,
-           maf.id_activo_fijo
-    FROM kaf.tmovimiento_af maf
-         JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af =
-           maf.id_movimiento_af
-         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
-         JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
-         JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
-           rc.id_clasificacion
-         LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
-           af.id_centro_costo
-         JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
-         LEFT JOIN kaf.tactivo_fijo_cta_tmp act ON act.id_activo_fijo =
-           af.id_activo_fijo
-         LEFT JOIN conta.tcuenta cta ON cta.nro_cuenta::text = act.nro_cuenta::
-           text AND (cta.id_gestion IN (
-                                         SELECT tgestion.id_gestion
-                                         FROM param.tgestion
-                                         WHERE date_trunc('year'::text,
-                                           tgestion.fecha_ini::timestamp with
-                                           time zone) = date_trunc('year'::text,
-                                           mov.fecha_hasta::timestamp with time
-                                           zone)
-         ))
-        LEFT JOIN kaf.tactivo_fijo_cc acc ON acc.id_activo_fijo =
-             maf.id_activo_fijo AND acc.estado_reg::text = 'activo'::text
-           LEFT JOIN kaf.tprorrateo_af paf ON paf.id_activo_fijo =
-             maf.id_activo_fijo
-    WHERE mdep.id_moneda = param.f_get_moneda_base()
-    GROUP BY rc.id_clasificacion,
-             cla.codigo_completo_tmp,
-             cla.nombre,
              maf.id_movimiento,
              mdep.id_moneda,
              cc.codigo_tcc,
              af.id_centro_costo,
-             mov.fecha_hasta,
-             act.nro_cuenta,
-             cta.id_cuenta,
+             CASE COALESCE(act.nro_cuenta, ''::character varying)
+               WHEN ''::text THEN (
+                                    SELECT rc1.id_cuenta
+                                    FROM conta.trelacion_contable rc1
+                                         JOIN conta.ttipo_relacion_contable trc
+                                           ON trc.id_tipo_relacion_contable =
+                                           rc1.id_tipo_relacion_contable
+                                    WHERE trc.codigo_tipo_relacion::text =
+                                      'DEPCLAS'::text AND
+                                          rc1.id_gestion =((
+                                                             SELECT
+                                                               f_get_periodo_gestion.po_id_gestion
+                                                             FROM
+                                                               param.f_get_periodo_gestion
+                                                               (mov.fecha_hasta)
+                                                               f_get_periodo_gestion
+                                                               (po_id_periodo,
+                                                               po_id_gestion,
+                                                               po_id_periodo_subsistema
+                                                               )
+                                          )) AND
+                                          rc1.estado_reg::text = 'activo'::text
+  AND
+                                          rc1.id_tabla = rc.id_clasificacion
+             )
+               ELSE cta.id_cuenta
+             END AS id_cuenta,
+             (
+               SELECT rc1.id_partida
+               FROM conta.trelacion_contable rc1
+                    JOIN conta.ttipo_relacion_contable trc ON
+                      trc.id_tipo_relacion_contable =
+                      rc1.id_tipo_relacion_contable
+               WHERE trc.codigo_tipo_relacion::text = 'DEPCLAS'::text AND
+                     rc1.id_gestion =((
+                                        SELECT
+                                          f_get_periodo_gestion.po_id_gestion
+                                        FROM param.f_get_periodo_gestion(
+                                          mov.fecha_hasta) f_get_periodo_gestion
+                                          (po_id_periodo, po_id_gestion,
+                                          po_id_periodo_subsistema)
+                     )) AND
+                     rc1.estado_reg::text = 'activo'::text AND
+                     rc1.id_tabla = rc.id_clasificacion
+             ) AS id_partida,
              af.denominacion,
              af.codigo,
              af.codigo_ant,
-             maf.id_activo_fijo;
+             maf.id_activo_fijo
+      FROM kaf.tmovimiento_af maf
+           JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af =
+             maf.id_movimiento_af
+           JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+           JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+           JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
+             rc.id_clasificacion
+           LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
+             af.id_centro_costo
+           JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+           LEFT JOIN kaf.tactivo_fijo_cta_tmp act ON act.id_activo_fijo =
+             af.id_activo_fijo
+           LEFT JOIN conta.tcuenta cta ON cta.nro_cuenta::text = act.nro_cuenta
+             ::text AND (cta.id_gestion IN (
+                                             SELECT tgestion.id_gestion
+                                             FROM param.tgestion
+                                             WHERE date_trunc('year'::text,
+                                               tgestion.fecha_ini::timestamp
+                                               with time zone) = date_trunc(
+                                               'year'::text, mov.fecha_hasta::
+                                               timestamp with time zone)
+           ))
+           LEFT JOIN kaf.tactivo_fijo_cc acc ON acc.id_activo_fijo =
+             maf.id_activo_fijo AND acc.estado_reg::text = 'activo'::text
+           LEFT JOIN tprorrateo_af paf ON paf.id_activo_fijo =
+             maf.id_activo_fijo
+      WHERE mdep.id_moneda = param.f_get_moneda_base()
+      GROUP BY rc.id_clasificacion,
+               cla.codigo_completo_tmp,
+               cla.nombre,
+               maf.id_movimiento,
+               mdep.id_moneda,
+               cc.codigo_tcc,
+               af.id_centro_costo,
+               mov.fecha_hasta,
+               act.nro_cuenta,
+               cta.id_cuenta,
+               af.denominacion,
+               af.codigo,
+               af.codigo_ant,
+               maf.id_activo_fijo,
+               acc.id_centro_costo,
+               mdep.id_activo_fijo_valor;
 
 CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_activo(
     id_clasificacion,

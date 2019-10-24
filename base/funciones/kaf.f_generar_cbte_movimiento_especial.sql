@@ -16,6 +16,7 @@ $body$
  #2     KAF       ETR           06/06/2019  RCM         Creación del archivo
  #21    KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
  #36    KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud. Cambio de moneda por defecto, de UFV a USD
+ #37    KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
 ***************************************************************************
 */
 DECLARE
@@ -36,6 +37,11 @@ DECLARE
     v_id_moneda_mov_esp     integer;
     v_codigo_moneda         varchar;
     v_id_centro_costo       integer; --#36
+    --Inicio #37: Dos arrays para obtener la configuración de relacione contables generales
+    v_rec_rel_cont          record;
+    v_rec_rel_cont1         record;
+    v_id_gestion            integer;
+    --Fin #37
 
 BEGIN
 
@@ -89,6 +95,12 @@ BEGIN
     WHERE tr.codigo_tipo_relacion = 'CCDEPCON'
     AND rc.id_gestion IN (SELECT po_id_gestion FROM param.f_get_periodo_gestion (v_fecha_mov));
     --FIn #36
+
+    --Inicio #37: Obtención de la gestión en base a la fecha del movimient
+    SELECT po_id_gestion
+    INTO v_id_gestion
+    FROM param.f_get_periodo_gestion (v_fecha_mov);
+    --Fin #37
 
     ---------------------------
     --Creación del comprobante (sólo cabecera)
@@ -182,7 +194,7 @@ BEGIN
     ON rc_af.id_tabla = clr.id_clasificacion
     AND rc_af.estado_reg = 'activo'
     AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-    AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_af.id_gestion = v_id_gestion
     INNER JOIN tclasif_rel clr1
     ON af.id_clasificacion = ANY(clr1.nodos)
     AND clr1.codigo = 'ALTAAF'
@@ -190,7 +202,7 @@ BEGIN
     ON rc_af1.id_tabla = clr1.id_clasificacion
     AND rc_af1.estado_reg = 'activo'
     AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-    AND rc_af1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_af1.id_gestion = v_id_gestion
     INNER JOIN tclasif_rel clrdacum
     ON mafe.id_clasificacion = ANY(clrdacum.nodos)
     AND clrdacum.codigo = 'DEPACCLAS'
@@ -198,7 +210,7 @@ BEGIN
     ON rc_dacum.id_tabla = clrdacum.id_clasificacion
     AND rc_dacum.estado_reg = 'activo'
     AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-    AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_dacum.id_gestion = v_id_gestion
     INNER JOIN tclasif_rel clrdacum1
     ON af.id_clasificacion = ANY(clrdacum1.nodos)
     AND clrdacum1.codigo = 'DEPACCLAS'
@@ -206,7 +218,7 @@ BEGIN
     ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
     AND rc_dacum1.estado_reg = 'activo'
     AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-    AND rc_dacum1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_dacum1.id_gestion = v_id_gestion
     WHERE mov.id_movimiento = p_id_movimiento
     AND afv.id_moneda = v_id_moneda_usd --#36 antes v_id_moneda_ufv
     AND (rc_af.id_cuenta <> rc_af1.id_cuenta
@@ -252,7 +264,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr1
         ON af.id_clasificacion = ANY(clr1.nodos)
         AND clr1.codigo = 'ALTAAF'
@@ -260,7 +272,7 @@ BEGIN
         ON rc_af1.id_tabla = clr1.id_clasificacion
         AND rc_af1.estado_reg = 'activo'
         AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_af1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af1.id_gestion = v_id_gestion
 
         INNER JOIN tclasif_rel clrdacum
         ON mafe.id_clasificacion = ANY(clrdacum.nodos)
@@ -269,7 +281,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clrdacum1
         ON af.id_clasificacion = ANY(clrdacum1.nodos)
         AND clrdacum1.codigo = 'DEPACCLAS'
@@ -277,7 +289,7 @@ BEGIN
         ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
         AND rc_dacum1.estado_reg = 'activo'
         AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-        AND rc_dacum1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum1.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
         AND afv.id_moneda = v_id_moneda_ufv
@@ -326,7 +338,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr1
         ON af.id_clasificacion = ANY(clr1.nodos)
         AND clr1.codigo = 'ALTAAF'
@@ -334,7 +346,7 @@ BEGIN
         ON rc_af1.id_tabla = clr1.id_clasificacion
         AND rc_af1.estado_reg = 'activo'
         AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_af1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af1.id_gestion = v_id_gestion
 
         INNER JOIN tclasif_rel clrdacum
         ON mafe.id_clasificacion = ANY(clrdacum.nodos)
@@ -343,7 +355,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clrdacum1
         ON af.id_clasificacion = ANY(clrdacum1.nodos)
         AND clrdacum1.codigo = 'DEPACCLAS'
@@ -351,7 +363,7 @@ BEGIN
         ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
         AND rc_dacum1.estado_reg = 'activo'
         AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-        AND rc_dacum1.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum1.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
         AND afv.id_moneda = v_id_moneda_bs
@@ -415,7 +427,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
 
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -424,7 +436,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
     ), tactivo_destino AS (
@@ -481,7 +493,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
 
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -490,7 +502,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
     )
@@ -568,7 +580,7 @@ BEGIN
             ON rc_af.id_tabla = clr.id_clasificacion
             AND rc_af.estado_reg = 'activo'
             AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-            AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_af.id_gestion = v_id_gestion
 
             INNER JOIN tclasif_rel clrdacum
             ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -577,7 +589,7 @@ BEGIN
             ON rc_dacum.id_tabla = clrdacum.id_clasificacion
             AND rc_dacum.estado_reg = 'activo'
             AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-            AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_dacum.id_gestion = v_id_gestion
 
             WHERE mov.id_movimiento = p_id_movimiento
         ), tactivo_destino AS (
@@ -632,7 +644,7 @@ BEGIN
             ON rc_af.id_tabla = clr.id_clasificacion
             AND rc_af.estado_reg = 'activo'
             AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-            AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_af.id_gestion = v_id_gestion
 
             INNER JOIN tclasif_rel clrdacum
             ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -641,7 +653,7 @@ BEGIN
             ON rc_dacum.id_tabla = clrdacum.id_clasificacion
             AND rc_dacum.estado_reg = 'activo'
             AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-            AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_dacum.id_gestion = v_id_gestion
 
             WHERE mov.id_movimiento = p_id_movimiento
         )
@@ -713,7 +725,7 @@ BEGIN
             ON rc_af.id_tabla = clr.id_clasificacion
             AND rc_af.estado_reg = 'activo'
             AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-            AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_af.id_gestion = v_id_gestion
 
             INNER JOIN tclasif_rel clrdacum
             ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -722,7 +734,7 @@ BEGIN
             ON rc_dacum.id_tabla = clrdacum.id_clasificacion
             AND rc_dacum.estado_reg = 'activo'
             AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-            AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_dacum.id_gestion = v_id_gestion
 
             WHERE mov.id_movimiento = p_id_movimiento
         ), tactivo_destino AS (
@@ -777,7 +789,7 @@ BEGIN
             ON rc_af.id_tabla = clr.id_clasificacion
             AND rc_af.estado_reg = 'activo'
             AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-            AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_af.id_gestion = v_id_gestion
 
             INNER JOIN tclasif_rel clrdacum
             ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -786,7 +798,7 @@ BEGIN
             ON rc_dacum.id_tabla = clrdacum.id_clasificacion
             AND rc_dacum.estado_reg = 'activo'
             AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-            AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+            AND rc_dacum.id_gestion = v_id_gestion
 
             WHERE mov.id_movimiento = p_id_movimiento
         )
@@ -813,6 +825,20 @@ BEGIN
     -------------------------------
     --3 Caso Salida a Almacen
     -------------------------------
+    --Inicio #37: obtención de valores de las relaciones contables: TRAFALAC (transferencia activo fijo), TRAFALDAC (transferencia dep. acum.)
+    v_rec_rel_cont = conta.f_get_config_relacion_contable
+                    (
+                        'TRAFALAC', --p_codigo
+                        v_id_gestion --p_id_gestion
+                    );
+
+    v_rec_rel_cont1 = conta.f_get_config_relacion_contable
+                    (
+                        'TRAFALDAC', --p_codigo
+                        v_id_gestion --p_id_gestion
+                    );
+    --Fin #37
+
     INSERT INTO tt_transaccion
     WITH tult_dep AS (
         SELECT
@@ -878,7 +904,7 @@ BEGIN
     ON rc_af.id_tabla = clr.id_clasificacion
     AND rc_af.estado_reg = 'activo'
     AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-    AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_af.id_gestion = v_id_gestion
     INNER JOIN kaf.tmovimiento_af_especial mafe
     ON mafe.id_movimiento_af = maf.id_movimiento_af
     AND mafe.tipo = 'af_almacen'
@@ -892,7 +918,7 @@ BEGIN
     ON rc_al.id_tabla = alm.id_almacen
     AND rc_al.estado_reg = 'activo'
     AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-    AND rc_al.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_al.id_gestion = v_id_gestion
     INNER JOIN tclasif_rel clr2
     ON clr2.id_clasificacion = alm.id_almacen
     AND clr2.codigo = 'ALINGTA'
@@ -900,7 +926,7 @@ BEGIN
     ON rc_al2.id_tabla = alm.id_almacen
     AND rc_al2.estado_reg = 'activo'
     AND rc_al2.id_tipo_relacion_contable = clr2.id_tipo_relacion_contable
-    AND rc_al2.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_al2.id_gestion = v_id_gestion
     INNER JOIN tclasif_rel clr3
     ON clr3.id_clasificacion = alm.id_almacen
     AND clr3.codigo = 'ALINGTD'
@@ -908,7 +934,7 @@ BEGIN
     ON rc_al3.id_tabla = alm.id_almacen
     AND rc_al3.estado_reg = 'activo'
     AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
-    AND rc_al3.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_al3.id_gestion = v_id_gestion
     --Fin #36
     INNER JOIN tclasif_rel clrdacum
     ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -917,7 +943,7 @@ BEGIN
     ON rc_dacum.id_tabla = clrdacum.id_clasificacion
     AND rc_dacum.estado_reg = 'activo'
     AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-    AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+    AND rc_dacum.id_gestion = v_id_gestion
 
     WHERE mov.id_movimiento = p_id_movimiento
     AND afv.id_moneda = v_id_moneda_usd
@@ -984,7 +1010,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
         INNER JOIN kaf.tmovimiento_af_especial mafe
         ON mafe.id_movimiento_af = maf.id_movimiento_af
         AND mafe.tipo = 'af_almacen'
@@ -998,7 +1024,7 @@ BEGIN
         ON rc_al.id_tabla = alm.id_almacen
         AND rc_al.estado_reg = 'activo'
         AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_al.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr2
         ON clr2.id_clasificacion = alm.id_almacen
         AND clr2.codigo = 'ALINGTA'
@@ -1006,7 +1032,7 @@ BEGIN
         ON rc_al2.id_tabla = alm.id_almacen
         AND rc_al2.estado_reg = 'activo'
         AND rc_al2.id_tipo_relacion_contable = clr2.id_tipo_relacion_contable
-        AND rc_al2.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al2.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr3
         ON clr3.id_clasificacion = alm.id_almacen
         AND clr3.codigo = 'ALINGTD'
@@ -1014,7 +1040,7 @@ BEGIN
         ON rc_al3.id_tabla = alm.id_almacen
         AND rc_al3.estado_reg = 'activo'
         AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
-        AND rc_al3.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al3.id_gestion = v_id_gestion
         --Fin #36
 
         INNER JOIN tclasif_rel clrdacum
@@ -1024,7 +1050,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
         AND afv.id_moneda = v_id_moneda_ufv
@@ -1090,7 +1116,7 @@ BEGIN
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
         AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_af.id_gestion = v_id_gestion
         INNER JOIN kaf.tmovimiento_af_especial mafe
         ON mafe.id_movimiento_af = maf.id_movimiento_af
         AND mafe.tipo = 'af_almacen'
@@ -1104,7 +1130,7 @@ BEGIN
         ON rc_al.id_tabla = alm.id_almacen
         AND rc_al.estado_reg = 'activo'
         AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_al.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr2
         ON clr2.id_clasificacion = alm.id_almacen
         AND clr2.codigo = 'ALINGTA'
@@ -1112,7 +1138,7 @@ BEGIN
         ON rc_al2.id_tabla = alm.id_almacen
         AND rc_al2.estado_reg = 'activo'
         AND rc_al2.id_tipo_relacion_contable = clr2.id_tipo_relacion_contable
-        AND rc_al2.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al2.id_gestion = v_id_gestion
         INNER JOIN tclasif_rel clr3
         ON clr3.id_clasificacion = alm.id_almacen
         AND clr3.codigo = 'ALINGTD'
@@ -1120,7 +1146,7 @@ BEGIN
         ON rc_al3.id_tabla = alm.id_almacen
         AND rc_al3.estado_reg = 'activo'
         AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
-        AND rc_al3.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_al3.id_gestion = v_id_gestion
         --Fin #36
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -1129,7 +1155,7 @@ BEGIN
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
         AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = (SELECT po_id_gestion FROM param.f_get_periodo_gestion (mov.fecha_mov))
+        AND rc_dacum.id_gestion = v_id_gestion
 
         WHERE mov.id_movimiento = p_id_movimiento
         AND afv.id_moneda = v_id_moneda_bs
@@ -1186,7 +1212,7 @@ BEGIN
     t.depreciacion_acum_bs,
     t.depreciacion_acum_usd,
     t.depreciacion_acum_ufv,
-    --Inicio #36 AHORA
+    --Inicio #36
     0,
     0,
     0,
@@ -1195,11 +1221,68 @@ BEGIN
     0,
     0,
     0,
-    --Fin #36 AHORA
+    --Fin #36
     p_id_usuario,
     now(),
     t.glosa --#21 adición de columna para la glosa
     FROM tt_transaccion t;
+
+    --Inicio #37
+    --Haber: Depreciación acumulada
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa --#21 adición de columna para la glosa
+    )
+    SELECT
+    v_rec_rel_cont1.ps_id_partida,
+    v_rec_rel_cont1.ps_id_centro_costo,
+    'activo',
+    v_rec_rel_cont1.ps_id_cuenta,
+    v_id_int_comprobante,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    p_id_usuario,
+    now(),
+    t.glosa --#21 adición de columna para la glosa
+    FROM tt_transaccion t;
+    --Fin #37
 
     --Haber: Monto activo fijo
     INSERT INTO conta.tint_transaccion
@@ -1257,9 +1340,124 @@ BEGIN
     t.glosa --#21 adición de columna para la glosa
     FROM tt_transaccion t;
 
+    --Inicio #37
+    --Debe: Contracuenta 1/2 DEL activo fijo sólo parcial. Se pone en USD y UFV el monto ya definido, en caso de BS se hace la conversión de USD a BS. La diferencia q existe entre
+    --ese monto convertido y el monto en bs previamente definido es la actualización, que debe ir en otra transacción son en BS
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa
+    )
+    SELECT
+    t.id_partida_dest,--t.id_partida_dest_af,
+    v_id_centro_costo,
+    'activo',
+    t.id_cuenta_dest,--t.id_cuenta_dest_af,
+    v_id_int_comprobante,
+    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2), --t.importe_bs,
+    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    p_id_usuario,
+    now(),
+    t.glosa
+    FROM tt_transaccion t;
+
+    --Debe: Contracuenta 2/2 del activo de la transacción en BS por la actualización (sólo BS)
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa,
+        actualizacion
+    )
+    SELECT
+    v_rec_rel_cont.ps_id_partida,
+    v_rec_rel_cont.ps_id_centro_costo,
+    'activo',
+    v_rec_rel_cont.ps_id_cuenta,
+    v_id_int_comprobante,
+    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2), --t.importe_bs,
+    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    0,--t.importe_usd,
+    0,--t.importe_ufv,
+    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    0,--t.importe_usd,
+    0,--t.importe_ufv,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    p_id_usuario,
+    now(),
+    t.glosa,
+    'si'
+    FROM tt_transaccion t;
+    --Fin #37
+
 
     --Saldo para contracuenta (debe)
-    INSERT INTO conta.tint_transaccion
+    /*INSERT INTO conta.tint_transaccion
     (
         id_partida,
         id_centro_costo,
@@ -1314,7 +1512,7 @@ BEGIN
     p_id_usuario,
     now(),
     t.glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion t;
+    FROM tt_transaccion t;*/
 
 
 
@@ -1442,14 +1640,10 @@ BEGIN
     ON cc.id_centro_costo = t.id_centro_costo_dep_acum_dest
     INNER JOIN param.tcentro_costo cc1
     ON cc1.id_tipo_cc = cc.id_tipo_cc
-    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));*/
-
-
-    --Fin #36
-
+    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
 
     --Fin #36
-
+*/
     -------------------------------------------------
     --Actualizar el ID comprobante en el Movimiento
     -------------------------------------------------
