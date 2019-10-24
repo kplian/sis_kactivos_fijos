@@ -4153,7 +4153,7 @@ SELECT rc.id_clasificacion,
          ))
         LEFT JOIN kaf.tactivo_fijo_cc acc ON acc.id_activo_fijo =
              maf.id_activo_fijo AND acc.estado_reg::text = 'activo'::text
-           LEFT JOIN tprorrateo_af paf ON paf.id_activo_fijo =
+           LEFT JOIN kaf.tprorrateo_af paf ON paf.id_activo_fijo =
              maf.id_activo_fijo
     WHERE mdep.id_moneda = param.f_get_moneda_base()
     GROUP BY rc.id_clasificacion,
