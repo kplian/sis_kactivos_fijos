@@ -256,7 +256,7 @@ BEGIN
         SELECT
         o_tc_inicial, o_tc_final
         INTO v_tc_ini, v_tc_fin
-        FROM kaf.f_get_tipo_cambio((COALESCE(v_rec.id_moneda_act, v_rec.id_moneda), v_rec.id_moneda, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE);
+        FROM kaf.f_get_tipo_cambio((COALESCE(v_rec.id_moneda_act, v_rec.id_moneda), v_rec.id_moneda, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE));
 
         --Obtener el total del detalle en cada moneda
         SELECT
