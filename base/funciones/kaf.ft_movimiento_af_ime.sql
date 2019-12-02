@@ -16,8 +16,9 @@ $body$
  FECHA:	        18-03-2016 05:34:15
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           23/01/2019  RCM         Se corrige la eliminación
+ ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #2     KAF     ETR         23/01/2019  RCM     Se corrige la eliminación
+ #39    KAF     ETR         22/11/2019  RCM     Importación plantillas excel Distribución de Valores
 ***************************************************************************/
 
 DECLARE
@@ -41,6 +42,7 @@ DECLARE
     v_saldo                 numeric;
     v_id_moneda_mov_esp     integer;--#2
     v_codigo_moneda         varchar;--#2
+    v_id_activo_fijo        INTEGER; --#39
 
 BEGIN
 
@@ -279,6 +281,96 @@ BEGIN
 
         end;
     --#2 fin
+
+    --Inicio #39
+    /*********************************
+    #TRANSACCION:  'SKA_MOVAFMAS_ELI'
+    #DESCRIPCION:   Eliminacion de registros
+    #AUTOR:         admin
+    #FECHA:         22/11/2019
+    ***********************************/
+    ELSIF (p_transaccion = 'SKA_MOVAFMAS_ELI') THEN
+
+        BEGIN
+
+            SELECT mov.estado, mov.codigo
+            INTO
+            v_registros
+            FROM kaf.tmovimiento mov
+            WHERE mov.id_movimiento = v_parametros.id_movimiento;
+
+            IF v_registros.estado != 'borrador' THEN
+               RAISE EXCEPTION 'Solo puede eliminar los registros de movimientos en borrador';
+            END IF;
+
+            --Elimina el detalle en movimiento especial si es que tuviera
+            DELETE
+            FROM kaf.tmovimiento_af_especial mesp
+            USING kaf.tmovimiento_af maf
+            WHERE mesp.id_movimiento_af = maf.id_movimiento_af
+            AND maf.id_movimiento = v_parametros.id_movimiento;
+
+            --Sentencia de la eliminacion
+            DELETE FROM kaf.tmovimiento_af
+            WHERE id_movimiento = v_parametros.id_movimiento;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Registros del movimiento eliminados');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_movimiento', v_parametros.id_movimiento::varchar);
+
+            --Devuelve la respuesta
+            RETURN v_resp;
+
+        END;
+
+    /*********************************
+    #TRANSACCION:  'SKA_MOVAFMAS_INS'
+    #DESCRIPCION:   Importación de activos fijos desde plantilla
+    #AUTOR:         RCM
+    #FECHA:         24/11/2019
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_MOVAFMAS_INS') THEN
+
+        BEGIN
+
+            --Obtiene el ID_ACTIVO_FIJO
+            SELECT id_activo_fijo
+            INTO v_id_activo_fijo
+            FROM kaf.tactivo_fijo
+            WHERE codigo = v_parametros.codigo_activo;
+
+            IF v_id_activo_fijo IS NULL THEN
+                RAISE EXCEPTION 'Activo fijo inexistente: %',v_parametros.codigo_activo;
+            END IF;
+
+            --Se setea los datos para llamar a la función de inserción
+            SELECT
+            COALESCE(v_parametros.id_movimiento, NULL) AS id_movimiento,
+            COALESCE(v_id_activo_fijo, NULL) AS id_activo_fijo,
+            NULL AS id_movimiento_motivo,
+            NULL AS importe,
+            NULL AS vida_util,
+            NULL AS _nombre_usuario_ai,
+            NULL AS _id_usuario_ai,
+            NULL AS depreciacion_acum,
+            NULL AS importe_ant,
+            NULL AS vida_util_ant
+            INTO v_registros;
+
+            --Inserción del movimiento
+            v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_registros));
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Inserción de movimiento af (id_movimiento_af: ' || v_id_movimiento_af || ')');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_movimiento_af', v_id_movimiento_af::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        END;
+
+    --Fin #39
+
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

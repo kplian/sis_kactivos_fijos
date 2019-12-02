@@ -9,7 +9,8 @@
 /***************************************************************************
 #ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #2     KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
- #23    KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación F y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
+ #23    KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación AF y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
+ #35    KAF     ETR         11/10/2019  RCM     Adición de botón para procesar Detalle Depreciación
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -60,8 +61,6 @@ Phx.vista.MovimientoPrincipal = {
     bactGroups:  [0,1,2,3,4,5,6],
     btestGroups: [0,1,2,3,4,5,6],
     bexcelGroups: [0,1,2,3,4,5,6],
-
-
 
     constructor: function(config) {
 
@@ -190,6 +189,19 @@ Phx.vista.MovimientoPrincipal = {
             }
         );
 
+        //Inicio #35
+        this.addButton('btnPocDetalleDep',
+            {
+                text: 'Procesar Reporte',
+                iconCls: 'bgear',
+                disabled: false,
+                handler: this.verificarProcesoReporteDepreciacion,
+                tooltip: '<b>Procesar Reporte</b><br/>Procesa el detalle depreciación del mes seleccionado',
+                grupo: [0,5]
+            }
+        );
+        //Fin #35
+
         //Inicio #23
         this.addButton('btnRepCompAfConta',
             {
@@ -201,7 +213,31 @@ Phx.vista.MovimientoPrincipal = {
                 grupo: [0,5]
             }
         );
+
         //Fin #23
+
+        //Inicio #39
+        this.addButton('btnImportDataDvalAF',
+            {
+                text: 'Activos Fijos',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.subirArchivoAF,
+                tooltip: '<b>Destino Activos Fijos</b><br/>Importación desde Excel para Distribución de Valores con destino a Activos Fijos'
+            }
+        );
+
+        this.addButton('btnImportDataDvalAL',
+            {
+                text: 'Almacén',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.subirArchivoAL,
+                tooltip: '<b>Destino Almacén</b><br/>Importación desde Excel para Distribución de Valores con destino a Almacén'
+            }
+        );
+        //Fin #39
+
 
         //Oculta los botones
         this.getBoton('btnCbte1').hide();
@@ -209,6 +245,7 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnCbte3').hide();
         this.getBoton('btnCbte4').hide(); //#23
         this.getBoton('btnRepCompAfConta').hide(); //#23
+        this.getBoton('btnPocDetalleDep').hide(); //#35
 
     },
 
@@ -437,6 +474,18 @@ Phx.vista.MovimientoPrincipal = {
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnAsignacion').disable();
+            //Inicio #35
+            this.getBoton('btnRepCompAfConta').hide();
+            this.getBoton('btnPocDetalleDep').hide();
+            this.getBoton('btnCbte1').hide();
+            this.getBoton('btnCbte2').hide();
+            this.getBoton('btnCbte3').hide();
+            this.getBoton('btnCbte4').hide();
+            //Fin #35
+            //Inicio #39
+            this.getBoton('btnImportDataDvalAF').hide();
+            this.getBoton('btnImportDataDvalAL').hide();
+            //fin #39
         }
        return tb
     },
@@ -445,9 +494,19 @@ Phx.vista.MovimientoPrincipal = {
         var tb = Phx.vista.Movimiento.superclass.preparaMenu.call(this);
         var data = this.getSelectedData();
         var tb = this.tbar;
-console.log(data);
+
         this.getBoton('btnChequeoDocumentosWf').enable();
         this.getBoton('diagrama_gantt').enable();
+
+        //Oculta botones por defecto
+        this.getBoton('btnCbte1').hide();
+        this.getBoton('btnCbte2').hide();
+        this.getBoton('btnCbte3').hide();
+        this.getBoton('btnCbte4').hide();
+        this.getBoton('btnRepCompAfConta').hide(); //#23
+        this.getBoton('btnPocDetalleDep').hide(); //#35
+        this.getBoton('btnImportDataDvalAF').hide(); //#39
+        this.getBoton('btnImportDataDvalAL').hide(); //#39
 
         if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
             this.getBoton('btnReporte').enable();
@@ -455,6 +514,12 @@ console.log(data);
         if(data.cod_movimiento == 'asig' || data.cod_movimiento == 'transf' || data.cod_movimiento == 'devol'){
             this.getBoton('btnAsignacion').enable();
         }
+        //Inicio #39
+        if(data.cod_movimiento == 'dval'){
+            this.getBoton('btnImportDataDvalAF').show();
+            this.getBoton('btnImportDataDvalAL').show();
+        }
+        //Fin #39
 
         //Enable/disable WF buttons by status
         this.getBoton('ant_estado').enable();
@@ -479,12 +544,6 @@ console.log(data);
         }
 
         //Verifica si tiene Comprobantes asociados para habilitar los botones
-        this.getBoton('btnCbte1').hide();
-        this.getBoton('btnCbte2').hide();
-        this.getBoton('btnCbte3').hide();
-        this.getBoton('btnCbte4').hide();
-        this.getBoton('btnRepCompAfConta').hide(); //#23
-
         if(data.id_int_comprobante){
             this.getBoton('btnCbte1').show();
         }
@@ -502,6 +561,7 @@ console.log(data);
         //Habilita el botón de comparación sólo para el caso de depreciación
         if(data.cod_movimiento == 'deprec') {
             this.getBoton('btnRepCompAfConta').show();
+            this.getBoton('btnPocDetalleDep').show();//#35
         }
         //Fin #23
 
@@ -695,8 +755,94 @@ console.log(data);
             });
         }
 
-    }
+    },
     //Fin #23
+
+    //Inicio #35
+    procesarReporteDepreciacion: function() {
+        var data = this.sm.getSelected().data;
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url: '../../sis_kactivos_fijos/control/MovimientoAfDep/procesarDetalleDepreciacion',
+            params: { id_movimiento: data.id_movimiento },
+            success: function(resp){
+                Phx.CP.loadingHide();
+            },
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+    },
+
+    verificarProcesoReporteDepreciacion: function() {
+        var data = this.sm.getSelected().data;
+        Phx.CP.loadingShow();
+
+        Ext.Ajax.request({
+            url: '../../sis_kactivos_fijos/control/MovimientoAfDep/verificarProcesarDetalleDepreciacion',
+            params: { id_movimiento: data.id_movimiento },
+            success: function(resp) {
+                var rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
+
+                Phx.CP.loadingHide();
+                //Verifica si ya existen datos procesados para la fecha del movimiento
+                if(rec.datos.existe == 'si'){
+                    Ext.MessageBox.confirm('Confirmación','Ya se encuentra procesada la información a la fecha del movimiento seleccionado (' + new Date(data.fecha_hasta).format("d/m/Y") + '). ¿Desea reprocesar los datos?', function(resp) {
+                        if(resp == 'yes') {
+                            //Reprocesa la información
+                            this.procesarReporteDepreciacion();
+                        }
+                    }, this);
+                } else if(rec.datos.existe == 'no'){
+                    //Procesa la información
+                    this.procesarReporteDepreciacion();
+                } else {
+                    Ext.MessageBox.alert('Información', 'Se ha producido un error. Vuelva a intentarlo más tarde');
+                }
+            },
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+    },
+    //Fin #35
+
+    //Inicio #39
+    subirArchivoAF: function(rec) {
+        var record = this.sm.getSelected();
+        Phx.CP.loadWindows
+        (
+            '../../../sis_kactivos_fijos/vista/movimiento/ImportarDvalAF.php',
+            '´Destino Activos Fijos',
+            {
+                modal: true,
+                width: 450,
+                height: 150
+            },
+            record.data,
+            this.idContenedor,
+            'ImportarDvalAF'
+        );
+    },
+
+    subirArchivoAL: function(rec) {
+        var record = this.sm.getSelected();
+        Phx.CP.loadWindows
+        (
+            '../../../sis_kactivos_fijos/vista/movimiento/ImportarDvalAL.php',
+            'Destino Almacenes',
+            {
+                modal: true,
+                width: 450,
+                height: 150
+            },
+            record.data,
+            this.idContenedor,
+            'ImportarDvalAL'
+        );
+    },
+    //Fin #39
+
 
 };
 </script>

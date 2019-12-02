@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION kaf.f_procesar_movimiento_especial (
 	p_id_usuario integer,
-	p_id_movimiento integer
+	p_id_movimiento integer,
+    p_id_tipo_estado integer --#39
 )
 RETURNS varchar AS
 $body$
@@ -14,6 +15,7 @@ $body$
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           30/05/2019  RCM         Creación del archivo
+ #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se aumenta parámetro id_tipo_estado
 ***************************************************************************
 */
 DECLARE
@@ -28,6 +30,13 @@ DECLARE
     v_dep_per               numeric;
     v_monto_rescate_gral    numeric;
     v_cod_afv               varchar;
+    v_tc_ini                numeric;
+    v_tc_fin                numeric;
+    --Inicio #39
+    v_fecha_mov             DATE; --07/11/2019
+    v_monto_act_inicial     NUMERIC; --07/11/2019
+    v_cod_estado            VARCHAR;
+    --Fin #39
 
 BEGIN
 
@@ -35,6 +44,12 @@ BEGIN
     v_nombre_funcion = 'kaf.f_procesar_movimiento_especial';
     v_monto_rescate_gral = 1;
     v_cod_afv = 'dval';
+
+    --Obtención del código del estado siguiente
+    SELECT codigo
+    INTO v_cod_estado
+    FROM wf.ttipo_estado
+    WHERE id_tipo_estado = p_id_tipo_estado;
 
     ------------------
     --1. VALIDACIONES
@@ -192,6 +207,19 @@ BEGIN
     INNER JOIN kaf.tmoneda_dep mod
     ON mod.id_moneda = mdep.id_moneda
     WHERE mov.id_movimiento = p_id_movimiento;*/
+
+    --Inicio RCM 07/11/2019
+    --Obtención de la fecha
+    SELECT
+    fecha_mov
+    INTO
+    v_fecha_mov
+    FROM kaf.tmovimiento
+    WHERE id_movimiento = p_id_movimiento;
+
+
+    --Fin RCM07/11/2019
+
     FOR v_rec IN
     (
         WITH tult_dep AS (
@@ -206,7 +234,7 @@ BEGIN
         SELECT
         mdep.id_moneda, mdep.monto_actualiz, mdep.depreciacion_acum, mdep.depreciacion_per,
         afv.id_activo_fijo, afv.id_activo_fijo_valor,
-        mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep
+        mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento mov
         ON mov.id_movimiento = maf.id_movimiento
@@ -221,6 +249,14 @@ BEGIN
         ON mod.id_moneda = mdep.id_moneda
         WHERE maf.id_movimiento = p_id_movimiento
     ) LOOP
+
+        --v_tc_ini = kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda_dep, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE);
+        --v_tc_fin = kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda_dep, v_tipo_cambio_anterior,  (DATE_TRUNC('month', v_fecha_mov + INTERVAL '1 month') - INTERVAL '1 day')::DATE);
+
+        SELECT
+        o_tc_inicial, o_tc_final
+        INTO v_tc_ini, v_tc_fin
+        FROM kaf.f_get_tipo_cambio((COALESCE(v_rec.id_moneda_act, v_rec.id_moneda), v_rec.id_moneda, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE);
 
         --Obtener el total del detalle en cada moneda
         SELECT
@@ -239,22 +275,31 @@ BEGIN
         v_dep_acum = v_rec.depreciacion_acum - (v_rec.depreciacion_acum * v_rec_af.total_porcentaje / 100);
         v_dep_per = v_rec.depreciacion_per - (v_rec.depreciacion_per * v_rec_af.total_porcentaje / 100);
 
+        --Inicio RCM 07/11/2019: Actualiza el valor inicial para el caso de Bolivianos
+        --v_monto_act_inicial = v_monto_act;
+        --IF v_rec.id_moneda = param.f_get_moneda_base() THEN
+        IF v_id_moneda = v_rec.id_moneda THEN
+            v_monto_act = v_rec.monto_actualiz - v_rec_af.total_importe;
+        END IF;
+        v_monto_act_inicial = v_monto_act; -- * v_tc_fin / v_tc_ini; --comentado temporalmente consultar con freddy arnez (24/11/2019)
+        --END IF;
+        --Fin RCM 07/11/2019
+
         --Inserción del activo fijo valor
-        insert into kaf.tactivo_fijo_valores(
-        id_usuario_reg          , fecha_reg             , estado_reg                        , id_activo_fijo,
-        monto_vigente_orig      , vida_util_orig        , fecha_ini_dep                     , depreciacion_per,
-        depreciacion_acum       , monto_vigente         , vida_util                         , estado,
-        monto_rescate           , tipo                  , fecha_inicio                      , id_moneda_dep,
-        id_moneda               , monto_vigente_orig_100, monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
+        INSERT INTO kaf.tactivo_fijo_valores(
+        id_usuario_reg          , fecha_reg                             , estado_reg                        , id_activo_fijo,
+        monto_vigente_orig      , vida_util_orig                        , fecha_ini_dep                     , depreciacion_per,
+        depreciacion_acum       , monto_vigente                         , vida_util                         , estado,
+        monto_rescate           , tipo                                  , fecha_inicio                      , id_moneda_dep,
+        id_moneda               , monto_vigente_orig_100                , monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
         depreciacion_per_inicial, mov_esp
-        )
-        VALUES(
-        p_id_usuario    , now()                                 , 'activo'          , v_rec.id_activo_fijo,
-        v_monto_act     , v_rec.vida_util                       , v_rec.fecha_mov   , v_dep_per,
-        v_dep_acum      , v_monto_act                           , v_rec.vida_util   , 'activo',
-        1               , v_cod_afv                             , v_rec.fecha_mov   , v_rec.id_moneda_dep,
-        v_rec.id_moneda , v_monto_act                           , v_monto_act       , v_dep_acum,
-        v_dep_per       , 'cafv-'||p_id_movimiento::varchar --cafv: creación activo fijo valor
+        ) VALUES (
+        p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
+        v_monto_act             , v_rec.vida_util                       , v_rec.fecha_mov                   , v_dep_per,
+        v_dep_acum              , v_monto_act                           , v_rec.vida_util                   , 'activo',
+        1                       , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
+        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_dep_acum, --RCM 07/11/2019
+        v_dep_per               , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
         );
 
     END LOOP;
@@ -585,10 +630,14 @@ BEGIN
     ON tad.id_movimiento_af = tao.id_movimiento_af
     AND tad.id_moneda = tao.id_moneda;
 
-    -------------------------------------
+    ----------------------------------------
     --3. GENERACIÓN DE COMPROBANTE CONTABLE
-    -------------------------------------
-    v_resp = kaf.f_generar_cbte_movimiento_especial(p_id_usuario, p_id_movimiento);
+    ----------------------------------------
+    --Inicio #39: Sólo genera comprobante cuando el siguiente estado sea: cbte
+    IF v_cod_estado = 'cbte' THEN
+        v_resp = kaf.f_generar_cbte_movimiento_especial(p_id_usuario, p_id_movimiento);
+    END IF;
+    --Fin #39
 
     -------------------
     --4. RESPUESTA

@@ -1669,3 +1669,35 @@ ALTER TABLE kaf.tmovimiento_af_dep
 COMMENT ON COLUMN kaf.tmovimiento_af_dep.aux_depmes_tot_del_inc
 IS 'Columna auxiliar para guardar el total del incremento de la dep. acum. del incremento desde el comienzo de gestion';
 /***********************************F-SCP-RCM-KAF-33-30/09/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-39-26/11/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN tipo TYPE VARCHAR(30) COLLATE pg_catalog."default";
+/***********************************F-SCP-RCM-KAF-39-26/11/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-39-29/11/2019****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN nro_serie VARCHAR(50);
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN marca VARCHAR(200);
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN descripcion VARCHAR(5000);
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN cantidad_det NUMERIC(18,2);
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN id_unidad_medida INTEGER;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN ubicacion VARCHAR(255);
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN id_ubicacion INTEGER;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN id_funcionario INTEGER;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN fecha_compra DATE;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN id_grupo INTEGER;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN id_grupo_clasif INTEGER;
+ALTER TABLE kaf.tmovimiento_af_especial
+	ADD COLUMN observaciones VARCHAR(5000);
+/***********************************F-SCP-RCM-KAF-39-29/11/2019****************************************/

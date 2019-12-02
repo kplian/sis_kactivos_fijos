@@ -52,6 +52,29 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->captura('opcion','varchar');
 		$this->captura('id_almacen','integer');
 		$this->captura('desc_almacen','varchar');
+		//Inicio #39
+		$this->captura('nro_serie','varchar');
+		$this->captura('marca','varchar');
+		$this->captura('descripcion','varchar');
+		$this->captura('cantidad_det','numeric');
+		$this->captura('id_unidad_medida','integer');
+		$this->captura('ubicacion','varchar');
+		$this->captura('id_ubicacion','integer');
+		$this->captura('id_funcionario','integer');
+		$this->captura('fecha_compra','date');
+		$this->captura('id_moneda','integer');
+		$this->captura('id_grupo','integer');
+		$this->captura('id_grupo_clasif','integer');
+		$this->captura('observaciones','varchar');
+
+		$this->captura('desc_unmed','varchar');
+		$this->captura('desc_ubicacion','varchar');
+		$this->captura('responsable','text');
+		$this->captura('moneda','varchar');
+		$this->captura('desc_grupo_ae','text');
+		$this->captura('desc_clasif_ae','text');
+
+		//Fin #39
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -83,6 +106,22 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('opcion','opcion','varchar');
 		$this->setParametro('id_almacen','id_almacen','integer');
+
+		//Inicio #39
+		$this->setParametro('nro_serie', 'nro_serie','varchar');
+		$this->setParametro('marca', 'marca','varchar');
+		$this->setParametro('descripcion', 'descripcion','varchar');
+		$this->setParametro('cantidad_det', 'cantidad_det','numeric');
+		$this->setParametro('id_unidad_medida', 'id_unidad_medida','integer');
+		$this->setParametro('ubicacion', 'ubicacion','varchar');
+		$this->setParametro('id_ubicacion', 'id_ubicacion','integer');
+		$this->setParametro('id_funcionario', 'id_funcionario','integer');
+		$this->setParametro('fecha_compra', 'fecha_compra','date');
+		$this->setParametro('id_moneda', 'id_moneda','integer');
+		$this->setParametro('id_grupo', 'id_grupo','integer');
+		$this->setParametro('id_grupo_clasif', 'id_grupo_clasif','integer');
+		$this->setParametro('observaciones', 'observaciones','varchar');
+		//Fin #39
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -116,6 +155,22 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('opcion','opcion','varchar');
 		$this->setParametro('id_almacen','id_almacen','integer');
 
+		//Inicio #39
+		$this->setParametro('nro_serie', 'nro_serie','varchar');
+		$this->setParametro('marca', 'marca','varchar');
+		$this->setParametro('descripcion', 'descripcion','varchar');
+		$this->setParametro('cantidad_det', 'cantidad_det','numeric');
+		$this->setParametro('id_unidad_medida', 'id_unidad_medida','integer');
+		$this->setParametro('ubicacion', 'ubicacion','varchar');
+		$this->setParametro('id_ubicacion', 'id_ubicacion','integer');
+		$this->setParametro('id_funcionario', 'id_funcionario','integer');
+		$this->setParametro('fecha_compra', 'fecha_compra','date');
+		$this->setParametro('id_moneda', 'id_moneda','integer');
+		$this->setParametro('id_grupo', 'id_grupo','integer');
+		$this->setParametro('id_grupo_clasif', 'id_grupo_clasif','integer');
+		$this->setParametro('observaciones', 'observaciones','varchar');
+		//Fin #39
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -132,6 +187,40 @@ class MODMovimientoAfEspecial extends MODbase{
 
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento_af_especial','id_movimiento_af_especial','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function insertarMovimientoAfEspecialImportar(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='kaf.ft_movimiento_af_especial_ime';
+		$this->transaccion='SKA_MOAFESMAS_INS';
+		$this->tipo_procedimiento='IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_activo_fijo','id_activo_fijo','int4');
+		$this->setParametro('id_activo_fijo_valor','id_activo_fijo_valor','int4');
+		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
+		$this->setParametro('fecha_ini_dep','fecha_ini_dep','date');
+		$this->setParametro('importe','importe','numeric');
+		$this->setParametro('id_activo_fijo_creado','id_activo_fijo_creado','int4');
+		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('denominacion','denominacion','varchar');
+		$this->setParametro('porcentaje','porcentaje','numeric');
+		$this->setParametro('tipo','tipo','varchar');
+		$this->setParametro('opcion','opcion','varchar');
+		$this->setParametro('codigo_af','codigo_af','varchar');
+		$this->setParametro('vida_util_anios','vida_util_anios','int4');
+		$this->setParametro('clasificacion','clasificacion','varchar');
+		$this->setParametro('centro_costo','centro_costo','varchar');
+		$this->setParametro('almacen','almacen','varchar');
+		$this->setParametro('item','item','integer');
+
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
