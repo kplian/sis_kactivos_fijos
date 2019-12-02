@@ -148,12 +148,12 @@ BEGIN
             v_ant_monto_actualiz    = v_rec.monto_actualiz_real;
 
             --Si es un AFV replica toma la depreciacion acum y monto vigente del AFV para el inicio
-            if v_rec.id_activo_fijo_valor_original is not null and v_rec.fecha_ult_dep_afv is null then
+            if /*v_rec.id_activo_fijo_valor_original is not null and*/ v_rec.fecha_ult_dep_afv is null then
 
                 v_sw_dep_ant = true;
-                v_ant_dep_acum       = v_rec.depreciacion_acum_inicial;--v_rec.depreciacion_acum_padre;
-                v_ant_monto_actualiz = v_rec.monto_vigente_actualiz_inicial + coalesce(v_rec.importe_modif,0); --#4
-                v_ant_dep_per        = v_rec.depreciacion_per_inicial;
+                v_ant_dep_acum       = COALESCE(v_rec.depreciacion_acum_inicial, v_rec.depreciacion_acum_real);--v_rec.depreciacion_acum_padre;
+                v_ant_monto_actualiz = COALESCE(v_rec.monto_vigente_actualiz_inicial,v_rec.monto_actualiz_real) + coalesce(v_rec.importe_modif,0); --#4
+                v_ant_dep_per        = COALESCE(v_rec.depreciacion_per_inicial, v_rec.depreciacion_per_real);
 
             end if;
         else

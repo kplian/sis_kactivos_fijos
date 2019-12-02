@@ -7,8 +7,9 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
 /***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ ISSUE  SIS     EMPRESA     FECHA       AUTOR       DESCRIPCION
+ #2     KAF     ETR         11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ #35    KAF     ETR         11/10/2019  RCM     	Adición de botón para procesar Detalle Depreciación
  ***************************************************************************/
 class MODMovimientoAfDep extends MODbase{
 
@@ -408,6 +409,42 @@ class MODMovimientoAfDep extends MODbase{
 		return $this->respuesta;
 	}
 	//Fin #2
+
+	//Inicio #35
+	function procesarDetalleDepreciacion() {
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_dep_ime';
+		$this->transaccion = 'SKA_PRODETDEP_INS';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento', 'id_movimiento', 'int');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function verificarProcesarDetalleDepreciacion() {
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_dep_ime';
+		$this->transaccion = 'SKA_PRODETDEP_VER';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento', 'id_movimiento', 'int');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #35
 
 }
 ?>

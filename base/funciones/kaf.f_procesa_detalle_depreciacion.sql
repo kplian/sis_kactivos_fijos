@@ -18,6 +18,7 @@ $body$
  #32    KAF       ETR           24/09/2019  RCM         Actualización función
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum. que suman a la depreciación del mes y al incremento
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
+ #39    KAF       ETR           20/11/2019  RCM         Inclusión traspasos para casos de distribución de valores
 ***************************************************************************/
 DECLARE
 
@@ -92,7 +93,11 @@ BEGIN
         importe_modif numeric,
         incremento_otra_gestion varchar(2) DEFAULT 'no',
         aux_depmes_tot_del_inc numeric, --#33
-        aux_inc_dep_acum_del_inc numeric --#33
+        aux_inc_dep_acum_del_inc numeric, --#33
+        --Inicio #39
+        traspaso_af numeric,
+        traspaso_dep_acum numeric
+        --Fin #39
     ) ON COMMIT DROP;
 
     -------------------------
@@ -176,6 +181,7 @@ BEGIN
     WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', p_fecha::date)
     AND mdep.id_moneda_dep = p_id_moneda_dep --#25 cambio de v_parametros.id_moneda por p_id_moneda_dep
     --and afv.id_activo_fijo_valor = 276602
+    --AND afv.id_activo_fijo IN (55549,59098,59442,35888,55472,58936,58996,59152,59126,58879,48429,48434,48435,48430,47571,47572,47573,59061)
     AND af.estado <> 'eliminado'
     AND DATE_TRUNC('year', COALESCE(af.fecha_baja, '01-01-1900'::date)) <> DATE_TRUNC('year', p_fecha::date);
 
@@ -275,6 +281,7 @@ BEGIN
     AND af.estado <> 'eliminado'
     --and af.fecha_baja >= p_fecha::date
     --and afv.id_activo_fijo_valor = 276602
+    --AND afv.id_activo_fijo IN (55549,59098,59442,35888,55472,58936,58996,59152,59126,58879,48429,48434,48435,48430,47571,47572,47573,59061)
     AND DATE_TRUNC('year', af.fecha_baja) = DATE_TRUNC('year', p_fecha::date)
     AND DATE_TRUNC('month', af.fecha_baja) = DATE_TRUNC('month', afv.fecha_fin + '1 month'::interval);
 
@@ -371,6 +378,53 @@ BEGIN
     WHERE COALESCE(depreciacion_acum_gest_ant, 0) = 0
     AND id_activo_fijo_valor_original IS NOT NULL;
 
+    --Inicio #39
+    UPDATE tt_detalle_depreciacion dd SET
+    monto_vigente_orig = mdep1.monto_actualiz_ant
+    FROM kaf.tmovimiento_af maf
+    INNER JOIN kaf.tmovimiento mov
+    ON mov.id_movimiento = maf.id_movimiento
+    AND DATE_TRUNC('year', mov.fecha_mov) = DATE_TRUNC('year', p_fecha)
+    INNER JOIN param.tcatalogo cat
+    ON cat.id_catalogo = mov.id_cat_movimiento
+    AND cat.codigo = 'dval'
+    INNER JOIN kaf.tmovimiento_af_especial mesp
+    ON mesp.id_movimiento_af = maf.id_movimiento_af
+    INNER JOIN kaf.tmovimiento_af_dep mdep
+    ON mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
+    INNER JOIN kaf.tactivo_fijo_valores afv
+    ON afv.id_activo_fijo = maf.id_activo_fijo
+    INNER JOIN kaf.tmovimiento_af_dep mdep1
+    ON mdep1.id_activo_fijo_valor = afv.id_activo_fijo_valor
+    AND DATE_TRUNC('month', mdep1.fecha) = DATE_TRUNC('year', mdep.fecha)
+    AND mdep1.id_moneda = v_id_moneda
+    WHERE dd.id_activo_fijo = maf.id_activo_fijo;
+
+    UPDATE tt_detalle_depreciacion dd SET
+    traspaso_af = -1 * mdep1.monto_actualiz * mesp.porcentaje / 100,
+    traspaso_dep_acum = -1 * mdep1.depreciacion_acum * mesp.porcentaje / 100
+    FROM kaf.tmovimiento_af maf
+    INNER JOIN kaf.tmovimiento mov
+    ON mov.id_movimiento = maf.id_movimiento
+    AND DATE_TRUNC('year', mov.fecha_mov) = DATE_TRUNC('year', p_fecha)
+    INNER JOIN param.tcatalogo cat
+    ON cat.id_catalogo = mov.id_cat_movimiento
+    AND cat.codigo = 'dval'
+    INNER JOIN kaf.tmovimiento_af_especial mesp
+    ON mesp.id_movimiento_af = maf.id_movimiento_af
+    INNER JOIN kaf.tmovimiento_af_dep mdep
+    ON mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
+    INNER JOIN kaf.tactivo_fijo_valores afv
+    ON afv.id_activo_fijo = maf.id_activo_fijo
+    INNER JOIN kaf.tmovimiento_af_dep mdep1
+    ON mdep1.id_activo_fijo_valor = afv.id_activo_fijo_valor
+    AND mdep1.fecha = mdep.fecha
+    AND mdep1.id_moneda = v_id_moneda
+    WHERE dd.id_activo_fijo = maf.id_activo_fijo;
+
+
+    --Fin #39
+
     ------------------------------
     --INSERCIÓN DE DATOS EN TABLA
     ------------------------------
@@ -428,8 +482,12 @@ BEGIN
         aitb_dep_acum       numeric(24, 2),
         aitb_dep            numeric(24, 2),
         aitb_dep_acum_anual numeric(24, 2),
-        aitb_dep_anual      numeric(24, 2)
+        aitb_dep_anual      numeric(24, 2),
         --Fin #31
+        --Inicio #29
+        traspaso_af         numeric(24, 2),
+        traspaso_dep_acum   numeric(24, 2)
+        --Fin #29
     ) ON COMMIT DROP;
 
     INSERT INTO tt_detalle_depreciacion_totales
@@ -465,9 +523,18 @@ BEGIN
     incremento_otra_gestion,
     --Inicio #31
     NULL,
-    NULL
+    NULL,
     --Fin #31
+    --Inicio #29
+    NULL,
+    NULL,
+    traspaso_af,
+    traspaso_dep_acum
+    --Fin #29
     FROM tt_detalle_depreciacion;
+
+
+
 
     -------------------------
     --PROCESAMIENTO DE DATOS
@@ -601,7 +668,7 @@ BEGIN
 
     --Inicio #34
     --Actualización depreciación acumulada (2do cbte)
-    UPDATE tt_detalle_depreciacion_totales DEP SET
+    /*UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum = ANX.dep_acum_actualiz
     FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
@@ -642,7 +709,7 @@ BEGIN
         GROUP BY id_activo_fijo
     ) ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
-
+    */
     --Fin #34
 
 
@@ -651,6 +718,7 @@ BEGIN
     --------------
     DELETE FROM kaf.treporte_detalle_dep
     WHERE fecha = p_fecha;
+    --AND id_activo_fijo IN (55549,59098,59442,35888,55472,58936,58996,59152,59126,58879,48429,48434,48435,48430,47571,47572,47573,59061);
 
     INSERT INTO kaf.treporte_detalle_dep
     WITH tta AS (
@@ -715,16 +783,16 @@ BEGIN
             tt.monto_vigente_orig + (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18, 2)
         ELSE 0
     END AS af_bajas,
-    0::numeric AS af_traspasos,
+    tt.traspaso_af AS af_traspasos,  --0::numeric AS af_traspasos, --#39
     --(tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18,2) AS inc_actualiz,
     CASE COALESCE(tt.importe_modif,0)
-        WHEN 0 THEN (tt.monto_actualiz - tt.monto_vigente_orig)::numeric(18, 2)
+        WHEN 0 THEN (tt.monto_actualiz - COALESCE(tt.traspaso_af, 0) - tt.monto_vigente_orig)::numeric(18, 2)
         ELSE
             CASE incremento_otra_gestion
                 --Cuando es incremente y es de otra gestión, resta además el importe modificado sin actualización por lo que aplica X = importe modif / factor
-                WHEN 'si' THEN (tt.monto_actualiz - tt.monto_vigente_orig - (tt.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC('month', tt.fecha_ini_dep) - interval '1 day')::date, 'O') /
+                WHEN 'si' THEN (tt.monto_actualiz - COALESCE(tt.traspaso_af, 0) - tt.monto_vigente_orig - (tt.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC('month', tt.fecha_ini_dep) - interval '1 day')::date, 'O') /
                     param.f_get_tipo_cambio(3, DATE_TRUNC('year', tt.fecha_ini_dep)::date, 'O'))))::numeric(18, 2)
-                ELSE (tt.monto_actualiz - tt.monto_vigente_orig /*- tt.importe_modif*/)::numeric(18, 2)
+                ELSE (tt.monto_actualiz - COALESCE(tt.traspaso_af, 0) - tt.monto_vigente_orig /*- tt.importe_modif*/)::numeric(18, 2)
             END
     END AS inc_actualiz,
     --Se aumenta lógica para el caso de ajustes que incementen el monto
@@ -753,7 +821,7 @@ BEGIN
             tt.depreciacion_acum
         ELSE 0
     END AS depreciacion_acum_bajas,
-    0::numeric AS depreciacion_acum_traspasos,
+    tt.traspaso_dep_acum, --0::numeric AS depreciacion_acum_traspasos, #39
     CASE
         WHEN EXTRACT(year FROM p_fecha) = EXTRACT(year FROM COALESCE(af.fecha_baja, '01-01-1900'))
             AND DATE_TRUNC('month', p_fecha) >= DATE_TRUNC('month', COALESCE(af.fecha_baja, '01-01-1900'))  THEN

@@ -458,3 +458,85 @@ select conta.f_import_ttipo_relacion_contable ('insert','ALINGTD','TALM','Ingres
 select conta.f_import_ttipo_relacion_contable ('insert','TRAFALAC',NULL,'Transferencia Activos Fijos a Almacén Activo Fijo','activo','si-unico','si','no','flujo','recurso_gasto','no','no','no',NULL);
 select conta.f_import_ttipo_relacion_contable ('insert','TRAFALDAC',NULL,'Transferencia Activos Fijos a Almacén Depreciación Acumulada','activo','si-unico','si','no','flujo','recurso_gasto','no','no','no',NULL);
 /***********************************F-DAT-RCM-KAF-36-24/10/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-37-25/10/2019****************************************/
+UPDATE conta.tplantilla_comprobante SET
+campo_descripcion = '{$tabla.glosa}'
+WHERE codigo = 'KAF_MOVESP';
+/***********************************F-DAT-RCM-KAF-37-25/10/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-38-06/11/2019****************************************/
+select param.f_import_tplantilla_archivo_excel ('insert','AF-DVALAF','AF - Dist.Val AF','activo',NULL,'2',NULL,NULL,'xlsx',NULL);
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD1','AF-DVALAF','si',NULL,NULL,'1','item','item','entero',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD2','AF-DVALAF','si',NULL,NULL,'2','clasificacion','clasificacion','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD3','AF-DVALAF','si',NULL,NULL,'3','vida_util_anios','vida_util_anios','entero',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD4','AF-DVALAF','si',NULL,NULL,'4','nro_serie','nro_serie','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD5','AF-DVALAF','si',NULL,NULL,'5','marca','marca','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD6','AF-DVALAF','si',NULL,NULL,'6','denominacion','denominacion','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD7','AF-DVALAF','si',NULL,NULL,'7','descripcion','descripcion','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD8','AF-DVALAF','si',NULL,NULL,'8','cantidad','cantidad','entero',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD9','AF-DVALAF','si',NULL,NULL,'9','unidad','unidad','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD10','AF-DVALAF','si',NULL,NULL,'10','ubicacion','ubicacion','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD11','AF-DVALAF','si',NULL,NULL,'11','local','local','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD12','AF-DVALAF','si',NULL,NULL,'12','responsable','responsable','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD13','AF-DVALAF','si','dd-mm-yyyy',NULL,'13','fecha_compra','fecha_compra','date',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD14','AF-DVALAF','si',NULL,NULL,'14','costo','costo','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD15','AF-DVALAF','si',NULL,NULL,'15','valor_compra','valor_compra','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD16','AF-DVALAF','si',NULL,NULL,'16','moneda','moneda','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD17','AF-DVALAF','si','dd-mm-yyyy',NULL,'17','fecha_ini_dep','fecha_ini_dep','date',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD18','AF-DVALAF','si',NULL,NULL,'18','grupo_ae','grupo_ae','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD19','AF-DVALAF','si',NULL,NULL,'19','clasificacion_ae','clasificacion_ae','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD20','AF-DVALAF','si',NULL,NULL,'20','centro_costo','centro_costo','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD21','AF-DVALAF','si',NULL,NULL,'21','codigo_activo','codigo_activo','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD22','AF-DVALAF','si',NULL,NULL,'22','pedido','pedido','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD23','AF-DVALAF','si',NULL,NULL,'23','activo_fijo_1','activo_fijo_1','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD24','AF-DVALAF','si',NULL,NULL,'24','activo_fijo_2','activo_fijo_2','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD25','AF-DVALAF','si',NULL,NULL,'25','activo_fijo_3','activo_fijo_3','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD26','AF-DVALAF','si',NULL,NULL,'26','activo_fijo_4','activo_fijo_4','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD27','AF-DVALAF','si',NULL,NULL,'27','activo_fijo_5','activo_fijo_5','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD28','AF-DVALAF','si',NULL,NULL,'28','activo_fijo_6','activo_fijo_6','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD29','AF-DVALAF','si',NULL,NULL,'29','activo_fijo_7','activo_fijo_7','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD30','AF-DVALAF','si',NULL,NULL,'30','activo_fijo_8','activo_fijo_8','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD31','AF-DVALAF','si',NULL,NULL,'31','activo_fijo_9','activo_fijo_9','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD32','AF-DVALAF','si',NULL,NULL,'32','activo_fijo_10','activo_fijo_10','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD33','AF-DVALAF','si',NULL,NULL,'33','activo_fijo_11','activo_fijo_11','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD34','AF-DVALAF','si',NULL,NULL,'34','activo_fijo_12','activo_fijo_12','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD35','AF-DVALAF','si',NULL,NULL,'35','activo_fijo_13','activo_fijo_13','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD36','AF-DVALAF','si',NULL,NULL,'36','activo_fijo_14','activo_fijo_14','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD37','AF-DVALAF','si',NULL,NULL,'37','activo_fijo_15','activo_fijo_15','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD38','AF-DVALAF','si',NULL,NULL,'38','activo_fijo_16','activo_fijo_16','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD39','AF-DVALAF','si',NULL,NULL,'39','activo_fijo_17','activo_fijo_17','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD40','AF-DVALAF','si',NULL,NULL,'40','activo_fijo_18','activo_fijo_18','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD41','AF-DVALAF','si',NULL,NULL,'41','activo_fijo_19','activo_fijo_19','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD42','AF-DVALAF','si',NULL,NULL,'42','activo_fijo_20','activo_fijo_20','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD43','AF-DVALAF','si',NULL,NULL,'43','activo_fijo_21','activo_fijo_21','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD44','AF-DVALAF','si',NULL,NULL,'44','activo_fijo_22','activo_fijo_22','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD45','AF-DVALAF','si',NULL,NULL,'45','activo_fijo_23','activo_fijo_23','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD46','AF-DVALAF','si',NULL,NULL,'46','activo_fijo_24','activo_fijo_24','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD47','AF-DVALAF','si',NULL,NULL,'47','activo_fijo_25','activo_fijo_25','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD48','AF-DVALAF','si',NULL,NULL,'48','activo_fijo_26','activo_fijo_26','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD49','AF-DVALAF','si',NULL,NULL,'49','activo_fijo_27','activo_fijo_27','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD50','AF-DVALAF','si',NULL,NULL,'50','activo_fijo_28','activo_fijo_28','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD51','AF-DVALAF','si',NULL,NULL,'51','activo_fijo_29','activo_fijo_29','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD52','AF-DVALAF','si',NULL,NULL,'52','activo_fijo_30','activo_fijo_30','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD53','AF-DVALAF','si',NULL,NULL,'53','activo_fijo_31','activo_fijo_31','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD54','AF-DVALAF','si',NULL,NULL,'54','activo_fijo_32','activo_fijo_32','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD55','AF-DVALAF','si',NULL,NULL,'55','activo_fijo_33','activo_fijo_33','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD56','AF-DVALAF','si',NULL,NULL,'56','activo_fijo_34','activo_fijo_34','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD57','AF-DVALAF','si',NULL,NULL,'57','activo_fijo_35','activo_fijo_35','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD58','AF-DVALAF','si',NULL,NULL,'58','activo_fijo_36','activo_fijo_36','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD59','AF-DVALAF','si',NULL,NULL,'59','activo_fijo_37','activo_fijo_37','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD60','AF-DVALAF','si',NULL,NULL,'60','activo_fijo_38','activo_fijo_38','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD61','AF-DVALAF','si',NULL,NULL,'61','activo_fijo_39','activo_fijo_39','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD62','AF-DVALAF','si',NULL,NULL,'62','activo_fijo_40','activo_fijo_40','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD63','AF-DVALAF','si',NULL,NULL,'63','activo_fijo_41','activo_fijo_41','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD64','AF-DVALAF','si',NULL,NULL,'64','activo_fijo_42','activo_fijo_42','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD65','AF-DVALAF','si',NULL,NULL,'65','activo_fijo_43','activo_fijo_43','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD66','AF-DVALAF','si',NULL,NULL,'66','activo_fijo_44','activo_fijo_44','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD67','AF-DVALAF','si',NULL,NULL,'67','activo_fijo_45','activo_fijo_45','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD68','AF-DVALAF','si',NULL,NULL,'68','activo_fijo_46','activo_fijo_46','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD69','AF-DVALAF','si',NULL,NULL,'69','activo_fijo_47','activo_fijo_47','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD70','AF-DVALAF','si',NULL,NULL,'70','activo_fijo_48','activo_fijo_48','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD71','AF-DVALAF','si',NULL,NULL,'71','activo_fijo_49','activo_fijo_49','string',NULL,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD72','AF-DVALAF','si',NULL,NULL,'72','activo_fijo_50','activo_fijo_50','string',NULL,'activo');
+/***********************************F-DAT-RCM-KAF-38-06/11/2019****************************************/

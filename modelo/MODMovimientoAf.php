@@ -171,9 +171,44 @@ class MODMovimientoAf extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-
-
 	//Fin #2
+
+	//Inicio #39
+	function eliminarMovimientoAfDVal() {
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_ime';
+		$this->transaccion = 'SKA_MOVAFMAS_ELI';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function insertarMovimientoAfImp(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_ime';
+		$this->transaccion = 'SKA_MOVAFMAS_INS';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+		$this->setParametro('codigo_activo','codigo_activo','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #39
 
 }
 ?>

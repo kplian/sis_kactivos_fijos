@@ -19,6 +19,7 @@ $body$
  #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
  #2     KAF       ETR           11/06/2019  RCM         Inclusion de logica para el caso de Distribucion de Valores (dval)
  #16    KAF       ETR           18/06/2019  RCM         Completa el prorrateo mensual con el CC por defecto por AF cuando no completa el total mensual
+ #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se manda parámetro id_tipo_estado a función de proc. mov. af.esp
 ***************************************************************************/
 
 DECLARE
@@ -2025,7 +2026,7 @@ BEGIN
 
                 if v_movimiento.estado = 'vbconta' then
                     --Procesamiento del movimiento especial
-                    v_resp_pro = kaf.f_procesar_movimiento_especial(p_id_usuario, v_movimiento.id_movimiento);
+                    v_resp_pro = kaf.f_procesar_movimiento_especial(p_id_usuario, v_movimiento.id_movimiento, v_parametros.id_tipo_estado); --#39
 
                 end if;
             --Fin #2

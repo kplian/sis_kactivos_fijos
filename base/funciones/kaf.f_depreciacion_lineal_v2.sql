@@ -17,6 +17,7 @@ $body$
  #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
+ #39    KAF       ETR           29/11/2019  RCM         Lógica para considerar valores iniciales seteados en primera depreciación
 ***************************************************************************/
 DECLARE
 
@@ -270,6 +271,12 @@ BEGIN
                     --else
                         --Fórmula por defecto
                         v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor- v_rec.monto_rescate) /  v_ant_vida_util;
+
+                    --Inicio #39: Si es primera depreciación y se tiene seteado valores iniciales, aplica la fórmula empelando los datos iniciales
+                    IF v_rec.fecha_ult_dep IS NULL AND v_rec.depreciacion_acum_inicial IS NOT NULL THEN
+                        v_nuevo_dep_mes = ((v_ant_monto_vigente * v_rec_tc.o_tc_factor) - (v_rec.depreciacion_acum_inicial * v_rec_tc.o_tc_factor) - v_rec.monto_rescate) / v_ant_vida_util;
+                    END IF;
+                    --Fin #39
                     --end if;
 
                 end if;
