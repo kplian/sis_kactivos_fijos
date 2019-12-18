@@ -20,6 +20,7 @@ $body$
  #2     KAF       ETR           11/06/2019  RCM         Inclusion de logica para el caso de Distribucion de Valores (dval)
  #16    KAF       ETR           18/06/2019  RCM         Completa el prorrateo mensual con el CC por defecto por AF cuando no completa el total mensual
  #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se manda parámetro id_tipo_estado a función de proc. mov. af.esp
+ #43    KAF       ETR           16/12/2019  RCM         Bug de duplicación de AFV al finalizar Altas que vienen de cierre de proyectos o movimientos especiales
 ***************************************************************************/
 
 DECLARE
@@ -688,7 +689,7 @@ BEGIN
                                                     not exists(select id_activo_fijo
                                                             from pro.tproyecto_activo
                                                             where id_activo_fijo = movaf.id_activo_fijo) --condición para que no genere AFV para activos que viene de cierre de proyectos
-                                                    OR
+                                                    AND --#43
                                                     not exists(select mafe.id_activo_fijo
                                                                 from kaf.tmovimiento_af maf
                                                                 inner join kaf.tmovimiento_af_especial mafe

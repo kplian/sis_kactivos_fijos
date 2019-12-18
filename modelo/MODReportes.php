@@ -18,6 +18,7 @@
  #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
  #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
  #29    KAF       ETR           20/09/2019  RCM         Corrección reportes
+ #42	KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
 ***************************************************************************/
 
 class MODReportes extends MODbase{
@@ -43,6 +44,7 @@ class MODReportes extends MODbase{
 		$this->setParametro('fecha_hasta','fecha_hasta','date');
 		$this->setParametro('id_moneda','id_moneda','integer');
 		$this->setParametro('af_estado_mov','af_estado_mov','varchar');
+		$this->setParametro('id_moneda_dep','id_moneda_dep','integer'); //#42
 
 		//Definicion de la lista del resultado del query
 		$this->captura('codigo','VARCHAR');

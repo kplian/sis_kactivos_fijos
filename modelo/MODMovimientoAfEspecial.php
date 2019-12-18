@@ -9,6 +9,7 @@
 /***************************************************************************
 #ISSUE	SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
  #2		KAF		ETR 		22-05-2019	RCM		Control para la distribución de valores (Creación)
+ #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
 ***************************************************************************/
 class MODMovimientoAfEspecial extends MODbase{
 
@@ -220,7 +221,21 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('centro_costo','centro_costo','varchar');
 		$this->setParametro('almacen','almacen','varchar');
 		$this->setParametro('item','item','integer');
-
+		$this->setParametro('codigo_af_rel','codigo_af_rel','varchar'); //#38
+		//Inicio #39
+		$this->setParametro('nro_serie', 'nro_serie','varchar');
+		$this->setParametro('marca', 'marca','varchar');
+		$this->setParametro('descripcion', 'descripcion','varchar');
+		$this->setParametro('cantidad_det', 'cantidad_det','numeric');
+		$this->setParametro('unidad', 'unidad','varchar');
+		$this->setParametro('ubicacion', 'ubicacion','varchar');
+		$this->setParametro('local', 'local','varchar');
+		$this->setParametro('responsable', 'responsable','varchar');
+		$this->setParametro('fecha_compra', 'fecha_compra','date');
+		$this->setParametro('moneda', 'moneda','varchar');
+		$this->setParametro('grupo_ae', 'grupo_ae','varchar');
+		$this->setParametro('clasificacion_ae', 'clasificacion_ae','varchar');
+		//Fin #39
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

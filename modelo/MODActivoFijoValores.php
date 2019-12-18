@@ -8,7 +8,8 @@
 */
 /***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ #2     KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ #40    KAF       ETR           05/12/2019  RCM         Adición de campos faltantes
  ***************************************************************************/
 class MODActivoFijoValores extends MODbase{
 
@@ -55,6 +56,11 @@ class MODActivoFijoValores extends MODbase{
 		$this->captura('monto_vigente_orig_100','numeric');
 		$this->captura('id_moneda','int4');
 		$this->captura('desc_moneda','varchar');
+		$this->captura('monto_vigente_actualiz_inicial', 'numeric');
+        $this->captura('depreciacion_acum_inicial', 'numeric');
+        $this->captura('depreciacion_per_inicial', 'numeric');
+        $this->captura('importe_modif', 'numeric');
+        $this->captura('importe_modif_sin_act', 'numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -588,16 +588,16 @@ raise notice '%',v_consulta;
 
             execute(v_consulta);
 
-            if(v_parametros.tipo = 'lug_fun')then
-    v_filtro = ' afij.id_funcionario in (SELECT tf.id_funcionario
-                     FROM orga.vfuncionario_cargo_lugar tf
-                                                     where  (tf.fecha_finalizacion > now()::date or tf.fecha_finalizacion is null) and tf.id_oficina in (select id_oficina from orga.toficina where id_lugar = '||v_parametros.id_lugar||'))
+            /*if(v_parametros.tipo = 'lug_fun')then
+                v_filtro = ' afij.id_funcionario in (SELECT tf.id_funcionario
+                                                    FROM orga.vfuncionario_cargo_lugar tf
+                                                    where  (tf.fecha_finalizacion > now()::date or tf.fecha_finalizacion is null) and tf.id_oficina in (select id_oficina from orga.toficina where id_lugar = '||v_parametros.id_lugar||'))
                             and afij.en_deposito = ''no'' and afij.id_depto = '||v_parametros.id_depto;
             else
                 v_filtro = ' afij.id_activo_fijo in (select id_activo_fijo
-                                                        from tt_af_filtro)
+                                                    from tt_af_filtro)
                             and afij.en_deposito = ''no''';
-            end if;
+            end if;*/
 
             --Consulta
             v_consulta = 'select
@@ -619,9 +619,10 @@ raise notice '%',v_consulta;
                             left join orga.vfuncionario fun on fun.id_funcionario = afij.id_funcionario
                             inner join orga.toficina ofi on ofi.id_oficina = afij.id_oficina
                             inner join param.tdepto dep on dep.id_depto = afij.id_depto
-                            where '||v_filtro;
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)';
 
-            v_consulta:=v_consulta||' order by fun.desc_funcionario2, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion;
+            v_consulta := v_consulta||' order by fun.desc_funcionario2, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion;
             --raise EXCEPTION 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
@@ -662,8 +663,8 @@ raise notice '%',v_consulta;
 
             execute(v_consulta);
 
-            if(v_parametros.tipo = 'lug_fun')then
-    v_filtro = ' afij.id_funcionario in (SELECT tf.id_funcionario
+            /*if(v_parametros.tipo = 'lug_fun')then
+                v_filtro = ' afij.id_funcionario in (SELECT tf.id_funcionario
                      FROM orga.vfuncionario_cargo_lugar tf
                                                      where (tf.fecha_finalizacion > now()::date or tf.fecha_finalizacion is null) and tf.id_oficina in (select id_oficina from orga.toficina where id_lugar = '||v_parametros.id_lugar||'))
                             and afij.en_deposito = ''no''and afij.id_depto = '||v_parametros.id_depto;
@@ -671,7 +672,7 @@ raise notice '%',v_consulta;
                 v_filtro = ' afij.id_activo_fijo in (select id_activo_fijo
                                                         from tt_af_filtro)
                             and afij.en_deposito = ''no''';
-            end if;
+            end if;*/
 
             --Consulta
             v_consulta = 'select
@@ -685,7 +686,8 @@ raise notice '%',v_consulta;
                             on ofi.id_oficina = afij.id_oficina
                             inner join param.tdepto dep
                             on dep.id_depto = afij.id_depto
-                            where '||v_filtro;
+                            where afij.id_activo_fijo in (select id_activo_fijo
+                                                        from tt_af_filtro)';
 
             --Devuelve la respuesta
             return v_consulta;

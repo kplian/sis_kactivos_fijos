@@ -6,13 +6,18 @@
 *@date 01/11/2017
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
+/***************************************************************************
+#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+		KAF 	ETR 		01/11/2017  RCM 	Creación del archivo
+ #40    KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
+***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 
-	constructor:function(config){
-		this.maestro=config;
+	constructor: function(config) {
+		this.maestro = config;
 		this.initButtons = [this.cmbMonedaDep];
     	//llama al constructor de la clase padre
 		Phx.vista.ActivoFijoValoresHist.superclass.constructor.call(this,config);
@@ -42,12 +47,11 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 	},
 	cmbMonedaDep: new Ext.form.ComboBox({
 		fieldLabel: 'Moneda',
-		grupo:[0,1,2],
+		grupo: [0,1,2],
 		allowBlank: true,
-		blankText:'...',
-		emptyText:'Moneda...',
-		store:new Ext.data.JsonStore(
-		{
+		blankText: '...',
+		emptyText: 'Moneda...',
+		store: new Ext.data.JsonStore({
 			url: '../../sis_kactivos_fijos/control/MonedaDep/listarMonedaDep',
 			id: 'id_moneda_dep',
 			root: 'datos',
@@ -71,7 +75,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 		listWidth:'280',
 		width:80
 	}),
-	
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -81,7 +85,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_activo_fijo_valor'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -91,7 +95,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_activo_fijo'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -101,7 +105,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_movimiento_af'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -209,14 +213,14 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'actval.fecha_ini_dep',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+				id_grupo: 1,
+				grid: true,
+				form: true
 		},
 		{
 			config:{
@@ -264,7 +268,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:false,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'monto_vigente_real',
@@ -279,7 +283,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
 						}
 				},
-				
+
 				anchor: '80%',
 				gwidth: 100
 			},
@@ -289,7 +293,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:false,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'vida_util_orig',
@@ -336,7 +340,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -352,14 +356,14 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
-				type:'DateField',
-				filters:{pfiltro:'actval.fecha_fin',type:'date'},
-				id_grupo:1,
-				grid:true,
-				form:false
+				type: 'DateField',
+				filters: {pfiltro:'actval.fecha_fin',type:'date'},
+				id_grupo: 1,
+				grid: true,
+				form: true
 		},
 		{
 			config:{
@@ -368,14 +372,127 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:-5
+				maxLength: 10
 			},
 				type:'NumberField',
 				filters:{pfiltro:'actval.monto_rescate',type:'numeric'},
 				id_grupo:1,
-				grid:true,
-				form:false
+				grid: true,
+				form: true
 		},
+		//Inicio #40
+		{
+			config:{
+				name: 'monto_vigente_actualiz_inicial',
+				fieldLabel: 'Valor Actualizado Inicial',
+				allowBlank: true,
+				anchor: '80%',
+				renderer: function (value, p, record){
+					if(record.data.tipo_reg != 'summary'){
+						return String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+					} else {
+						Ext.util.Format.usMoney
+						return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+					}
+				},
+				gwidth: 130
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'actval.monto_vigente_actualiz_inicial', type: 'numeric' },
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'depreciacion_acum_inicial',
+				fieldLabel: 'Dep.Acum. Inicial',
+				allowBlank: true,
+				anchor: '80%',
+				renderer: function (value, p, record){
+					if(record.data.tipo_reg != 'summary'){
+						return String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+					} else {
+						Ext.util.Format.usMoney
+						return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+					}
+				},
+				gwidth: 130
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'actval.depreciacion_acum_inicial', type: 'numeric' },
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'depreciacion_per_inicial',
+				fieldLabel: 'Dep.Per. Inicial',
+				allowBlank: true,
+				anchor: '80%',
+				renderer: function (value, p, record){
+					if(record.data.tipo_reg != 'summary'){
+						return String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+					} else {
+						Ext.util.Format.usMoney
+						return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+					}
+				},
+				gwidth: 130
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'actval.depreciacion_per_inicial', type: 'numeric' },
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'importe_modif',
+				fieldLabel: 'Incremento',
+				allowBlank: true,
+				anchor: '80%',
+				renderer: function (value, p, record){
+					if(record.data.tipo_reg != 'summary'){
+						return String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+					} else {
+						Ext.util.Format.usMoney
+						return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+					}
+				},
+				gwidth: 130
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'actval.importe_modif', type: 'numeric' },
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		{
+			config:{
+				name: 'importe_modif_sin_act',
+				fieldLabel: 'Inc. Sin Actualiz',
+				allowBlank: true,
+				anchor: '80%',
+				renderer: function (value, p, record){
+					if(record.data.tipo_reg != 'summary'){
+						return String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+					} else {
+						Ext.util.Format.usMoney
+						return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+					}
+				}
+
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'actval.importe_modif_sin_act', type: 'numeric' },
+			id_grupo: 1,
+			grid: true,
+			form: true,
+			gwidth: 160
+		},
+		//Fin #40
 		{
 			config:{
 				name: 'depreciacion_per',
@@ -421,7 +538,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'tipo_cambio_ini',
@@ -437,7 +554,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:false,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'depreciacion_mes',
@@ -453,9 +570,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:false,
 				form:false
 		},
-		
-		
-		
+
 		{
 			config:{
 				name: 'tipo_cambio_fin',
@@ -471,7 +586,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				grid:false,
 				form:false
 		},
-	
+
 		{
 			config:{
 				name: 'estado_reg',
@@ -494,7 +609,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -555,7 +670,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -581,7 +696,7 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Valores Activos Fijos',
 	ActSave:'../../sis_kactivos_fijos/control/ActivoFijoValores/insertarActivoFijoValores',
 	ActDel:'../../sis_kactivos_fijos/control/ActivoFijoValores/eliminarActivoFijoValores',
@@ -622,15 +737,21 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
         'depreciacion_acum_real',
         'depreciacion_per_real','tipo_reg','monto_actualiz_real','desc_moneda',
         {name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
-        {name:'monto_vigente_orig_100', type: 'numeric'},'id_moneda'
-		
+        {name:'monto_vigente_orig_100', type: 'numeric'},'id_moneda',
+        //Inicio #40
+        {name:'monto_vigente_actualiz_inicial', type: 'numeric'},
+        {name:'depreciacion_acum_inicial', type: 'numeric'},
+        {name:'depreciacion_per_inicial', type: 'numeric'},
+        {name:'importe_modif', type: 'numeric'},
+        {name:'importe_modif_sin_act', type: 'numeric'}
+        //Fin #40
 	],
 	sortInfo:{
 		field: 'id_activo_fijo_valor',
 		direction: 'ASC'
 	},
 	bdel: false,
-	bedit: false,
+	bedit: true,
 	bsave: false,
 	south: {
         url: '../../../sis_kactivos_fijos/vista/movimiento_af_dep/MovimientoAfDepPrin.php',
@@ -647,5 +768,4 @@ Phx.vista.ActivoFijoValoresHist=Ext.extend(Phx.gridInterfaz,{
     }
 })
 </script>
-		
-		
+
