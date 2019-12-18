@@ -17,6 +17,7 @@ $body$
  #21    KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
  #36    KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud. Cambio de moneda por defecto, de UFV a USD
  #37    KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
+ #41    KAF       ETR           10/12/2019  RCM         Cambio de Relaciones contables ALINGTA, ALINGTD por las definidas en la clasificación de altas y dep. acum.
 ***************************************************************************
 */
 DECLARE
@@ -862,7 +863,7 @@ BEGIN
         AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
         OR (tb.esquema::text = 'ALM'
         AND tb.tabla::text = 'talmacen'
-        AND trc.codigo_tipo_relacion IN ('ALINGT', 'ALINGTA', 'ALINGTD')) --#36
+        AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
     )
     SELECT
     mafe.id_movimiento_af_especial,
@@ -881,10 +882,14 @@ BEGIN
     0,
     mafe.tipo,
     (af.codigo || ' => ' || alm.codigo || ' (' || mafe.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
-    --Inicio #36
+    --Inicio #41
+    /*--Inicio #36
     rc_al2.id_cuenta, rc_al2.id_partida,
     rc_al3.id_cuenta, rc_al3.id_partida
-    --Fin #36
+    --Fin #36*/
+    rc_af.id_cuenta, rc_af.id_partida,
+    rc_dacum.id_cuenta, rc_dacum.id_partida
+    --Fin #41
     FROM kaf.tmovimiento mov
     INNER JOIN kaf.tmovimiento_af maf
     ON maf.id_movimiento = mov.id_movimiento
@@ -919,7 +924,8 @@ BEGIN
     AND rc_al.estado_reg = 'activo'
     AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
     AND rc_al.id_gestion = v_id_gestion
-    INNER JOIN tclasif_rel clr2
+    --Inicio #41: se comenta el bloque siguiente
+    /*INNER JOIN tclasif_rel clr2
     ON clr2.id_clasificacion = alm.id_almacen
     AND clr2.codigo = 'ALINGTA'
     INNER JOIN conta.trelacion_contable rc_al2
@@ -935,7 +941,8 @@ BEGIN
     AND rc_al3.estado_reg = 'activo'
     AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
     AND rc_al3.id_gestion = v_id_gestion
-    --Fin #36
+    --Fin #36*/
+    --Fin #41
     INNER JOIN tclasif_rel clrdacum
     ON af.id_clasificacion = ANY(clrdacum.nodos)
     AND clrdacum.codigo = 'DEPACCLAS'
@@ -977,7 +984,7 @@ BEGIN
             AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
             OR (tb.esquema::text = 'ALM'
             AND tb.tabla::text = 'talmacen'
-            AND trc.codigo_tipo_relacion IN ('ALINGT', 'ALINGTA', 'ALINGTD')) --#36
+            AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
         )
         SELECT
         mafe.id_movimiento_af_especial, rc_al.id_cuenta, rc_al.id_partida, null,
@@ -1025,7 +1032,8 @@ BEGIN
         AND rc_al.estado_reg = 'activo'
         AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
         AND rc_al.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clr2
+        --Inicio #41: se comenta el siguiente bloque
+        /*INNER JOIN tclasif_rel clr2
         ON clr2.id_clasificacion = alm.id_almacen
         AND clr2.codigo = 'ALINGTA'
         INNER JOIN conta.trelacion_contable rc_al2
@@ -1041,7 +1049,7 @@ BEGIN
         AND rc_al3.estado_reg = 'activo'
         AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
         AND rc_al3.id_gestion = v_id_gestion
-        --Fin #36
+        --Fin #36*/
 
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
@@ -1086,7 +1094,7 @@ BEGIN
             AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
             OR (tb.esquema::text = 'ALM'
             AND tb.tabla::text = 'talmacen'
-            AND trc.codigo_tipo_relacion IN ('ALINGT', 'ALINGTA', 'ALINGTD')) --#36
+            AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
         )
         SELECT
         mafe.id_movimiento_af_especial, rc_al.id_cuenta, rc_al.id_partida, null, 0, 0,
@@ -1131,7 +1139,8 @@ BEGIN
         AND rc_al.estado_reg = 'activo'
         AND rc_al.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
         AND rc_al.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clr2
+        --Inicio #41: se comenta el siguiente bloque
+        /*INNER JOIN tclasif_rel clr2
         ON clr2.id_clasificacion = alm.id_almacen
         AND clr2.codigo = 'ALINGTA'
         INNER JOIN conta.trelacion_contable rc_al2
@@ -1148,6 +1157,8 @@ BEGIN
         AND rc_al3.id_tipo_relacion_contable = clr3.id_tipo_relacion_contable
         AND rc_al3.id_gestion = v_id_gestion
         --Fin #36
+        --Fin #41
+        */
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
         AND clrdacum.codigo = 'DEPACCLAS'

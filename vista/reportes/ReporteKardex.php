@@ -5,6 +5,12 @@
 *@author  RCM
 *@date 27/07/2017
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+        KAF       ETR           27/07/2017  RCM         Creación del archivo
+ #42	KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
+***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -18,7 +24,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({
 			params:{
-				start:0, 
+				start:0,
 				limit:this.tam_pag,
 				fecha_desde: this.maestro.paramsRep.fecha_desde,
 				fecha_hasta: this.maestro.paramsRep.fecha_hasta,
@@ -26,7 +32,8 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 				id_moneda: this.maestro.paramsRep.id_moneda,
 				desc_moneda: this.maestro.paramsRep.desc_moneda,
 				af_estado_mov: this.maestro.paramsRep.af_estado_mov,
-				tipo_salida: 'grid'
+				tipo_salida: 'grid',
+				id_moneda_dep: this.maestro.paramsRep.id_moneda_dep //#42
 			}
 		});
 		this.addButton('btnSelect', {
@@ -86,7 +93,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
-		
+
 		{
 			config:{
 				name: 'codigo',
@@ -438,7 +445,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 			form:true
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Kardex Activos Fijos',
 	ActList:'../../sis_kactivos_fijos/control/Reportes/reporteKardexAF',
 	fields: [
@@ -503,7 +510,7 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this
-        }); 
+        });
 	},
 	actualizarBaseParams: function(){
         this.store.setBaseParam('start', 0);
@@ -549,5 +556,4 @@ Phx.vista.ReporteKardex=Ext.extend(Phx.gridInterfaz,{
 	}
 })
 </script>
-		
-		
+

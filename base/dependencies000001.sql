@@ -4794,3 +4794,235 @@ WITH trel_contable AS(
                acc.id_centro_costo,
                mdep.id_activo_fijo_valor;
 /***********************************F-DEP-RCM-KAF-34-08/10/2019****************************************/
+
+/***********************************I-DEP-RCM-KAF-39-05/12/2019****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_actualiz_activo_detalle1(
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    monto_actualiz,
+    id_movimiento,
+    id_moneda,
+    codigo_tcc,
+    id_activo_fijo,
+    codigo)
+AS
+WITH trel_contable AS(
+  SELECT rc_1.id_tabla AS id_clasificacion,
+         (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::
+           character varying)::text) || '}'::text)::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+       JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+         = tb.id_tabla_relacion_contable
+       JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+         trc.id_tipo_relacion_contable
+  WHERE tb.esquema::text = 'KAF'::text AND
+        tb.tabla::text = 'tclasificacion'::text AND
+        trc.codigo_tipo_relacion::text = 'ALTAAF'::text)
+    SELECT rc.id_clasificacion,
+           cla.codigo_completo_tmp,
+           cla.nombre,
+           CASE COALESCE(afv.importe_modif, 0::numeric)
+             WHEN 0 THEN round(mdep.monto_actualiz, 2) - round(
+               mdep.monto_actualiz_ant, 2)
+             ELSE CASE
+                    WHEN date_trunc('month'::text, mdep.fecha::timestamp with
+                      time zone) = date_trunc('month'::text, afv.fecha_ini_dep::
+                      timestamp with time zone) THEN round(mdep.monto_actualiz,
+                      2) - round(mdep.monto_actualiz_ant, 2) + round((
+                                                                       SELECT
+                                                                         f_calculo_aux_deprec.po_inc_actualiz
+                                                                       FROM
+                                                                         kaf.f_calculo_aux_deprec
+                                                                         (
+                                                                         date_trunc
+                                                                         ('year'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone)::
+                                                                         date, (
+                                                                         date_trunc
+                                                                         (
+                                                                         'month'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone) -
+                                                                         '1 day'
+                                                                         ::
+                                                                         interval
+                                                                         )::
+                                                                         date, (
+                                                                         mdep.vida_util
+                                                                         ::
+                                                                         double
+                                                                         precision
+                                                                         +
+                                                                         date_part
+                                                                         ('year'
+                                                                         ::text,
+                                                                         age((
+                                                                         date_trunc
+                                                                         (
+                                                                         'month'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone) -
+                                                                         '1 day'
+                                                                         ::
+                                                                         interval
+                                                                         )::date
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone,
+                                                                         date_trunc
+                                                                         ('year'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone)::
+                                                                         date::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone))
+                                                                         * 12::
+                                                                         double
+                                                                         precision
+                                                                         +
+                                                                         date_part
+                                                                         (
+                                                                         'month'
+                                                                         ::text,
+                                                                         age((
+                                                                         date_trunc
+                                                                         (
+                                                                         'month'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone) -
+                                                                         '1 day'
+                                                                         ::
+                                                                         interval
+                                                                         )::date
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone,
+                                                                         date_trunc
+                                                                         ('year'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone)::
+                                                                         date::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone))
+                                                                         + 1::
+                                                                         double
+                                                                         precision
+                                                                         )::
+                                                                         integer
+                                                                         + 1,
+                                                                         afv.importe_modif
+                                                                         /(
+                                                                         param.f_get_tipo_cambio
+                                                                         (3, (
+                                                                         date_trunc
+                                                                         (
+                                                                         'month'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone) -
+                                                                         '1 day'
+                                                                         ::
+                                                                         interval
+                                                                         )::
+                                                                         date,
+                                                                         'O'::
+                                                                         character
+                                                                         varying
+                                                                         ) /
+                                                                         param.f_get_tipo_cambio
+                                                                         (3,
+                                                                         date_trunc
+                                                                         ('year'
+                                                                         ::text,
+                                                                         afv.fecha_ini_dep
+                                                                         ::
+                                                                         timestamp
+                                                                         with
+                                                                         time
+                                                                         zone)::
+                                                                         date,
+                                                                         'O'::
+                                                                         character
+                                                                         varying
+                                                                         )),
+                                                                         afv.id_moneda
+                                                                         )
+                                                                         f_calculo_aux_deprec
+                                                                         (
+
+                                                                         po_valor_actualiz,
+
+                                                                        po_inc_actualiz,
+
+                                                                       po_depreciacion_acum,
+
+                                                                      po_inc_depreciacion_acum,
+                                                                      po_dep_mes_total
+                                                                      )
+           ), 2)
+                    ELSE round(mdep.monto_actualiz, 2) - round(
+                      mdep.monto_actualiz_ant, 2)
+                  END
+           END AS monto_actualiz,
+           maf.id_movimiento,
+           mdep.id_moneda,
+           cc.codigo_tcc,
+           af.id_activo_fijo,
+           af.codigo
+    FROM kaf.tmovimiento_af maf
+         JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af =
+           maf.id_movimiento_af
+         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo
+         JOIN trel_contable rc ON af.id_clasificacion = ANY (rc.nodos)
+         JOIN kaf.tclasificacion cla ON cla.id_clasificacion =
+           rc.id_clasificacion
+         LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
+           af.id_centro_costo
+         JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor =
+           mdep.id_activo_fijo_valor
+    WHERE mdep.id_moneda = param.f_get_moneda_base();
+/***********************************F-DEP-RCM-KAF-39-05/12/2019****************************************/

@@ -14,6 +14,7 @@ $BODY$
 #ISSUE	SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
  #2		KAF		ETR 		22-05-2019	RCM		Funcion que gestiona las operaciones basicas (inserciones, modIFicaciones, eliminaciones de la tabla 'kaf.tmovimiento_af_especial'
  #39    KAF     ETR         22-11-2019  RCM     Importación masiva Distribución de valores
+ #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
 ***************************************************************************/
 
 DECLARE
@@ -44,6 +45,15 @@ DECLARE
     v_rec                       RECORD;
     v_tipo                      VARCHAR;
     --Fin #39
+    --Inicio #38
+    v_id_unidad_medida          INTEGER;
+    v_id_ubicacion              INTEGER;
+    v_id_funcionario            INTEGER;
+    v_id_grupo_ae               INTEGER;
+    v_id_grupo_clasif           INTEGER;
+    v_nro_serie                 VARCHAR;
+    v_marca                     VARCHAR;
+    --Fin #38
 
 BEGIN
 
@@ -433,16 +443,14 @@ BEGIN
             ---------------
             --Validaciones
             ---------------
-            --tipo
-            IF v_parametros.tipo = 'activo_nuevo' THEN
-                v_tipo = 'af_nuevo';
-            ELSIF v_parametros.tipo = 'activo_existente' THEN
-                v_tipo = 'af_exist';
-            ELSIF v_parametros.tipo = 'almacen' THEN
-                v_tipo = 'af_almacen';
-            ELSE
-                RAISE EXCEPTION 'Tipo de operación no reconocida (%)',v_parametros.tipo;
+            --Inicio #38
+            v_tipo = 'af_nuevo';
+            IF pxp.f_existe_parametro(p_tabla, 'codigo_af') THEN
+                IF COALESCE(v_parametros.codigo_af, '') <> '' THEN
+                    v_tipo = 'af_exist';
+                END IF;
             END IF;
+            --Fin #38
 
             --clasificacion
             IF pxp.f_existe_parametro(p_tabla, 'clasificacion') THEN
@@ -559,6 +567,93 @@ BEGIN
                 RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado2, v_monto;
             END IF;
 
+            --Inicio #38
+            --Nro Serie
+            v_nro_serie = NULL;
+            IF pxp.f_existe_parametro(p_tabla, 'nro_serie') THEN
+                v_nro_serie = v_parametros.nro_serie;
+            END IF;
+
+            --Marca
+            v_marca = NULL;
+            IF pxp.f_existe_parametro(p_tabla, 'marca') THEN
+                v_marca = v_parametros.marca;
+            END IF;
+
+            --Unidad de medida
+            IF pxp.f_existe_parametro(p_tabla, 'unidad') THEN
+                SELECT id_unidad_medida
+                INTO v_id_unidad_medida
+                FROM param.tunidad_medida
+                WHERE LOWER(codigo) = lower(v_parametros.unidad);
+
+                IF COALESCE(v_id_unidad_medida,0) = 0 THEN
+                    RAISE EXCEPTION 'Unidad de Medida no encontrada para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+                END IF;
+            END IF;
+
+            --Local (id_ubicacion)
+            v_id_ubicacion = NULL;
+            IF pxp.f_existe_parametro(p_tabla, 'local') THEN
+                select id_ubicacion
+                into v_id_ubicacion
+                from kaf.tubicacion
+                where LOWER(codigo) = LOWER(TRIM(v_parametros.local));
+            END IF;
+
+            --Responsable (id_funcionario)
+            v_id_funcionario = null;
+            IF pxp.f_existe_parametro(p_tabla, 'responsable') THEN
+
+                SELECT f.id_funcionario
+                INTO v_id_funcionario
+                FROM segu.tusuario u
+                INNER JOIN orga.tfuncionario f
+                ON f.id_persona = u.id_persona
+                WHERE LOWER(u.cuenta) = LOWER(TRIM(v_parametros.responsable));
+
+                IF COALESCE(v_id_funcionario, 0) = 0 THEN
+                    RAISE EXCEPTION 'Responsable del activo no encontrado: %, para el activo: %. (Fila %)', v_parametros.responsable, v_parametros.denominacion, v_parametros.item;
+                END IF;
+
+            END IF;
+
+            --Grupo AE (id_grupo): si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+            v_id_grupo_ae = NULL;
+            IF pxp.f_existe_parametro(p_tabla, 'codigo_af') THEN
+                SELECT id_grupo
+                INTO v_id_grupo_ae
+                FROM kaf.tactivo_fijo
+                WHERE codigo = TRIM(v_parametros.codigo_af);
+            ELSE
+                IF pxp.f_existe_parametro(p_tabla, 'grupo_ae') THEN
+                    SELECT id_grupo
+                    INTO v_id_grupo_ae
+                    FROM kaf.tgrupo
+                    WHERE tipo = 'grupo'
+                    AND (LOWER(codigo) = LOWER(TRIM(v_parametros.grupo_ae)) OR LOWER(codigo) = '0' || LOWER(TRIM(v_parametros.grupo_ae)));
+                END IF;
+            END IF;
+
+            --Clasif AE (id_grupo_clasif): si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+            v_id_grupo_clasif = NULL;
+            IF pxp.f_existe_parametro(p_tabla, 'codigo_af') THEN
+                SELECT id_grupo
+                INTO v_id_grupo_clasif
+                FROM kaf.tactivo_fijo
+                WHERE codigo = TRIM(v_parametros.codigo_af);
+            ELSE
+                IF pxp.f_existe_parametro(p_tabla, 'clasificacion_ae') THEN
+                    SELECT id_grupo
+                    INTO v_id_grupo_clasif
+                    FROM kaf.tgrupo
+                    WHERE tipo = 'clasificacion'
+                    AND (LOWER(codigo) = LOWER(TRIM(v_parametros.clasificacion_ae)) OR LOWER(codigo) = '0' || LOWER(TRIM(v_parametros.clasificacion_ae)));
+                END IF;
+            END IF;
+
+            --Fin #38
+
             ------------
             --Inserción
             ------------
@@ -578,7 +673,7 @@ BEGIN
             fecha_ini_dep,
             importe,
             vida_util,
-            id_clasIFicacion,
+            id_clasificacion,
             estado_reg,
             id_centro_costo,
             denominacion,
@@ -592,7 +687,21 @@ BEGIN
             tipo,
             opcion,
             id_moneda,
-            id_almacen
+            id_almacen,
+            --Inicio #38
+            nro_serie,
+            marca,
+            descripcion,
+            cantidad_det,
+            id_unidad_medida,
+            ubicacion,
+            id_ubicacion,
+            id_funcionario,
+            fecha_compra,
+            id_grupo,
+            id_grupo_clasif,
+            observaciones
+            --Fin #38
             ) VALUES (
             v_id_activo_fijo,
             v_parametros.id_movimiento_af,
@@ -613,7 +722,21 @@ BEGIN
             v_tipo,
             v_parametros.opcion,
             v_id_moneda,
-            v_id_almacen
+            v_id_almacen,
+            --Inicio #38
+            v_nro_serie,
+            v_marca,
+            v_parametros.descripcion,
+            v_parametros.cantidad_det,
+            v_id_unidad_medida,
+            v_parametros.ubicacion,
+            v_id_ubicacion,
+            v_id_funcionario,
+            v_parametros.fecha_compra,
+            v_id_grupo_ae,
+            v_id_grupo_clasif,
+            NULL
+            --Fin #38
             ) RETURNING id_movimiento_af_especial INTO v_id_movimiento_af_especial;
 
             --Definicion de la respuesta

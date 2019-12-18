@@ -668,7 +668,7 @@ BEGIN
 
     --Inicio #34
     --Actualización depreciación acumulada (2do cbte)
-    /*UPDATE tt_detalle_depreciacion_totales DEP SET
+    UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum = ANX.dep_acum_actualiz
     FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
@@ -709,7 +709,6 @@ BEGIN
         GROUP BY id_activo_fijo
     ) ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
-    */
     --Fin #34
 
 
@@ -772,7 +771,9 @@ BEGIN
                         --Cuando es incremente y es de otra gestión, muestra el importe modificado sin actualización por lo que aplica X = importe modif / factor
                         WHEN 'si' THEN tt.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC('month', tt.fecha_ini_dep) - interval '1 day')::date, 'O') /
                                         param.f_get_tipo_cambio(3, DATE_TRUNC('year', tt.fecha_ini_dep)::date, 'O'))
-                        ELSE tt.importe_modif
+                        ELSE  --tt.importe_modif --COmentado RCM en 04/12/2019
+                            tt.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC('month', tt.fecha_ini_dep) - interval '1 day')::date, 'O') /
+                                        param.f_get_tipo_cambio(3, DATE_TRUNC('year', tt.fecha_ini_dep)::date, 'O'))
                     END
             END
         ELSE 0
@@ -811,7 +812,7 @@ BEGIN
     tt.depreciacion_acum_gest_ant,
     --tt.depreciacion_acum-tt.depreciacion_acum_gest_ant-tt.depreciacion,--tt.depreciacion_acum_actualiz_gest_ant,
      CASE v_id_moneda
-        WHEN v_id_moneda_base THEN tt.depreciacion_acum - tt.depreciacion_acum_gest_ant - tt.depreciacion
+        WHEN v_id_moneda_base THEN tt.depreciacion_acum - tt.depreciacion_acum_gest_ant - tt.depreciacion - COALESCE(tt.traspaso_dep_acum, 0)
         ELSE 0
     END AS inc_act_dep_acum,
     tt.depreciacion,--tt.depreciacion_per, --tt.depreciacion_acum - COALESCE(tt.depreciacion_acum_gest_ant,0) - COALESCE(tt.depreciacion_acum_actualiz_gest_ant,0),
