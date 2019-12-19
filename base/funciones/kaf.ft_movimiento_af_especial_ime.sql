@@ -53,6 +53,7 @@ DECLARE
     v_id_grupo_clasif           INTEGER;
     v_nro_serie                 VARCHAR;
     v_marca                     VARCHAR;
+    v_codigo_af_orig            VARCHAR;
     --Fin #38
 
 BEGIN
@@ -87,10 +88,14 @@ BEGIN
             --Fin #39
 
         	--Obtención de importes del activo origen
-        	SELECT COALESCE(importe, 0)
-        	INTO v_monto_actualiz
-        	FROM kaf.tmovimiento_af
-        	WHERE id_movimiento_af = v_parametros.id_movimiento_af;
+            --Inicio #38
+        	SELECT COALESCE(importe, 0), af.codigo
+        	INTO v_monto_actualiz, v_codigo_af_orig
+        	FROM kaf.tmovimiento_af maf
+            INNER JOIN kaf.tactivo_fijo af
+            ON af.id_activo_fijo = maf.id_activo_fijo
+        	WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
+            --Fin #38
 
             --Obtención de la moneda parametrizada
             SELECT id_moneda
@@ -120,11 +125,11 @@ BEGIN
 
         	--Control de no sobregiro
         	IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
-        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado, v_monto;
+        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado, v_monto; --#38
         	END IF;
 
         	IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
-        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado2, v_monto;
+        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado2, v_monto; --#38
         	END IF;
 
         	------------
@@ -254,11 +259,15 @@ BEGIN
             END IF;
             --Fin #39
 
+            --Inicio #38
         	--Obtención de importes del activo origen
-        	SELECT COALESCE(importe, 0)
-        	INTO v_monto_actualiz
-        	FROM kaf.tmovimiento_af
-        	WHERE id_movimiento_af = v_parametros.id_movimiento_af;
+            SELECT COALESCE(importe, 0), af.codigo
+            INTO v_monto_actualiz, v_codigo_af_orig
+            FROM kaf.tmovimiento_af maf
+            INNER JOIN kaf.tactivo_fijo af
+            ON af.id_activo_fijo = maf.id_activo_fijo
+            WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
+            --Fin #38
 
             --Obtención de la moneda parametrizada
             SELECT id_moneda
@@ -289,11 +298,11 @@ BEGIN
 
         	--Control de no sobregiro
         	IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
-        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado,  v_monto;
+        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado,  v_monto;
         	END IF;
 
         	IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
-        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado2,  v_monto;
+        		RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado2,  v_monto;
         	END IF;
 
         	---------------
@@ -526,11 +535,15 @@ BEGIN
             --------------------
             --Lógica específica
             --------------------
+            --Inicio #38
             --Obtención de importes del activo origen
-            SELECT COALESCE(importe, 0)
-            INTO v_monto_actualiz
-            FROM kaf.tmovimiento_af
-            WHERE id_movimiento_af = v_parametros.id_movimiento_af;
+            SELECT COALESCE(importe, 0), af.codigo
+            INTO v_monto_actualiz, v_codigo_af_orig
+            FROM kaf.tmovimiento_af maf
+            INNER JOIN kaf.tactivo_fijo af
+            ON af.id_activo_fijo = maf.id_activo_fijo
+            WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
+            --Fin #38
 
             --Obtención de la moneda parametrizada
             SELECT id_moneda
@@ -560,11 +573,11 @@ BEGIN
 
             --Control de no sobregiro
             IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
-                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado, v_monto;
+                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado, v_monto;
             END IF;
 
             IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
-                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_monto_actualiz, v_monto_actualiz_usado2, v_monto;
+                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado2, v_monto;
             END IF;
 
             --Inicio #38
