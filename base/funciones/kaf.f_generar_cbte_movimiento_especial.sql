@@ -185,7 +185,8 @@ BEGIN
     ON mafe.id_movimiento_af = maf.id_movimiento_af
     AND mafe.tipo = 'af_nuevo'
     INNER JOIN kaf.tactivo_fijo_valores afv
-    ON afv.id_activo_fijo = mafe.id_activo_fijo
+    ON afv.id_activo_fijo = maf.id_activo_fijo --#38 19/12/2019
+    AND afv.fecha_fin IS NULL --#38 19/12/2019
     INNER JOIN kaf.tactivo_fijo af
     ON af.id_activo_fijo = maf.id_activo_fijo
     INNER JOIN tclasif_rel clr
@@ -255,7 +256,8 @@ BEGIN
         ON mafe.id_movimiento_af = maf.id_movimiento_af
         AND mafe.tipo = 'af_nuevo'
         INNER JOIN kaf.tactivo_fijo_valores afv
-        ON afv.id_activo_fijo = mafe.id_activo_fijo
+        ON afv.id_activo_fijo = mafe.id_activo_fijo --#38 19/12/2019
+        AND afv.fecha_fin IS NULL --#38 19/12/2019
         INNER JOIN kaf.tactivo_fijo af
         ON af.id_activo_fijo = maf.id_activo_fijo
         INNER JOIN tclasif_rel clr
@@ -329,7 +331,8 @@ BEGIN
         ON mafe.id_movimiento_af = maf.id_movimiento_af
         AND mafe.tipo = 'af_nuevo'
         INNER JOIN kaf.tactivo_fijo_valores afv
-        ON afv.id_activo_fijo = mafe.id_activo_fijo
+        ON afv.id_activo_fijo = maf.id_activo_fijo --#38 19/12/2019
+        AND afv.fecha_fin IS NULL --#38 19/12/2019
         INNER JOIN kaf.tactivo_fijo af
         ON af.id_activo_fijo = maf.id_activo_fijo
         INNER JOIN tclasif_rel clr
@@ -1210,10 +1213,10 @@ BEGIN
     )
     --Inicio #36
     SELECT
-    t.id_partida_dest_dep_acum, --#36
+    t.id_partida_dep_acum, --#36
     v_id_centro_costo, --#36
     'activo',
-    t.id_cuenta_dest_dep_acum, --#36
+    t.id_cuenta_dep_acum, --#36
     v_id_int_comprobante,
     t.depreciacion_acum_bs,
     t.depreciacion_acum_bs,
@@ -1325,10 +1328,10 @@ BEGIN
     )
     --Inicio #36
     SELECT
-    t.id_partida_dest_af,
+    t.id_partida,
     v_id_centro_costo,
     'activo',
-    t.id_cuenta_dest_af,
+    t.id_cuenta,
     v_id_int_comprobante,
     0,
     0,

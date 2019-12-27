@@ -49,10 +49,6 @@ BEGIN
     WHERE DATE_TRUNC('month', mov.fecha_mov) = DATE_TRUNC('month', p_fecha::date)
     AND cat.codigo = 'deprec';
 
-    --Verifica si ya tiene datos procesados en esa fecha
-    DELETE FROM kaf.treporte_detalle_depreciacion
-    WHERE DATE_TRUNC('month', fecha_deprec) = DATE_TRUNC('month', p_fecha);
-
     --Creacion de tabla temporal de los actios fijos a filtrar
     CREATE TEMP TABLE tt_af_filtro (
         id_activo_fijo integer

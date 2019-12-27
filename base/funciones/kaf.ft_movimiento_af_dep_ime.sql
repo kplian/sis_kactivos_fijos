@@ -30,6 +30,7 @@ DECLARE
 	v_result 				varchar;
 	v_total					integer;--#35
 	v_existe				varchar;--#35
+	v_fecha_reg 			date; --#35
 
 BEGIN
 
@@ -246,6 +247,14 @@ BEGIN
 
 			IF COALESCE(v_total, 0) > 0 THEN
 				v_existe = 'si';
+
+				--Obtiene la fecha en que se procesó la información (fecha_reg)
+				SELECT fecha_reg
+				INTO v_fecha_reg
+				FROM kaf.treporte_detalle_dep
+				WHERE id_moneda = param.f_get_moneda_base()
+				AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', v_fecha_hasta)
+				LIMIT 1;
 			ELSE
 				v_existe = 'no';
 			END IF;
@@ -253,6 +262,7 @@ BEGIN
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Verificación realizada');
             v_resp = pxp.f_agrega_clave(v_resp, 'existe', v_existe);
+            v_resp = pxp.f_agrega_clave(v_resp, 'fecha_proc', to_char(v_fecha_reg, 'dd/mm/yyyy'));
 
             --Devuelve la respuesta
             RETURN v_resp;

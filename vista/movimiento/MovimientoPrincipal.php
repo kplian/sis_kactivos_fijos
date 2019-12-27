@@ -21,6 +21,7 @@ Phx.vista.MovimientoPrincipal = {
     requireclase:'Phx.vista.Movimiento',
     title:'Movimientos',
     nombreVista: 'MovimientoPrincipal',
+    timeout: 3600000,
 
     gruposBarraTareas:[
         {name:'Todos',title:'<h1 align="center"><i class="fa fa-bars"></i> Todos</h1>',grupo:0,height:0},
@@ -75,10 +76,6 @@ Phx.vista.MovimientoPrincipal = {
                 tipo_interfaz: this.nombreVista
             }
         });
-
-
-
-
 
 
         //Evento para store de motivos
@@ -234,6 +231,19 @@ Phx.vista.MovimientoPrincipal = {
                 disabled: false,
                 handler: this.subirArchivoAL,
                 tooltip: '<b>Destino Almacén</b><br/>Importación desde Excel para Distribución de Valores con destino a Almacén'
+            }
+        );
+        //Fin #39
+
+        //Inicio #35
+        this.addButton('btnRepDep',
+            {
+                text: 'Reporte Depreciación',
+                iconCls: 'bexcel',
+                disabled: false,
+                handler: this.imprimirDetalleDep,
+                tooltip: '<b>Detalle Depreciación</b><br/>Genera el reporte de Detalle de Depreciación',
+                grupo: [0,5]
             }
         );
         //Fin #39
@@ -507,6 +517,7 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnPocDetalleDep').hide(); //#35
         this.getBoton('btnImportDataDvalAF').hide(); //#39
         this.getBoton('btnImportDataDvalAL').hide(); //#39
+        this.getBoton('btnRepDep').hide(); //#35
 
         if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
             this.getBoton('btnReporte').enable();
@@ -518,6 +529,13 @@ Phx.vista.MovimientoPrincipal = {
         if(data.cod_movimiento == 'dval'){
             this.getBoton('btnImportDataDvalAF').show();
             this.getBoton('btnImportDataDvalAL').show();
+        } else if(data.cod_movimiento == 'deprec'){
+            //Inicio #23
+            //Habilita el botón de comparación sólo para el caso de depreciación
+            this.getBoton('btnRepCompAfConta').show();
+            this.getBoton('btnPocDetalleDep').show();//#35
+            this.getBoton('btnRepDep').show();//#35
+            //Fin #23
         }
         //Fin #39
 
@@ -539,8 +557,8 @@ Phx.vista.MovimientoPrincipal = {
         }
 
         if(data.estado == 'finalizado' || data.estado == 'cancelado'){
-        	this.getBoton('ant_estado').disable();
-        	this.getBoton('sig_estado').disable();
+            this.getBoton('ant_estado').disable();
+            this.getBoton('sig_estado').disable();
         }
 
         //Verifica si tiene Comprobantes asociados para habilitar los botones
@@ -556,14 +574,6 @@ Phx.vista.MovimientoPrincipal = {
         if(data.id_int_comprobante_4){
             this.getBoton('btnCbte4').show();
         }
-
-        //Inicio #23
-        //Habilita el botón de comparación sólo para el caso de depreciación
-        if(data.cod_movimiento == 'deprec') {
-            this.getBoton('btnRepCompAfConta').show();
-            this.getBoton('btnPocDetalleDep').show();//#35
-        }
-        //Fin #23
 
         return tb;
     },
@@ -766,6 +776,7 @@ Phx.vista.MovimientoPrincipal = {
             url: '../../sis_kactivos_fijos/control/MovimientoAfDep/procesarDetalleDepreciacion',
             params: { id_movimiento: data.id_movimiento },
             success: function(resp){
+                Ext.MessageBox.alert('Respuesta', 'Información procesada con éxito');
                 Phx.CP.loadingHide();
             },
             failure: this.conexionFailure,
@@ -782,12 +793,13 @@ Phx.vista.MovimientoPrincipal = {
             url: '../../sis_kactivos_fijos/control/MovimientoAfDep/verificarProcesarDetalleDepreciacion',
             params: { id_movimiento: data.id_movimiento },
             success: function(resp) {
-                var rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
-
                 Phx.CP.loadingHide();
+
+                var rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
                 //Verifica si ya existen datos procesados para la fecha del movimiento
                 if(rec.datos.existe == 'si'){
-                    Ext.MessageBox.confirm('Confirmación','Ya se encuentra procesada la información a la fecha del movimiento seleccionado (' + new Date(data.fecha_hasta).format("d/m/Y") + '). ¿Desea reprocesar los datos?', function(resp) {
+                    let v_mensaje = `Ya se encuentra procesada la información a la fecha del movimiento seleccionado ${new Date(data.fecha_hasta).format("d/m/Y")}. La fecha de procesamiento fue el ${rec.datos.fecha_proc}.<br><br> ¿Desea reprocesar los datos?<br><br>Este proceso tomará varios minutos.`;
+                    Ext.MessageBox.confirm('Confirmación', v_mensaje, function(resp) {
                         if(resp == 'yes') {
                             //Reprocesa la información
                             this.procesarReporteDepreciacion();
@@ -842,6 +854,46 @@ Phx.vista.MovimientoPrincipal = {
         );
     },
     //Fin #39
+
+    //Inicio #35
+    imprimirDetalleDep: function(){
+        //Verifica si ya existen datos procesados para la fecha del movimiento
+        let v_mensaje = `¿Desea generar a Excel el reporte Detalle de Depreciación? <br><br>Este proceso tomará varios minutos.`;
+        let data = this.sm.getSelected().data;
+        Ext.MessageBox.confirm('Confirmación', v_mensaje, function(resp) {
+            if(resp == 'yes') {
+                Phx.CP.loadingShow();
+                //Obtención de la moneda dep
+                Ext.Ajax.request({
+                    url:'../../sis_kactivos_fijos/control/MonedaDep/obtenerMonedaDep',
+                    params: {
+                        id_moneda: data.id_moneda
+                    },
+                    success: function(resp) {
+                        let rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
+                        //Genera el reporte
+                        Ext.Ajax.request({
+                            url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDetalleDepreciacion',
+                            params: {
+                                tipo_salida: 'grid',
+                                fecha_hasta: data.fecha_hasta,
+                                id_moneda_dep: rec.datos.id_moneda_dep,
+                                id_moneda: rec.datos.id_moneda
+                            },
+                            success: this.successExport,
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
+                        });
+                    },
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        }, this);
+    }
+    //Fin #35
 
 
 };
