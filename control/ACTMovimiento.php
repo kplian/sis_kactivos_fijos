@@ -452,6 +452,7 @@ class ACTMovimiento extends ACTbase{
 
 								//Guarda el detalle
 		                    	$this->objParam->addParametro('importe', $fila["activo_fijo_$cont_af"]);
+		                    	$this->objParam->addParametro('id_movimiento_af', $idMovimientoAf); // #38
                 				$this->objFunc = $this->create('MODMovimientoAfEspecial');
                 				$this->res = $this->objFunc->insertarMovimientoAfEspecialImportar($this->objParam);
 
@@ -495,12 +496,12 @@ class ACTMovimiento extends ACTbase{
 
         if ($error == 'error') {
             $this->mensajeRes=new Mensaje();
-            $this->mensajeRes->setMensaje('ERROR','ACTIntMovimiento.php','Ocurrieron los siguientes errores : ' . $mensaje_completo,
+            $this->mensajeRes->setMensaje('ERROR','ACTMovimiento.php','Ocurrieron los siguientes errores : ' . $mensaje_completo,
                 $mensaje_completo,'control');
 
         } else if ($error == 'no') {
             $this->mensajeRes=new Mensaje();
-            $this->mensajeRes->setMensaje('EXITO','ACTIntMovimiento.php','El archivo fue ejecutado con éxito',
+            $this->mensajeRes->setMensaje('EXITO','ACTMovimiento.php','El archivo fue ejecutado con éxito',
                 'El archivo fue ejecutado con éxito','control');
         }
 
