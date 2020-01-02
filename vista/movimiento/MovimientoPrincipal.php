@@ -875,10 +875,11 @@ Phx.vista.MovimientoPrincipal = {
                         Ext.Ajax.request({
                             url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDetalleDepreciacion',
                             params: {
-                                tipo_salida: 'grid',
+                                tipo_salida: 'excel',
                                 fecha_hasta: data.fecha_hasta,
                                 id_moneda_dep: rec.datos.id_moneda_dep,
-                                id_moneda: rec.datos.id_moneda
+                                id_moneda: rec.datos.id_moneda,
+                                desc_moneda: rec.datos.desc_moneda //#35
                             },
                             success: this.successExport,
                             failure: this.conexionFailure,

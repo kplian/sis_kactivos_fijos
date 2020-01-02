@@ -29,6 +29,7 @@ DECLARE
 	v_mensaje_error         text;
 	v_id_moneda_dep	        integer;
     v_id_moneda             INTEGER; --#35
+    v_moneda                VARCHAR; --#35
 
 BEGIN
 
@@ -157,15 +158,18 @@ BEGIN
             END IF;
 
             --Obtención del id_moneda_dep
-            SELECT id_moneda_dep
-            INTO v_id_moneda_dep
-            FROM kaf.tmoneda_dep
-            WHERE id_moneda = v_id_moneda;
+            SELECT mod.id_moneda_dep, mon.moneda
+            INTO v_id_moneda_dep, v_moneda
+            FROM kaf.tmoneda_dep mod
+            INNER JOIN param.tmoneda mon
+            ON mon.id_moneda = mod.id_moneda
+            WHERE mod.id_moneda = v_id_moneda;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Datos obtenidos');
             v_resp = pxp.f_agrega_clave(v_resp, 'id_moneda_dep', v_id_moneda_dep::varchar);
             v_resp = pxp.f_agrega_clave(v_resp, 'id_moneda', v_id_moneda::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp, 'desc_moneda', v_moneda);
 
             --Devuelve la respuesta
             return v_resp;

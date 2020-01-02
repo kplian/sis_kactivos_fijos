@@ -279,53 +279,58 @@ class RDetalleDepreciacionXls
 		$this->cellBorder($sheet,"A$f:K$f");
 		$sheet->mergeCells("A$f:K$f");
 
-		$range_sum='=SUM(L'.($this->fila).':L'.($f-1).')';
-		$this->cell($sheet,$range_sum,"L$f",11,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(M'.($this->fila).':M'.($f-1).')';
-		$this->cell($sheet,$range_sum,"M$f",12,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(N'.($this->fila).':N'.($f-1).')';
-		$this->cell($sheet,$range_sum,"N$f",13,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(O'.($this->fila).':O'.($f-1).')';
-		$this->cell($sheet,$range_sum,"O$f",14,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(P'.($this->fila).':P'.($f-1).')';
-		$this->cell($sheet,$range_sum,"P$f",15,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(Q'.($this->fila).':Q'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Q$f",16,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(R'.($this->fila).':R'.($f-1).')';
-		$this->cell($sheet,$range_sum,"R$f",17,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$this->cell($sheet,'',"S$f",18,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$this->cell($sheet,'',"T$f",19,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$this->cell($sheet,'',"U$f",20,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(V'.($this->fila).':V'.($f-1).')';
-		$this->cell($sheet,$range_sum,"V$f",21,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(W'.($this->fila).':W'.($f-1).')';
-		$this->cell($sheet,$range_sum,"W$f",22,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(X'.($this->fila).':X'.($f-1).')';
-		$this->cell($sheet,$range_sum,"X$f",23,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(Y'.($this->fila).':Y'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Y$f",24,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(Z'.($this->fila).':Z'.($f-1).')';
-		$this->cell($sheet,$range_sum,"Z$f",25,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(AA'.($this->fila).':AA'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AA$f",26,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(AB'.($this->fila).':AB'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AB$f",27,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
-		$range_sum='=SUM(AC'.($this->fila).':AC'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+		//Inicio #35: calcular totales solo si hay alguna fila obtenida
+		if($f > 6) {
+			$range_sum='=SUM(L'.($this->fila).':L'.($f-1).')';
+			$this->cell($sheet,$range_sum,"L$f",11,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(M'.($this->fila).':M'.($f-1).')';
+			$this->cell($sheet,$range_sum,"M$f",12,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(N'.($this->fila).':N'.($f-1).')';
+			$this->cell($sheet,$range_sum,"N$f",13,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(O'.($this->fila).':O'.($f-1).')';
+			$this->cell($sheet,$range_sum,"O$f",14,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(P'.($this->fila).':P'.($f-1).')';
+			$this->cell($sheet,$range_sum,"P$f",15,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(Q'.($this->fila).':Q'.($f-1).')';
+			$this->cell($sheet,$range_sum,"Q$f",16,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(R'.($this->fila).':R'.($f-1).')';
+			$this->cell($sheet,$range_sum,"R$f",17,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$this->cell($sheet,'',"S$f",18,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$this->cell($sheet,'',"T$f",19,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$this->cell($sheet,'',"U$f",20,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(V'.($this->fila).':V'.($f-1).')';
+			$this->cell($sheet,$range_sum,"V$f",21,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(W'.($this->fila).':W'.($f-1).')';
+			$this->cell($sheet,$range_sum,"W$f",22,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(X'.($this->fila).':X'.($f-1).')';
+			$this->cell($sheet,$range_sum,"X$f",23,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(Y'.($this->fila).':Y'.($f-1).')';
+			$this->cell($sheet,$range_sum,"Y$f",24,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(Z'.($this->fila).':Z'.($f-1).')';
+			$this->cell($sheet,$range_sum,"Z$f",25,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(AA'.($this->fila).':AA'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AA$f",26,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(AB'.($this->fila).':AB'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AB$f",27,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
+			$range_sum='=SUM(AC'.($this->fila).':AC'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AC$f",28,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);//#55
 
-		//Inicio #31
-		$range_sum='=SUM(AD'.($this->fila).':AD'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AD$f",29,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
+			//Inicio #31
+			$range_sum='=SUM(AD'.($this->fila).':AD'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AD$f",29,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
 
-		$range_sum='=SUM(AE'.($this->fila).':AE'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AE$f",30,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
+			$range_sum='=SUM(AE'.($this->fila).':AE'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AE$f",30,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
 
-		$range_sum='=SUM(AF'.($this->fila).':AF'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AE$f",31,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
+			$range_sum='=SUM(AF'.($this->fila).':AF'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AE$f",31,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
 
-		$range_sum='=SUM(AG'.($this->fila).':AG'.($f-1).')';
-		$this->cell($sheet,$range_sum,"AE$f",32,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
-		//Fin #31
+			$range_sum='=SUM(AG'.($this->fila).':AG'.($f-1).')';
+			$this->cell($sheet,$range_sum,"AE$f",32,$f,"right",true,$this->tam_letra_detalle,'Arial',true,true,'center',true);
+			//Fin #31
+
+		} //Fin #35
+
 
 
 		//Inicio #9: se estira el  merge cell de AH hasta BC y también el borde
