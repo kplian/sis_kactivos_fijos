@@ -376,49 +376,37 @@ BEGIN
 
     --Inicio #39
     UPDATE tt_detalle_depreciacion dd SET
-    monto_vigente_orig = mdep1.monto_actualiz_ant
+    monto_vigente_orig = mdep.monto_actualiz_ant,
+    traspaso_af = -1 * mdep2.monto_actualiz * mesp.porcentaje / 100,
+    traspaso_dep_acum = -1 * mdep2.depreciacion_acum * mesp.porcentaje / 100
     FROM kaf.tmovimiento_af maf
     INNER JOIN kaf.tmovimiento mov
     ON mov.id_movimiento = maf.id_movimiento
-    AND DATE_TRUNC('year', mov.fecha_mov) = DATE_TRUNC('year', p_fecha)
     INNER JOIN param.tcatalogo cat
     ON cat.id_catalogo = mov.id_cat_movimiento
     AND cat.codigo = 'dval'
     INNER JOIN kaf.tmovimiento_af_especial mesp
     ON mesp.id_movimiento_af = maf.id_movimiento_af
-    INNER JOIN kaf.tmovimiento_af_dep mdep
-    ON mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo = maf.id_activo_fijo
-    INNER JOIN kaf.tmovimiento_af_dep mdep1
-    ON mdep1.id_activo_fijo_valor = afv.id_activo_fijo_valor
-    AND DATE_TRUNC('month', mdep1.fecha) = DATE_TRUNC('year', mdep.fecha)
-    AND mdep1.id_moneda = v_id_moneda
-    WHERE dd.id_activo_fijo = maf.id_activo_fijo;
-
-    UPDATE tt_detalle_depreciacion dd SET
-    traspaso_af = -1 * mdep1.monto_actualiz * mesp.porcentaje / 100,
-    traspaso_dep_acum = -1 * mdep1.depreciacion_acum * mesp.porcentaje / 100
-    FROM kaf.tmovimiento_af maf
-    INNER JOIN kaf.tmovimiento mov
-    ON mov.id_movimiento = maf.id_movimiento
-    AND DATE_TRUNC('year', mov.fecha_mov) = DATE_TRUNC('year', p_fecha)
-    INNER JOIN param.tcatalogo cat
-    ON cat.id_catalogo = mov.id_cat_movimiento
-    AND cat.codigo = 'dval'
-    INNER JOIN kaf.tmovimiento_af_especial mesp
-    ON mesp.id_movimiento_af = maf.id_movimiento_af
+    AND afv.id_moneda = v_id_moneda
     INNER JOIN kaf.tmovimiento_af_dep mdep
-    ON mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
-    INNER JOIN kaf.tactivo_fijo_valores afv
-    ON afv.id_activo_fijo = maf.id_activo_fijo
-    INNER JOIN kaf.tmovimiento_af_dep mdep1
-    ON mdep1.id_activo_fijo_valor = afv.id_activo_fijo_valor
-    AND mdep1.fecha = mdep.fecha
-    AND mdep1.id_moneda = v_id_moneda
+    ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+    AND mdep.fecha = (SELECT MIN(mdep1.fecha)
+                    FROM kaf.tmovimiento_af_dep mdep1
+                    INNER JOIN kaf.tactivo_fijo_valores afv1
+                    ON afv1.id_activo_fijo_valor = mdep1.id_activo_fijo_valor
+                    WHERE afv1.id_activo_fijo = maf.id_activo_fijo
+                    AND date_trunc('year', mdep1.fecha) = date_trunc('year', mov.fecha_mov)
+                    )
+    INNER JOIN kaf.tmovimiento_af_dep mdep2
+    ON mdep2.id_activo_fijo_valor = afv.id_activo_fijo_valor
+    AND mdep2.fecha = (SELECT MAX(mdep11.fecha)
+                    FROM kaf.tmovimiento_af_dep mdep11
+                    WHERE mdep11.id_activo_fijo_valor = afv.id_activo_fijo_valor
+                    AND date_trunc('year', mdep11.fecha) = date_trunc('year', mov.fecha_mov)
+                    )
     WHERE dd.id_activo_fijo = maf.id_activo_fijo;
-
-
     --Fin #39
 
     ------------------------------
