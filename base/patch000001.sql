@@ -1701,3 +1701,8 @@ ALTER TABLE kaf.tmovimiento_af_especial
 ALTER TABLE kaf.tmovimiento_af_especial
 	ADD COLUMN observaciones VARCHAR(5000);
 /***********************************F-SCP-RCM-KAF-39-29/11/2019****************************************/
+
+/***********************************I-SCP-RCM-KAF-45-10/02/2020****************************************/
+ALTER TABLE kaf.tmovimiento_af_especail
+	ADD COLUMN costo_orig NUMERIC(18, 2);
+/***********************************F-SCP-RCM-KAF-45-10/02/2020****************************************/
