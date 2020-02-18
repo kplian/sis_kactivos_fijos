@@ -198,7 +198,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		return $this->respuesta;
 	}
 
-	function insertarMovimientoAfEspecialImportar(){
+	function insertarMovimientoAfEspecialImportar(){ 
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_especial_ime';
 		$this->transaccion='SKA_MOAFESMAS_INS';
@@ -241,7 +241,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-
+//echo $this->getConsulta();; exit;
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

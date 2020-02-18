@@ -15,6 +15,7 @@ $BODY$
  #2		KAF		ETR 		22-05-2019	RCM		Funcion que gestiona las operaciones basicas (inserciones, modIFicaciones, eliminaciones de la tabla 'kaf.tmovimiento_af_especial'
  #39    KAF     ETR         22-11-2019  RCM     Importación masiva Distribución de valores
  #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
+ #47    KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
 ***************************************************************************/
 
 DECLARE
@@ -376,11 +377,15 @@ BEGIN
             --Inicio #39
             IF NOT EXISTS (
                 SELECT 1
-                FROM kaf.tmovimiento_af maf
+                --Inicio #47
+                FROM kaf.tmovimiento_af_especial mesp
+                INNER JOIN kaf.tmovimiento_af maf
+                ON maf.id_movimiento_af = mesp.id_movimiento_af
                 INNER JOIN kaf.tmovimiento mov
                 ON mov.id_movimiento = maf.id_movimiento
-                WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af
+                WHERE mesp.id_movimiento_af_especial = v_parametros.id_movimiento_af_especial
                 AND mov.estado = 'borrador'
+                --Fin #47
             ) THEN
                 RAISE EXCEPTION 'El Movimiento debería estar en estado Borrador';
             END IF;
