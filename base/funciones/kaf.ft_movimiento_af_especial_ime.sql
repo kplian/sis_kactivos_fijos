@@ -1,8 +1,11 @@
 CREATE OR REPLACE FUNCTION kaf.ft_movimiento_af_especial_ime (
-	p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Activos Fijos
  FUNCION: 		kaf.ft_movimiento_af_especial_ime
@@ -15,8 +18,9 @@ $BODY$
  #2		KAF		ETR 		22-05-2019	RCM		Funcion que gestiona las operaciones basicas (inserciones, modIFicaciones, eliminaciones de la tabla 'kaf.tmovimiento_af_especial'
  #39    KAF     ETR         22-11-2019  RCM     Importación masiva Distribución de valores
  #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
+ #47    KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
+ #46	KAF		ETR			18-02-2020  MZM		Modificacion a funcion de importacion de movimientos especiales, dado que el valor en plantilla viene en base a valor actualizado y se debe obtener el valor en funcion al importe_neto
 ***************************************************************************/
-
 DECLARE
 
 	v_nro_requerimiento    		integer;
@@ -55,7 +59,10 @@ DECLARE
     v_marca                     VARCHAR;
     v_codigo_af_orig            VARCHAR;
     --Fin #38
-
+    --#46
+	v_monto_neto				numeric;
+    v_costo_orig				numeric;
+	--fin #46
 BEGIN
 
     v_nombre_funcion = 'kaf.ft_movimiento_af_especial_ime';
@@ -376,11 +383,15 @@ BEGIN
             --Inicio #39
             IF NOT EXISTS (
                 SELECT 1
-                FROM kaf.tmovimiento_af maf
+                --Inicio #47
+                FROM kaf.tmovimiento_af_especial mesp
+                INNER JOIN kaf.tmovimiento_af maf
+                ON maf.id_movimiento_af = mesp.id_movimiento_af
                 INNER JOIN kaf.tmovimiento mov
                 ON mov.id_movimiento = maf.id_movimiento
-                WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af
+                WHERE mesp.id_movimiento_af_especial = v_parametros.id_movimiento_af_especial
                 AND mov.estado = 'borrador'
+                --Fin #47
             ) THEN
                 RAISE EXCEPTION 'El Movimiento debería estar en estado Borrador';
             END IF;
@@ -537,14 +548,16 @@ BEGIN
             --------------------
             --Inicio #38
             --Obtención de importes del activo origen
-            SELECT COALESCE(importe, 0), af.codigo
-            INTO v_monto_actualiz, v_codigo_af_orig
+            SELECT COALESCE(importe, 0), af.codigo, coalesce(maf.depreciacion_acum,0) --#46
+            INTO v_monto_actualiz, v_codigo_af_orig, v_depreciacion_acum --#46
             FROM kaf.tmovimiento_af maf
             INNER JOIN kaf.tactivo_fijo af
             ON af.id_activo_fijo = maf.id_activo_fijo
             WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
             --Fin #38
 
+			v_monto_neto:=(v_monto_actualiz-v_depreciacion_acum); --#46
+           
             --Obtención de la moneda parametrizada
             SELECT id_moneda
             INTO v_id_moneda
@@ -555,30 +568,41 @@ BEGIN
                 RAISE EXCEPTION 'Falta la parametrización de la Moneda para movimientos (kaf_mov_especial_moneda)';
             END IF;
 
-            --Obtención del importe utilizado
-            SELECT COALESCE(SUM(importe), 0), COALESCE(v_monto_actualiz * SUM(porcentaje) / 100, 0)
+            --Obtención del importe utilizado --#46
+            SELECT COALESCE(SUM(importe), 0), coalesce(SUM(porcentaje),0) --COALESCE(v_monto_neto * SUM(porcentaje) / 100, 0) --COALESCE(v_monto_actualiz * SUM(porcentaje) / 100, 0)
             INTO v_monto_actualiz_usado, v_monto_actualiz_usado2
             FROM kaf.tmovimiento_af_especial
             WHERE id_movimiento_af = v_parametros.id_movimiento_af;
 
             --Obtención del nuevo valor a utilizar
             v_monto = 0;
+            v_costo_orig = 0; --#46
             IF COALESCE(v_parametros.importe, 0) > 0 THEN
-                v_monto = v_parametros.importe;
+                v_monto = round((v_parametros.importe*v_monto_neto/v_monto_actualiz),2);  --#46
+                v_costo_orig = v_parametros.importe; --#46
             END IF;
 
             IF COALESCE(v_parametros.porcentaje, 0) > 0 THEN
-                v_monto = v_monto_actualiz * v_parametros.porcentaje / 100;
+                --v_monto = v_monto_actualiz * v_parametros.porcentaje / 100;
+                v_monto = v_monto_neto * v_parametros.porcentaje / 100;
+                v_costo_orig = v_monto_actualiz * v_parametros.porcentaje / 100;
             END IF;
 
             --Control de no sobregiro
-            IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
-                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado, v_monto;
+            --IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
+			IF v_monto_actualiz_usado + v_monto > v_monto_neto THEN
+--                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado, v_monto;
+                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %), Monto Orig: %', v_codigo_af_orig, v_monto_neto, v_monto_actualiz_usado, v_monto, v_parametros.importe;
             END IF;
 
-            IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
-                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado2, v_monto;
-            END IF;
+           -- IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
+          /*  IF v_monto_actualiz_usado2 + v_monto > v_monto_neto THEN
+                RAISE EXCEPTION 'Se ****** ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_neto, v_monto_actualiz_usado2, v_monto;
+            END IF;*/
+            if v_monto_actualiz_usado2 + round((v_monto/v_monto_neto*100),2) > 100 then --#46
+            	raise exception 'Se ha superado el valor total del Activo Fijo Origen en porcentaje %. (Valor Original: %, Saldo Anterior Porcentual: %, Nuevo porcentaje: %)',v_codigo_af_orig,v_monto_neto, v_monto_actualiz_usado2, round((v_monto/v_monto_neto*100),2) ;
+            end if;
+            
 
             --Inicio #38
             --Nro Serie
@@ -669,17 +693,21 @@ BEGIN
 
             ------------
             --Inserción
-            ------------
+            ------------ 
+            
             IF v_parametros.opcion = 'porcentaje' THEN
                 v_porcentaje = v_parametros.porcentaje;
-                v_importe = v_monto_actualiz * v_parametros.porcentaje / 100;
+              --  v_importe = v_monto_actualiz * v_parametros.porcentaje / 100;  --#46
+				v_importe = v_monto_neto * v_parametros.porcentaje / 100; --#46
             END IF;
 
             IF v_parametros.opcion = 'importe' THEN
-                v_importe = v_parametros.importe;
-                v_porcentaje = v_parametros.importe * 100 / v_monto_actualiz;
+              --  v_importe = v_parametros.importe; --#46
+              --  v_porcentaje = v_parametros.importe * 100 / v_monto_actualiz;  --#46
+                  v_porcentaje = v_monto * 100 / v_monto_neto;  --#46
+                  v_importe = v_monto; --#46
             END IF;
-
+			
             INSERT INTO kaf.tmovimiento_af_especial(
             id_activo_fijo,
             id_movimiento_af,
@@ -715,6 +743,7 @@ BEGIN
             id_grupo_clasif,
             observaciones
             --Fin #38
+            , costo_orig
             ) VALUES (
             v_id_activo_fijo,
             v_parametros.id_movimiento_af,
@@ -750,6 +779,7 @@ BEGIN
             v_id_grupo_clasif,
             NULL
             --Fin #38
+            ,v_costo_orig
             ) RETURNING id_movimiento_af_especial INTO v_id_movimiento_af_especial;
 
             --Definicion de la respuesta
@@ -778,7 +808,8 @@ EXCEPTION
 		RAISE EXCEPTION '%', v_resp;
 
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
 COST 100;
 ALTER FUNCTION "kaf"."ft_movimiento_af_especial_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
