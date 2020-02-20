@@ -516,7 +516,7 @@ BEGIN
                     SELECT id_activo_fijo
                     INTO v_id_activo_fijo
                     FROM kaf.tactivo_fijo
-                    WHERE codigo = v_parametros.codigo_af;
+                    WHERE codigo = trim(v_parametros.codigo_af);--#46
 
                 END IF;
 
