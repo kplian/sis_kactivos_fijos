@@ -5351,3 +5351,15 @@ act.nro_cuenta,
 cta.id_cuenta,
 acc.id_centro_costo;
 /***********************************F-DEP-RCM-KAF-39-13/01/2020****************************************/
+
+/***********************************I-DEP-MZM-KAF-46-21/02/2020****************************************/
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN importe TYPE NUMERIC;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN importe DROP NOT NULL;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN costo_orig TYPE NUMERIC;
+/***********************************F-DEP-MZM-KAF-46-21/02/2020****************************************/
+  
