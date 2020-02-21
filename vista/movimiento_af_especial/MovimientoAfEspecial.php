@@ -11,6 +11,7 @@
  #2		KAF		ETR 		22-05-2019	RCM		Opción para traspasar valores de un activo fijo a otro
  #36	KAF		ETR 		21/10/2019	RCM		Modificación de proceso de División de Valores
  #39    KAF     ETR     	29-11-2019  RCM     Importación masiva Distribución de valores
+ #45	KAF		ETR			21-02-2020	MZM		Adicion de columna costo_orig
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -221,6 +222,25 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 			},
 			type: 'NumberField',
 			filters: {pfiltro: 'moafes.importe', type: 'numeric'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},{
+			config: {
+				name: 'costo_orig',
+				fieldLabel: 'Valor Original',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength: 1179650,
+				//Inicio #36
+				renderer: function(value, metadata, rec, index){
+		            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+		        }
+		        //Fin #36
+			},
+			type: 'NumberField',
+			filters: {pfiltro: 'moafes.costo_orig', type: 'numeric'},
 			id_grupo: 1,
 			grid: true,
 			form: true
@@ -910,6 +930,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{name:'desc_grupo_ae', type: 'string'},
 		{name:'desc_clasif_ae', type: 'string'}
 		//Fin #39
+		,{name:'costo_orig', type: 'numeric'}//#45
 	],
 	sortInfo: {
 		field: 'id_movimiento_af_especial',
