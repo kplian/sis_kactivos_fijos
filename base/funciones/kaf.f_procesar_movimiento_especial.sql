@@ -39,6 +39,17 @@ DECLARE
     v_cod_estado            VARCHAR;
     --Fin #39
 
+    --Inicio #48
+    v_vida_util             NUMERIC;
+    v_fecha_ini_dep         DATE;
+    v_monto_actualiz        NUMERIC;
+    v_depreciacion_acum     NUMERIC;
+    v_depreciacion_per      NUMERIC;
+    v_monto_vigente         NUMERIC;
+    v_monto_rescate         NUMERIC;
+    v_id_moneda_base        INTEGER;
+    --Fin #48
+
 BEGIN
 
 	--Nombre de la función
@@ -124,9 +135,9 @@ BEGIN
     ) ORIG
     WHERE DEST.id_activo_fijo_valor = ORIG.id_activo_fijo_valor;
 
-    ---------------------------------------------------------
+    --------------------------------------------------------------
     --2.2 Creación de nuevos AFVs de los activos fijos originales
-    ---------------------------------------------------------
+    --------------------------------------------------------------
     --Inicio RCM 07/11/2019
     --Obtención de la fecha
     SELECT
@@ -135,11 +146,9 @@ BEGIN
     v_fecha_mov
     FROM kaf.tmovimiento
     WHERE id_movimiento = p_id_movimiento;
-    --Fin RCM07/11/2019
+    --Fin RCM 07/11/2019
 
-    --Inicio #48
-
-    --Fin #48
+    v_id_moneda_base = param.f_get_moneda_base();--#48 Obtención de la moneda base
 
     FOR v_rec IN
     (
@@ -220,7 +229,7 @@ BEGIN
     ) LOOP
 
         --Verifica si el activo fijo original aun tiene saldo para definir como crear los nuevos AFVs
-        IF v_rec.saldo > 0 THEN
+        IF v_rec.saldo > 1 THEN
             --Existe saldo pendiente
             v_vida_util = v_rec.vida_util - 1;
             v_monto_actualiz = v_rec.monto_actualiz * v_rec.factor;
@@ -245,7 +254,7 @@ BEGIN
 
         --Parámetros generales que no dependen del saldo
         v_fecha_ini_dep = v_rec.fecha_mov;
-        v_monto_rescate = 1 * param.f_get_tipo_cambio_v2();
+        v_monto_rescate = 1 * param.f_get_tipo_cambio_v2(v_id_moneda_base, v_rec.id_moneda, v_fecha_mov, 'O');
 
         --Inserción del activo fijo valor
         INSERT INTO kaf.tactivo_fijo_valores(
@@ -260,15 +269,15 @@ BEGIN
         v_monto_vigente         , v_vida_util                           , v_fecha_ini_dep                   , v_depreciacion_per,
         v_depreciacion_acum     , v_monto_vigente                       , v_vida_util                       , 'activo',
         1                       , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
-        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_dep_acum, --RCM 07/11/2019
-        v_dep_per               , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
+        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_depreciacion_acum, --RCM 07/11/2019
+        v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
         );
 
     END LOOP;
-
-    -------------------------------
-    --CASO 1: ACTIVOS FIJOS NUEVOS
-    -------------------------------
+    raise exception 'FFFFFFFF';
+    -------------------------------------------------
+    --CASO 2.3: CREACIÓN DE LOS ACTIVOS FIJOS NUEVOS
+    -------------------------------------------------
     FOR v_rec IN INSERT INTO kaf.tactivo_fijo(
                     estado_reg,
                     fecha_compra,
@@ -312,7 +321,7 @@ BEGIN
                 af.id_deposito,
                 mafe.importe,--monto_compra_orig,
                 mafe.importe,
-                param.f_get_moneda_base(),
+                v_id_moneda_base,
                 mafe.denominacion,
                 maf.id_moneda,--id_moneda_orig,
                 mafe.fecha_ini_dep,
