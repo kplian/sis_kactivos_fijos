@@ -5362,4 +5362,58 @@ ALTER TABLE kaf.tmovimiento_af_especial
 ALTER TABLE kaf.tmovimiento_af_especial
   ALTER COLUMN costo_orig TYPE NUMERIC;
 /***********************************F-DEP-MZM-KAF-46-21/02/2020****************************************/
-  
+
+/***********************************I-DEP-RCM-KAF-52-05/03/2020****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_1_aux(
+    id_movimiento,
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    inc_actualiz,
+    inc_actualiz_ant,
+    id_moneda,
+    codigo_tcc)
+AS
+  SELECT rd.id_movimiento,
+         af.id_clasificacion,
+         cla.codigo_completo_tmp,
+         cla.nombre,
+         rd.inc_actualiz,
+         rda.inc_actualiz AS inc_actualiz_ant,
+         rd.id_moneda,
+         cc.codigo_tcc
+  FROM kaf.treporte_detalle_dep rd
+       JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = rd.id_activo_fijo
+       JOIN kaf.tclasificacion cla ON cla.id_clasificacion = af.id_clasificacion
+       LEFT JOIN param.vcentro_costo cc ON cc.id_centro_costo =
+         af.id_centro_costo
+       LEFT JOIN kaf.treporte_detalle_dep rda ON date_trunc('month'::text,
+         rda.fecha) = date_trunc('month'::text, rd.fecha - '1 mon'::interval)
+         AND rda.id_moneda = rd.id_moneda AND rda.id_activo_fijo =
+         rd.id_activo_fijo
+  WHERE rd.id_moneda = param.f_get_moneda_base();
+
+  CREATE OR REPLACE VIEW kaf.v_cbte_deprec_1(
+    id_clasificacion,
+    codigo_completo_tmp,
+    nombre,
+    monto_actualiz,
+    id_movimiento,
+    id_moneda,
+    codigo_tcc)
+AS
+  SELECT cd.id_clasificacion,
+         cd.codigo_completo_tmp,
+         cd.nombre,
+         sum(cd.inc_actualiz) - sum(cd.inc_actualiz_ant) AS monto_actualiz,
+         cd.id_movimiento,
+         cd.id_moneda,
+         cd.codigo_tcc
+  FROM kaf.v_cbte_deprec_1_aux cd
+  GROUP BY cd.id_clasificacion,
+           cd.codigo_completo_tmp,
+           cd.nombre,
+           cd.id_movimiento,
+           cd.id_moneda,
+           cd.codigo_tcc;
+/***********************************F-DEP-RCM-KAF-52-05/03/2020****************************************/
