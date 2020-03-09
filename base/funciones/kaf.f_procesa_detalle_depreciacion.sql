@@ -19,6 +19,8 @@ $body$
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum. que suman a la depreciación del mes y al incremento
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
  #39    KAF       ETR           20/11/2019  RCM         Inclusión traspasos para casos de distribución de valores
+ #49    KAF       ETR           02/03/2020  RCM         Corrección fórmula de incrementos en reporte detalle depreciación
+ #50    KAF       ETR           03/03/2020  RCM         Cambio en cálculo de AITB dep, AITB dep acum y los anuales
 ***************************************************************************/
 DECLARE
 
@@ -94,6 +96,7 @@ BEGIN
         traspaso_af numeric,
         traspaso_dep_acum numeric
         --Fin #39
+        , factor NUMERIC --#50
     ) ON COMMIT DROP;
 
     -------------------------
@@ -107,6 +110,7 @@ BEGIN
     id_activo_fijo_valor_original, codigo_ant,id_moneda, id_centro_costo, id_activo_fijo, codigo_activo, afecta_concesion,
     depreciacion, depreciacion_per_ant, importe_modif,
     aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
+    ,factor --#50
     )
     SELECT
     afv.id_activo_fijo_valor,
@@ -167,6 +171,7 @@ BEGIN
     mdep.aux_depmes_tot_del_inc,
     mdep.aux_inc_dep_acum_del_inc
     --Fin #33
+    , mdep.factor --#50
     FROM kaf.tmovimiento_af_dep mdep
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -189,6 +194,7 @@ BEGIN
     id_activo_fijo_valor_original,codigo_ant,id_moneda,id_centro_costo,id_activo_fijo,codigo_activo,afecta_concesion,
     depreciacion,depreciacion_per_ant,importe_modif,
     aux_depmes_tot_del_inc, aux_inc_dep_acum_del_inc --#33
+    , factor --#50
     )
     SELECT
     afv.id_activo_fijo_valor,
@@ -249,6 +255,7 @@ BEGIN
     mdep.aux_depmes_tot_del_inc,
     mdep.aux_inc_dep_acum_del_inc
     --Fin #33
+    , mdep.factor --#50
     FROM kaf.tmovimiento_af_dep mdep
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -280,6 +287,8 @@ BEGIN
     --AND afv.id_activo_fijo IN (55549,59098,59442,35888,55472,58936,58996,59152,59126,58879,48429,48434,48435,48430,47571,47572,47573,59061)
     AND DATE_TRUNC('year', af.fecha_baja) = DATE_TRUNC('year', p_fecha::date)
     AND DATE_TRUNC('month', af.fecha_baja) = DATE_TRUNC('month', afv.fecha_fin + '1 month'::interval);
+
+    --raise exception '%', (select sum(1) from tt_detalle_depreciacion where coalesce(factor, 0) <> 0);
 
     --------------------------
     --ACTUALIZACIÓN DE DATOS
@@ -472,6 +481,7 @@ BEGIN
         traspaso_af         numeric(24, 2),
         traspaso_dep_acum   numeric(24, 2)
         --Fin #29
+        , factor NUMERIC --#50
     ) ON COMMIT DROP;
 
     INSERT INTO tt_detalle_depreciacion_totales
@@ -515,9 +525,10 @@ BEGIN
     traspaso_af,
     traspaso_dep_acum
     --Fin #29
+    , factor --#50
     FROM tt_detalle_depreciacion;
 
-
+    --raise exception 'xx: %', (select sum(1) from tt_detalle_depreciacion_totales where coalesce(factor, 0) = 0);
 
 
     -------------------------
@@ -542,7 +553,7 @@ BEGIN
         FROM kaf.tactivo_fijo_cc acc
         WHERE DATE_TRUNC('month',mes) = DATE_TRUNC('month', p_fecha)
         GROUP BY acc.id_activo_fijo
-      )
+    )
     SELECT
     acc.id_activo_fijo, acc.id_centro_costo, acc.cantidad_horas, ah.total_hrs_af, tcc.codigo AS cc,
     SUM(acc.cantidad_horas / ah.total_hrs_af) OVER (PARTITION BY acc.id_activo_fijo, acc.id_centro_costo) * t.depreciacion AS dep_mes,
@@ -652,7 +663,7 @@ BEGIN
 
     --Inicio #34
     --Actualización depreciación acumulada (2do cbte)
-    UPDATE tt_detalle_depreciacion_totales DEP SET
+    /*UPDATE tt_detalle_depreciacion_totales DEP SET
     aitb_dep_acum = ANX.dep_acum_actualiz
     FROM kaf.v_cbte_deprec_actualiz_dep_acum_detalle ANX
     WHERE DEP.id_activo_fijo = ANX.id_activo_fijo
@@ -692,9 +703,8 @@ BEGIN
         WHERE id_movimiento::text = ANY (string_to_array(v_id_movimientos, ','))
         GROUP BY id_activo_fijo
     ) ANX
-    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;
+    WHERE DEP.id_activo_fijo = ANX.id_activo_fijo;*/
     --Fin #34
-
 
     --------------
     --QUERY FINAL
@@ -867,7 +877,6 @@ BEGIN
                                 )
             )
     AS cuenta_deprec,
-
     gr.nombre AS desc_grupo,
     gr1.nombre AS desc_grupo_clasif, --40
     cta.nro_cuenta || '-' ||cta.nombre_cuenta AS cuenta_dep_acum_dos,
@@ -896,6 +905,10 @@ BEGIN
     tt.nivel,
     tt.orden,
     tt.tipo --66
+    --Inicio #50
+    , NULL
+    , tt.factor
+    --Fin #50
     FROM tt_detalle_depreciacion_totales tt
     LEFT JOIN param.vcentro_costo cc
     ON cc.id_centro_costo = tt.id_centro_costo
@@ -918,7 +931,133 @@ BEGIN
     LEFT JOIN conta.tcuenta cta
     ON cta.nro_cuenta = act.nro_cuenta
     AND cta.id_gestion = (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', p_fecha))
+    and coalesce(tt.factor, 0) > 0
     ORDER BY tt.codigo;
+
+    --Inicio #49
+    UPDATE kaf.treporte_detalle_dep AA SET
+    inc_actualiz = DD.nuevo
+    FROM (
+        SELECT
+        id_activo_fijo, codigo, inc_actualiz, ROUND(monto_actualiz - monto_vigente_orig - af_altas - COALESCE(af_traspasos,0 ), 2) AS nuevo
+        FROM kaf.treporte_detalle_dep
+        WHERE DATE_TRUNC('month', fecha) = DATE_TRUNC('month', p_fecha)
+        AND id_moneda = v_id_moneda
+        AND ROUND(inc_actualiz, 2) <> ROUND(monto_actualiz - monto_vigente_orig - af_altas - COALESCE(af_traspasos,0 ), 2)
+        AND COALESCE(monto_actualiz, 0) <> 0
+    ) DD
+    WHERE DATE_TRUNC('month', AA.fecha) = DATE_TRUNC('month', p_fecha)
+    AND AA.id_moneda = v_id_moneda
+    AND AA.id_activo_fijo = DD.id_activo_fijo;
+
+    UPDATE kaf.treporte_detalle_dep AA SET
+    depreciacion_acum_actualiz_gest_ant = DD.nuevo
+    FROM (
+        SELECT
+        id_activo_fijo, codigo, depreciacion_acum_actualiz_gest_ant, ROUND(depreciacion_acum - depreciacion_acum_gest_ant - depreciacion - COALESCE(depreciacion_acum_traspasos, 0) + COALESCE(depreciacion_acum_bajas, 0), 2) AS nuevo
+        FROM kaf.treporte_detalle_dep
+        WHERE DATE_TRUNC('month', fecha) = DATE_TRUNC('month', p_fecha)
+        AND id_moneda = v_id_moneda
+        AND ROUND(COALESCE(depreciacion_acum_actualiz_gest_ant, 0), 2) <> ROUND(depreciacion_acum - depreciacion_acum_gest_ant - depreciacion - COALESCE(depreciacion_acum_traspasos, 0) + COALESCE(depreciacion_acum_bajas, 0), 2)
+    ) DD
+    WHERE DATE_TRUNC('month', AA.fecha) = DATE_TRUNC('month', p_fecha)
+    AND AA.id_moneda = v_id_moneda
+    AND AA.id_activo_fijo = DD.id_activo_fijo;
+
+    UPDATE kaf.treporte_detalle_dep AA SET
+    depreciacion_acum_gest_ant = DD.depreciacion_acum,
+    depreciacion_acum_actualiz_gest_ant = AA.depreciacion_acum - DD.depreciacion_acum - AA.depreciacion + AA.depreciacion_acum_traspasos
+    FROM (
+        WITH tdata AS (
+            SELECT
+            id_activo_fijo, codigo
+            FROM kaf.treporte_detalle_dep rd
+            WHERE DATE_TRUNC('month', rd.fecha) = DATE_TRUNC('month', p_fecha)
+            AND rd.id_moneda = v_id_moneda
+            AND COALESCE(rd.depreciacion_acum_gest_ant, 0) = 0
+        )
+        SELECT
+        afv1.codigo ,afv1.id_activo_fijo, mdep1.fecha, mdep1.depreciacion_acum
+        FROM kaf.tmovimiento_af_dep mdep
+        INNER JOIN kaf.tactivo_fijo_valores afv
+        ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+        INNER JOIN tdata da
+        ON da.id_activo_fijo = afv.id_activo_fijo
+        INNER JOIN kaf.tactivo_fijo_valores afv1
+        ON afv1.id_activo_fijo = da.id_activo_fijo
+        AND afv1.id_moneda = v_id_moneda
+        INNER JOIN kaf.tmovimiento_af_dep mdep1
+        ON mdep1.id_activo_fijo_valor = afv1.id_activo_fijo_valor
+        AND DATE_TRUNC('month', mdep1.fecha) = ('31-12-'|| DATE_PART('YEAR', p_fecha - INTERVAL '1 YEAR')::VARCHAR)::DATE
+        WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', p_fecha)
+        AND mdep.id_moneda = v_id_moneda
+    ) DD
+    WHERE DATE_TRUNC('month', AA.fecha) = DATE_TRUNC('month', p_fecha)
+    AND AA.id_moneda = v_id_moneda
+    AND AA.id_activo_fijo = DD.id_activo_fijo;
+    --Fin #49
+
+    --Se corrige lo de arriba cambiando a la nueva lógica
+    --Inicio #50
+    UPDATE kaf.treporte_detalle_dep AA SET
+    aitb_dep_acum = ROUND(DD.aitb_dep_acum, 2),
+    aitb_dep = ROUND(DD.aitb_dep, 2),
+    aitb_dep_acum_anual = ROUND(DD.aitb_dep_acum_anual, 2),
+    aitb_dep_anual = ROUND(DD.aitb_dep_anual, 2)
+    FROM (
+        WITH tant AS (
+            SELECT
+            rd.codigo, rd.aitb_dep_acum, rd.depreciacion_acum, rd.depreciacion
+            FROM kaf.treporte_detalle_dep rd
+            WHERE DATE_TRUNC('month', rd.fecha) = DATE_TRUNC('month', p_fecha - INTERVAL '1 month')
+            AND rd.id_moneda = v_id_moneda
+        ), tant_acum AS (
+            SELECT
+            rd.codigo, SUM(rd.aitb_dep_acum) AS aitb_dep_acum_total, SUM(rd.aitb_dep) AS aitb_dep_total
+            FROM kaf.treporte_detalle_dep rd
+            WHERE DATE_TRUNC('month', rd.fecha) < DATE_TRUNC('month', p_fecha)
+            AND DATE_TRUNC('month', rd.fecha) >= DATE_TRUNC('year', p_fecha)
+            AND rd.id_moneda = v_id_moneda
+            GROUP BY rd.codigo
+        )
+        SELECT
+        rd.codigo,
+        CASE DATE_PART('month', rd.fecha)
+            WHEN 1 THEN
+                rd.depreciacion_acum * rd.factor - rd.depreciacion_acum
+            ELSE
+                COALESCE(ta.depreciacion_acum, 0) * rd.factor - COALESCE(ta.depreciacion_acum, 0)
+        END AS aitb_dep_acum,
+        CASE DATE_PART('month', rd.fecha)
+            WHEN 1 THEN
+                rd.depreciacion_acum * rd.factor - rd.depreciacion_acum
+            ELSE
+                COALESCE(ta.depreciacion_acum, 0) * rd.factor - COALESCE(ta.depreciacion_acum, 0) + COALESCE(tac.aitb_dep_acum_total, 0)
+        END AS aitb_dep_acum_anual,
+        CASE DATE_PART('month', rd.fecha)
+            WHEN 1 THEN
+                rd.depreciacion * rd.factor - rd.depreciacion
+            ELSE
+                COALESCE(ta.depreciacion, 0) * rd.factor - COALESCE(ta.depreciacion, 0)
+        END AS aitb_dep,
+        CASE DATE_PART('month', rd.fecha)
+            WHEN 1 THEN
+                rd.depreciacion * rd.factor - rd.depreciacion
+            ELSE
+                COALESCE(ta.depreciacion, 0) * rd.factor - COALESCE(ta.depreciacion, 0) + COALESCE(tac.aitb_dep_total, 0)
+        END AS aitb_dep_anual
+        FROM kaf.treporte_detalle_dep rd
+        LEFT JOIN tant ta
+        ON ta.codigo = rd.codigo
+        LEFT JOIN tant_acum tac
+        ON tac.codigo = rd.codigo
+        WHERE DATE_TRUNC('month', rd.fecha) = DATE_TRUNC('month', p_fecha)
+        AND rd.id_moneda = v_id_moneda
+    ) DD
+    WHERE DATE_TRUNC('month', AA.fecha) = DATE_TRUNC('month', p_fecha)
+    AND AA.id_moneda = v_id_moneda
+    AND AA.codigo = DD.codigo;
+    --Fin #50
 
     ------------
     --RESPUESTA
@@ -943,4 +1082,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION kaf.f_procesa_detalle_depreciacion (p_id_usuario integer, p_fecha date, p_id_moneda_dep integer)
+  OWNER TO postgres;
