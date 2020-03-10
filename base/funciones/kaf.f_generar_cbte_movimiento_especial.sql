@@ -153,6 +153,7 @@ BEGIN
     -------------------------------
     --1 Caso activos fijos nuevos
     -------------------------------
+    /* --comentado rcm tmp 29/01/2020
     INSERT INTO tt_transaccion
     WITH tclasif_rel AS (
         SELECT
@@ -375,6 +376,212 @@ BEGIN
              OR rc_af.id_partida <> rc_af1.id_partida
         )
 
+    ) dt
+    WHERE tr.id_trans = dt.id_movimiento_af_especial;*/ --comentado temp rcm 29/01/2020
+
+    INSERT INTO tt_transaccion
+    WITH tclasif_rel AS (
+        SELECT
+        rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
+        (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
+        FROM conta.ttabla_relacion_contable tb
+        JOIN conta.ttipo_relacion_contable trc
+        ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+        JOIN conta.trelacion_contable rc
+        ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+        WHERE tb.esquema::text = 'KAF'
+        AND tb.tabla::text = 'tclasificacion'
+    )
+    SELECT DISTINCT
+    mesp.id_movimiento_af_especial,
+    rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
+    rc_af1.id_cuenta, rc_af1.id_partida, af.id_centro_costo,
+    rc_dacum.id_cuenta, rc_dacum.id_partida, af.id_centro_costo,
+    rc_dacum1.id_cuenta, rc_dacum1.id_partida, mesp.id_centro_costo,
+    0, afv.monto_vigente_orig, 0, --#36 cambio orden
+    0, 0, 0, --#36 cambio orden
+    mesp.tipo,
+    (af.codigo || ' => ' || mesp.id_movimiento_af_especial::varchar || ' (' || mesp.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
+    NULL::integer, NULL::integer, NULL::integer, NULL::integer --#36
+    FROM kaf.tmovimiento_af maf
+    INNER JOIN kaf.tmovimiento_af_especial mesp
+    ON mesp.id_movimiento_af = maf.id_movimiento_af
+    AND mesp.tipo = 'af_nuevo'
+    INNER JOIN kaf.tactivo_fijo af
+    ON af.id_activo_fijo = mesp.id_activo_fijo
+    INNER JOIN kaf.tactivo_fijo_valores afv
+    ON afv.id_activo_fijo = af.id_activo_fijo
+    AND afv.id_moneda = mesp.id_moneda
+    INNER JOIN tclasif_rel clr
+    ON mesp.id_clasificacion = ANY(clr.nodos)
+    AND clr.codigo = 'ALTAAF'
+    INNER JOIN conta.trelacion_contable rc_af
+    ON rc_af.id_tabla = clr.id_clasificacion
+    AND rc_af.estado_reg = 'activo'
+    AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
+    AND rc_af.id_gestion = v_id_gestion
+    INNER JOIN tclasif_rel clr1
+    ON af.id_clasificacion = ANY(clr1.nodos)
+    AND clr1.codigo = 'ALTAAF'
+    INNER JOIN conta.trelacion_contable rc_af1
+    ON rc_af1.id_tabla = clr1.id_clasificacion
+    AND rc_af1.estado_reg = 'activo'
+    AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
+    AND rc_af1.id_gestion = v_id_gestion
+    INNER JOIN tclasif_rel clrdacum
+    ON mesp.id_clasificacion = ANY(clrdacum.nodos)
+    AND clrdacum.codigo = 'DEPACCLAS'
+    INNER JOIN conta.trelacion_contable rc_dacum
+    ON rc_dacum.id_tabla = clrdacum.id_clasificacion
+    AND rc_dacum.estado_reg = 'activo'
+    AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
+    AND rc_dacum.id_gestion = v_id_gestion
+    INNER JOIN tclasif_rel clrdacum1
+    ON af.id_clasificacion = ANY(clrdacum1.nodos)
+    AND clrdacum1.codigo = 'DEPACCLAS'
+    INNER JOIN conta.trelacion_contable rc_dacum1
+    ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
+    AND rc_dacum1.estado_reg = 'activo'
+    AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
+    AND rc_dacum1.id_gestion = v_id_gestion
+    WHERE maf.id_movimiento = p_id_movimiento;
+
+
+UPDATE tt_transaccion tr SET
+    importe_ufv = dt.monto_vigente_orig,
+    depreciacion_acum_ufv = dt.depreciacion_acum_inicial
+    FROM (
+        WITH tclasif_rel AS (
+            SELECT
+            rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
+            (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
+            FROM conta.ttabla_relacion_contable tb
+            JOIN conta.ttipo_relacion_contable trc
+            ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+            JOIN conta.trelacion_contable rc
+            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+            WHERE tb.esquema::text = 'KAF'
+            AND tb.tabla::text = 'tclasificacion'
+            AND trc.codigo_tipo_relacion in ('ALTAAF','DEPACCLAS')
+        )
+        SELECT DISTINCT
+        mesp.id_movimiento_af_especial,
+        afv.id_moneda, afv.monto_vigente_orig, 0 as depreciacion_acum_inicial,
+        0 as depreciacion_per_inicial,
+        mesp.id_centro_costo, rc_af.id_partida, rc_af.id_cuenta, rc_af.id_relacion_contable,
+        rc_af1.id_partida, rc_af1.id_cuenta, rc_af1.id_relacion_contable
+        FROM kaf.tmovimiento_af maf
+        INNER JOIN kaf.tmovimiento_af_especial mesp
+        ON mesp.id_movimiento_af = maf.id_movimiento_af
+        AND mesp.tipo = 'af_nuevo'
+        INNER JOIN kaf.tactivo_fijo af
+        ON af.id_activo_fijo = mesp.id_activo_fijo
+        INNER JOIN kaf.tactivo_fijo_valores afv
+        ON afv.id_activo_fijo = af.id_activo_fijo
+        AND afv.id_moneda = v_id_moneda_ufv
+        INNER JOIN tclasif_rel clr
+        ON mesp.id_clasificacion = ANY(clr.nodos)
+        AND clr.codigo = 'ALTAAF'
+        INNER JOIN conta.trelacion_contable rc_af
+        ON rc_af.id_tabla = clr.id_clasificacion
+        AND rc_af.estado_reg = 'activo'
+        AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
+        AND rc_af.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clr1
+        ON af.id_clasificacion = ANY(clr1.nodos)
+        AND clr1.codigo = 'ALTAAF'
+        INNER JOIN conta.trelacion_contable rc_af1
+        ON rc_af1.id_tabla = clr1.id_clasificacion
+        AND rc_af1.estado_reg = 'activo'
+        AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
+        AND rc_af1.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clrdacum
+        ON mesp.id_clasificacion = ANY(clrdacum.nodos)
+        AND clrdacum.codigo = 'DEPACCLAS'
+        INNER JOIN conta.trelacion_contable rc_dacum
+        ON rc_dacum.id_tabla = clrdacum.id_clasificacion
+        AND rc_dacum.estado_reg = 'activo'
+        AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
+        AND rc_dacum.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clrdacum1
+        ON af.id_clasificacion = ANY(clrdacum1.nodos)
+        AND clrdacum1.codigo = 'DEPACCLAS'
+        INNER JOIN conta.trelacion_contable rc_dacum1
+        ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
+        AND rc_dacum1.estado_reg = 'activo'
+        AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
+        AND rc_dacum1.id_gestion = v_id_gestion
+        WHERE maf.id_movimiento = p_id_movimiento
+
+    ) dt
+    WHERE tr.id_trans = dt.id_movimiento_af_especial;
+
+
+    UPDATE tt_transaccion tr SET
+    importe_bs = dt.monto_vigente_orig,
+    depreciacion_acum_bs = dt.depreciacion_acum_inicial
+    FROM (
+        WITH tclasif_rel AS (
+            SELECT
+            rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
+            (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
+            FROM conta.ttabla_relacion_contable tb
+            JOIN conta.ttipo_relacion_contable trc
+            ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+            JOIN conta.trelacion_contable rc
+            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+            WHERE tb.esquema::text = 'KAF'
+            AND tb.tabla::text = 'tclasificacion'
+            AND trc.codigo_tipo_relacion in ('ALTAAF','DEPACCLAS')
+        )
+        SELECT DISTINCT
+        mesp.id_movimiento_af_especial,
+        afv.id_moneda, afv.monto_vigente_orig, 0 as depreciacion_acum_inicial,
+        0 as depreciacion_per_inicial,
+        mesp.id_centro_costo, rc_af.id_partida, rc_af.id_cuenta, rc_af.id_relacion_contable,
+        rc_af1.id_partida, rc_af1.id_cuenta, rc_af1.id_relacion_contable
+        FROM kaf.tmovimiento_af maf
+        INNER JOIN kaf.tmovimiento_af_especial mesp
+        ON mesp.id_movimiento_af = maf.id_movimiento_af
+        AND mesp.tipo = 'af_nuevo'
+        INNER JOIN kaf.tactivo_fijo af
+        ON af.id_activo_fijo = mesp.id_activo_fijo
+        INNER JOIN kaf.tactivo_fijo_valores afv
+        ON afv.id_activo_fijo = af.id_activo_fijo
+        AND afv.id_moneda = v_id_moneda_bs
+        INNER JOIN tclasif_rel clr
+        ON mesp.id_clasificacion = ANY(clr.nodos)
+        AND clr.codigo = 'ALTAAF'
+        INNER JOIN conta.trelacion_contable rc_af
+        ON rc_af.id_tabla = clr.id_clasificacion
+        AND rc_af.estado_reg = 'activo'
+        AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
+        AND rc_af.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clr1
+        ON af.id_clasificacion = ANY(clr1.nodos)
+        AND clr1.codigo = 'ALTAAF'
+        INNER JOIN conta.trelacion_contable rc_af1
+        ON rc_af1.id_tabla = clr1.id_clasificacion
+        AND rc_af1.estado_reg = 'activo'
+        AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
+        AND rc_af1.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clrdacum
+        ON mesp.id_clasificacion = ANY(clrdacum.nodos)
+        AND clrdacum.codigo = 'DEPACCLAS'
+        INNER JOIN conta.trelacion_contable rc_dacum
+        ON rc_dacum.id_tabla = clrdacum.id_clasificacion
+        AND rc_dacum.estado_reg = 'activo'
+        AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
+        AND rc_dacum.id_gestion = v_id_gestion
+        INNER JOIN tclasif_rel clrdacum1
+        ON af.id_clasificacion = ANY(clrdacum1.nodos)
+        AND clrdacum1.codigo = 'DEPACCLAS'
+        INNER JOIN conta.trelacion_contable rc_dacum1
+        ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
+        AND rc_dacum1.estado_reg = 'activo'
+        AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
+        AND rc_dacum1.id_gestion = v_id_gestion
+        WHERE maf.id_movimiento = p_id_movimiento
     ) dt
     WHERE tr.id_trans = dt.id_movimiento_af_especial;
 
@@ -1239,7 +1446,10 @@ BEGIN
     p_id_usuario,
     now(),
     t.glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion t;
+    FROM tt_transaccion t
+    WHERE COALESCE(t.depreciacion_acum_bs, 0) > 0
+    OR COALESCE(t.depreciacion_acum_usd, 0) > 0
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0;
 
     --Inicio #37
     --Haber: Depreciación acumulada
@@ -1295,7 +1505,10 @@ BEGIN
     p_id_usuario,
     now(),
     t.glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion t;
+    FROM tt_transaccion t
+    WHERE COALESCE(t.depreciacion_acum_bs, 0) > 0
+    OR COALESCE(t.depreciacion_acum_usd, 0) > 0
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0;
     --Fin #37
 
     --Haber: Monto activo fijo
@@ -1352,7 +1565,11 @@ BEGIN
     p_id_usuario,
     now(),
     t.glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion t;
+    FROM tt_transaccion t
+    WHERE COALESCE(t.importe_bs, 0) > 0
+    OR COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0;
+
 
     --Inicio #37
     --Debe: Contracuenta 1/2 DEL activo fijo sólo parcial. Se pone en USD y UFV el monto ya definido, en caso de BS se hace la conversión de USD a BS. La diferencia q existe entre
@@ -1409,7 +1626,9 @@ BEGIN
     p_id_usuario,
     now(),
     t.glosa
-    FROM tt_transaccion t;
+    FROM tt_transaccion t
+    WHERE COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0;
 
     --Debe: Contracuenta 2/2 del activo de la transacción en BS por la actualización (sólo BS)
     INSERT INTO conta.tint_transaccion
@@ -1466,7 +1685,9 @@ BEGIN
     now(),
     t.glosa,
     'si'
-    FROM tt_transaccion t;
+    FROM tt_transaccion t
+    WHERE COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_bs, 0) > 0;
     --Fin #37
 
 

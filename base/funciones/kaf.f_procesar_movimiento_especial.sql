@@ -16,6 +16,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           30/05/2019  RCM         Creación del archivo
  #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se aumenta parámetro id_tipo_estado
+ #48    KAF       ETR           11/02/2020  RCM         Modificación de la finalización y creación de nuevos AFV de activos fijos originales
 ***************************************************************************
 */
 DECLARE
@@ -37,6 +38,17 @@ DECLARE
     v_monto_act_inicial     NUMERIC; --07/11/2019
     v_cod_estado            VARCHAR;
     --Fin #39
+
+    --Inicio #48
+    v_vida_util             NUMERIC;
+    v_fecha_ini_dep         DATE;
+    v_monto_actualiz        NUMERIC;
+    v_depreciacion_acum     NUMERIC;
+    v_depreciacion_per      NUMERIC;
+    v_monto_vigente         NUMERIC;
+    v_monto_rescate         NUMERIC;
+    v_id_moneda_base        INTEGER;
+    --Fin #48
 
 BEGIN
 
@@ -90,7 +102,7 @@ BEGIN
     END IF;
 
     --------------------------------------------------------------------
-    --Finalización AFV de activos fijos originales kaf.tmovimiento_af en todas las monedas
+    --2.1 Finalización AFV de activos fijos originales kaf.tmovimiento_af en todas las monedas (verificado ..ok)
     --------------------------------------------------------------------
     UPDATE kaf.tactivo_fijo_valores DEST SET
     fecha_fin = ORIG.fecha_mov,
@@ -123,91 +135,9 @@ BEGIN
     ) ORIG
     WHERE DEST.id_activo_fijo_valor = ORIG.id_activo_fijo_valor;
 
-    ---------------------------------------------------------
-    --Creación de nuevos AFVs de los activos fijos originales
-    ---------------------------------------------------------
-    /*insert into kaf.tactivo_fijo_valores(
-        id_usuario_reg,
-        fecha_reg,
-        estado_reg,
-        id_activo_fijo,
-        monto_vigente_orig,
-        vida_util_orig,
-        fecha_ini_dep,
-        depreciacion_per,
-        depreciacion_acum,
-        monto_vigente,
-        vida_util,
-        estado,
-        monto_rescate,
-        tipo,
-        fecha_inicio,
-        id_moneda_dep,
-        id_moneda,
-        monto_vigente_orig_100,
-        monto_vigente_actualiz_inicial,
-        depreciacion_acum_inicial,
-        depreciacion_per_inicial
-    )
-    WITH tult_dep AS (
-        SELECT
-        afv.id_activo_fijo,
-        MAX(mdep.fecha) AS fecha_max
-        FROM kaf.tmovimiento_af_dep mdep
-        INNER JOIN kaf.tactivo_fijo_valores afv
-        ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
-        GROUP BY afv.id_activo_fijo
-    )
-    SELECT
-    p_id_usuario,
-    now(),
-    'activo',
-    maf.id_activo_fijo,
-    CASE mdep.id_moneda
-        WHEN v_id_moneda THEN mdep.monto_actualiz - mafe.importe
-        ELSE mdep.monto_actualiz - (mdep.monto_actualiz * mafe.porcentaje / 100)
-    END AS monto_vigente_orig,
-    mdep.vida_util,
-    mov.fecha_mov,
-    mdep.depreciacion_per - (mdep.depreciacion_per * mafe.porcentaje / 100),
-    mdep.depreciacion_acum - (mdep.depreciacion_acum * mafe.porcentaje / 100),
-    CASE mdep.id_moneda
-        WHEN v_id_moneda THEN mdep.monto_actualiz - mafe.importe
-        ELSE mdep.monto_actualiz - (mdep.monto_actualiz * mafe.porcentaje / 100)
-    END AS monto_vigente,
-    mdep.vida_util,
-    'activo',
-    0.45,
-    'dval',
-    mov.fecha_mov,
-    mod.id_moneda_dep,
-    mdep.id_moneda,
-    CASE mdep.id_moneda
-        WHEN v_id_moneda THEN mdep.monto_actualiz - mafe.importe
-        ELSE mdep.monto_actualiz - (mdep.monto_actualiz * mafe.porcentaje / 100)
-    END AS monto_vigente_orig_100,
-    CASE mdep.id_moneda
-        WHEN v_id_moneda THEN mdep.monto_actualiz - mafe.importe
-        ELSE mdep.monto_actualiz - (mdep.monto_actualiz * mafe.porcentaje / 100)
-    END AS monto_vigente_actualiz_inicial,
-    mdep.depreciacion_acum - (mdep.depreciacion_acum * mafe.porcentaje / 100),
-    mdep.depreciacion_per - (mdep.depreciacion_per * mafe.porcentaje / 100)
-    FROM kaf.tmovimiento mov
-    INNER JOIN kaf.tmovimiento_af maf
-    ON maf.id_movimiento = mov.id_movimiento
-    INNER JOIN kaf.tmovimiento_af_especial mafe
-    ON mafe.id_movimiento_af = maf.id_movimiento_af
-    INNER JOIN kaf.tactivo_fijo_valores afv
-    ON afv.id_activo_fijo = maf.id_activo_fijo
-    INNER JOIN tult_dep dult
-    ON dult.id_activo_fijo = afv.id_activo_fijo
-    INNER JOIN kaf.tmovimiento_af_dep mdep
-    ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
-    AND mdep.fecha = dult.fecha_max
-    INNER JOIN kaf.tmoneda_dep mod
-    ON mod.id_moneda = mdep.id_moneda
-    WHERE mov.id_movimiento = p_id_movimiento;*/
-
+    --------------------------------------------------------------
+    --2.2 Creación de nuevos AFVs de los activos fijos originales
+    --------------------------------------------------------------
     --Inicio RCM 07/11/2019
     --Obtención de la fecha
     SELECT
@@ -216,25 +146,67 @@ BEGIN
     v_fecha_mov
     FROM kaf.tmovimiento
     WHERE id_movimiento = p_id_movimiento;
+    --Fin RCM 07/11/2019
 
-
-    --Fin RCM07/11/2019
+    v_id_moneda_base = param.f_get_moneda_base();--#48 Obtención de la moneda base
 
     FOR v_rec IN
     (
         WITH tult_dep AS (
+            --Fecha de la última depreciación para obtener información de los activos fijos originales
             SELECT
             afv.id_activo_fijo,
             MAX(mdep.fecha) AS fecha_max
             FROM kaf.tmovimiento_af_dep mdep
             INNER JOIN kaf.tactivo_fijo_valores afv
             ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+            INNER JOIN kaf.tmovimiento_af maf
+            ON maf.id_activo_fijo = afv.id_activo_fijo
+            WHERE maf.id_movimiento = p_id_movimiento
             GROUP BY afv.id_activo_fijo
+        ), tmonto_orig AS (
+            --Monto actualizado total por activo fijo original para calcular saldo si hubiera
+            WITH tult_dep AS (
+              SELECT
+              afv.id_activo_fijo,
+              MAX(mdep.fecha) AS fecha_max
+              FROM kaf.tmovimiento_af_dep mdep
+              INNER JOIN kaf.tactivo_fijo_valores afv
+              ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+              INNER JOIN kaf.tmovimiento_af maf
+              ON maf.id_activo_fijo = afv.id_activo_fijo
+              WHERE maf.id_movimiento = p_id_movimiento
+              GROUP BY afv.id_activo_fijo
+            )
+            SELECT
+            maf.id_movimiento, maf.id_activo_fijo, SUM(mdep.monto_actualiz) as valor_actualiz
+            FROM kaf.tmovimiento_af maf
+            INNER JOIN kaf.tactivo_fijo_valores afv
+            ON afv.id_activo_fijo = maf.id_activo_fijo
+            INNER JOIN kaf.tmovimiento_af_dep mdep
+            ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+            INNER JOIN tult_dep udep
+            ON udep.id_activo_fijo = afv.id_activo_fijo
+            AND udep.fecha_max = mdep.fecha
+            WHERE maf.id_movimiento = p_id_movimiento
+            AND afv.id_moneda = v_id_moneda
+            GROUP BY maf.id_movimiento, maf.id_activo_fijo
+        ), tdistribucion AS (
+            --Importe total (monto actualizado) registrado para la distribución, para posterior cálculo de saldo
+            SELECT
+            maf.id_movimiento, maf.id_activo_fijo, SUM(mesp.costo_orig) as costo_af
+            FROM kaf.tmovimiento_af_especial mesp
+            INNER JOIN kaf.tmovimiento_af maf
+            ON maf.id_movimiento_af = mesp.id_movimiento_af
+            WHERE maf.id_movimiento =  p_id_movimiento
+            GROUP BY maf.id_movimiento, maf.id_activo_fijo
         )
         SELECT
         mdep.id_moneda, mdep.monto_actualiz, mdep.depreciacion_acum, mdep.depreciacion_per,
         afv.id_activo_fijo, afv.id_activo_fijo_valor,
-        mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act
+        mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act,
+        vn.valor_actualiz - td.costo_af as saldo,
+        (vn.valor_actualiz - td.costo_af) / vn.valor_actualiz as factor
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento mov
         ON mov.id_movimiento = maf.id_movimiento
@@ -247,43 +219,42 @@ BEGIN
         AND udep.fecha_max = mdep.fecha
         INNER JOIN kaf.tmoneda_dep mod
         ON mod.id_moneda = mdep.id_moneda
+        INNER JOIN tmonto_orig vn
+        ON vn.id_movimiento = maf.id_movimiento
+        AND vn.id_activo_fijo = maf.id_activo_fijo
+        INNER JOIN tdistribucion td
+        ON td.id_movimiento = maf.id_movimiento
+        AND td.id_activo_fijo = maf.id_activo_fijo
         WHERE maf.id_movimiento = p_id_movimiento
     ) LOOP
 
-        --v_tc_ini = kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda_dep, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE);
-        --v_tc_fin = kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda_dep, v_tipo_cambio_anterior,  (DATE_TRUNC('month', v_fecha_mov + INTERVAL '1 month') - INTERVAL '1 day')::DATE);
+        --Verifica si el activo fijo original aun tiene saldo para definir como crear los nuevos AFVs
+        IF v_rec.saldo > 1 THEN
+            --Existe saldo pendiente
+            v_vida_util = v_rec.vida_util - 1;
+            v_monto_actualiz = v_rec.monto_actualiz * v_rec.factor;
+            v_depreciacion_acum = v_rec.depreciacion_acum * v_rec.factor;
+            v_depreciacion_per = v_rec.depreciacion_per * v_rec.factor;
 
-        SELECT
-        o_tc_inicial, o_tc_final
-        INTO v_tc_ini, v_tc_fin
-        FROM kaf.f_get_tipo_cambio(COALESCE(v_rec.id_moneda_act, v_rec.id_moneda), v_rec.id_moneda, NULL, DATE_TRUNC('month', v_fecha_mov)::DATE);
+            IF v_rec.id_moneda = v_id_moneda THEN
+                v_monto_actualiz = v_rec.saldo;
+            END IF;
 
-        --Obtener el total del detalle en cada moneda
-        SELECT
-        SUM(mafe.importe) as total_importe,
-        SUM(mafe.porcentaje) as total_porcentaje
-        INTO v_rec_af
-        FROM kaf.tmovimiento_af maf
-        INNER JOIN kaf.tmovimiento_af_especial mafe
-        ON mafe.id_movimiento_af = maf.id_movimiento_af
-        WHERE maf.id_movimiento = p_id_movimiento
-        AND maf.id_activo_fijo = v_rec.id_activo_fijo
-        GROUP BY maf.id_movimiento, maf.id_activo_fijo, mafe.id_moneda;
+            v_monto_vigente = v_monto_actualiz - v_depreciacion_acum;
+        ELSE
+            --Saldo cero
+            v_vida_util = 0;
+            v_fecha_ini_dep = v_rec.fecha_mov;
+            v_monto_actualiz = v_rec.depreciacion_acum;
+            v_depreciacion_acum = v_rec.depreciacion_acum;
+            v_depreciacion_per = v_rec.depreciacion_per;
+            v_monto_vigente = v_rec.depreciacion_acum;
 
-        --Obtiene los valores nuevos, restando del total registrado en el detalle
-        v_monto_act = v_rec.monto_actualiz - (v_rec.monto_actualiz * v_rec_af.total_porcentaje / 100);
-        v_dep_acum = v_rec.depreciacion_acum - (v_rec.depreciacion_acum * v_rec_af.total_porcentaje / 100);
-        v_dep_per = v_rec.depreciacion_per - (v_rec.depreciacion_per * v_rec_af.total_porcentaje / 100);
-
-        --Inicio RCM 07/11/2019: Actualiza el valor inicial para el caso de Bolivianos
-        --v_monto_act_inicial = v_monto_act;
-        --IF v_rec.id_moneda = param.f_get_moneda_base() THEN
-        IF v_id_moneda = v_rec.id_moneda THEN
-            v_monto_act = v_rec.monto_actualiz - v_rec_af.total_importe;
         END IF;
-        v_monto_act_inicial = v_monto_act; -- * v_tc_fin / v_tc_ini; --comentado temporalmente consultar con freddy arnez (24/11/2019)
-        --END IF;
-        --Fin RCM 07/11/2019
+
+        --Parámetros generales que no dependen del saldo
+        v_fecha_ini_dep = v_rec.fecha_mov;
+        v_monto_rescate = 1 * param.f_get_tipo_cambio_v2(v_id_moneda_base, v_rec.id_moneda, v_fecha_mov, 'O');
 
         --Inserción del activo fijo valor
         INSERT INTO kaf.tactivo_fijo_valores(
@@ -295,18 +266,18 @@ BEGIN
         depreciacion_per_inicial, mov_esp
         ) VALUES (
         p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
-        v_monto_act             , v_rec.vida_util                       , v_rec.fecha_mov                   , v_dep_per,
-        v_dep_acum              , v_monto_act                           , v_rec.vida_util                   , 'activo',
+        v_monto_vigente         , v_vida_util                           , v_fecha_ini_dep                   , v_depreciacion_per,
+        v_depreciacion_acum     , v_monto_vigente                       , v_vida_util                       , 'activo',
         1                       , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
-        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_dep_acum, --RCM 07/11/2019
-        v_dep_per               , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
+        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_depreciacion_acum, --RCM 07/11/2019
+        v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
         );
 
     END LOOP;
-
-    -------------------------------
-    --CASO 1: ACTIVOS FIJOS NUEVOS
-    -------------------------------
+    raise exception 'FFFFFFFF';
+    -------------------------------------------------
+    --CASO 2.3: CREACIÓN DE LOS ACTIVOS FIJOS NUEVOS
+    -------------------------------------------------
     FOR v_rec IN INSERT INTO kaf.tactivo_fijo(
                     estado_reg,
                     fecha_compra,
@@ -350,7 +321,7 @@ BEGIN
                 af.id_deposito,
                 mafe.importe,--monto_compra_orig,
                 mafe.importe,
-                param.f_get_moneda_base(),
+                v_id_moneda_base,
                 mafe.denominacion,
                 maf.id_moneda,--id_moneda_orig,
                 mafe.fecha_ini_dep,

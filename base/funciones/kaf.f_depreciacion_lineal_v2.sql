@@ -18,6 +18,7 @@ $body$
  #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
  #39    KAF       ETR           29/11/2019  RCM         Lógica para considerar valores iniciales seteados en primera depreciación
+ #51    KAF       ETR           04/12/2020  RCM         Modificación de monto inicial para ejecutar la depreciación
 ***************************************************************************/
 DECLARE
 
@@ -59,16 +60,10 @@ BEGIN
 
     v_nombre_funcion = 'kaf.f_depreciacion_lineal_v2';
 
-    --RAC 03/03/2017
-    --TODO validar que no se valores dos veces dentro el mismo omvimeinto
-    --talvez eliminar la depreciacion del movimiento antes de empezar ...
-
+    --Eliminar la depreciacion del movimiento si tuviera
     delete from
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af in (select id_movimiento_af from kaf.tmovimiento_af
-                                    where id_movimiento = p_id_movimiento);
-
-    ---FIN RAC
 
     --Obtención del subsistema para posterior verificación de período abierto
     select id_subsistema into v_id_subsistema
@@ -166,12 +161,16 @@ BEGIN
             v_ant_monto_actualiz    = v_rec.monto_actualiz_real;
 
             --Si es un AFV replica toma la depreciacion acum y monto vigente del AFV para el inicio
-            if v_rec.id_activo_fijo_valor_original is not null and v_rec.fecha_ult_dep_afv is null then
-
+            if v_rec.fecha_ult_dep_afv is null then
                 v_sw_dep_ant = true;
-                v_ant_dep_acum       = v_rec.depreciacion_acum_inicial;--v_rec.depreciacion_acum_padre;
-                v_ant_monto_actualiz = v_rec.monto_vigente_actualiz_inicial + coalesce(v_rec.importe_modif,0); --#4
-                v_ant_dep_per        = v_rec.depreciacion_per_inicial;
+                v_ant_dep_acum = COALESCE(v_rec.depreciacion_acum_inicial, v_rec.depreciacion_acum_real);--v_rec.depreciacion_acum_padre;
+
+                IF COALESCE(v_rec.monto_vigente_actualiz_inicial, 0) > 0 THEN
+                    v_ant_monto_actualiz = COALESCE(v_rec.monto_vigente_actualiz_inicial, v_rec.monto_actualiz_real) + COALESCE(v_rec.importe_modif, 0); --#4
+                    v_ant_monto_vigente = COALESCE(v_rec.monto_vigente_actualiz_inicial, v_rec.monto_actualiz_real) + COALESCE(v_rec.importe_modif, 0); --#50
+                END IF;
+
+                v_ant_dep_per        = COALESCE(v_rec.depreciacion_per_inicial, v_rec.depreciacion_per_real);
 
             end if;
         else
@@ -249,36 +248,16 @@ BEGIN
                 v_dep_per_actualiz  = v_ant_dep_per * v_rec_tc.o_tc_factor;
                 v_monto_actualiz    = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
 
-                --Cálculo nuevos valores por depreciación
-                --RAC 03/03/2017
-                --  agrega validacion de division por cero
-
-
-
+                --Cálculo nuevos valores por depreciación, validacion de division por cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
                     --exit; --v_nuevo_dep_mes       = 0;
                 else
-                    --Fórmula Original: comentada a solicitud de Freddy el 20/02/2018 para la depreciación de enero 2018
-                    --v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
-                    --20/02/2018: nueva fórmula, freddy arnez solicita se reste la depreciación acumlada anterior
-                    --v_nuevo_dep_mes = ((v_ant_monto_vigente-v_ant_dep_acum) * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
-                    --RCM 06/04/2018: freddy pide quitar el monto de rescate para generar deprec. desde febrero así
-                    --v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor) /  v_ant_vida_util;
-
-                    --Si es una depreciación que continúa o arraste la deprec acum de otro AFV, resta la dep acum a la fórmula
-                    --if v_sw_dep_ant then
-                    --  v_nuevo_dep_mes = ((v_ant_monto_vigente-v_ant_dep_acum) * v_rec_tc.o_tc_factor - v_rec.monto_rescate) /  v_ant_vida_util;
-                    --else
-                        --Fórmula por defecto
-                        v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor- v_rec.monto_rescate) /  v_ant_vida_util;
-
+                    v_nuevo_dep_mes = (v_ant_monto_vigente * v_rec_tc.o_tc_factor- v_rec.monto_rescate) /  v_ant_vida_util;
                     --Inicio #39: Si es primera depreciación y se tiene seteado valores iniciales, aplica la fórmula empelando los datos iniciales
                     IF v_rec.fecha_ult_dep IS NULL AND v_rec.depreciacion_acum_inicial IS NOT NULL THEN
                         v_nuevo_dep_mes = ((v_ant_monto_vigente * v_rec_tc.o_tc_factor) - (v_rec.depreciacion_acum_inicial * v_rec_tc.o_tc_factor) - v_rec.monto_rescate) / v_ant_vida_util;
                     END IF;
                     --Fin #39
-                    --end if;
-
                 end if;
 
                 v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
@@ -289,11 +268,10 @@ BEGIN
                 --RCM 12/12/2017: que siga actualizando la dep. acum aunque tenga vida util cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
 
-                    v_monto_actualiz    = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
-                    v_nuevo_dep_mes = 0;
-
+                    v_monto_actualiz      = v_ant_monto_actualiz * v_rec_tc.o_tc_factor;
+                    v_nuevo_dep_mes       = 0;
                     v_nuevo_dep_acum      = v_dep_acum_actualiz + v_nuevo_dep_mes;
-                    v_nuevo_dep_per       = v_dep_per_actualiz; --0; ; cambiado para que agarre la depreciación per ant actualizada
+                    v_nuevo_dep_per       = v_dep_per_actualiz;
                     v_nuevo_monto_vigente = v_rec.monto_rescate;
                     v_nuevo_vida_util     = 0;
 
@@ -479,7 +457,6 @@ BEGIN
         and afv.fecha_ult_dep_real >= v_fecha_hasta
         and kaf.tmovimiento_af.id_movimiento_af = maf.id_movimiento_af;
 
-
     end if;
 
 
@@ -489,7 +466,6 @@ BEGIN
     if coalesce(v_mover_dep,'no') = 'si' then
         v_resp_mov = kaf.f_depreciacion_mover_mes(p_id_movimiento);
     end if;
-
 
     return 'hecho';
 
@@ -506,4 +482,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION kaf.f_depreciacion_lineal_v2 (p_id_usuario integer, p_id_movimiento integer)
+  OWNER TO postgres;

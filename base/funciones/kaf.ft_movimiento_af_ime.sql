@@ -19,6 +19,7 @@ $body$
  ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #2     KAF     ETR         23/01/2019  RCM     Se corrige la eliminación
  #39    KAF     ETR         22/11/2019  RCM     Importación plantillas excel Distribución de Valores
+ #46	KAF		ETR			20.02.2020	MZM		Adicion de trim en codigo_af 
 ***************************************************************************/
 
 DECLARE
@@ -337,7 +338,7 @@ BEGIN
             SELECT id_activo_fijo
             INTO v_id_activo_fijo
             FROM kaf.tactivo_fijo
-            WHERE codigo = v_parametros.codigo_activo;
+            WHERE codigo = trim( v_parametros.codigo_activo); --#46
 
             IF v_id_activo_fijo IS NULL THEN
                 RAISE EXCEPTION 'Activo fijo inexistente: %',v_parametros.codigo_activo;

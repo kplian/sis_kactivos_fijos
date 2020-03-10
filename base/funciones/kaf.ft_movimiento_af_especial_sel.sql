@@ -14,6 +14,7 @@ $BODY$
 #ISSUE	SIS		EMRPESA 	FECHA 		AUTOR		DESCRIPCION
  #2		KAF		ETR 		22-05-2019  RCM			Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento_af_especial'
  #39    KAF     ETR     	22-11-2019  RCM     	Importación masiva Distribución de valores
+ #45    KAF     ETR     	10-02-2020  RCM     	Adición de columna costo_orig
 ***************************************************************************/
 
 DECLARE
@@ -92,7 +93,7 @@ BEGIN
 						gru.codigo || '' - '' || gru.nombre as desc_grupo_ae,
 						gru1.codigo || '' - '' || gru1.nombre as desc_clasif_ae
 						--Fin #39
-
+						,moafes.costo_orig --#45
 						from kaf.tmovimiento_af_especial moafes
 						inner join segu.tusuario usu1 on usu1.id_usuario = moafes.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = moafes.id_usuario_mod
@@ -165,11 +166,13 @@ BEGIN
 EXCEPTION
 
 	WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;
+
+			v_resp = '';
+			v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
+			v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
+			v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
+
+			RAISE EXCEPTION '%', v_resp;
 END;
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE

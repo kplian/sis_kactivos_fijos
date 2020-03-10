@@ -11,6 +11,7 @@
  #2		KAF		ETR 		22-05-2019	RCM		Opción para traspasar valores de un activo fijo a otro
  #36	KAF		ETR 		21/10/2019	RCM		Modificación de proceso de División de Valores
  #39    KAF     ETR     	29-11-2019  RCM     Importación masiva Distribución de valores
+ #45	KAF		ETR			21-02-2020	MZM		Adicion de columna costo_orig
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -24,7 +25,8 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
     	//Llama al constructor de la clase padre
 		Phx.vista.MovimientoAfEspecial.superclass.constructor.call(this, config);
 		this.init();
-		this.load({params: {start: 0, limit: this.tam_pag, id_movimiento_af: this.maestro.id_movimiento_af}});
+		this.store.baseParams.id_movimiento_af = this.maestro.id_movimiento_af; //correccion 29/01/2020
+		this.load({params: {start: 0, limit: this.tam_pag }});
 
 		//Seteo del ID del padre
 		this.Atributos[2].valorInicial = this.maestro.id_movimiento_af;
@@ -64,6 +66,9 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		var fecha = this.maestro.fecha_mov.format("d/m/Y");
 		Ext.apply(this.Cmp.id_centro_costo.store.baseParams, { fecha: fecha });
 		this.Cmp.id_centro_costo.modificado = true;
+
+		//Grid
+       	this.grid.on('cellclick', this.abrirEnlace, this);
 	},
 
 	Atributos:[
@@ -220,6 +225,25 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 			id_grupo: 1,
 			grid: true,
 			form: true
+		},{
+			config: {
+				name: 'costo_orig',
+				fieldLabel: 'Valor Original',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength: 1179650,
+				//Inicio #36
+				renderer: function(value, metadata, rec, index){
+		            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+		        }
+		        //Fin #36
+			},
+			type: 'NumberField',
+			filters: {pfiltro: 'moafes.costo_orig', type: 'numeric'},
+			id_grupo: 1,
+			grid: true,
+			form: true
 		},
 		{
 			config: {
@@ -255,7 +279,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				gwidth: 300,
 				minChars: 2,
 				renderer: function(value,p,record){
-					return '<tpl for="."><div class="x-combo-list-item"><p><b>Código: </b> ' + record.data['codigo'] + '</p><p><b>Denominación: </b> ' + record.data['denominacion_af'] + '</p></div></tpl>';
+					return '<tpl for="."><div class="x-combo-list-item"><i class="fa fa-reply-all" aria-hidden="true"></i><p><b>Código: </b> ' + record.data['codigo'] + '</p><p><b>Denominación: </b> ' + record.data['denominacion'] + '</p></div></tpl>';
 
 				},
 				tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Código SAP:</b> {codigo_ant}</p></div></tpl>'
@@ -906,6 +930,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{name:'desc_grupo_ae', type: 'string'},
 		{name:'desc_clasif_ae', type: 'string'}
 		//Fin #39
+		,{name:'costo_orig', type: 'numeric'}//#45
 	],
 	sortInfo: {
 		field: 'id_movimiento_af_especial',
@@ -1118,7 +1143,25 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
     		this.Cmp.porcentaje.disable();
     		this.Cmp.porcentaje.setValue(0);
     	}
-    }
+    },
+
+    abrirEnlace: function(cell,rowIndex,columnIndex,e){
+		if(cell.colModel.getColumnHeader(columnIndex) == 'Activo Fijo'){
+			var data = this.sm.getSelected().data;
+			Phx.CP.loadWindows(
+				'../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
+				'Detalle', {
+					width:'90%',
+					height:'90%'
+			    }, {
+			    	lnk_id_activo_fijo: data.id_activo_fijo,
+			    	link: true
+			    },
+			    this.idContenedor,
+			    'ActivoFijo'
+			);
+		}
+	}
 
 })
 </script>

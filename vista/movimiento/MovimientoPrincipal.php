@@ -21,7 +21,7 @@ Phx.vista.MovimientoPrincipal = {
     requireclase:'Phx.vista.Movimiento',
     title:'Movimientos',
     nombreVista: 'MovimientoPrincipal',
-    timeout: 3600000,
+    timeout: 5400000,
 
     gruposBarraTareas:[
         {name:'Todos',title:'<h1 align="center"><i class="fa fa-bars"></i> Todos</h1>',grupo:0,height:0},

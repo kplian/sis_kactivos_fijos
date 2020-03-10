@@ -10,6 +10,7 @@
 #ISSUE	SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
  #2		KAF		ETR 		22-05-2019	RCM		Control para la distribución de valores (Creación)
  #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
+ #45    KAF     ETR     	10-02-2020  RCM     Adición de columna costo_orig
 ***************************************************************************/
 class MODMovimientoAfEspecial extends MODbase{
 
@@ -74,7 +75,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->captura('moneda','varchar');
 		$this->captura('desc_grupo_ae','text');
 		$this->captura('desc_clasif_ae','text');
-
+		$this->captura('costo_orig','numeric'); //#45
 		//Fin #39
 
 		//Ejecuta la instruccion
@@ -197,7 +198,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		return $this->respuesta;
 	}
 
-	function insertarMovimientoAfEspecialImportar(){
+	function insertarMovimientoAfEspecialImportar(){ 
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='kaf.ft_movimiento_af_especial_ime';
 		$this->transaccion='SKA_MOAFESMAS_INS';
@@ -240,7 +241,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-
+//echo $this->getConsulta();; exit;
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
