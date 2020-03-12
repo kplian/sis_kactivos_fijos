@@ -14,6 +14,7 @@ $body$
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
+ #55    KAF       ETR           12/03/2020  RCM         Al crear alta registro por defecto de todos los activos fijos en estado registrado
 ***************************************************************************/
 DECLARE
 
@@ -358,7 +359,29 @@ BEGIN
 
         end loop;
 
+    --Inicio #55
+    elsif v_cod_movimiento = 'alta' then
 
+        insert into kaf.tmovimiento_af(
+            id_movimiento,
+            id_activo_fijo,
+            id_cat_estado_fun,
+            estado_reg,
+            fecha_reg,
+            id_usuario_reg,
+            fecha_mod
+        )
+        select
+        v_parametros.id_movimiento,
+        af.id_activo_fijo,
+        af.id_cat_estado_fun,
+        'activo',
+        now(),
+        p_id_usuario,
+        null
+        from kaf.tactivo_fijo af
+        where af.estado = 'registrado';
+    --Fin #55
 
     end if;
 
