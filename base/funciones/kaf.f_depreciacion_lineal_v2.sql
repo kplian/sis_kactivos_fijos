@@ -64,6 +64,7 @@ BEGIN
     delete from
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af in (select id_movimiento_af from kaf.tmovimiento_af
+                                    where id_movimiento = p_id_movimiento);
 
     --Obtención del subsistema para posterior verificación de período abierto
     select id_subsistema into v_id_subsistema
