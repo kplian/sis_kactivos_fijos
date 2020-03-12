@@ -372,7 +372,7 @@ BEGIN
             fecha_mod
         )
         select
-        v_parametros.id_movimiento,
+        v_id_movimiento,
         af.id_activo_fijo,
         af.id_cat_estado_fun,
         'activo',
