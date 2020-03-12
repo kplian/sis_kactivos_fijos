@@ -60,7 +60,7 @@ BEGIN
 
     v_nombre_funcion = 'kaf.f_depreciacion_lineal_v2';
 
-    --Eliminar la depreciacion del movimiento si tuviera
+    --Eliminar la depreciacion del movimiento si tuviera el movimiento previamente
     delete from
     kaf.tmovimiento_af_dep mafd
     where mafd.id_movimiento_af in (select id_movimiento_af from kaf.tmovimiento_af

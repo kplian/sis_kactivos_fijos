@@ -5361,6 +5361,15 @@ ALTER TABLE kaf.tmovimiento_af_especial
 
 ALTER TABLE kaf.tmovimiento_af_especial
   ALTER COLUMN costo_orig TYPE NUMERIC;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN porcentaje TYPE NUMERIC;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN costo_orig TYPE NUMERIC;
+
+ALTER TABLE kaf.tmovimiento_af_especial
+  ALTER COLUMN importe TYPE NUMERIC;
 /***********************************F-DEP-MZM-KAF-46-21/02/2020****************************************/
 
 /***********************************I-DEP-RCM-KAF-52-05/03/2020****************************************/

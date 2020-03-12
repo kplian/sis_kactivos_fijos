@@ -18,6 +18,7 @@ $body$
  #36    KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud. Cambio de moneda por defecto, de UFV a USD
  #37    KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
  #41    KAF       ETR           10/12/2019  RCM         Cambio de Relaciones contables ALINGTA, ALINGTD por las definidas en la clasificación de altas y dep. acum.
+ #48    KAF       ETR           10/03/2020  RCM         Ajuste a la generación de comprobante caso activos fijos nuevos
 ***************************************************************************
 */
 DECLARE
@@ -38,7 +39,7 @@ DECLARE
     v_id_moneda_mov_esp     integer;
     v_codigo_moneda         varchar;
     v_id_centro_costo       integer; --#36
-    --Inicio #37: Dos arrays para obtener la configuración de relacione contables generales
+    --Inicio #37: Dos arrays para obtener la configuración de relaciones contables generales
     v_rec_rel_cont          record;
     v_rec_rel_cont1         record;
     v_id_gestion            integer;
@@ -145,7 +146,8 @@ BEGIN
         id_cuenta_dest_af             integer,
         id_partida_dest_af            integer,
         id_cuenta_dest_dep_acum       integer,
-        id_partida_dest_dep_acum      integer
+        id_partida_dest_dep_acum      integer,
+        codigo_af_original            varchar --#48
         --Fin #36
     ) ON COMMIT DROP;
 
@@ -153,231 +155,19 @@ BEGIN
     -------------------------------
     --1 Caso activos fijos nuevos
     -------------------------------
-    /* --comentado rcm tmp 29/01/2020
-    INSERT INTO tt_transaccion
-    WITH tclasif_rel AS (
-        SELECT
-        rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
-        (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
-        FROM conta.ttabla_relacion_contable tb
-        JOIN conta.ttipo_relacion_contable trc
-        ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
-        JOIN conta.trelacion_contable rc
-        ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
-        WHERE tb.esquema::text = 'KAF'
-        AND tb.tabla::text = 'tclasificacion'
-        AND trc.codigo_tipo_relacion in ('ALTAAF','DEPACCLAS')
-    )
-    SELECT
-    mafe.id_movimiento_af_especial,
-    rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
-    rc_af1.id_cuenta, rc_af1.id_partida, mafe.id_centro_costo,
-    rc_dacum.id_cuenta, rc_dacum.id_partida, af.id_centro_costo,
-    rc_dacum1.id_cuenta, rc_dacum1.id_partida, mafe.id_centro_costo,
-    0, afv.monto_vigente_orig, 0, --#36 cambio orden
-    0, afv.depreciacion_acum, 0, --#36 cambio orden
-    mafe.tipo,
-    (af.codigo || ' => ' || mafe.id_movimiento_af_especial::varchar || ' (' || mafe.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
-    NULL, NULL, NULL, NULL --#36
-    FROM kaf.tmovimiento mov
-    INNER JOIN kaf.tmovimiento_af maf
-    ON maf.id_movimiento = mov.id_movimiento
-    INNER JOIN kaf.tmovimiento_af_especial mafe
-    ON mafe.id_movimiento_af = maf.id_movimiento_af
-    AND mafe.tipo = 'af_nuevo'
-    INNER JOIN kaf.tactivo_fijo_valores afv
-    ON afv.id_activo_fijo = maf.id_activo_fijo --#38 19/12/2019
-    AND afv.fecha_fin IS NULL --#38 19/12/2019
-    INNER JOIN kaf.tactivo_fijo af
-    ON af.id_activo_fijo = maf.id_activo_fijo
-    INNER JOIN tclasif_rel clr
-    ON mafe.id_clasificacion = ANY(clr.nodos)
-    AND clr.codigo = 'ALTAAF'
-    INNER JOIN conta.trelacion_contable rc_af
-    ON rc_af.id_tabla = clr.id_clasificacion
-    AND rc_af.estado_reg = 'activo'
-    AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-    AND rc_af.id_gestion = v_id_gestion
-    INNER JOIN tclasif_rel clr1
-    ON af.id_clasificacion = ANY(clr1.nodos)
-    AND clr1.codigo = 'ALTAAF'
-    INNER JOIN conta.trelacion_contable rc_af1
-    ON rc_af1.id_tabla = clr1.id_clasificacion
-    AND rc_af1.estado_reg = 'activo'
-    AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-    AND rc_af1.id_gestion = v_id_gestion
-    INNER JOIN tclasif_rel clrdacum
-    ON mafe.id_clasificacion = ANY(clrdacum.nodos)
-    AND clrdacum.codigo = 'DEPACCLAS'
-    INNER JOIN conta.trelacion_contable rc_dacum
-    ON rc_dacum.id_tabla = clrdacum.id_clasificacion
-    AND rc_dacum.estado_reg = 'activo'
-    AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-    AND rc_dacum.id_gestion = v_id_gestion
-    INNER JOIN tclasif_rel clrdacum1
-    ON af.id_clasificacion = ANY(clrdacum1.nodos)
-    AND clrdacum1.codigo = 'DEPACCLAS'
-    INNER JOIN conta.trelacion_contable rc_dacum1
-    ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
-    AND rc_dacum1.estado_reg = 'activo'
-    AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-    AND rc_dacum1.id_gestion = v_id_gestion
-    WHERE mov.id_movimiento = p_id_movimiento
-    AND afv.id_moneda = v_id_moneda_usd --#36 antes v_id_moneda_ufv
-    AND (rc_af.id_cuenta <> rc_af1.id_cuenta
-         OR rc_af.id_partida <> rc_af1.id_partida
+    --Inicio #48
+    v_rec_rel_cont = conta.f_get_config_relacion_contable
+                    (
+                        'AFDISTVAL-DEBE', --p_codigo
+                        v_id_gestion --p_id_gestion
+                    );
 
-    );
-
-    UPDATE tt_transaccion tr SET
-    importe_ufv = dt.monto_vigente_orig,
-    depreciacion_acum_ufv = dt.depreciacion_acum_inicial
-    FROM (
-        WITH tclasif_rel AS (
-            SELECT
-            rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
-            (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
-            FROM conta.ttabla_relacion_contable tb
-            JOIN conta.ttipo_relacion_contable trc
-            ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
-            JOIN conta.trelacion_contable rc
-            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
-            WHERE tb.esquema::text = 'KAF'
-            AND tb.tabla::text = 'tclasificacion'
-            AND trc.codigo_tipo_relacion in ('ALTAAF','DEPACCLAS')
-        )
-        SELECT mafe.id_movimiento_af_especial,
-        afv.id_moneda, afv.monto_vigente_orig, afv.depreciacion_acum_inicial, afv.depreciacion_per_inicial,
-        mafe.id_centro_costo, rc_af.id_partida, rc_af.id_cuenta, rc_af.id_relacion_contable,
-        rc_af1.id_partida, rc_af1.id_cuenta, rc_af1.id_relacion_contable
-        FROM kaf.tmovimiento mov
-        INNER JOIN kaf.tmovimiento_af maf
-        ON maf.id_movimiento = mov.id_movimiento
-        INNER JOIN kaf.tmovimiento_af_especial mafe
-        ON mafe.id_movimiento_af = maf.id_movimiento_af
-        AND mafe.tipo = 'af_nuevo'
-        INNER JOIN kaf.tactivo_fijo_valores afv
-        ON afv.id_activo_fijo = mafe.id_activo_fijo --#38 19/12/2019
-        AND afv.fecha_fin IS NULL --#38 19/12/2019
-        INNER JOIN kaf.tactivo_fijo af
-        ON af.id_activo_fijo = maf.id_activo_fijo
-        INNER JOIN tclasif_rel clr
-        ON mafe.id_clasificacion = ANY(clr.nodos)
-        AND clr.codigo = 'ALTAAF'
-        INNER JOIN conta.trelacion_contable rc_af
-        ON rc_af.id_tabla = clr.id_clasificacion
-        AND rc_af.estado_reg = 'activo'
-        AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clr1
-        ON af.id_clasificacion = ANY(clr1.nodos)
-        AND clr1.codigo = 'ALTAAF'
-        INNER JOIN conta.trelacion_contable rc_af1
-        ON rc_af1.id_tabla = clr1.id_clasificacion
-        AND rc_af1.estado_reg = 'activo'
-        AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_af1.id_gestion = v_id_gestion
-
-        INNER JOIN tclasif_rel clrdacum
-        ON mafe.id_clasificacion = ANY(clrdacum.nodos)
-        AND clrdacum.codigo = 'DEPACCLAS'
-        INNER JOIN conta.trelacion_contable rc_dacum
-        ON rc_dacum.id_tabla = clrdacum.id_clasificacion
-        AND rc_dacum.estado_reg = 'activo'
-        AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clrdacum1
-        ON af.id_clasificacion = ANY(clrdacum1.nodos)
-        AND clrdacum1.codigo = 'DEPACCLAS'
-        INNER JOIN conta.trelacion_contable rc_dacum1
-        ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
-        AND rc_dacum1.estado_reg = 'activo'
-        AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-        AND rc_dacum1.id_gestion = v_id_gestion
-
-        WHERE mov.id_movimiento = p_id_movimiento
-        AND afv.id_moneda = v_id_moneda_ufv
-        AND (rc_af.id_cuenta <> rc_af1.id_cuenta
-             OR rc_af.id_partida <> rc_af1.id_partida
-        )
-
-    ) dt
-    WHERE tr.id_trans = dt.id_movimiento_af_especial;
-
-    UPDATE tt_transaccion tr SET
-    importe_bs = dt.monto_vigente_orig,
-    depreciacion_acum_bs = dt.depreciacion_acum_inicial
-    FROM (
-        WITH tclasif_rel AS (
-            SELECT
-            rc.id_tabla AS id_clasificacion, trc.codigo_tipo_relacion as codigo, trc.id_tipo_relacion_contable,
-            (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
-            FROM conta.ttabla_relacion_contable tb
-            JOIN conta.ttipo_relacion_contable trc
-            ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
-            JOIN conta.trelacion_contable rc
-            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
-            WHERE tb.esquema::text = 'KAF'
-            AND tb.tabla::text = 'tclasificacion'
-            AND trc.codigo_tipo_relacion in ('ALTAAF','DEPACCLAS')
-        )
-        SELECT mafe.id_movimiento_af_especial,
-        afv.id_moneda, afv.monto_vigente_orig, afv.depreciacion_acum_inicial, afv.depreciacion_per_inicial,
-        mafe.id_centro_costo, rc_af.id_partida, rc_af.id_cuenta, rc_af.id_relacion_contable,
-        rc_af1.id_partida, rc_af1.id_cuenta, rc_af1.id_relacion_contable
-        FROM kaf.tmovimiento mov
-        INNER JOIN kaf.tmovimiento_af maf
-        ON maf.id_movimiento = mov.id_movimiento
-        INNER JOIN kaf.tmovimiento_af_especial mafe
-        ON mafe.id_movimiento_af = maf.id_movimiento_af
-        AND mafe.tipo = 'af_nuevo'
-        INNER JOIN kaf.tactivo_fijo_valores afv
-        ON afv.id_activo_fijo = maf.id_activo_fijo --#38 19/12/2019
-        AND afv.fecha_fin IS NULL --#38 19/12/2019
-        INNER JOIN kaf.tactivo_fijo af
-        ON af.id_activo_fijo = maf.id_activo_fijo
-        INNER JOIN tclasif_rel clr
-        ON mafe.id_clasificacion = ANY(clr.nodos)
-        AND clr.codigo = 'ALTAAF'
-        INNER JOIN conta.trelacion_contable rc_af
-        ON rc_af.id_tabla = clr.id_clasificacion
-        AND rc_af.estado_reg = 'activo'
-        AND rc_af.id_tipo_relacion_contable = clr.id_tipo_relacion_contable
-        AND rc_af.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clr1
-        ON af.id_clasificacion = ANY(clr1.nodos)
-        AND clr1.codigo = 'ALTAAF'
-        INNER JOIN conta.trelacion_contable rc_af1
-        ON rc_af1.id_tabla = clr1.id_clasificacion
-        AND rc_af1.estado_reg = 'activo'
-        AND rc_af1.id_tipo_relacion_contable = clr1.id_tipo_relacion_contable
-        AND rc_af1.id_gestion = v_id_gestion
-
-        INNER JOIN tclasif_rel clrdacum
-        ON mafe.id_clasificacion = ANY(clrdacum.nodos)
-        AND clrdacum.codigo = 'DEPACCLAS'
-        INNER JOIN conta.trelacion_contable rc_dacum
-        ON rc_dacum.id_tabla = clrdacum.id_clasificacion
-        AND rc_dacum.estado_reg = 'activo'
-        AND rc_dacum.id_tipo_relacion_contable = clrdacum.id_tipo_relacion_contable
-        AND rc_dacum.id_gestion = v_id_gestion
-        INNER JOIN tclasif_rel clrdacum1
-        ON af.id_clasificacion = ANY(clrdacum1.nodos)
-        AND clrdacum1.codigo = 'DEPACCLAS'
-        INNER JOIN conta.trelacion_contable rc_dacum1
-        ON rc_dacum1.id_tabla = clrdacum1.id_clasificacion
-        AND rc_dacum1.estado_reg = 'activo'
-        AND rc_dacum1.id_tipo_relacion_contable = clrdacum1.id_tipo_relacion_contable
-        AND rc_dacum1.id_gestion = v_id_gestion
-
-        WHERE mov.id_movimiento = p_id_movimiento
-        AND afv.id_moneda = v_id_moneda_bs
-        AND (rc_af.id_cuenta <> rc_af1.id_cuenta
-             OR rc_af.id_partida <> rc_af1.id_partida
-        )
-
-    ) dt
-    WHERE tr.id_trans = dt.id_movimiento_af_especial;*/ --comentado temp rcm 29/01/2020
+    v_rec_rel_cont1 = conta.f_get_config_relacion_contable
+                    (
+                        'AFDISTVAL-HABER', --p_codigo
+                        v_id_gestion --p_id_gestion
+                    );
+    --Fin #48
 
     INSERT INTO tt_transaccion
     WITH tclasif_rel AS (
@@ -394,16 +184,21 @@ BEGIN
     )
     SELECT DISTINCT
     mesp.id_movimiento_af_especial,
-    rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
-    rc_af1.id_cuenta, rc_af1.id_partida, af.id_centro_costo,
+    rc_af.id_cuenta, v_rec_rel_cont1.ps_id_partida, af.id_centro_costo, --#38
+    rc_af1.id_cuenta, v_rec_rel_cont.ps_id_partida, af.id_centro_costo, --#48
     rc_dacum.id_cuenta, rc_dacum.id_partida, af.id_centro_costo,
     rc_dacum1.id_cuenta, rc_dacum1.id_partida, mesp.id_centro_costo,
     0, afv.monto_vigente_orig, 0, --#36 cambio orden
     0, 0, 0, --#36 cambio orden
     mesp.tipo,
-    (af.codigo || ' => ' || mesp.id_movimiento_af_especial::varchar || ' (' || mesp.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
-    NULL::integer, NULL::integer, NULL::integer, NULL::integer --#36
+    afo.codigo || ' => ' || mesp.denominacion, --#48
+    NULL::integer, NULL::integer, NULL::integer, NULL::integer, --#36
+    afo.codigo --#48
     FROM kaf.tmovimiento_af maf
+    --Inicio #48
+    INNER JOIN kaf.tactivo_fijo afo
+    ON afo.id_activo_fijo = maf.id_activo_fijo
+    --Fin #48
     INNER JOIN kaf.tmovimiento_af_especial mesp
     ON mesp.id_movimiento_af = maf.id_movimiento_af
     AND mesp.tipo = 'af_nuevo'
@@ -447,7 +242,7 @@ BEGIN
     WHERE maf.id_movimiento = p_id_movimiento;
 
 
-UPDATE tt_transaccion tr SET
+    UPDATE tt_transaccion tr SET
     importe_ufv = dt.monto_vigente_orig,
     depreciacion_acum_ufv = dt.depreciacion_acum_inicial
     FROM (
@@ -618,7 +413,11 @@ UPDATE tt_transaccion tr SET
         mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento,
         rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
         rc_dacum.id_cuenta as id_cuenta_dep_acum_orig, rc_dacum.id_partida as id_partida_dep_acum_orig, af.id_centro_costo as id_centro_costo_dep_acum_orig,
-        af.codigo as codigo_orig --#21 adición de código para usarlo en la glosa
+        --Inicio #48
+        af.codigo as codigo_orig, --#21 adición de código para usarlo en la glosa
+        af.codigo as codigo_original,
+        '' as denominacion
+        --Fin #48
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -679,10 +478,18 @@ UPDATE tt_transaccion tr SET
         mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento,
         rc_af.id_cuenta, rc_af.id_partida, mafe.tipo, af.id_centro_costo,
         rc_dacum.id_cuenta as id_cuenta_dep_acum_dest, rc_dacum.id_partida as id_partida_dep_acum_dest, af.id_centro_costo as id_centro_costo_dep_acum_dest,
-        af.codigo as codigo_dest --#21 adición de código para usarlo en la glosa
+        --Inicio #48
+        af.codigo as codigo_dest, --#21 adición de código para usarlo en la glosa
+        afo.codigo as codigo_original,
+        mafe.denominacion
+        --Fin #48
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
+        --Inicio #48
+        INNER JOIN kaf.tactivo_fijo afo
+        ON afo.id_activo_fijo = maf.id_activo_fijo
+        --Fin #48
         INNER JOIN kaf.tmovimiento_af_especial mafe
         ON mafe.id_movimiento_af = maf.id_movimiento_af
         AND mafe.tipo = 'af_exist'
@@ -731,8 +538,12 @@ UPDATE tt_transaccion tr SET
     0, 0,
     (tao.depreciacion_acum * tad.porcentaje / 100) AS depreciacion_acum,
     tad.tipo,
-    (tao.codigo_orig || ' => ' || tad.codigo_dest || ' (' || tad.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
-    NULL, NULL, NULL, NULL --#36
+    --(tao.codigo_orig || ' => ' || tad.codigo_dest || ' (' || tad.tipo || ') ')::varchar as glosa, --#21 adición de columna para la glosa
+    --Inicio #48
+    tao.codigo_original || ' => ' || tad.denominacion,
+    NULL, NULL, NULL, NULL, --#36
+    tao.codigo_original
+    --Fin #48
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
@@ -1098,11 +909,16 @@ UPDATE tt_transaccion tr SET
     rc_al3.id_cuenta, rc_al3.id_partida
     --Fin #36*/
     rc_af.id_cuenta, rc_af.id_partida,
-    rc_dacum.id_cuenta, rc_dacum.id_partida
+    rc_dacum.id_cuenta, rc_dacum.id_partida,
     --Fin #41
+    afo.codigo --#48
     FROM kaf.tmovimiento mov
     INNER JOIN kaf.tmovimiento_af maf
     ON maf.id_movimiento = mov.id_movimiento
+    --Inicio #48
+    INNER join kaf.tactivo_fijo afo
+    ON afo.id_activo_fijo = maf.id_activo_fijo
+    --Fin #48
     INNER JOIN kaf.tactivo_fijo_valores afv
     ON afv.id_activo_fijo = maf.id_activo_fijo
     INNER JOIN kaf.tmovimiento_af_dep mdep
@@ -1494,21 +1310,27 @@ UPDATE tt_transaccion tr SET
     0,
     0,
     0,
-    t.depreciacion_acum_bs,
-    t.depreciacion_acum_bs,
-    t.depreciacion_acum_usd,
-    t.depreciacion_acum_ufv,
-    t.depreciacion_acum_bs,
-    t.depreciacion_acum_bs,
-    t.depreciacion_acum_usd,
-    t.depreciacion_acum_ufv,
+    --Inicio #48
+    SUM(t.depreciacion_acum_bs),
+    SUM(t.depreciacion_acum_bs),
+    SUM(t.depreciacion_acum_usd),
+    SUM(t.depreciacion_acum_ufv),
+    SUM(t.depreciacion_acum_bs),
+    SUM(t.depreciacion_acum_bs),
+    SUM(t.depreciacion_acum_usd),
+    SUM(t.depreciacion_acum_ufv),
+    --Fin #48
     p_id_usuario,
     now(),
-    t.glosa --#21 adición de columna para la glosa
+    t.codigo_af_original --#48
     FROM tt_transaccion t
     WHERE COALESCE(t.depreciacion_acum_bs, 0) > 0
     OR COALESCE(t.depreciacion_acum_usd, 0) > 0
-    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0;
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0
+    --Inicio #48
+    GROUP BY v_rec_rel_cont1.ps_id_partida, v_rec_rel_cont1.ps_id_centro_costo,v_rec_rel_cont1.ps_id_cuenta, v_id_int_comprobante,
+    p_id_usuario, t.codigo_af_original;
+    --Fin #48
     --Fin #37
 
     --Haber: Monto activo fijo
@@ -1554,21 +1376,31 @@ UPDATE tt_transaccion tr SET
     0,
     0,
     0,
-    t.importe_bs,
-    t.importe_bs,
-    t.importe_usd,
-    t.importe_ufv,
-    t.importe_bs,
-    t.importe_bs,
-    t.importe_usd,
-    t.importe_ufv,
+    --Inicio #48
+    SUM(t.importe_bs),
+    SUM(t.importe_bs),
+    SUM(t.importe_usd),
+    SUM(t.importe_ufv),
+    SUM(t.importe_bs),
+    SUM(t.importe_bs),
+    SUM(t.importe_usd),
+    SUM(t.importe_ufv),
+    --Fin #48
     p_id_usuario,
     now(),
-    t.glosa --#21 adición de columna para la glosa
+    t.codigo_af_original --#48
     FROM tt_transaccion t
     WHERE COALESCE(t.importe_bs, 0) > 0
     OR COALESCE(t.importe_usd, 0) > 0
-    OR COALESCE(t.importe_ufv, 0) > 0;
+    OR COALESCE(t.importe_ufv, 0) > 0
+    --Inicio #48
+    GROUP BY t.id_partida,
+    v_id_centro_costo,
+    t.id_cuenta,
+    v_id_int_comprobante,
+    p_id_usuario,
+    t.codigo_af_original;
+    --Fin #48
 
 
     --Inicio #37
@@ -1607,12 +1439,16 @@ UPDATE tt_transaccion tr SET
     'activo',
     t.id_cuenta_dest,--t.id_cuenta_dest_af,
     v_id_int_comprobante,
-    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2), --t.importe_bs,
-    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    --Inicio #48
+    t.importe_bs, --param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2), --t.importe_bs,
+    t.importe_bs, --param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    --fin #48
     t.importe_usd,
     t.importe_ufv,
-    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
-    param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    --Inicio #48
+    t.importe_bs, --param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    t.importe_bs,--param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
+    --Fin #48
     t.importe_usd,
     t.importe_ufv,
     0,
@@ -1628,9 +1464,10 @@ UPDATE tt_transaccion tr SET
     t.glosa
     FROM tt_transaccion t
     WHERE COALESCE(t.importe_usd, 0) > 0
-    OR COALESCE(t.importe_ufv, 0) > 0;
+    OR COALESCE(t.importe_ufv, 0) > 0
+    OR COALESCE(t.importe_bs, 0) > 0; --#48
 
-    --Debe: Contracuenta 2/2 del activo de la transacción en BS por la actualización (sólo BS)
+    /*--Debe: Contracuenta 2/2 del activo de la transacción en BS por la actualización (sólo BS)
     INSERT INTO conta.tint_transaccion
     (
         id_partida,
@@ -1683,12 +1520,12 @@ UPDATE tt_transaccion tr SET
     0,
     p_id_usuario,
     now(),
-    t.glosa,
+    'debe 5',--t.glosa,
     'si'
     FROM tt_transaccion t
     WHERE COALESCE(t.importe_usd, 0) > 0
     OR COALESCE(t.importe_bs, 0) > 0;
-    --Fin #37
+    --Fin #37*/
 
 
     --Saldo para contracuenta (debe)

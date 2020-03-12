@@ -20,6 +20,7 @@ $body$
  #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
  #47    KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
  #46	KAF		ETR			18-02-2020  MZM		Modificacion a funcion de importacion de movimientos especiales, dado que el valor en plantilla viene en base a valor actualizado y se debe obtener el valor en funcion al importe_neto.
+ #53    KAF     ETR         09-03-2020  RCM     Adición de TRIM en comparación de columna
 ***************************************************************************/
 DECLARE
 
@@ -151,6 +152,7 @@ BEGIN
         		v_importe = v_parametros.importe;
         		v_porcentaje = v_parametros.importe * 100 / v_monto_actualiz;
         	END IF;
+
 
         	INSERT INTO kaf.tmovimiento_af_especial(
 			id_activo_fijo,
@@ -477,7 +479,7 @@ BEGIN
                 SELECT id_clasificacion
                 INTO v_id_clasificacion
                 FROM kaf.tclasificacion
-                WHERE codigo_completo_tmp = v_parametros.clasificacion;
+                WHERE codigo_completo_tmp = TRIM(v_parametros.clasificacion); --#53
             END IF;
 
             --centro_costo
@@ -555,15 +557,15 @@ BEGIN
             ON af.id_activo_fijo = maf.id_activo_fijo
             WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
             --Fin #38
-            
-           
+
+
 
 			v_monto_neto:=(v_monto_actualiz-v_depreciacion_acum); --#46
-           
+
             if(v_monto_neto=0) then
                RAISE EXCEPTION 'El monto neto del Activo Fijo Origen %. es 0 ', v_codigo_af_orig;
             end if;
-        
+
             --Obtención de la moneda parametrizada
             SELECT id_moneda
             INTO v_id_moneda
@@ -608,7 +610,7 @@ BEGIN
             if v_monto_actualiz_usado2 + round((v_monto/v_monto_neto*100),2) > 100 then --#46
             	raise exception 'Se ha superado el valor total del Activo Fijo Origen en porcentaje %. (Valor Original: %, Saldo Anterior Porcentual: %, Nuevo porcentaje: %)',v_codigo_af_orig,v_monto_neto, v_monto_actualiz_usado2, (v_monto/v_monto_neto*100) ;
             end if;
-            
+
 
             --Inicio #38
             --Nro Serie
@@ -699,8 +701,8 @@ BEGIN
 
             ------------
             --Inserción
-            ------------ 
-            
+            ------------
+
             IF v_parametros.opcion = 'porcentaje' THEN
                 v_porcentaje = v_parametros.porcentaje;
               --  v_importe = v_monto_actualiz * v_parametros.porcentaje / 100;  --#46
@@ -713,7 +715,7 @@ BEGIN
                   v_porcentaje = v_monto * 100 / v_monto_neto;  --#46
                   v_importe = v_monto; --#46
             END IF;
-			
+
             INSERT INTO kaf.tmovimiento_af_especial(
             id_activo_fijo,
             id_movimiento_af,
