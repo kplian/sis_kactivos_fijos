@@ -15,6 +15,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
  #55    KAF       ETR           12/03/2020  RCM         Al crear alta registro por defecto de todos los activos fijos en estado registrado
+ #59    KAF       ETR           07/04/2020  RCM         Controlar que no inserte activos fijos en el alta cuando viene de movimientos rápidos
 ***************************************************************************/
 DECLARE
 
@@ -362,25 +363,29 @@ BEGIN
     --Inicio #55
     elsif v_cod_movimiento = 'alta' then
 
-        insert into kaf.tmovimiento_af(
-            id_movimiento,
-            id_activo_fijo,
-            id_cat_estado_fun,
-            estado_reg,
-            fecha_reg,
-            id_usuario_reg,
-            fecha_mod
-        )
-        select
-        v_id_movimiento,
-        af.id_activo_fijo,
-        af.id_cat_estado_fun,
-        'activo',
-        now(),
-        p_id_usuario,
-        null
-        from kaf.tactivo_fijo af
-        where af.estado = 'registrado';
+        IF COALESCE((p_parametros->'mov_rapido')::varchar, 'no') = 'no' THEN --#59
+
+            INSERT INTO kaf.tmovimiento_af(
+                id_movimiento,
+                id_activo_fijo,
+                id_cat_estado_fun,
+                estado_reg,
+                fecha_reg,
+                id_usuario_reg,
+                fecha_mod
+            )
+            SELECT
+            v_id_movimiento,
+            af.id_activo_fijo,
+            af.id_cat_estado_fun,
+            'activo',
+            now(),
+            p_id_usuario,
+            NULL
+            FROM kaf.tactivo_fijo af
+            WHERE af.estado = 'registrado';
+
+        END IF; --#59
     --Fin #55
 
     end if;

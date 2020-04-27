@@ -21,6 +21,8 @@ $body$
  #16    KAF       ETR           18/06/2019  RCM         Completa el prorrateo mensual con el CC por defecto por AF cuando no completa el total mensual
  #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se manda parámetro id_tipo_estado a función de proc. mov. af.esp
  #43    KAF       ETR           16/12/2019  RCM         Bug de duplicación de AFV al finalizar Altas que vienen de cierre de proyectos o movimientos especiales
+ #57    KAF       ETR           25/03/2020  RCM         Adición de id_preingreso_det en kaf.tactivo_fijo_valores
+ #59    KAF       ETR           07/04/2020  RCM         Enviar marca a la función de creación del movimiento para que no inserte automáticamente todos los activos fijos registrados
 ***************************************************************************/
 
 DECLARE
@@ -680,7 +682,8 @@ BEGIN
                                                   af.codigo,
                                                   af.fecha_compra,
                                                   af.monto_compra_orig_100,
-                                                  af.id_moneda_orig
+                                                  af.id_moneda_orig,
+                                                  af.id_preingreso_det --#57
                                               from kaf.tmovimiento_af movaf
                                               inner join kaf.tactivo_fijo af
                                               on af.id_activo_fijo = movaf.id_activo_fijo
@@ -751,7 +754,8 @@ BEGIN
                                 id_moneda_dep,
                                 id_moneda,
                                 fecha_inicio,
-                                monto_vigente_orig_100
+                                monto_vigente_orig_100,
+                                id_preingreso_det --#57
                             ) values(
                                 p_id_usuario,
                                 now(),
@@ -774,7 +778,8 @@ BEGIN
                                 v_registros_mod.id_moneda_dep,
                                 v_registros_mod.id_moneda,
                                 v_registros_af_mov.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
-                                v_monto_compra_100
+                                v_monto_compra_100,
+                                v_registros_af_mov.id_preingreso_det --#57
                            );
 
                         end loop; -- fin loop moneda
@@ -2219,7 +2224,8 @@ BEGIN
               coalesce(v_parametros.id_oficina,null) as id_oficina,
               v_id_cat_movimiento as id_cat_movimiento,
               v_rec.id_depto as id_depto,
-              false as reg_masivo
+              false as reg_masivo,
+              'si' as mov_rapido--#59
               into v_rec_af;
 
               --Inserción del movimiento
