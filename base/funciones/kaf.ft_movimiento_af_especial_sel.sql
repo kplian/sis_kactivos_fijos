@@ -15,6 +15,7 @@ $BODY$
  #2		KAF		ETR 		22-05-2019  RCM			Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'kaf.tmovimiento_af_especial'
  #39    KAF     ETR     	22-11-2019  RCM     	Importación masiva Distribución de valores
  #45    KAF     ETR     	10-02-2020  RCM     	Adición de columna costo_orig
+ #56    KAF     ETR     	02-04-2020  RCM     	Cambio consulta COUNT por aumento de id_movimiento_af_especial en tabla kaf.tactivo_fijo_valores
 ***************************************************************************/
 
 DECLARE
@@ -131,7 +132,7 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta := 'select count(id_movimiento_af_especial)
+			v_consulta := 'select count(1) --#56
 					    from kaf.tmovimiento_af_especial moafes
 					    inner join segu.tusuario usu1 on usu1.id_usuario = moafes.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = moafes.id_usuario_mod
