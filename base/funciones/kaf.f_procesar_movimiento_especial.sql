@@ -17,6 +17,8 @@ $body$
  #2     KAF       ETR           30/05/2019  RCM         Creación del archivo
  #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se aumenta parámetro id_tipo_estado
  #48    KAF       ETR           11/02/2020  RCM         Modificación de la finalización y creación de nuevos AFV de activos fijos originales
+ #57    KAF       ETR           25/03/2020  RCM         Adición de id_movimiento_af_especial en kaf.tactivo_fijo y kaf.tactivo_fijo_valores
+ #58    KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
 ***************************************************************************
 */
 DECLARE
@@ -206,7 +208,8 @@ BEGIN
         afv.id_activo_fijo, afv.id_activo_fijo_valor,
         mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act,
         vn.valor_actualiz - td.costo_af as saldo,
-        (vn.valor_actualiz - td.costo_af) / vn.valor_actualiz as factor
+        (vn.valor_actualiz - td.costo_af) / vn.valor_actualiz as factor,
+        maf.id_movimiento_af --#57
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento mov
         ON mov.id_movimiento = maf.id_movimiento
@@ -257,21 +260,22 @@ BEGIN
         v_monto_rescate = 1 * param.f_get_tipo_cambio_v2(v_id_moneda_base, v_rec.id_moneda, v_fecha_mov, 'O');
 
         --Inserción del activo fijo valor
-        INSERT INTO kaf.tactivo_fijo_valores(
+        INSERT INTO kaf.tactivo_fijo_valores (
         id_usuario_reg          , fecha_reg                             , estado_reg                        , id_activo_fijo,
         monto_vigente_orig      , vida_util_orig                        , fecha_ini_dep                     , depreciacion_per,
         depreciacion_acum       , monto_vigente                         , vida_util                         , estado,
         monto_rescate           , tipo                                  , fecha_inicio                      , id_moneda_dep,
         id_moneda               , monto_vigente_orig_100                , monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
-        depreciacion_per_inicial, mov_esp
+        depreciacion_per_inicial, mov_esp                               , id_movimiento_af
         ) VALUES (
         --Inicio #48
         p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
         v_monto_vigente         , v_vida_util                           , v_fecha_ini_dep                   , v_depreciacion_per,
         v_depreciacion_acum     , v_monto_vigente                       , v_vida_util                       , 'activo',
-        v_monto_rescate         , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
+        v_monto_rescate         , v_cod_afv || '-b'                     , v_rec.fecha_mov                   , v_rec.id_moneda_dep, --#58
         v_rec.id_moneda         , v_monto_vigente                       , v_depreciacion_acum               , v_depreciacion_acum, --RCM 07/11/2019
-        v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
+        v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR, --cafv: creación activo fijo valor
+        v_rec.id_movimiento_af
         --Fin #48
         );
 
@@ -316,8 +320,9 @@ BEGIN
                     id_grupo,
                     id_grupo_clasif,
                     ubicacion,
-                    en_deposito
+                    en_deposito,
                     --Fin #48
+                    id_movimiento_af_especial --#57
                 )
                 SELECT
                 'activo',
@@ -357,8 +362,9 @@ BEGIN
                 mafe.id_grupo,
                 mafe.id_grupo_clasif,
                 mafe.ubicacion,
-                'si'
+                'si',
                 --Fin #48
+                mafe.id_movimiento_af_especial --#57
                 FROM kaf.tmovimiento_af_especial mafe
                 INNER JOIN kaf.tmovimiento_af maf
                 ON maf.id_movimiento_af = mafe.id_movimiento_af
@@ -403,7 +409,8 @@ BEGIN
             monto_vigente_actualiz_inicial,
             depreciacion_acum_inicial,
             depreciacion_per_inicial,
-            mov_esp
+            mov_esp,
+            id_movimiento_af_especial --#57
         )
         WITH tult_dep AS (
             SELECT
@@ -447,7 +454,8 @@ BEGIN
         END AS monto_vigente_actualiz_inicial,
         0, --RCM
         0, --RCM
-        'cafv-' || p_id_movimiento::varchar --cafv creación de activo fijo valor
+        'cafv-' || p_id_movimiento::varchar, --cafv creación de activo fijo valor
+        v_rec_af.id_movimiento_af_especial --#57
         FROM kaf.tactivo_fijo_valores  afv
         INNER JOIN tult_dep dult
         ON dult.id_activo_fijo = afv.id_activo_fijo
@@ -525,7 +533,8 @@ BEGIN
         monto_vigente_actualiz_inicial,
         depreciacion_acum_inicial,
         depreciacion_per_inicial,
-        mov_esp
+        mov_esp,
+        id_movimiento_af_especial --#57
     )
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -616,7 +625,8 @@ BEGIN
     END AS monto_vigente_actualiz_inicial,
     tad.depreciacion_acum + (tao.depreciacion_acum * tad.porcentaje / 100) AS depreciacion_acum_inicial,
     tad.depreciacion_per + (tao.depreciacion_per * tad.porcentaje / 100) AS depreciacion_per_inicial,
-    'cafv-' || p_id_movimiento::varchar AS mov_esp
+    'cafv-' || p_id_movimiento::varchar AS mov_esp,
+    tad.id_movimiento_af_especial --#57
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af

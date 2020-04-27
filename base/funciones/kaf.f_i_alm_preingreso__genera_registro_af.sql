@@ -4,10 +4,18 @@ CREATE OR REPLACE FUNCTION kaf.f_i_alm_preingreso__genera_registro_af (
 )
 RETURNS varchar AS
 $body$
-/*
-Autor: RCM  (KPLIAN)
-Fecha: 05/08/2017
-Descripción: GENERACION DE REGISTROS EN ACTIVOS FIJOS PROVINIENTES DEL SISTEMA DE ADQUISICIONES
+/**************************************************************************
+ SISTEMA:       Sistema de Activos Fijos
+ FUNCION:       kaf.f_i_alm_preingreso__genera_registro_af
+ DESCRIPCION:   GENERACION DE REGISTROS EN ACTIVOS FIJOS PROVINIENTES DEL SISTEMA DE ADQUISICIONES
+ AUTOR:         RCM
+ FECHA:         05/08/2017
+ COMENTARIOS:
+***************************************************************************
+ ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+        KAF     ETR      05/08/2017   RCM         Creación del archivo
+ #58    KAF     ETR      21/04/2020   RCM         Agregación de datos para la creación del activo fijo
+***************************************************************************
 */
 DECLARE
 
@@ -55,54 +63,54 @@ BEGIN
     where codigo = 'Und.';
 
   for v_rec in select
-               cot.fecha_adju,
-               pdet.precio_compra,
-               ping.id_moneda,
-               pdet.cantidad_det::integer,
-               pdet.id_depto,
-               pdet.id_clasificacion,
-               pdet.observaciones,
-               cot.numero_oc,
-               cot.id_cotizacion,
-               pdet.id_cotizacion_det,
-               sol.id_solicitud,
-               pdet.id_centro_costo,
-               cc.id_ep,
-               cc.id_uo,
-               cc.id_gestion,
-               cg.desc_ingas,
-               pdet.nombre,
-               pdet.descripcion,
-               pdet.precio_compra_87,
-               pdet.id_lugar,
-               pdet.ubicacion,
-               pdet.c31,
-               pdet.fecha_conformidad,
-               dep.codigo,
-               pdet.fecha_compra,
-               cot.id_proveedor,
-               dep.id_depto,
-               pdet.id_preingreso_det,
-               pdet.id_ubicacion,
-               pdet.id_grupo,
-               pdet.id_grupo_clasif,
-               pdet.nro_serie,
-               pdet.marca,
-               pdet.vida_util
-        from alm.tpreingreso ping
-            inner join alm.tpreingreso_det pdet on pdet.id_preingreso = ping.id_preingreso
-            inner join adq.tcotizacion_det  cd on cd.id_cotizacion_det = pdet.id_cotizacion_det
-            inner join adq.tsolicitud_det sdet on sdet.id_solicitud_det =cd.id_solicitud_det
-            inner join param.tconcepto_ingas cg on cg.id_concepto_ingas = sdet.id_concepto_ingas
-            inner join adq.tcotizacion cot on cot.id_cotizacion = cd.id_cotizacion
-            inner join adq.tproceso_compra pro on pro.id_proceso_compra = cot.id_proceso_compra
-            inner join adq.tsolicitud sol on sol.id_solicitud = pro.id_solicitud
-            inner join param.tcentro_costo cc on cc.id_centro_costo = sdet.id_centro_costo
-            left join param.tdepto dep on dep.id_depto = pdet.id_depto
-            where ping.id_preingreso  = p_id_preingreso
-            and pdet.sw_generar = 'si'
-            and pdet.estado = 'mod'
-            and pdet.estado_reg = 'activo' loop
+                cot.fecha_adju,
+                pdet.precio_compra,
+                ping.id_moneda,
+                pdet.cantidad_det::integer,
+                pdet.id_depto,
+                pdet.id_clasificacion,
+                pdet.observaciones,
+                cot.numero_oc,
+                cot.id_cotizacion,
+                pdet.id_cotizacion_det,
+                sol.id_solicitud,
+                pdet.id_centro_costo,
+                cc.id_ep,
+                cc.id_uo,
+                cc.id_gestion,
+                cg.desc_ingas,
+                pdet.nombre,
+                pdet.descripcion,
+                pdet.precio_compra_87,
+                pdet.id_lugar,
+                pdet.ubicacion,
+                pdet.c31,
+                pdet.fecha_conformidad,
+                dep.codigo,
+                pdet.fecha_compra,
+                cot.id_proveedor,
+                dep.id_depto,
+                pdet.id_preingreso_det,
+                pdet.id_ubicacion,
+                pdet.id_grupo,
+                pdet.id_grupo_clasif,
+                pdet.nro_serie,
+                pdet.marca,
+                pdet.vida_util
+                from alm.tpreingreso ping
+                inner join alm.tpreingreso_det pdet on pdet.id_preingreso = ping.id_preingreso
+                inner join adq.tcotizacion_det  cd on cd.id_cotizacion_det = pdet.id_cotizacion_det
+                inner join adq.tsolicitud_det sdet on sdet.id_solicitud_det =cd.id_solicitud_det
+                inner join param.tconcepto_ingas cg on cg.id_concepto_ingas = sdet.id_concepto_ingas
+                inner join adq.tcotizacion cot on cot.id_cotizacion = cd.id_cotizacion
+                inner join adq.tproceso_compra pro on pro.id_proceso_compra = cot.id_proceso_compra
+                inner join adq.tsolicitud sol on sol.id_solicitud = pro.id_solicitud
+                inner join param.tcentro_costo cc on cc.id_centro_costo = sdet.id_centro_costo
+                left join param.tdepto dep on dep.id_depto = pdet.id_depto
+                where ping.id_preingreso  = p_id_preingreso
+                and pdet.sw_generar = 'si'
+                and pdet.estado = 'mod'
+                and pdet.estado_reg = 'activo' loop
 
         --Vida útil
         /*select vida_util
@@ -116,6 +124,7 @@ BEGIN
                     where id_depto = v_rec.id_depto) then
             raise exception 'No existe depósito para el Departamento ';
         end if;
+
         select id_deposito into v_id_deposito
         from kaf.tdeposito
         where id_depto = v_rec.id_depto;
@@ -186,54 +195,56 @@ BEGIN
         --Inserción de la cantidad definida de activos fijos
         for v_i in 1..v_rec.cantidad_det::integer loop
 
-          select
-          null as id_persona, --ok
-      0 as cantidad_revaloriz, --ok
-      v_rec.id_proveedor as id_proveedor, --ok
-      v_rec.fecha_compra as fecha_compra, --ok
-      v_id_cat_estado_fun as id_cat_estado_fun, --ok
-      v_rec.ubicacion as ubicacion, --ok
-      null as documento, --ok
-      v_rec.observaciones as observaciones, --ok
-      1 as monto_rescate, --ok
-      v_rec.nombre as denominacion, --ok
-          v_id_responsable_depto as id_funcionario, --ok
-          v_id_deposito as id_deposito, --ok
-          v_rec.precio_compra_87 as monto_compra_orig, --ok
-          v_rec.precio_compra_87 as monto_compra,
-          v_rec.id_moneda as id_moneda, --ok
-          v_rec.descripcion as descripcion, --ok
-          v_rec.id_moneda as id_moneda_orig, --ok
-          v_rec.fecha_conformidad as fecha_ini_dep, --ok
-          v_id_cat_estado_compra as id_cat_estado_compra, --ok
-          v_rec.vida_util as vida_util_original, --ok
-          'registrado' as estado, --ok
-          v_rec.id_clasificacion as id_clasificacion, --ok
-          v_id_oficina as id_oficina, --ok
-          v_rec.id_depto as id_depto, --ok
-          p_id_usuario as id_usuario_reg, --ok
-          null as usuario_ai, --ok
-          null as id_usuario_ai, --ok
-          null as id_usuario_mod, --ok
-          'si' as en_deposito, --ok
-          null as codigo_ant, --ok
-          v_rec.marca as marca, --ok
-          v_rec.nro_serie as nro_serie, --ok
-          v_id_unidad_medida as id_unidad_medida, --ok
-          v_rec.cantidad_det as cantidad_af, --ok
-          v_rec.precio_compra as monto_compra_orig_100, --ok
-          v_rec.c31 as nro_cbte_asociado,
-          null as fecha_cbte_asociado,
+            select
+            null as id_persona, --ok
+            0 as cantidad_revaloriz, --ok
+            v_rec.id_proveedor as id_proveedor, --ok
+            v_rec.fecha_compra as fecha_compra, --ok
+            v_id_cat_estado_fun as id_cat_estado_fun, --ok
+            v_rec.ubicacion as ubicacion, --ok
+            null as documento, --ok
+            v_rec.observaciones as observaciones, --ok
+            1 as monto_rescate, --ok
+            v_rec.nombre as denominacion, --ok
+            v_id_responsable_depto as id_funcionario, --ok
+            v_id_deposito as id_deposito, --ok
+            v_rec.precio_compra_87 as monto_compra_orig, --ok
+            v_rec.precio_compra_87 as monto_compra,
+            v_rec.id_moneda as id_moneda, --ok
+            v_rec.descripcion as descripcion, --ok
+            v_rec.id_moneda as id_moneda_orig, --ok
+            v_rec.fecha_conformidad as fecha_ini_dep, --ok
+            v_id_cat_estado_compra as id_cat_estado_compra, --ok
+            v_rec.vida_util as vida_util_original, --ok
+            'registrado' as estado, --ok
+            v_rec.id_clasificacion as id_clasificacion, --ok
+            v_id_oficina as id_oficina, --ok
+            v_rec.id_depto as id_depto, --ok
+            p_id_usuario as id_usuario_reg, --ok
+            null as usuario_ai, --ok
+            null as id_usuario_ai, --ok
+            null as id_usuario_mod, --ok
+            'si' as en_deposito, --ok
+            null as codigo_ant, --ok
+            v_rec.marca as marca, --ok
+            v_rec.nro_serie as nro_serie, --ok
+            v_id_unidad_medida as id_unidad_medida, --ok
+            v_rec.cantidad_det as cantidad_af, --ok
+            v_rec.precio_compra as monto_compra_orig_100, --ok
+            v_rec.c31 as nro_cbte_asociado,
+            null as fecha_cbte_asociado,
+            --Inicio #58
             v_rec.id_cotizacion_det as id_cotizacion_det,
             v_rec.id_preingreso_det as id_preingreso_det,
             v_rec.id_ubicacion as id_ubicacion,
             v_rec.id_grupo as id_grupo,
             v_rec.id_grupo_clasif as id_grupo_clasif,
             v_rec.id_centro_costo as id_centro_costo
-          into v_rec_af;
+            --Fin #58
+            into v_rec_af;
 
-          --Inserción del registro
-          v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
+            --Inserción del registro
+            v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario, hstore(v_rec_af));
 
         end loop;
 
@@ -244,11 +255,13 @@ BEGIN
 EXCEPTION
 
     WHEN OTHERS THEN
-        v_resp='';
+
+        v_resp = '';
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
         v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
         v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-        raise exception '%',v_resp;
+
+        RAISE EXCEPTION '%',v_resp;
 
 END;
 $body$

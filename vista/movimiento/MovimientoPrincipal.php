@@ -11,6 +11,7 @@
  #2     KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
  #23    KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación AF y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
  #35    KAF     ETR         11/10/2019  RCM     Adición de botón para procesar Detalle Depreciación
+ #58    KAF     ETR         20/04/2020  RCM     Adición de botón para nuevo reporte de depreciación
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -246,8 +247,20 @@ Phx.vista.MovimientoPrincipal = {
                 grupo: [0,5]
             }
         );
-        //Fin #39
+        //Fin #35
 
+        //Inicio #58
+        this.addButton('btnRepDepAnual',
+            {
+                text: 'Deprec.',
+                iconCls: 'bexcel',
+                disabled: false,
+                handler: this.imprimirDetalleDepAnual,
+                tooltip: '<b>Detalle Depreciación</b><br/>Nuevo formato reporte de Detalle de Depreciación',
+                grupo: [0,5]
+            }
+        );
+        //Fin #58
 
         //Oculta los botones
         this.getBoton('btnCbte1').hide();
@@ -893,8 +906,49 @@ Phx.vista.MovimientoPrincipal = {
                 });
             }
         }, this);
-    }
+    },
     //Fin #35
+
+    //Inicio #58
+    imprimirDetalleDepAnual: function(){
+        //Verifica si ya existen datos procesados para la fecha del movimiento
+        let v_mensaje = `¿Desea generar a Excel el reporte Detalle de Depreciación? <br><br>Este proceso tomará varios minutos.`;
+        let data = this.sm.getSelected().data;
+        Ext.MessageBox.confirm('Confirmación', v_mensaje, function(resp) {
+            if(resp == 'yes') {
+                Phx.CP.loadingShow();
+                //Obtención de la moneda dep
+                Ext.Ajax.request({
+                    url:'../../sis_kactivos_fijos/control/MonedaDep/obtenerMonedaDep',
+                    params: {
+                        id_moneda: data.id_moneda
+                    },
+                    success: function(resp) {
+                        let rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
+                        //Genera el reporte
+                        Ext.Ajax.request({
+                            url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDeprecAnual',
+                            params: {
+                                tipo_salida: 'excel',
+                                fecha_hasta: data.fecha_hasta,
+                                id_moneda_dep: rec.datos.id_moneda_dep,
+                                id_moneda: rec.datos.id_moneda,
+                                desc_moneda: rec.datos.desc_moneda
+                            },
+                            success: this.successExport,
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
+                        });
+                    },
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+        }, this);
+    }
+    //Fin #58
 
 
 };

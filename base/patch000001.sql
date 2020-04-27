@@ -1711,3 +1711,21 @@ ALTER TABLE kaf.tmovimiento_af_especial
 ALTER TABLE kaf.treporte_detalle_dep
 	ADD COLUMN factor NUMERIC;
 /***********************************F-SCP-RCM-KAF-50-03/03/2020****************************************/
+
+/***********************************I-SCP-RCM-KAF-56-24/03/2020****************************************/
+ALTER TABLE kaf.tactivo_fijo
+	ADD COLUMN id_proyecto_activo INTEGER;
+ALTER TABLE kaf.tactivo_fijo
+	ADD COLUMN id_movimiento_af_especial INTEGER;
+
+ALTER TABLE kaf.tactivo_fijo_valores
+	ADD COLUMN id_proyecto_activo INTEGER;
+ALTER TABLE kaf.tactivo_fijo_valores
+	ADD COLUMN id_preingreso_det INTEGER;
+ALTER TABLE kaf.tactivo_fijo_valores
+	ADD COLUMN id_movimiento_af_especial INTEGER;
+/***********************************F-SCP-RCM-KAF-56-24/03/2020****************************************/
+
+/***********************************I-SCP-RCM-KAF-58-27/04/2020****************************************/
+CREATE EXTENSION tablefunc;
+/***********************************F-SCP-RCM-KAF-58-27/04/2020****************************************/
