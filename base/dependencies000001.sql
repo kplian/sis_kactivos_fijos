@@ -5428,7 +5428,7 @@ AS
 /***********************************F-DEP-RCM-KAF-52-05/03/2020****************************************/
 
 /***********************************I-DEP-RCM-KAF-58-20/04/2020****************************************/
-CREATE VIEW kaf.v_cbte_deprec_3_haber (
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_haber (
     id_clasificacion,
     codigo_completo_tmp,
     nombre,

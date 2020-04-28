@@ -1728,4 +1728,5 @@ ALTER TABLE kaf.tactivo_fijo_valores
 
 /***********************************I-SCP-RCM-KAF-58-27/04/2020****************************************/
 CREATE EXTENSION tablefunc;
+DROP FUNCTION kaf.f_define_origen(integer, integer, integer, integer, character varying);
 /***********************************F-SCP-RCM-KAF-58-27/04/2020****************************************/
