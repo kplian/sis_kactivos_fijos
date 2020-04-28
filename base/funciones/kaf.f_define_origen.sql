@@ -1,15 +1,16 @@
 CREATE OR REPLACE FUNCTION kaf.f_define_origen (
-  p_id_proyecto_activo INTEGER,
-  p_id_preingreso_det INTEGER,
-  p_id_movimiento_af_especial INTEGER,
-  p_id_movimiento_af INTEGER,
-  p_mov_esp VARCHAR
+  p_id_proyecto_activo integer,
+  p_id_preingreso_det integer,
+  p_id_movimiento_af_especial integer,
+  p_id_movimiento_af integer,
+  p_mov_esp varchar,
+  p_tipo varchar
 )
-RETURNS VARCHAR AS
+RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:       Sistema de Activos Fijos
- FUNCION:       kaf.f_define_origen
+ FUNCION:       kaf.f_verificar_origen_afv
  DESCRIPCION:   Determina a que tipo de movimiento corresponde un AFV
  AUTOR:         RCM
  FECHA:         07/04/2020
@@ -25,7 +26,7 @@ DECLARE
 
 BEGIN
 
-	v_nombre_funcion = 'kaf.f_define_origen';
+	v_nombre_funcion = 'kaf.f_verificar_origen_afv';
 
 	--Verifica que tipo de origen tiene el AFV a partir de los IDs del parámetro
 	IF COALESCE(p_id_proyecto_activo, 0) > 0 THEN
@@ -60,4 +61,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
-PARALLEL UNSAFE;
+PARALLEL UNSAFE
+COST 100;
