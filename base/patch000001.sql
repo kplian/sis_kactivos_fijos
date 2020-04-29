@@ -1730,3 +1730,11 @@ ALTER TABLE kaf.tactivo_fijo_valores
 CREATE EXTENSION tablefunc;
 DROP FUNCTION kaf.f_define_origen(integer, integer, integer, integer, character varying);
 /***********************************F-SCP-RCM-KAF-58-27/04/2020****************************************/
+
+/***********************************I-SCP-RCM-KAF-60-28/04/2020****************************************/
+ALTER TABLE kaf.tactivo_fijo_valores
+ADD COLUMN fecha_tc_ini_dep DATE;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_tc_ini_dep
+IS 'Fecha para obtener el TC inicial de la primera depreciación del AF, caso cierre de proyectos y disgregaciones';
+/***********************************F-SCP-RCM-KAF-60-28/04/2020****************************************/

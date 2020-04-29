@@ -19,6 +19,7 @@ $body$
  #48    KAF       ETR           11/02/2020  RCM         Modificación de la finalización y creación de nuevos AFV de activos fijos originales
  #57    KAF       ETR           25/03/2020  RCM         Adición de id_movimiento_af_especial en kaf.tactivo_fijo y kaf.tactivo_fijo_valores
  #58    KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
+ #60    KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
 ***************************************************************************
 */
 DECLARE
@@ -256,7 +257,7 @@ BEGIN
         END IF;
 
         --Parámetros generales que no dependen del saldo
-        v_fecha_ini_dep = v_rec.fecha_mov;
+        v_fecha_ini_dep = DATE_TRUNC('MONTH', v_rec.fecha_mov); --#60
         v_monto_rescate = 1 * param.f_get_tipo_cambio_v2(v_id_moneda_base, v_rec.id_moneda, v_fecha_mov, 'O');
 
         --Inserción del activo fijo valor
@@ -266,7 +267,7 @@ BEGIN
         depreciacion_acum       , monto_vigente                         , vida_util                         , estado,
         monto_rescate           , tipo                                  , fecha_inicio                      , id_moneda_dep,
         id_moneda               , monto_vigente_orig_100                , monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
-        depreciacion_per_inicial, mov_esp                               , id_movimiento_af
+        depreciacion_per_inicial, mov_esp                               , id_movimiento_af                  , fecha_tc_ini_dep --#60
         ) VALUES (
         --Inicio #48
         p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
@@ -275,7 +276,7 @@ BEGIN
         v_monto_rescate         , v_cod_afv || '-b'                     , v_rec.fecha_mov                   , v_rec.id_moneda_dep, --#58
         v_rec.id_moneda         , v_monto_vigente                       , v_depreciacion_acum               , v_depreciacion_acum, --RCM 07/11/2019
         v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR, --cafv: creación activo fijo valor
-        v_rec.id_movimiento_af
+        v_rec.id_movimiento_af  , v_fecha_ini_dep - '1 day'::INTERVAL --#60
         --Fin #48
         );
 
@@ -410,7 +411,8 @@ BEGIN
             depreciacion_acum_inicial,
             depreciacion_per_inicial,
             mov_esp,
-            id_movimiento_af_especial --#57
+            id_movimiento_af_especial, --#57
+            fecha_tc_ini_dep --#60
         )
         WITH tult_dep AS (
             SELECT
@@ -441,7 +443,7 @@ BEGIN
         'activo',
         v_monto_rescate_gral,
         v_cod_afv,
-        v_rec_af.fecha_ini_dep,
+        DATE_TRUNC('month', v_rec_af.fecha_ini_dep) AS fecha_ini_dep, --#60
         mod.id_moneda_dep,
         mdep.id_moneda,
         CASE mdep.id_moneda
@@ -455,7 +457,8 @@ BEGIN
         0, --RCM
         0, --RCM
         'cafv-' || p_id_movimiento::varchar, --cafv creación de activo fijo valor
-        v_rec_af.id_movimiento_af_especial --#57
+        v_rec_af.id_movimiento_af_especial, --#57
+        DATE_TRUNC('month', v_rec_af.fecha_ini_dep) - '1 day'::INTERVAL --#60
         FROM kaf.tactivo_fijo_valores  afv
         INNER JOIN tult_dep dult
         ON dult.id_activo_fijo = afv.id_activo_fijo
@@ -534,7 +537,8 @@ BEGIN
         depreciacion_acum_inicial,
         depreciacion_per_inicial,
         mov_esp,
-        id_movimiento_af_especial --#57
+        id_movimiento_af_especial, --#57
+        fecha_tc_ini_dep --#60
     )
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -602,7 +606,7 @@ BEGIN
         ELSE tad.monto_actualiz + (tao.monto_actualiz * tad.porcentaje / 100)
     END AS monto_vigente_orig,
     tad.vida_util,
-    tad.fecha_mov,
+    DATE_TRUNC('month', tad.fecha_mov), --#60
     tad.depreciacion_acum + (tao.depreciacion_acum * tad.porcentaje / 100)  AS depreciacion_acum,
     CASE tad.id_moneda
         WHEN v_id_moneda THEN tad.monto_actualiz + tad.importe
@@ -626,7 +630,8 @@ BEGIN
     tad.depreciacion_acum + (tao.depreciacion_acum * tad.porcentaje / 100) AS depreciacion_acum_inicial,
     tad.depreciacion_per + (tao.depreciacion_per * tad.porcentaje / 100) AS depreciacion_per_inicial,
     'cafv-' || p_id_movimiento::varchar AS mov_esp,
-    tad.id_movimiento_af_especial --#57
+    tad.id_movimiento_af_especial, --#57
+    DATE_TRUNC('month', tad.fecha_mov) - '1 day'::INTERVAL --#60
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
