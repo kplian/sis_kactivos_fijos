@@ -20,6 +20,7 @@ $body$
  #57    KAF       ETR           25/03/2020  RCM         Adición de id_movimiento_af_especial en kaf.tactivo_fijo y kaf.tactivo_fijo_valores
  #58    KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
  #60    KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
+ #61    KAF       ETR           30/04/2020  RCM         Al generar el AF falta incluir marca y nro de serie
 ***************************************************************************
 */
 DECLARE
@@ -323,7 +324,9 @@ BEGIN
                     ubicacion,
                     en_deposito,
                     --Fin #48
-                    id_movimiento_af_especial --#57
+                    id_movimiento_af_especial, --#57
+                    marca, --#61
+                    nro_serie --#61
                 )
                 SELECT
                 'activo',
@@ -365,7 +368,9 @@ BEGIN
                 mafe.ubicacion,
                 'si',
                 --Fin #48
-                mafe.id_movimiento_af_especial --#57
+                mafe.id_movimiento_af_especial, --#57
+                mafe.marca, --#61
+                mafe.nro_serie --#61
                 FROM kaf.tmovimiento_af_especial mafe
                 INNER JOIN kaf.tmovimiento_af maf
                 ON maf.id_movimiento_af = mafe.id_movimiento_af
@@ -379,7 +384,8 @@ BEGIN
 
         --Obtención de datos para la creación del nuevo activo fijo
         SELECT mafe.porcentaje, mafe.vida_util, mafe.fecha_ini_dep, mafe.importe,
-        mafe.costo_orig --#48
+        mafe.costo_orig, --#48
+        mafe.id_movimiento_af_especial --#57
         INTO v_rec_af
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento_af_especial mafe
