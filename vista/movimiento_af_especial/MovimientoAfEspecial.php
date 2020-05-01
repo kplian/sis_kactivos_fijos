@@ -11,7 +11,7 @@
  #2		KAF		ETR 		22-05-2019	RCM		Opción para traspasar valores de un activo fijo a otro
  #36	KAF		ETR 		21/10/2019	RCM		Modificación de proceso de División de Valores
  #39    KAF     ETR     	29-11-2019  RCM     Importación masiva Distribución de valores
- #45	KAF		ETR			21-02-2020	MZM		Adicion de columna costo_orig
+ #45    KAF     ETR         21-02-2020  MZM     Adicion de columna costo_orig
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -225,10 +225,12 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 			id_grupo: 1,
 			grid: true,
 			form: true
-		},{
+		},
+		//Inicio RCM 03/02/2020
+		{
 			config: {
 				name: 'costo_orig',
-				fieldLabel: 'Valor Original',
+				fieldLabel: 'Costo Original', //#45
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -240,11 +242,12 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		        //Fin #36
 			},
 			type: 'NumberField',
-			filters: {pfiltro: 'moafes.costo_orig', type: 'numeric'},
+			filters: {pfiltro: 'moafes.costo_orig', type: 'numeric'}, //#45
 			id_grupo: 1,
 			grid: true,
 			form: true
 		},
+		//Fin RCM
 		{
 			config: {
 				name: 'id_activo_fijo',
@@ -266,7 +269,7 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				}),
 				valueField: 'id_activo_fijo',
 				displayField: 'denominacion',
-				gdisplayField: 'denominacion_af',
+				gdisplayField: 'codigo', //'denominacion_af', //#45
 				hiddenName: 'id_activo_fijo',
 				forceSelection: true,
 				typeAhead: false,
@@ -278,10 +281,12 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 				anchor: '100%',
 				gwidth: 300,
 				minChars: 2,
-				renderer: function(value,p,record){
+				//Inicio #45
+				/*renderer: function(value,p,record){
 					return '<tpl for="."><div class="x-combo-list-item"><i class="fa fa-reply-all" aria-hidden="true"></i><p><b>Código: </b> ' + record.data['codigo'] + '</p><p><b>Denominación: </b> ' + record.data['denominacion'] + '</p></div></tpl>';
 
-				},
+				},*/
+				//Fin #45
 				tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Codigo:</b> {codigo}</p><p><b>Activo Fijo:</b> {denominacion}</p><p><b>Código SAP:</b> {codigo_ant}</p></div></tpl>'
 			},
 			type: 'ComboBox',
@@ -928,9 +933,9 @@ Phx.vista.MovimientoAfEspecial = Ext.extend(Phx.gridInterfaz, {
 		{name:'responsable', type: 'string'},
 		{name:'moneda', type: 'string'},
 		{name:'desc_grupo_ae', type: 'string'},
-		{name:'desc_clasif_ae', type: 'string'}
+		{name:'desc_clasif_ae', type: 'string'},
+		{name:'costo_orig', type: 'numeric'} //#45
 		//Fin #39
-		,{name:'costo_orig', type: 'numeric'}//#45
 	],
 	sortInfo: {
 		field: 'id_movimiento_af_especial',
