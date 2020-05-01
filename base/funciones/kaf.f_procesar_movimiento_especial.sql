@@ -150,7 +150,7 @@ BEGIN
 
     v_id_moneda_base = param.f_get_moneda_base();--#48 Obtención de la moneda base
 
-    FOR v_rec IN
+    FOR v_rec IN --consulta verificada ..ok falta verificar la creación de los registros --#48
     (
         WITH tult_dep AS (
             --Fecha de la última depreciación para obtener información de los activos fijos originales
@@ -247,8 +247,8 @@ BEGIN
             v_fecha_ini_dep = v_rec.fecha_mov;
             v_monto_actualiz = v_rec.depreciacion_acum;
             v_depreciacion_acum = v_rec.depreciacion_acum;
-            v_depreciacion_per = v_rec.depreciacion_per;
-            v_monto_vigente = v_rec.depreciacion_acum;
+            v_depreciacion_per = 0;--v_rec.depreciacion_per; --#48
+            v_monto_vigente = v_rec.monto_actualiz; --#48
 
         END IF;
 
@@ -265,20 +265,22 @@ BEGIN
         id_moneda               , monto_vigente_orig_100                , monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
         depreciacion_per_inicial, mov_esp
         ) VALUES (
+        --Inicio #48
         p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
         v_monto_vigente         , v_vida_util                           , v_fecha_ini_dep                   , v_depreciacion_per,
         v_depreciacion_acum     , v_monto_vigente                       , v_vida_util                       , 'activo',
-        1                       , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
-        v_rec.id_moneda         , v_monto_act                           , v_monto_act_inicial               , v_depreciacion_acum, --RCM 07/11/2019
+        v_monto_rescate         , v_cod_afv                             , v_rec.fecha_mov                   , v_rec.id_moneda_dep,
+        v_rec.id_moneda         , v_monto_vigente                       , v_depreciacion_acum               , v_depreciacion_acum, --RCM 07/11/2019
         v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR --cafv: creación activo fijo valor
+        --Fin #48
         );
 
     END LOOP;
-    raise exception 'FFFFFFFF';
+
     -------------------------------------------------
     --CASO 2.3: CREACIÓN DE LOS ACTIVOS FIJOS NUEVOS
     -------------------------------------------------
-    FOR v_rec IN INSERT INTO kaf.tactivo_fijo(
+    FOR v_rec IN INSERT INTO kaf.tactivo_fijo( --consulta verificada ..ok --#48
                     estado_reg,
                     fecha_compra,
                     id_cat_estado_fun,
@@ -307,21 +309,31 @@ BEGIN
                     id_oficina,
                     id_proyecto,
                     codigo_ant,
-                    bk_codigo
+                    bk_codigo,
+                    --Inicio #48
+                    id_unidad_medida,
+                    id_ubicacion,
+                    id_grupo,
+                    id_grupo_clasif,
+                    ubicacion,
+                    en_deposito
+                    --Fin #48
                 )
                 SELECT
                 'activo',
-                mov.fecha_mov,
+                mafe.fecha_compra, --#48
                 af.id_cat_estado_fun,
                 af.id_cat_estado_compra,
                 'Creado desde Distribución de Valores',
                 af.monto_rescate,
                 mafe.denominacion,
-                af.id_funcionario,
+                mafe.id_funcionario, --#48
                 af.id_deposito,
-                mafe.importe,--monto_compra_orig,
-                mafe.importe,
-                v_id_moneda_base,
+                --Inicio #48
+                mafe.costo_orig,
+                mafe.costo_orig,
+                v_id_moneda,
+                --Fin #48
                 mafe.denominacion,
                 maf.id_moneda,--id_moneda_orig,
                 mafe.fecha_ini_dep,
@@ -333,12 +345,20 @@ BEGIN
                 p_id_usuario,--id_usuario_reg,
                 now(),
                 1,--cantidad_af
-                mafe.importe,--monto_compra_orig_100,
+                mafe.costo_orig,--#48
                 maf.id_activo_fijo,
                 af.id_oficina,
                 mafe.id_movimiento_af_especial,
                 af.codigo,
-                'caf-'||p_id_movimiento::varchar --caf: creación de activo fijo
+                'caf-'||p_id_movimiento::varchar, --caf: creación de activo fijo
+                --Inicio #48
+                mafe.id_unidad_medida,
+                mafe.id_ubicacion,
+                mafe.id_grupo,
+                mafe.id_grupo_clasif,
+                mafe.ubicacion,
+                'si'
+                --Fin #48
                 FROM kaf.tmovimiento_af_especial mafe
                 INNER JOIN kaf.tmovimiento_af maf
                 ON maf.id_movimiento_af = mafe.id_movimiento_af
@@ -351,7 +371,8 @@ BEGIN
                 RETURNING * LOOP
 
         --Obtención de datos para la creación del nuevo activo fijo
-        SELECT mafe.porcentaje, mafe.vida_util, mafe.fecha_ini_dep, mafe.importe
+        SELECT mafe.porcentaje, mafe.vida_util, mafe.fecha_ini_dep, mafe.importe,
+        mafe.costo_orig --#48
         INTO v_rec_af
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento_af_especial mafe
@@ -399,17 +420,17 @@ BEGIN
         'activo',
         v_rec.id_activo_fijo,
         CASE mdep.id_moneda
-            WHEN v_id_moneda THEN v_rec_af.importe
-            ELSE mdep.monto_actualiz * v_rec_af.porcentaje / 100
+            WHEN v_id_moneda THEN ROUND(v_rec_af.importe, 2) --#48
+            ELSE ROUND(mdep.monto_vigente * v_rec_af.porcentaje / 100, 2) --#48
         END AS monto_vigente_orig,
-        v_rec_af.vida_util,
+        v_rec_af.vida_util - (afv.vida_util_orig - mdep.vida_util), --#48
         v_rec_af.fecha_ini_dep,
         mdep.depreciacion_acum * v_rec_af.porcentaje / 100 AS depreciacion_acum,
         CASE mdep.id_moneda
-            WHEN v_id_moneda THEN v_rec_af.importe
-            ELSE mdep.monto_actualiz * v_rec_af.porcentaje / 100
+            WHEN v_id_moneda THEN ROUND(v_rec_af.importe, 2)
+            ELSE ROUND(mdep.monto_vigente * v_rec_af.porcentaje / 100, 2) --#48
         END AS monto_vigente,
-        v_rec_af.vida_util,
+        v_rec_af.vida_util - (afv.vida_util_orig - mdep.vida_util), --#48
         'activo',
         v_monto_rescate_gral,
         v_cod_afv,
@@ -417,15 +438,15 @@ BEGIN
         mod.id_moneda_dep,
         mdep.id_moneda,
         CASE mdep.id_moneda
-            WHEN v_id_moneda THEN v_rec_af.importe
-            ELSE mdep.monto_actualiz * v_rec_af.porcentaje / 100
+            WHEN v_id_moneda THEN ROUND(v_rec_af.costo_orig, 2) --#48
+            ELSE ROUND(mdep.monto_actualiz * v_rec_af.porcentaje / 100, 2) --#48
         END AS monto_vigente_orig_100,
         CASE mdep.id_moneda
-            WHEN v_id_moneda THEN v_rec_af.importe
-            ELSE mdep.monto_actualiz * v_rec_af.porcentaje / 100
+            WHEN v_id_moneda THEN ROUND(v_rec_af.importe, 2) --#48
+            ELSE ROUND(mdep.monto_vigente * v_rec_af.porcentaje / 100, 2) --#48
         END AS monto_vigente_actualiz_inicial,
-        mdep.depreciacion_acum * v_rec_af.porcentaje / 100,
-        mdep.depreciacion_per * v_rec_af.porcentaje / 100,
+        0, --RCM
+        0, --RCM
         'cafv-' || p_id_movimiento::varchar --cafv creación de activo fijo valor
         FROM kaf.tactivo_fijo_valores  afv
         INNER JOIN tult_dep dult
