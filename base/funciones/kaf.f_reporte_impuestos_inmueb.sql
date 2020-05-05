@@ -17,6 +17,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #17    KAF       ETR           11/07/2019  RCM         Reporte Impuestos a las Propiedades e Inmuebles por gestión
  #29    KAF       ETR           17/09/2019  RCM         Reporte 3, cambio de columna Clasificación por la de la variable Tipo Activo
+ #63    KAF       ETR           05/05/2020  RCM         Columna ubicación sale nulo cuando el orden es nulo. Corregir con COALESCE
  ***************************************************************************/
 DECLARE
 
@@ -247,7 +248,7 @@ BEGIN
         END LOOP;
     ELSE
     	FOR v_rec IN (SELECT
-                      (ub.orden || ' - ' || rim.ubicacion)::VARCHAR as ubicacion,
+                      (COALESCE(ub.orden, 0) || ' - ' || rim.ubicacion)::VARCHAR as ubicacion, --#63
                       rim.clasificacion,
                       rim.moneda,
                       SUM(rim.valor_actualiz_gest_ant) AS valor_actualiz_gest_ant,

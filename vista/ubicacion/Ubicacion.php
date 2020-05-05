@@ -5,8 +5,12 @@
 *@author  (admin)
 *@date 15-06-2018 15:08:40
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+/***************************************************************************
+#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+        KAF     ETR         15/06/2018  RCM     Creación del archivo
+ #64    KAF     ETR         05/05/2020  RCM     Agregar campo orden que ya está en la base de datos
+***************************************************************************
 */
-
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -19,7 +23,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}})
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -29,7 +33,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_ubicacion'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -61,6 +65,24 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+		//Inicio #64
+		{
+			config:{
+				name: 'orden',
+				fieldLabel: 'Orden',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				minValue: 0,
+				maxValue: 999
+			},
+				type:'NumberField',
+				filters:{ pfiltro:'ubic.orden',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		//Fin #64
 		{
 			config:{
 				name: 'estado_reg',
@@ -113,7 +135,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -159,7 +181,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -169,7 +191,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Locales',
 	ActSave:'../../sis_kactivos_fijos/control/Ubicacion/insertarUbicacion',
 	ActDel:'../../sis_kactivos_fijos/control/Ubicacion/eliminarUbicacion',
@@ -188,7 +210,7 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+		{name:'orden', type: 'numeric'} //#64
 	],
 	sortInfo:{
 		field: 'id_ubicacion',
@@ -199,5 +221,4 @@ Phx.vista.Ubicacion=Ext.extend(Phx.gridInterfaz,{
 	}
 )
 </script>
-		
-		
+
