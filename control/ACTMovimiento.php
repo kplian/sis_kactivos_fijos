@@ -12,6 +12,7 @@
  #39     KAF     ETR         22-11-2019  RCM     Reporte detalle depreciación, incluir traspasos
  #38     KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
  #54     KAF     ETR         11-03-2020  RCM     Creación de AF solo cuando tenga importe mayor a cero
+ #62     KAF     ETR         05-05-2020  RCM     Opción para importar plantilla de almacenes
 **************************************************************************
 */
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/ReportWriter.php');
@@ -511,6 +512,178 @@ class ACTMovimiento extends ACTbase{
 
 	}
     //Fin #39
+
+    //Inicio #62
+    function ImportarDvalAL() {
+		$arregloFiles = $this->objParam->getArregloFiles();
+        $ext = pathinfo($arregloFiles['archivo']['name']);
+        $extension = $ext['extension'];
+        $error = 'no';
+        $mensaje_completo = '';
+        $cod_af_origen = array();
+        $ids_movimiento_af = array();
+
+        if(isset($arregloFiles['archivo']) && is_uploaded_file($arregloFiles['archivo']['tmp_name'])) {
+
+            if (!in_array($extension, array('xls', 'xlsx', 'XLS', 'XLSX'))) {
+
+                $mensaje_completo = "La extensión del archivo debe ser XLS o XLSX";
+                $error = 'error_fatal';
+
+            } else {
+
+            	$archivoExcel = new ExcelInput($arregloFiles['archivo']['tmp_name'], 'AF-DVALAL');
+                $archivoExcel->recuperarColumnasExcel();
+                $arrayArchivo = $archivoExcel->leerColumnasArchivoExcel();
+
+                //Elimina los registros de distribución de valores
+                $this->objFunc = $this->create('MODMovimientoAf');
+                $this->res = $this->objFunc->eliminarMovimientoAfDVal($this->objParam);
+
+                if ($this->res->getTipo() == 'ERROR') {
+                	$this->res->imprimirRespuesta($this->res->generarJson());
+		            exit;
+                }
+
+                //Recorre todo el archivo XLS fila a fila
+                $cont = 0;
+
+                //Inicio #38
+                foreach ($arrayArchivo as $fila) {
+
+                	if ($cont > 0) {
+	                	//Guarda el registro del activo
+	                	$this->objParam->addParametro('item', $fila['item']);
+						$this->objParam->addParametro('tipo', 'af_almacen');
+						$this->objParam->addParametro('opcion', 'importe');
+						$this->objParam->addParametro('porcentaje', 0);
+						$this->objParam->addParametro('codigo', $fila['codigo']);
+						//$this->objParam->addParametro('importe', $fila['']);
+						$this->objParam->addParametro('clasificacion', $fila['clasificacion']);
+						$this->objParam->addParametro('denominacion', $fila['denominacion']);
+						$this->objParam->addParametro('vida_util_anios', $fila['vida_util_anios']);
+						$this->objParam->addParametro('fecha_ini_dep', $fila['fecha_ini_dep']);
+						$this->objParam->addParametro('centro_costo', $fila['centro_costo']);
+						$this->objParam->addParametro('codigo_almacen', $fila['codigo_almacen']);
+						$this->objParam->addParametro('codigo_activo', $fila['codigo_activo']);
+
+						$this->objParam->addParametro('nro_serie', $fila['nro_serie']);
+						$this->objParam->addParametro('marca', $fila['marca']);
+						$this->objParam->addParametro('descripcion', $fila['descripcion']);
+						$this->objParam->addParametro('cantidad_det', $fila['cantidad']);
+						$this->objParam->addParametro('unidad', $fila['unidad']);
+						$this->objParam->addParametro('ubicacion', $fila['ubicacion']);
+						$this->objParam->addParametro('local', $fila['local']);
+						$this->objParam->addParametro('responsable', $fila['responsable']);
+						$this->objParam->addParametro('fecha_compra', $fila['fecha_compra']);
+						$this->objParam->addParametro('moneda', $fila['moneda']);
+						$this->objParam->addParametro('grupo_ae', $fila['grupo_ae']);
+						$this->objParam->addParametro('clasificacion_ae', $fila['clasificacion_ae']);
+						$this->objParam->addParametro('observaciones', $fila['pedido']);
+						$this->objParam->addParametro('codigo_af_rel', $fila['codigo_af_rel']);
+						$this->objParam->addParametro('codigo_af', $fila['codigo_activo']);
+
+						//Recorre todos los AFs del array y Guarda registro en movimiento af (kaf.tmovimiento9_af)
+						$cont_af = 1;
+						foreach ($cod_af_origen as $valor) {
+							$idMovimientoAf = false;
+							//Verificando si es que ya fue registrado previamente
+							$idMovimientoAf = array_search($valor, $ids_movimiento_af);
+
+							//Si no existe registra en movimiento af
+							if(!$idMovimientoAf && trim($fila["activo_fijo_$cont_af"]) != '') {
+								if($fila["activo_fijo_$cont_af"] > 0) { //#54
+									//Registra sólo si tiene un importe
+									$this->objParam->addParametro('codigo_activo', $valor);
+									$this->objFunc = $this->create('MODMovimientoAf');
+		                    		$this->res = $this->objFunc->insertarMovimientoAfImp($this->objParam);
+
+		                    		//Verifica si se produjo algún error
+									if ($this->res->getTipo() == 'ERROR') {
+				                    	$this->res->imprimirRespuesta($this->res->generarJson());
+							            exit;
+
+				                    } else {
+
+				                    	//Recupera el ID MOVIMIENTO AF resultado
+				                    	$dat = $this->res->getDatos();
+				                    	$idMovimientoAf = $dat['id_movimiento_af'];
+				                    	$this->objParam->addParametro('id_movimiento_af', $idMovimientoAf);
+				                    	$ids_movimiento_af[$idMovimientoAf] = $valor;
+
+				                    	//Guarda el detalle
+				                    	$this->objParam->addParametro('importe', $fila["activo_fijo_$cont_af"]);
+	                    				$this->objFunc = $this->create('MODMovimientoAfEspecial');
+	                    				$this->res = $this->objFunc->insertarMovimientoAfEspecialImportar($this->objParam);
+
+				                    	if ($this->res->getTipo() == 'ERROR') {
+					                    	$this->res->imprimirRespuesta($this->res->generarJson());
+								            exit;
+					                    }
+				                    }
+								}//#54
+
+							} else if($idMovimientoAf && trim($fila["activo_fijo_$cont_af"]) != '') {
+								//Guarda el detalle
+		                    	$this->objParam->addParametro('importe', $fila["activo_fijo_$cont_af"]);
+		                    	$this->objParam->addParametro('id_movimiento_af', $idMovimientoAf); // #38
+                				$this->objFunc = $this->create('MODMovimientoAfEspecial');
+                				$this->res = $this->objFunc->insertarMovimientoAfEspecialImportar($this->objParam);
+
+		                    	if ($this->res->getTipo() == 'ERROR') {
+			                    	$this->res->imprimirRespuesta($this->res->generarJson());
+						            exit;
+			                    }
+
+							}
+							$cont_af++;
+						}
+
+                	} else {
+
+                		//Obtiene los códigos de los activos fijos
+                		for ($i = 0; $i < 50; $i ++) {
+
+                			if ($fila["activo_fijo_$i"] != '') {
+	                			//Guarda los códigos de los activos fijos en variable local
+	                    		$cod_af_origen[$i] = $fila["activo_fijo_$i"];
+                			}
+                    	}
+                	}
+
+                	$cont++;
+                }
+                //Fin #38
+            }
+        } else {
+            $mensaje_completo = "No se subio el archivo";
+            $error = 'error_fatal';
+        }
+
+
+        if ($error == 'error_fatal') {
+            $this->mensajeRes=new Mensaje();
+            $this->mensajeRes->setMensaje('ERROR','ACTMovimiento.php',$mensaje_completo,
+                $mensaje_completo,'control');
+            //si no es error fatal proceso el archivo
+        }
+
+        if ($error == 'error') {
+            $this->mensajeRes=new Mensaje();
+            $this->mensajeRes->setMensaje('ERROR','ACTMovimiento.php','Ocurrieron los siguientes errores : ' . $mensaje_completo,
+                $mensaje_completo,'control');
+
+        } else if ($error == 'no') {
+            $this->mensajeRes=new Mensaje();
+            $this->mensajeRes->setMensaje('EXITO','ACTMovimiento.php','El archivo fue ejecutado con éxito',
+                'El archivo fue ejecutado con éxito','control');
+        }
+
+        //devolver respuesta
+        $this->mensajeRes->imprimirRespuesta($this->mensajeRes->generarJson());
+
+	}
+    //Fin #62
 
 }
 
