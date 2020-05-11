@@ -19,6 +19,7 @@ $body$
  #37    KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
  #41    KAF       ETR           10/12/2019  RCM         Cambio de Relaciones contables ALINGTA, ALINGTD por las definidas en la clasificación de altas y dep. acum.
  #48    KAF       ETR           10/03/2020  RCM         Ajuste a la generación de comprobante caso activos fijos nuevos
+ #66    KAF       ETR           08/05/2020  RCM         Ajuste a la generación de comprobante caso almacenes
 ***************************************************************************
 */
 DECLARE
@@ -36,7 +37,6 @@ DECLARE
     v_id_moneda_ufv         integer;
     v_cantidad              integer;
     v_fecha_mov             date;
-    v_id_moneda_mov_esp     integer;
     v_codigo_moneda         varchar;
     v_id_centro_costo       integer; --#36
     --Inicio #37: Dos arrays para obtener la configuración de relaciones contables generales
@@ -44,6 +44,7 @@ DECLARE
     v_rec_rel_cont1         record;
     v_id_gestion            integer;
     --Fin #37
+    v_tipo_cambio           NUMERIC; --#66
 
 BEGIN
 
@@ -881,12 +882,12 @@ BEGIN
         ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
         WHERE (tb.esquema::text = 'KAF'
         AND tb.tabla::text = 'tclasificacion'
-        AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
+        AND trc.codigo_tipo_relacion IN ('AF-DISG_AF','AF-DISG_DACUM'))
         OR (tb.esquema::text = 'ALM'
         AND tb.tabla::text = 'talmacen'
         AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
     )
-    SELECT
+    SELECT DISTINCT --#66
     mafe.id_movimiento_af_especial,
     rc_af.id_cuenta, rc_af.id_partida, af.id_centro_costo,
     rc_al.id_cuenta, rc_al.id_partida, af.id_centro_costo,
@@ -894,7 +895,7 @@ BEGIN
     rc_dacum.id_cuenta, rc_dacum.id_partida, af.id_centro_costo,
     0,
     CASE afv.id_moneda
-        WHEN v_id_moneda THEN mafe.importe
+        WHEN v_id_moneda THEN mafe.costo_orig --#66
         ELSE (mdep.monto_actualiz * mafe.porcentaje / 100)
     END AS monto_vigente_orig,
     0,
@@ -930,7 +931,7 @@ BEGIN
     ON af.id_activo_fijo = maf.id_activo_fijo
     INNER JOIN tclasif_rel clr
     ON af.id_clasificacion = ANY(clr.nodos)
-    AND clr.codigo = 'ALTAAF'
+    AND clr.codigo = 'AF-DISG_AF'
     INNER JOIN conta.trelacion_contable rc_af
     ON rc_af.id_tabla = clr.id_clasificacion
     AND rc_af.estado_reg = 'activo'
@@ -971,7 +972,7 @@ BEGIN
     --Fin #41
     INNER JOIN tclasif_rel clrdacum
     ON af.id_clasificacion = ANY(clrdacum.nodos)
-    AND clrdacum.codigo = 'DEPACCLAS'
+    AND clrdacum.codigo = 'AF-DISG_DACUM'
     INNER JOIN conta.trelacion_contable rc_dacum
     ON rc_dacum.id_tabla = clrdacum.id_clasificacion
     AND rc_dacum.estado_reg = 'activo'
@@ -1007,7 +1008,7 @@ BEGIN
             ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
             WHERE (tb.esquema::text = 'KAF'
             AND tb.tabla::text = 'tclasificacion'
-            AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
+            AND trc.codigo_tipo_relacion IN ('AF-DISG_AF','AF-DISG_DACUM'))
             OR (tb.esquema::text = 'ALM'
             AND tb.tabla::text = 'talmacen'
             AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
@@ -1016,7 +1017,7 @@ BEGIN
         mafe.id_movimiento_af_especial, rc_al.id_cuenta, rc_al.id_partida, null,
         0,
         CASE afv.id_moneda
-            WHEN v_id_moneda THEN mafe.importe
+            WHEN v_id_moneda THEN mafe.costo_orig --#66
             ELSE (mdep.monto_actualiz * mafe.porcentaje / 100)
         END AS monto_vigente_orig,
         0,
@@ -1038,7 +1039,7 @@ BEGIN
         ON af.id_activo_fijo = maf.id_activo_fijo
         INNER JOIN tclasif_rel clr
         ON af.id_clasificacion = ANY(clr.nodos)
-        AND clr.codigo = 'ALTAAF'
+        AND clr.codigo = 'AF-DISG_AF'
         INNER JOIN conta.trelacion_contable rc_af
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
@@ -1079,7 +1080,7 @@ BEGIN
 
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
-        AND clrdacum.codigo = 'DEPACCLAS'
+        AND clrdacum.codigo = 'AF-DISG_DACUM'
         INNER JOIN conta.trelacion_contable rc_dacum
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
@@ -1117,7 +1118,7 @@ BEGIN
             ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
             WHERE (tb.esquema::text = 'KAF'
             AND tb.tabla::text = 'tclasificacion'
-            AND trc.codigo_tipo_relacion IN ('ALTAAF','DEPACCLAS'))
+            AND trc.codigo_tipo_relacion IN ('AF-DISG_AF','AF-DISG_DACUM'))
             OR (tb.esquema::text = 'ALM'
             AND tb.tabla::text = 'talmacen'
             AND trc.codigo_tipo_relacion IN ('ALINGT'/*, 'ALINGTA', 'ALINGTD'*/)) --#36
@@ -1125,7 +1126,7 @@ BEGIN
         SELECT
         mafe.id_movimiento_af_especial, rc_al.id_cuenta, rc_al.id_partida, null, 0, 0,
         CASE afv.id_moneda
-            WHEN 3 THEN mafe.importe
+            WHEN v_id_moneda THEN mafe.costo_orig --#66
             ELSE (mdep.monto_actualiz * mafe.porcentaje / 100)
         END AS monto_vigente_orig,
         0, 0,
@@ -1145,7 +1146,7 @@ BEGIN
         ON af.id_activo_fijo = maf.id_activo_fijo
         INNER JOIN tclasif_rel clr
         ON af.id_clasificacion = ANY(clr.nodos)
-        AND clr.codigo = 'ALTAAF'
+        AND clr.codigo = 'AF-DISG_AF'
         INNER JOIN conta.trelacion_contable rc_af
         ON rc_af.id_tabla = clr.id_clasificacion
         AND rc_af.estado_reg = 'activo'
@@ -1187,7 +1188,7 @@ BEGIN
         */
         INNER JOIN tclasif_rel clrdacum
         ON af.id_clasificacion = ANY(clrdacum.nodos)
-        AND clrdacum.codigo = 'DEPACCLAS'
+        AND clrdacum.codigo = 'AF-DISG_DACUM'
         INNER JOIN conta.trelacion_contable rc_dacum
         ON rc_dacum.id_tabla = clrdacum.id_clasificacion
         AND rc_dacum.estado_reg = 'activo'
@@ -1203,9 +1204,9 @@ BEGIN
     WHERE tr.id_trans = dt.id_movimiento_af_especial;
 
 
-    ------------------------------------------------------------
-    --GENERACIÓN DE COMPROBANTE: Inserción de las transacciones
-    ------------------------------------------------------------
+    -----------------------------------------------------------------------------------------------------
+    --GENERACIÓN DE COMPROBANTE CASOS ACTIVOS FIJOS NUEVOS Y EXISTENTES: Inserción de las transacciones
+    -----------------------------------------------------------------------------------------------------
     --Debe: Depreciación acumulada
     INSERT INTO conta.tint_transaccion
     (
@@ -1263,9 +1264,10 @@ BEGIN
     now(),
     t.glosa --#21 adición de columna para la glosa
     FROM tt_transaccion t
-    WHERE COALESCE(t.depreciacion_acum_bs, 0) > 0
+    WHERE (COALESCE(t.depreciacion_acum_bs, 0) > 0
     OR COALESCE(t.depreciacion_acum_usd, 0) > 0
-    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0;
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') <> 'af_almacen'; --#66: solo para caso activos fijos
 
     --Inicio #37
     --Haber: Depreciación acumulada
@@ -1324,9 +1326,10 @@ BEGIN
     now(),
     t.codigo_af_original --#48
     FROM tt_transaccion t
-    WHERE COALESCE(t.depreciacion_acum_bs, 0) > 0
+    WHERE (COALESCE(t.depreciacion_acum_bs, 0) > 0
     OR COALESCE(t.depreciacion_acum_usd, 0) > 0
-    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') <> 'af_almacen' --#66: solo para caso activos fijos
     --Inicio #48
     GROUP BY v_rec_rel_cont1.ps_id_partida, v_rec_rel_cont1.ps_id_centro_costo,v_rec_rel_cont1.ps_id_cuenta, v_id_int_comprobante,
     p_id_usuario, t.codigo_af_original;
@@ -1390,9 +1393,10 @@ BEGIN
     now(),
     t.codigo_af_original --#48
     FROM tt_transaccion t
-    WHERE COALESCE(t.importe_bs, 0) > 0
+    WHERE (COALESCE(t.importe_bs, 0) > 0
     OR COALESCE(t.importe_usd, 0) > 0
-    OR COALESCE(t.importe_ufv, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') <> 'af_almacen' --#66: solo para caso activos fijos
     --Inicio #48
     GROUP BY t.id_partida,
     v_id_centro_costo,
@@ -1463,73 +1467,25 @@ BEGIN
     now(),
     t.glosa
     FROM tt_transaccion t
-    WHERE COALESCE(t.importe_usd, 0) > 0
+    WHERE (COALESCE(t.importe_usd, 0) > 0
     OR COALESCE(t.importe_ufv, 0) > 0
-    OR COALESCE(t.importe_bs, 0) > 0; --#48
+    OR COALESCE(t.importe_bs, 0) > 0) --#48
+    AND COALESCE(t.tipo, '') <> 'af_almacen'; --#66: solo para caso activos fijos
 
-    /*--Debe: Contracuenta 2/2 del activo de la transacción en BS por la actualización (sólo BS)
+    --Inicio #66
+    ---------------------------------------------------------------------------
+    --GENERACIÓN DE COMPROBANTE CASO ALMACENES: Inserción de las transacciones
+    ---------------------------------------------------------------------------
+    --Obtención del tipo de cambio en la moneda principal de los movimientos especiales
+    v_tipo_cambio = COALESCE(param.f_get_tipo_cambio_v2(v_id_moneda_bs, v_id_moneda, now()::date, 'O'), 6.96);
+    v_rec_rel_cont = conta.f_get_config_relacion_contable
+                    (
+                        'AJT_AITB_DEBE',
+                        v_id_gestion --p_id_gestion
+                    );
+
+    --DEBE AF
     INSERT INTO conta.tint_transaccion
-    (
-        id_partida,
-        id_centro_costo,
-        estado_reg,
-        id_cuenta,
-        id_int_comprobante,
-        importe_debe,
-        importe_debe_mb,
-        importe_debe_mt,
-        importe_debe_ma,
-        importe_gasto,
-        importe_gasto_mb,
-        importe_gasto_mt,
-        importe_gasto_ma,
-        importe_haber,
-        importe_haber_mb,
-        importe_haber_mt,
-        importe_haber_ma,
-        importe_recurso,
-        importe_recurso_mb,
-        importe_recurso_mt,
-        importe_recurso_ma,
-        id_usuario_reg,
-        fecha_reg,
-        glosa,
-        actualizacion
-    )
-    SELECT
-    v_rec_rel_cont.ps_id_partida,
-    v_rec_rel_cont.ps_id_centro_costo,
-    'activo',
-    v_rec_rel_cont.ps_id_cuenta,
-    v_id_int_comprobante,
-    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2), --t.importe_bs,
-    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
-    0,--t.importe_usd,
-    0,--t.importe_ufv,
-    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
-    t.importe_bs - param.f_convertir_moneda(2, 1, t.importe_usd, v_fecha_mov, 'O', 2),--t.importe_bs,
-    0,--t.importe_usd,
-    0,--t.importe_ufv,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    p_id_usuario,
-    now(),
-    'debe 5',--t.glosa,
-    'si'
-    FROM tt_transaccion t
-    WHERE COALESCE(t.importe_usd, 0) > 0
-    OR COALESCE(t.importe_bs, 0) > 0;
-    --Fin #37*/
-
-
-    --Saldo para contracuenta (debe)
-    /*INSERT INTO conta.tint_transaccion
     (
         id_partida,
         id_centro_costo,
@@ -1556,79 +1512,18 @@ BEGIN
         fecha_reg,
         glosa
     )
-    --Inicio #36
-    SELECT
-    t.id_partida_dest, --#36
-    v_id_centro_costo, --#36
-    'activo',
-    t.id_cuenta_dest, --#36
-    v_id_int_comprobante,
-    t.importe_bs - t.depreciacion_acum_bs,
-    t.importe_bs - t.depreciacion_acum_bs,
-    t.importe_usd - t.depreciacion_acum_usd,
-    t.importe_ufv - t.depreciacion_acum_ufv,
-    t.importe_bs - t.depreciacion_acum_bs,
-    t.importe_bs - t.depreciacion_acum_bs,
-    t.importe_usd - t.depreciacion_acum_usd,
-    t.importe_ufv - t.depreciacion_acum_ufv,
-    --Inicio #36 AHORA
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    --Fin #36 AHORA
-    p_id_usuario,
-    now(),
-    t.glosa --#21 adición de columna para la glosa
-    FROM tt_transaccion t;*/
-
-
-
-    --Debe: Monto activo fijo
-    /*INSERT INTO conta.tint_transaccion
-    (
-        id_partida,
-        id_centro_costo,
-        estado_reg,
-        id_cuenta,
-        id_int_comprobante,
-        importe_debe,
-        importe_debe_mb,
-        importe_debe_mt,
-        importe_debe_ma,
-        importe_gasto,
-        importe_gasto_mb,
-        importe_gasto_mt,
-        importe_gasto_ma,
-        importe_haber,
-        importe_haber_mb,
-        importe_haber_mt,
-        importe_haber_ma,
-        importe_recurso,
-        importe_recurso_mb,
-        importe_recurso_mt,
-        importe_recurso_ma,
-        id_usuario_reg,
-        fecha_reg,
-        glosa --#21 adición de columna para la glosa
-    )
-    --Inicio #36
     SELECT
     t.id_partida_dest,
-    cc1.id_centro_costo,
+    v_id_centro_costo,
     'activo',
     t.id_cuenta_dest,
     v_id_int_comprobante,
-    t.importe_bs,
-    t.importe_bs,
+    t.importe_bs - (t.importe_bs - (t.importe_usd * v_tipo_cambio)),
+    t.importe_bs - (t.importe_bs - (t.importe_usd * v_tipo_cambio)),
     t.importe_usd,
     t.importe_ufv,
-    t.importe_bs,
-    t.importe_bs,
+    t.importe_bs - (t.importe_bs - (t.importe_usd * v_tipo_cambio)),
+    t.importe_bs - (t.importe_bs - (t.importe_usd * v_tipo_cambio)),
     t.importe_usd,
     t.importe_ufv,
     0,
@@ -1641,17 +1536,15 @@ BEGIN
     0,
     p_id_usuario,
     now(),
-    t.glosa --#21 adición de columna para la glosa
+    t.glosa
     FROM tt_transaccion t
-    INNER JOIN param.tcentro_costo cc
-    ON cc.id_centro_costo = t.id_centro_costo_dest
-    INNER JOIN param.tcentro_costo cc1
-    ON cc1.id_tipo_cc = cc.id_tipo_cc
-    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));*/
-    --Fin #36
+    WHERE (COALESCE(t.importe_bs, 0) > 0
+    OR COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') = 'af_almacen';
 
-    --Haber: Depreciación acumulada
-    /*INSERT INTO conta.tint_transaccion
+    --DEBE AF BS DIF ACT
+    INSERT INTO conta.tint_transaccion
     (
         id_partida,
         id_centro_costo,
@@ -1678,14 +1571,18 @@ BEGIN
         fecha_reg,
         glosa --#21 adición de columna para la glosa
     )
-    --Inicio #36
     SELECT
-    t.id_partida_dep_acum_dest, --#36
-    cc1.id_centro_costo, --#36
+    v_rec_rel_cont.ps_id_partida,
+    v_id_centro_costo,
     'activo',
-    t.id_cuenta_dep_acum_dest, --#36
+    v_rec_rel_cont.ps_id_cuenta,
     v_id_int_comprobante,
-    --Inicio #36 AHORA
+    t.importe_bs - (t.importe_usd * v_tipo_cambio),
+    t.importe_bs - (t.importe_usd * v_tipo_cambio),
+    0,
+    0,
+    t.importe_bs - (t.importe_usd * v_tipo_cambio),
+    t.importe_bs - (t.importe_usd * v_tipo_cambio),
     0,
     0,
     0,
@@ -1694,7 +1591,177 @@ BEGIN
     0,
     0,
     0,
-    --Fin #36 AHORA
+    0,
+    0,
+    p_id_usuario,
+    now(),
+    t.glosa
+    FROM tt_transaccion t
+    WHERE (COALESCE(t.importe_bs, 0) > 0
+    OR COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') = 'af_almacen';
+
+    --DEBE DEPACUM
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa
+    )
+    SELECT
+    t.id_partida_dep_acum,
+    v_id_centro_costo,
+    'activo',
+    t.id_cuenta_dep_acum,
+    v_id_int_comprobante,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_bs,
+    t.depreciacion_acum_usd,
+    t.depreciacion_acum_ufv,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    p_id_usuario,
+    now(),
+    t.glosa
+    FROM tt_transaccion t
+    WHERE (COALESCE(t.depreciacion_acum_bs, 0) > 0
+    OR COALESCE(t.depreciacion_acum_usd, 0) > 0
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') = 'af_almacen';
+
+    --HABER AF
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa
+    )
+    SELECT
+    t.id_partida,
+    v_id_centro_costo,
+    'activo',
+    t.id_cuenta,
+    v_id_int_comprobante,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    t.importe_bs,
+    t.importe_bs,
+    t.importe_usd,
+    t.importe_ufv,
+    p_id_usuario,
+    now(),
+    t.glosa
+    FROM tt_transaccion t
+    WHERE (COALESCE(t.importe_bs, 0) > 0
+    OR COALESCE(t.importe_usd, 0) > 0
+    OR COALESCE(t.importe_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') = 'af_almacen';
+
+    --HABER DEP ACUM
+    INSERT INTO conta.tint_transaccion
+    (
+        id_partida,
+        id_centro_costo,
+        estado_reg,
+        id_cuenta,
+        id_int_comprobante,
+        importe_debe,
+        importe_debe_mb,
+        importe_debe_mt,
+        importe_debe_ma,
+        importe_gasto,
+        importe_gasto_mb,
+        importe_gasto_mt,
+        importe_gasto_ma,
+        importe_haber,
+        importe_haber_mb,
+        importe_haber_mt,
+        importe_haber_ma,
+        importe_recurso,
+        importe_recurso_mb,
+        importe_recurso_mt,
+        importe_recurso_ma,
+        id_usuario_reg,
+        fecha_reg,
+        glosa
+    )
+    SELECT
+    v_rec_rel_cont1.ps_id_partida,
+    v_rec_rel_cont1.ps_id_centro_costo,
+    'activo',
+    v_rec_rel_cont1.ps_id_cuenta,
+    v_id_int_comprobante,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     t.depreciacion_acum_bs,
     t.depreciacion_acum_bs,
     t.depreciacion_acum_usd,
@@ -1705,17 +1772,14 @@ BEGIN
     t.depreciacion_acum_ufv,
     p_id_usuario,
     now(),
-    t.glosa --#21 adición de columna para la glosa
+    t.glosa
     FROM tt_transaccion t
-    --Inicio #36
-    INNER JOIN param.tcentro_costo cc
-    ON cc.id_centro_costo = t.id_centro_costo_dep_acum_dest
-    INNER JOIN param.tcentro_costo cc1
-    ON cc1.id_tipo_cc = cc.id_tipo_cc
-    AND cc1.id_gestion IN (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov));
+    WHERE (COALESCE(t.depreciacion_acum_bs, 0) > 0
+    OR COALESCE(t.depreciacion_acum_usd, 0) > 0
+    OR COALESCE(t.depreciacion_acum_ufv, 0) > 0)
+    AND COALESCE(t.tipo, '') = 'af_almacen';
+    --Fin #66
 
-    --Fin #36
-*/
     -------------------------------------------------
     --Actualizar el ID comprobante en el Movimiento
     -------------------------------------------------
