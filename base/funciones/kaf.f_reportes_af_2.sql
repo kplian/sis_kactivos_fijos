@@ -1895,7 +1895,7 @@ BEGIN
                 )
                 SELECT
                 ROW_NUMBER() OVER(ORDER BY af.codigo) as numero,
-                af.codigo, af.codigo_ant as codigo_sap, af.denominacion, afv.fecha_ini_dep, af.cantidad_af,
+                af.codigo, af.codigo_ant as codigo_sap, af.denominacion, af.fecha_ini_dep, af.cantidad_af, --#58 cambio de afv.fecha_ini_dep por af.fecha_ini_dep
                 umed.descripcion as unidad_medida, tcc.codigo as cc, af.nro_serie, ub.codigo as lugar,
                 fun.desc_funcionario2 as responsable,
                 COALESCE(afvo.monto_vigente_orig_100, afv.monto_vigente_orig_100) as valor_compra,
