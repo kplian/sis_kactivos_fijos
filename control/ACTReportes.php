@@ -16,6 +16,7 @@
  #19    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos de Vehículos
  #26    KAF       ETR           22/08/2019  RCM         Adición método para Reporte Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
+ #58	KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
 ****************************************************************************
 */
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
@@ -31,6 +32,7 @@ require_once(dirname(__FILE__).'/../reportes/RImpuestosVehiculosXls.php'); //#19
 require_once(dirname(__FILE__).'/../reportes/RAfDistValoresXls.php'); //#20
 require_once(dirname(__FILE__).'/../reportes/RAltaOrigenXls.php'); //#26
 require_once(dirname(__FILE__).'/../reportes/RComparacionAfContaXls.php'); //#23
+require_once(dirname(__FILE__).'/../reportes/RDetalleDepreciacionAnualXls.php');//#58
 
 class ACTReportes extends ACTbase {
 
@@ -799,6 +801,47 @@ class ACTReportes extends ACTbase {
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 	//Fin #23
+
+	//Inicio #58
+	function generarReporteDeprecAnual(){
+		$nombreArchivo = uniqid('RDepreciacionAnualXls'.md5(session_id())).'.xls';
+
+		$dataSource = $this->obtenerDeprecAnual();
+
+		//Parametros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Detalle Dep.Anual';
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+		$reporte = new RDetalleDepreciacionAnualXls($this->objParam);
+		$reporte->setMaster($dataSourceMaster);
+		$reporte->setData($dataSource->getDatos());
+		$reporte->generarReporte();
+
+		$this->mensajeExito = new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function obtenerDeprecAnual(){
+		$this->definirFiltros();
+		$this->objFunc=$this->create('MODReportes');
+		$data = $this->objFunc->listarReporteDeprecAnual($this->objParam);
+
+		if($data->getTipo() == 'EXITO'){
+			return $data;
+		} else {
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		}
+    }
+	//Fin #58
 
 }
 ?>

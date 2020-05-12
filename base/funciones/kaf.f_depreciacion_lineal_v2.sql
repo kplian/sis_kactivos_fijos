@@ -19,6 +19,7 @@ $body$
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
  #39    KAF       ETR           29/11/2019  RCM         Lógica para considerar valores iniciales seteados en primera depreciación
  #51    KAF       ETR           04/12/2020  RCM         Modificación de monto inicial para ejecutar la depreciación
+ #60    KAF       ETR           28/04/2020  RCM         Inclusión de TC inicial predefinido para la primera depreciación del AF
 ***************************************************************************/
 DECLARE
 
@@ -133,7 +134,8 @@ BEGIN
                 afv1.codigo as codigo_afv,
                 afv1.importe_modif, --#4
                 afv1.aux_depmes_tot_del_inc,
-                afv1.aux_inc_dep_acum_del_inc
+                afv1.aux_inc_dep_acum_del_inc,
+                afv1.fecha_tc_ini_dep --#60
                 from kaf.tmovimiento_af maf
                 inner join kaf.vactivo_fijo_valor afv
                 on afv.id_activo_fijo = maf.id_activo_fijo
@@ -206,8 +208,13 @@ BEGIN
                             where id_activo_fijo_valor = v_rec.id_activo_fijo_valor_original
                             and id_moneda_dep = v_rec.id_moneda_dep);
 
---                  raise exception 'si entra %',v_tipo_cambio_anterior;
         end if;
+
+        --Inicio #60
+        IF v_rec.fecha_ult_dep IS NULL AND v_rec.fecha_tc_ini_dep IS NOT NULL  THEN
+            v_tipo_cambio_anterior = param.f_get_tipo_cambio_v2(v_rec.id_moneda_act, v_rec.id_moneda, v_rec.fecha_tc_ini_dep, 'O');
+        END IF;
+        --Fin #60
 
         --Bucle de la cantidad de meses a depreciar
         for i in 1..v_rec.meses_dep loop

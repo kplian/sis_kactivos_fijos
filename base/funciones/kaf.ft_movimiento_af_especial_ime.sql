@@ -21,6 +21,7 @@ $body$
  #47    KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
  #46	KAF		ETR			18-02-2020  MZM		Modificacion a funcion de importacion de movimientos especiales, dado que el valor en plantilla viene en base a valor actualizado y se debe obtener el valor en funcion al importe_neto.
  #53    KAF     ETR         09-03-2020  RCM     Adición de TRIM en comparación de columna
+ #62    KAF     ETR         06-05-2020  RCM     Opción para importar plantilla de almacenes
 ***************************************************************************/
 DECLARE
 
@@ -60,10 +61,17 @@ DECLARE
     v_marca                     VARCHAR;
     v_codigo_af_orig            VARCHAR;
     --Fin #38
-    --#46
+    --#Inicio 46
 	v_monto_neto				numeric;
     v_costo_orig				numeric;
-	--fin #46
+	--Fin #46
+    --Inicio #62
+    v_fecha_ini_dep             DATE;
+    v_denominacion              VARCHAR;
+    v_ubicacion                 VARCHAR;
+    v_fecha_compra              DATE;
+    --Fin #62
+
 BEGIN
 
     v_nombre_funcion = 'kaf.ft_movimiento_af_especial_ime';
@@ -467,11 +475,20 @@ BEGIN
             ---------------
             --Inicio #38
             v_tipo = 'af_nuevo';
-            IF pxp.f_existe_parametro(p_tabla, 'codigo_af') THEN
-                IF COALESCE(v_parametros.codigo_af, '') <> '' THEN
-                    v_tipo = 'af_exist';
-                END IF;
+
+            --Inicio #62
+            IF pxp.f_existe_parametro(p_tabla, 'tipo') THEN
+                v_tipo = 'af_almacen';
             END IF;
+            --Fin #62
+
+            IF v_tipo = 'af_nuevo' THEN --#62
+                IF pxp.f_existe_parametro(p_tabla, 'codigo_af') THEN
+                    IF COALESCE(v_parametros.codigo_af, '') <> '' THEN
+                        v_tipo = 'af_exist';
+                    END IF;
+                END IF;
+            END IF; --#62
             --Fin #38
 
             --clasificacion
@@ -558,8 +575,6 @@ BEGIN
             WHERE maf.id_movimiento_af = v_parametros.id_movimiento_af;
             --Fin #38
 
-
-
 			v_monto_neto:=(v_monto_actualiz-v_depreciacion_acum); --#46
 
             if(v_monto_neto=0) then
@@ -597,20 +612,13 @@ BEGIN
             END IF;
 
             --Control de no sobregiro
-            --IF v_monto_actualiz_usado + v_monto > v_monto_actualiz THEN
-			IF round(v_monto_actualiz_usado + v_monto,2) > round(v_monto_neto,2) THEN
---                RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_actualiz, v_monto_actualiz_usado, v_monto;
+			IF ROUND(v_monto_actualiz_usado + v_monto,2) > ROUND(v_monto_neto,2) THEN
                 RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %), Monto Orig: %', v_codigo_af_orig, v_monto_neto, v_monto_actualiz_usado, v_monto, v_parametros.importe;
             END IF;
 
-           -- IF v_monto_actualiz_usado2 + v_monto > v_monto_actualiz THEN
-          /*  IF v_monto_actualiz_usado2 + v_monto > v_monto_neto THEN
-                RAISE EXCEPTION 'Se ****** ha superado el valor total del Activo Fijo Origen %. (Valor Original: %, Saldo Anterior: %, Nuevo monto: %)', v_codigo_af_orig, v_monto_neto, v_monto_actualiz_usado2, v_monto;
-            END IF;*/
-            if v_monto_actualiz_usado2 + round((v_monto/v_monto_neto*100),2) > 100 then --#46
-            	raise exception 'Se ha superado el valor total del Activo Fijo Origen en porcentaje %. (Valor Original: %, Saldo Anterior Porcentual: %, Nuevo porcentaje: %)',v_codigo_af_orig,v_monto_neto, v_monto_actualiz_usado2, (v_monto/v_monto_neto*100) ;
-            end if;
-
+            IF v_monto_actualiz_usado2 + ROUND((v_monto / v_monto_neto * 100), 2) > 100 THEN --#46
+            	RAISE EXCEPTION 'Se ha superado el valor total del Activo Fijo Origen en porcentaje %. (Valor Original: %, Saldo Anterior Porcentual: %, Nuevo porcentaje: %)', v_codigo_af_orig,v_monto_neto, v_monto_actualiz_usado2, (v_monto / v_monto_neto * 100);
+            END IF;
 
             --Inicio #38
             --Nro Serie
@@ -696,24 +704,49 @@ BEGIN
                     AND (LOWER(codigo) = LOWER(TRIM(v_parametros.clasificacion_ae)) OR LOWER(codigo) = '0' || LOWER(TRIM(v_parametros.clasificacion_ae)));
                 END IF;
             END IF;
-
             --Fin #38
+
+            --Inicio #62
+            IF v_tipo = 'af_almacen' THEN
+                SELECT id_almacen
+                INTO v_id_almacen
+                FROM alm.talmacen
+                WHERE TRIM(UPPER(codigo)) = TRIM(UPPER(v_parametros.codigo));
+
+                IF v_id_almacen IS NULL THEN
+                    RAISE EXCEPTION 'Código de almacén no encontrado: %, para el activo (Fila %)', v_parametros.codigo, v_parametros.item;
+                END IF;
+            END IF;
+
+            IF pxp.f_existe_parametro(p_tabla, 'fecha_ini_dep') THEN
+                v_fecha_ini_dep = v_parametros.fecha_ini_dep;
+            END IF;
+
+            IF pxp.f_existe_parametro(p_tabla, 'denominacion') THEN
+                v_denominacion = v_parametros.denominacion;
+            END IF;
+
+            IF pxp.f_existe_parametro(p_tabla, 'ubicacion') THEN
+                v_ubicacion = v_parametros.ubicacion;
+            END IF;
+
+            IF pxp.f_existe_parametro(p_tabla, 'fecha_compra') THEN
+                v_fecha_compra = v_parametros.fecha_compra;
+            END IF;
+
+            --Fin #62
 
             ------------
             --Inserción
             ------------
-
             IF v_parametros.opcion = 'porcentaje' THEN
                 v_porcentaje = v_parametros.porcentaje;
-              --  v_importe = v_monto_actualiz * v_parametros.porcentaje / 100;  --#46
 				v_importe = v_monto_neto * v_parametros.porcentaje / 100; --#46
             END IF;
 
             IF v_parametros.opcion = 'importe' THEN
-              --  v_importe = v_parametros.importe; --#46
-              --  v_porcentaje = v_parametros.importe * 100 / v_monto_actualiz;  --#46
-                  v_porcentaje = v_monto * 100 / v_monto_neto;  --#46
-                  v_importe = v_monto; --#46
+                v_porcentaje = v_monto * 100 / v_monto_neto;  --#46
+                v_importe = v_monto; --#46
             END IF;
 
             INSERT INTO kaf.tmovimiento_af_especial(
@@ -755,13 +788,13 @@ BEGIN
             ) VALUES (
             v_id_activo_fijo,
             v_parametros.id_movimiento_af,
-            v_parametros.fecha_ini_dep,
+            v_fecha_ini_dep, --#62
             v_importe,
             v_vida_util,
             v_id_clasificacion,
             'activo',
             v_id_centro_costo,
-            v_parametros.denominacion,
+            v_denominacion, --#62
             v_porcentaje,
             v_parametros._id_usuario_ai,
             p_id_usuario,
@@ -779,10 +812,10 @@ BEGIN
             v_parametros.descripcion,
             v_parametros.cantidad_det,
             v_id_unidad_medida,
-            v_parametros.ubicacion,
+            v_ubicacion, --#62
             v_id_ubicacion,
             v_id_funcionario,
-            v_parametros.fecha_compra,
+            v_fecha_compra, --#62
             v_id_grupo_ae,
             v_id_grupo_clasif,
             NULL
@@ -820,4 +853,3 @@ $body$
 LANGUAGE 'plpgsql'
 VOLATILE
 COST 100;
-ALTER FUNCTION "kaf"."ft_movimiento_af_especial_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
