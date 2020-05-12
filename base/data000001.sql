@@ -540,3 +540,8 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD70','AF-DVA
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD71','AF-DVALAF','si',NULL,NULL,'71','activo_fijo_49','activo_fijo_49','string',NULL,'activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD72','AF-DVALAF','si',NULL,NULL,'72','activo_fijo_50','activo_fijo_50','string',NULL,'activo');
 /***********************************F-DAT-RCM-KAF-38-06/11/2019****************************************/
+
+/***********************************I-DAT-RCM-KAF-66-11/05/2020****************************************/
+select conta.f_import_ttipo_relacion_contable ('insert','AF-DISG_AF','TCLS','Activos Fijos, Disgregación, Activo Fijo','activo','si-general','si','no','flujo','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','AF-DISG_DACUM','TCLS','Activos Fijos, Disgregación, Depreciación Acumulada','activo','si-general','si','no','flujo','recurso_gasto','no','no','no','');
+/***********************************F-DAT-RCM-KAF-66-11/05/2020****************************************/

@@ -11,6 +11,7 @@
  #2		KAF		ETR 		22-05-2019	RCM		Control para la distribución de valores (Creación)
  #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
  #45    KAF     ETR         11-03-2020  RCM     Adición de columna costo original
+ #62    KAF     ETR         05-05-2020  RCM     Opción para importar plantilla de almacenes
 ***************************************************************************/
 class MODMovimientoAfEspecial extends MODbase{
 
@@ -236,6 +237,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('moneda', 'moneda','varchar');
 		$this->setParametro('grupo_ae', 'grupo_ae','varchar');
 		$this->setParametro('clasificacion_ae', 'clasificacion_ae','varchar');
+		$this->setParametro('codigo', 'codigo','varchar');//#62
 		//Fin #39
 
 		//Ejecuta la instruccion
