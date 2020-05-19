@@ -21,6 +21,7 @@ $body$
  #58    KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
  #60    KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
  #61    KAF       ETR           30/04/2020  RCM         Al generar el AF falta incluir marca y nro de serie
+ #67    KAF       ETR           20/05/2020  RCM         Codificar los AFVs al procesar la disgregación
 ***************************************************************************
 */
 DECLARE
@@ -211,7 +212,8 @@ BEGIN
         mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act,
         vn.valor_actualiz - td.costo_af as saldo,
         (vn.valor_actualiz - td.costo_af) / vn.valor_actualiz as factor,
-        maf.id_movimiento_af --#57
+        maf.id_movimiento_af, --#57
+        af.codigo --#67
         FROM kaf.tmovimiento_af maf
         INNER JOIN kaf.tmovimiento mov
         ON mov.id_movimiento = maf.id_movimiento
@@ -230,6 +232,10 @@ BEGIN
         INNER JOIN tdistribucion td
         ON td.id_movimiento = maf.id_movimiento
         AND td.id_activo_fijo = maf.id_activo_fijo
+        --Inicio #67
+        INNER JOIN kaf.tactivo_fijo af
+        ON af.id_activo_fijo = afv.id_activo_fijo
+        --Fin #67
         WHERE maf.id_movimiento = p_id_movimiento
     ) LOOP
 
@@ -268,7 +274,8 @@ BEGIN
         depreciacion_acum       , monto_vigente                         , vida_util                         , estado,
         monto_rescate           , tipo                                  , fecha_inicio                      , id_moneda_dep,
         id_moneda               , monto_vigente_orig_100                , monto_vigente_actualiz_inicial    , depreciacion_acum_inicial,
-        depreciacion_per_inicial, mov_esp                               , id_movimiento_af                  , fecha_tc_ini_dep --#60
+        depreciacion_per_inicial, mov_esp                               , id_movimiento_af                  , fecha_tc_ini_dep, --#60
+        codigo --#67
         ) VALUES (
         --Inicio #48
         p_id_usuario            , now()                                 , 'activo'                          , v_rec.id_activo_fijo,
@@ -277,7 +284,8 @@ BEGIN
         v_monto_rescate         , v_cod_afv || '-b'                     , v_rec.fecha_mov                   , v_rec.id_moneda_dep, --#58
         v_rec.id_moneda         , v_monto_vigente                       , v_depreciacion_acum               , v_depreciacion_acum, --RCM 07/11/2019
         v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR, --cafv: creación activo fijo valor
-        v_rec.id_movimiento_af  , v_fecha_ini_dep - '1 day'::INTERVAL --#60
+        v_rec.id_movimiento_af  , v_fecha_ini_dep - '1 day'::INTERVAL, --#60
+        v_rec.codigo --#67
         --Fin #48
         );
 
