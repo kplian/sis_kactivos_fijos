@@ -1,6 +1,6 @@
 CREATE OR REPLACE FUNCTION kaf.f_procesar_movimiento_especial (
-	p_id_usuario integer,
-	p_id_movimiento integer,
+    p_id_usuario integer,
+    p_id_movimiento integer,
     p_id_tipo_estado integer --#39
 )
 RETURNS varchar AS
@@ -22,12 +22,13 @@ $body$
  #60    KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
  #61    KAF       ETR           30/04/2020  RCM         Al generar el AF falta incluir marca y nro de serie
  #67    KAF       ETR           20/05/2020  RCM         Codificar los AFVs al procesar la disgregación
+ #68    KAF       ETR           22/05/2020  RCM         Considerar disgregación con monto parcial del AF origen
 ***************************************************************************
 */
 DECLARE
 
-	v_nombre_funcion		varchar;
-    v_resp					varchar;
+    v_nombre_funcion        varchar;
+    v_resp                  varchar;
     v_id_moneda             integer;
     v_rec                   record;
     v_rec_af                record;
@@ -54,10 +55,14 @@ DECLARE
     v_monto_rescate         NUMERIC;
     v_id_moneda_base        INTEGER;
     --Fin #48
+    --Inicio #68
+    v_monto_vigente_actualiz_inicial NUMERIC;
+    v_depreciacion_acum_inicial      NUMERIC;
+    --Fin #68
 
 BEGIN
 
-	--Nombre de la función
+    --Nombre de la función
     v_nombre_funcion = 'kaf.f_procesar_movimiento_especial';
     v_monto_rescate_gral = 1;
     v_cod_afv = 'dval';
@@ -72,25 +77,25 @@ BEGIN
     --1. VALIDACIONES
     ------------------
     IF NOT EXISTS (SELECT 1
-    				FROM kaf.tmovimiento
-    				WHERE id_movimiento = p_id_movimiento) THEN
-    	RAISE EXCEPTION 'Movimiento inexistente';
+                    FROM kaf.tmovimiento
+                    WHERE id_movimiento = p_id_movimiento) THEN
+        RAISE EXCEPTION 'Movimiento inexistente';
     END IF;
 
     IF NOT EXISTS(SELECT 1
-    				FROM kaf.tmovimiento MOV
-    				INNER JOIN param.tcatalogo CAT
-    				ON CAT.id_catalogo = MOV.id_cat_movimiento
-    				WHERE MOV.id_movimiento = p_id_movimiento
-    				AND CAT.codigo = v_cod_afv) THEN
-    	RETURN 'No es un Movimiento de Distribución de Valores. Nada que Hacer';
+                    FROM kaf.tmovimiento MOV
+                    INNER JOIN param.tcatalogo CAT
+                    ON CAT.id_catalogo = MOV.id_cat_movimiento
+                    WHERE MOV.id_movimiento = p_id_movimiento
+                    AND CAT.codigo = v_cod_afv) THEN
+        RETURN 'No es un Movimiento de Distribución de Valores. Nada que Hacer';
     END IF;
 
     /*IF EXISTS (SELECT 1
-    			FROM kaf.tmovimiento
-    			WHERE id_movimiento = p_id_movimiento
-    			AND estado = 'borrador') THEN
-    	RAISE EXCEPTION 'No puede procesarse porque el Movimiento está en Borrador';
+                FROM kaf.tmovimiento
+                WHERE id_movimiento = p_id_movimiento
+                AND estado = 'borrador') THEN
+        RAISE EXCEPTION 'No puede procesarse porque el Movimiento está en Borrador';
     END IF;*/
 
     -------------------
@@ -155,7 +160,7 @@ BEGIN
 
     v_id_moneda_base = param.f_get_moneda_base();--#48 Obtención de la moneda base
 
-    FOR v_rec IN --consulta verificada ..ok falta verificar la creación de los registros --#48
+    FOR v_rec IN --consulta verificada --#48
     (
         WITH tult_dep AS (
             --Fecha de la última depreciación para obtener información de los activos fijos originales
@@ -211,7 +216,7 @@ BEGIN
         afv.id_activo_fijo, afv.id_activo_fijo_valor,
         mdep.vida_util, mov.fecha_mov, mod.id_moneda_dep, mod.id_moneda_act,
         vn.valor_actualiz - td.costo_af as saldo,
-        (vn.valor_actualiz - td.costo_af) / vn.valor_actualiz as factor,
+        td.costo_af / vn.valor_actualiz as factor, --#68
         maf.id_movimiento_af, --#57
         af.codigo --#67
         FROM kaf.tmovimiento_af maf
@@ -242,16 +247,19 @@ BEGIN
         --Verifica si el activo fijo original aun tiene saldo para definir como crear los nuevos AFVs
         IF v_rec.saldo > 1 THEN
             --Existe saldo pendiente
-            v_vida_util = v_rec.vida_util - 1;
-            v_monto_actualiz = v_rec.monto_actualiz * v_rec.factor;
-            v_depreciacion_acum = v_rec.depreciacion_acum * v_rec.factor;
-            v_depreciacion_per = v_rec.depreciacion_per * v_rec.factor;
+            v_vida_util = v_rec.vida_util; --#68
+            v_monto_actualiz = v_rec.monto_actualiz - (v_rec.monto_actualiz * v_rec.factor); --#68
+            v_depreciacion_acum = v_rec.depreciacion_acum - (v_rec.depreciacion_acum * v_rec.factor); --#68
+            v_depreciacion_per = v_rec.depreciacion_per - (v_rec.depreciacion_per * v_rec.factor); --#68
 
             IF v_rec.id_moneda = v_id_moneda THEN
                 v_monto_actualiz = v_rec.saldo;
             END IF;
 
-            v_monto_vigente = v_monto_actualiz - v_depreciacion_acum;
+            v_monto_vigente = v_monto_actualiz; --#68
+            v_monto_vigente_actualiz_inicial = v_monto_actualiz; --#68
+            v_depreciacion_acum_inicial = v_depreciacion_acum; --#68
+
         ELSE
             --Saldo cero
             v_vida_util = 0;
@@ -260,6 +268,9 @@ BEGIN
             v_depreciacion_acum = v_rec.depreciacion_acum;
             v_depreciacion_per = 0;--v_rec.depreciacion_per; --#48
             v_monto_vigente = v_rec.monto_actualiz; --#48
+
+            v_monto_vigente_actualiz_inicial = v_depreciacion_acum; --#68
+            v_depreciacion_acum_inicial = v_depreciacion_acum; --#68
 
         END IF;
 
@@ -282,7 +293,7 @@ BEGIN
         v_monto_vigente         , v_vida_util                           , v_fecha_ini_dep                   , v_depreciacion_per,
         v_depreciacion_acum     , v_monto_vigente                       , v_vida_util                       , 'activo',
         v_monto_rescate         , v_cod_afv || '-b'                     , v_rec.fecha_mov                   , v_rec.id_moneda_dep, --#58
-        v_rec.id_moneda         , v_monto_vigente                       , v_depreciacion_acum               , v_depreciacion_acum, --RCM 07/11/2019
+        v_rec.id_moneda         , v_monto_vigente                       , v_monto_vigente_actualiz_inicial  , v_depreciacion_acum_inicial, --#68
         v_depreciacion_per      , 'cafv-' || p_id_movimiento::VARCHAR, --cafv: creación activo fijo valor
         v_rec.id_movimiento_af  , v_fecha_ini_dep - '1 day'::INTERVAL, --#60
         v_rec.codigo --#67
@@ -667,12 +678,12 @@ BEGIN
 
 EXCEPTION
 
-	WHEN OTHERS THEN
-		v_resp = '';
-		v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
-		v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
-		v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
-		raise exception '%', v_resp;
+    WHEN OTHERS THEN
+        v_resp = '';
+        v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
+        v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
+        v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
+        raise exception '%', v_resp;
 
 END;
 $body$
