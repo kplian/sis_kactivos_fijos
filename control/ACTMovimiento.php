@@ -13,6 +13,7 @@
  #38     KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
  #54     KAF     ETR         11-03-2020  RCM     Creación de AF solo cuando tenga importe mayor a cero
  #62     KAF     ETR         05-05-2020  RCM     Opción para importar plantilla de almacenes
+ #69     KAF     ETR         18-06-2020  RCM     Envío del tipo de importación, para que sólo elimine ese tipo
 **************************************************************************
 */
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/ReportWriter.php');
@@ -418,6 +419,31 @@ class ACTMovimiento extends ACTbase{
 							//Verificando si es que ya fue registrado previamente
 							$idMovimientoAf = array_search($valor, $ids_movimiento_af);
 
+							//Inicio #69: verifica si anteriomente ya fue registrado el activo fijo dentro de este movimiento
+							if(!$idMovimientoAf) {
+								$this->objParam->addParametro('codigo_activo', $valor);
+								$this->objFunc = $this->create('MODMovimientoAf');
+	                    		$this->res = $this->objFunc->obtenerMovimientoAfID($this->objParam);
+
+	                    		//Verifica si se produjo algún error
+								if ($this->res->getTipo() == 'ERROR') {
+			                    	$this->res->imprimirRespuesta($this->res->generarJson());
+						            exit;
+			                    } else {
+			                    	//Recupera el ID MOVIMIENTO AF resultado
+			                    	$dat = $this->res->getDatos();
+			                    	$idMovimientoAf = $dat['id_movimiento_af'];
+
+			                    	if($idMovimientoAf == -1) {
+			                    		$idMovimientoAf = false;
+			                    	} else {
+										$this->objParam->addParametro('id_movimiento_af', $idMovimientoAf);
+				                    	$ids_movimiento_af[$idMovimientoAf] = $valor;
+			                    	}
+			                    }
+							}
+							//Fin #69
+
 							//Si no existe registra en movimiento af
 							if(!$idMovimientoAf && trim($fila["activo_fijo_$cont_af"]) != '') {
 								if($fila["activo_fijo_$cont_af"] > 0) { //#54
@@ -589,6 +615,31 @@ class ACTMovimiento extends ACTbase{
 							$idMovimientoAf = false;
 							//Verificando si es que ya fue registrado previamente
 							$idMovimientoAf = array_search($valor, $ids_movimiento_af);
+
+							//Inicio #69: verifica si anteriomente ya fue registrado el activo fijo dentro de este movimiento
+							if(!$idMovimientoAf) {
+								$this->objParam->addParametro('codigo_activo', $valor);
+								$this->objFunc = $this->create('MODMovimientoAf');
+	                    		$this->res = $this->objFunc->obtenerMovimientoAfID($this->objParam);
+
+	                    		//Verifica si se produjo algún error
+								if ($this->res->getTipo() == 'ERROR') {
+			                    	$this->res->imprimirRespuesta($this->res->generarJson());
+						            exit;
+			                    } else {
+			                    	//Recupera el ID MOVIMIENTO AF resultado
+			                    	$dat = $this->res->getDatos();
+			                    	$idMovimientoAf = $dat['id_movimiento_af'];
+
+			                    	if($idMovimientoAf == -1) {
+			                    		$idMovimientoAf = false;
+			                    	} else {
+										$this->objParam->addParametro('id_movimiento_af', $idMovimientoAf);
+				                    	$ids_movimiento_af[$idMovimientoAf] = $valor;
+			                    	}
+			                    }
+							}
+							//Fin #69
 
 							//Si no existe registra en movimiento af
 							if(!$idMovimientoAf && trim($fila["activo_fijo_$cont_af"]) != '') {

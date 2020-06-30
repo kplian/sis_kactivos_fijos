@@ -1733,8 +1733,10 @@ BEGIN
             v_fecha_fin_ant = DATE_TRUNC('year', v_parametros.fecha_hasta) - '1 day'::INTERVAL;
             v_fecha_ini_ant = DATE_TRUNC('month', v_fecha_fin_ant);
 
-            v_consulta = 'WITH tdata AS (
+            v_consulta = '
+            WITH tdata AS (
                 WITH tant_gestion AS (
+                    --tant_gestion: Depreciación a diciembre de la gestión pasada a la fecha hasta (Columnas: valor_inicial)
                     SELECT
                     afv.id_activo_fijo, mdep.monto_actualiz, mdep.depreciacion_acum, mdep.monto_vigente, mdep.fecha,
                     mdep.id_movimiento_af_dep
@@ -1743,13 +1745,14 @@ BEGIN
                     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
                     WHERE mdep.fecha >= ''' || v_fecha_ini_ant ||''' and mdep.fecha <= ''' || v_fecha_fin_ant || '''
                     AND mdep.id_moneda = ' || v_parametros.id_moneda || '
-                ), tgestion_completa AS (
+                ), tant_mes AS (
+                    --tant_mes: Depreciación al mes anterior a la fecha hasta (Columnas: valor_mes_ant)
                     SELECT
                     afv.id_activo_fijo, mdep.monto_actualiz, mdep.depreciacion_acum, mdep.monto_vigente
                     FROM kaf.tmovimiento_af_dep mdep
                     INNER JOIN kaf.tactivo_fijo_valores afv
                     ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
-                    WHERE mdep.fecha >= ''' || DATE_TRUNC('year', v_fecha_ini) || ''' AND mdep.fecha <= ''' || DATE_TRUNC('year', v_fecha_fin + '1 year'::INTERVAL) - '1 day'::INTERVAL || '''
+                    WHERE mdep.fecha >= ''' || DATE_TRUNC('month', v_fecha_ini - '1 day'::INTERVAL) || ''' AND mdep.fecha <= ''' || v_fecha_ini - '1 day'::INTERVAL || '''
                     AND mdep.id_moneda = ' || v_parametros.id_moneda || '
                 ), tdval_orig AS (
                     SELECT
@@ -1875,6 +1878,7 @@ BEGIN
                       id_activo_fijo INT, aitb_dep_acum_ene NUMERIC, aitb_dep_acum_feb NUMERIC, aitb_dep_acum_mar NUMERIC, aitb_dep_acum_abr NUMERIC, aitb_dep_acum_may NUMERIC, aitb_dep_acum_jun NUMERIC, aitb_dep_acum_jul NUMERIC, aitb_dep_acum_ago NUMERIC, aitb_dep_acum_sep NUMERIC, aitb_dep_acum_oct NUMERIC, aitb_dep_acum_nov NUMERIC, aitb_dep_acum_dic NUMERIC
                     )
                 ), trelcon AS (
+                    --trecol: para obtener cuentas contables y partidas de las relaciones contables de activos fijos
                     SELECT
                     DISTINCT rc.id_tabla AS id_clasificacion,
                     ((''{'' || kaf.f_get_id_clasificaciones(rc.id_tabla, ''hijos'')::text) || ''}''::text)::integer [ ] AS nodos,
@@ -1892,53 +1896,57 @@ BEGIN
                     WHERE tb.esquema = ''KAF''
                     AND tb.tabla = ''tclasificacion''
                     AND trc.codigo_tipo_relacion IN (''ALTAAF'', ''DEPACCLAS'', ''DEPCLAS'')
+                ), tpri_dep AS (
+                    --tpri_dep: para obtener la fecha del movimiento de su primera depreciación. (hay casos que la fecha_ini_dep es ene pero se lo hace
+                    --depreciar en marzo, y para este reporte se valida con la fecha de la primera depreciación no la fecha ini. dep. para las columnas
+                    -- altas, traspasos)
+                    WITH tproyaf AS (
+                      SELECT
+                      pa.id_activo_fijo, MAX(py.id_proyecto) as id_proyecto
+                      FROM pro.tproyecto_activo pa
+                      INNER JOIN pro.tproyecto py
+                      ON py.id_proyecto = pa.id_proyecto
+                      GROUP BY pa.id_activo_fijo
+                    )
+                    SELECT
+                    pa.id_activo_fijo, cb.fecha
+                    FROM tproyaf pa
+                    INNER JOIN pro.tproyecto py
+                    ON py.id_proyecto = pa.id_proyecto
+                    INNER JOIN conta.tint_comprobante cb
+                    ON cb.id_int_comprobante = py.id_int_comprobante_1
                 )
-                SELECT
-                ROW_NUMBER() OVER(ORDER BY af.codigo) as numero,
+                SELECT DISTINCT
                 af.codigo, af.codigo_ant as codigo_sap, af.denominacion, af.fecha_ini_dep, af.cantidad_af, --#58 cambio de afv.fecha_ini_dep por af.fecha_ini_dep
                 umed.descripcion as unidad_medida, tcc.codigo as cc, af.nro_serie, ub.codigo as lugar,
                 fun.desc_funcionario2 as responsable,
                 COALESCE(afvo.monto_vigente_orig_100, afv.monto_vigente_orig_100) as valor_compra,
+                COALESCE(age.monto_actualiz, 0) AS valor_inicial,
+                COALESCE(ame.monto_actualiz, 0) AS valor_mes_ant,
                 CASE kaf.f_define_origen (afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo)
-                    WHEN ''proy'' THEN 0
-                    WHEN ''dval'' THEN
+                    WHEN ''proy'' THEN
                         CASE
-                            WHEN DATE_TRUNC(''year'', afv.fecha_ini_dep) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
-                                0
+                            WHEN DATE_TRUNC(''month'', pd.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
+                                afv.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', afv.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
+                                                    param.f_get_tipo_cambio(3, DATE_TRUNC(''year'', afv.fecha_ini_dep)::date, ''O''))
                             ELSE
-                                COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
+                                0
                         END
-                    WHEN ''dval-bolsa'' THEN COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
+                    WHEN ''dval'' THEN
+                        0
+                    WHEN ''dval-bolsa'' THEN
+                        0
                     ELSE
                         CASE
-                            WHEN DATE_TRUNC(''year'', afv.fecha_ini_dep) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
-                                0
-                            ELSE
+                            WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
                                 COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
-                        END
-                END AS valor_inicial,
-
-                CASE kaf.f_define_origen (afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo)
-                    WHEN ''proy'' THEN 0
-                    WHEN ''dval'' THEN
-                        CASE
-                            WHEN DATE_TRUNC(''year'', afv.fecha_ini_dep) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
-                                0
                             ELSE
-                                COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
-                        END
-                    WHEN ''dval-bolsa'' THEN 0
-                    ELSE
-                        CASE
-                            WHEN DATE_TRUNC(''year'', afv.fecha_ini_dep) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
                                 0
-                            ELSE
-                                COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
                         END
                 END AS altas,
 
                 CASE
-                    WHEN af.fecha_baja IS NOT NULL AND DATE_TRUNC(''year'', af.fecha_baja) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
+                    WHEN af.fecha_baja IS NOT NULL AND DATE_TRUNC(''month'', af.fecha_baja) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
                         mdep.monto_actualiz
                     ELSE 0
                 END AS bajas,
@@ -1947,32 +1955,37 @@ BEGIN
                     WHEN ''proy'' THEN 0
                     WHEN ''dval'' THEN
                         CASE
-                            WHEN DATE_TRUNC(''year'', afv.fecha_ini_dep) = DATE_TRUNC(''year'', ''' || v_fecha_fin || '''::DATE) THEN
+                            WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
                                 afv.monto_vigente_orig
                             ELSE
                                 0
                         END
                     WHEN ''dval-bolsa'' THEN
-                        -1 *
-                        (
-                            SELECT
-                            SUM(mesp.porcentaje)
-                            FROM kaf.tmovimiento_af_especial mesp
-                            WHERE mesp.id_movimiento_af = afv.id_movimiento_af
-                        ) *
-                        (
-                            SELECT _mdep1.monto_vigente
-                            FROM kaf.tmovimiento_af_dep _mdep
-                            INNER JOIN kaf.tactivo_fijo_valores _afv
-                            ON _afv.id_activo_fijo_valor = _mdep.id_activo_fijo_valor
-                            INNER JOIN kaf.tactivo_fijo_valores _afv1
-                            ON _afv1.id_activo_fijo = _afv.id_activo_fijo
-                            INNER JOIN kaf.tmovimiento_af_dep _mdep1
-                            ON _mdep1.id_activo_fijo_valor = _afv1.id_activo_fijo_valor
-                            AND _mdep1.id_moneda = ' || v_parametros.id_moneda || '
-                            AND DATE_TRUNC(''month'', _mdep1.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_ini - '1 day'::INTERVAL || '''::DATE)
-                            WHERE _mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
-                        ) / 100
+                        CASE
+                            WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
+                                -1 *
+                                (
+                                    SELECT
+                                    SUM(mesp.porcentaje)
+                                    FROM kaf.tmovimiento_af_especial mesp
+                                    WHERE mesp.id_movimiento_af = afv.id_movimiento_af
+                                ) *
+                                (
+                                    SELECT _mdep1.monto_vigente
+                                    FROM kaf.tmovimiento_af_dep _mdep
+                                    INNER JOIN kaf.tactivo_fijo_valores _afv
+                                    ON _afv.id_activo_fijo_valor = _mdep.id_activo_fijo_valor
+                                    INNER JOIN kaf.tactivo_fijo_valores _afv1
+                                    ON _afv1.id_activo_fijo = _afv.id_activo_fijo
+                                    INNER JOIN kaf.tmovimiento_af_dep _mdep1
+                                    ON _mdep1.id_activo_fijo_valor = _afv1.id_activo_fijo_valor
+                                    AND _mdep1.id_moneda = ' || v_parametros.id_moneda || '
+                                    AND DATE_TRUNC(''month'', _mdep1.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_ini - '1 day'::INTERVAL || '''::DATE)
+                                    WHERE _mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
+                                ) / 100
+                            ELSE
+                                0
+                        END
                     ELSE 0
                 END AS traspasos,
 
@@ -2004,10 +2017,11 @@ BEGIN
                 END AS inc_actualiz,
 
                 mdep.monto_actualiz as valor_actualiz,
-                COALESCE(afvo.vida_util_orig, 0) AS vida_util_orig,
-                COALESCE(afvo.vida_util_orig, 0) - COALESCE(mdep.vida_util, 0) as vida_util_transc,
+                COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig,
+                COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc,
                 mdep.vida_util,
                 COALESCE(age.depreciacion_acum, 0) as depreciacion_acum_gest_ant,
+                COALESCE(ame.depreciacion_acum, 0) AS depreciacion_acum_mes_ant,
                 mdep.depreciacion_acum - COALESCE(age.depreciacion_acum, 0) - mdep.depreciacion as inc_actualiz_dep_acum,
                 mdep.depreciacion,
                 CASE
@@ -2130,14 +2144,20 @@ BEGIN
                 ON gr.id_grupo = af.id_grupo
                 LEFT JOIN kaf.tgrupo gr1
                 ON gr1.id_grupo = af.id_grupo_clasif
+                LEFT JOIN tant_mes ame
+                ON ame.id_activo_fijo = afv.id_activo_fijo
+                LEFT JOIN tpri_dep pd
+                ON pd.id_activo_fijo = afv.id_activo_fijo
 
                 WHERE mdep.fecha >= ''' || v_fecha_ini ||''' and mdep.fecha <= ''' || v_fecha_fin || '''
                 AND mdep.id_moneda = ' || v_parametros.id_moneda || '
                 )
                 SELECT
-                numero, codigo, codigo_sap, denominacion, fecha_ini_dep, cantidad_af, unidad_medida,
-                cc, nro_serie, lugar, responsable, valor_compra, valor_inicial, altas, bajas, traspasos,
+                ROW_NUMBER() OVER(ORDER BY codigo) as numero,
+                codigo, codigo_sap, denominacion, fecha_ini_dep, cantidad_af, unidad_medida,
+                cc, nro_serie, lugar, responsable, valor_compra, valor_inicial, valor_mes_ant, altas, bajas, traspasos,
                 inc_actualiz, valor_actualiz, vida_util_orig, vida_util_transc, vida_util, depreciacion_acum_gest_ant,
+                depreciacion_acum_mes_ant,
                 inc_actualiz_dep_acum, depreciacion, dep_acum_bajas, dep_acum_tras, depreciacion_acum, depreciacion_per,
                 monto_vigente, aitb_af_ene, aitb_af_feb, aitb_af_mar, aitb_af_abr, aitb_af_may, aitb_af_jun, aitb_af_jul,
                 aitb_af_ago, aitb_af_sep, aitb_af_oct, aitb_af_nov, aitb_af_dic,

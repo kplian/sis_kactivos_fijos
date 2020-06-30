@@ -1150,6 +1150,7 @@ class MODReportes extends MODbase{
 		$this->captura('responsable', 'TEXT');
 		$this->captura('valor_compra', 'NUMERIC');
 		$this->captura('valor_inicial', 'NUMERIC');
+		$this->captura('valor_mes_ant', 'NUMERIC');
 		$this->captura('altas', 'NUMERIC');
 		$this->captura('bajas', 'NUMERIC');
 		$this->captura('traspasos', 'NUMERIC');

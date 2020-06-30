@@ -19,7 +19,8 @@ $body$
  ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #2     KAF     ETR         23/01/2019  RCM     Se corrige la eliminación
  #39    KAF     ETR         22/11/2019  RCM     Importación plantillas excel Distribución de Valores
- #46	KAF		ETR			20.02.2020	MZM		Adicion de trim en codigo_af 
+ #46	KAF		ETR			20.02.2020	MZM		Adicion de trim en codigo_af
+ #69    KAF     ETR         18-06-2020  RCM     Envío del tipo de importación, para que sólo elimine ese tipo
 ***************************************************************************/
 
 DECLARE
@@ -305,15 +306,28 @@ BEGIN
             END IF;
 
             --Elimina el detalle en movimiento especial si es que tuviera
+            --Inicio #69: elimina solo el tipo enviado, o sólo almacén o solo activos
             DELETE
             FROM kaf.tmovimiento_af_especial mesp
             USING kaf.tmovimiento_af maf
             WHERE mesp.id_movimiento_af = maf.id_movimiento_af
-            AND maf.id_movimiento = v_parametros.id_movimiento;
+            AND maf.id_movimiento = v_parametros.id_movimiento
+            AND (
+            CASE v_parametros.tipo
+                WHEN 'activo' THEN mesp.tipo IN ('af_nuevo', 'af_exist')
+                ELSE mesp.tipo = 'af_almacen'
+            END);
 
-            --Sentencia de la eliminacion
+            --Sentencia de la eliminacion: borra solamente los activos de movimiento af que hasta aquí ya no tengan detalles registrados en movimiento af especial
             DELETE FROM kaf.tmovimiento_af
-            WHERE id_movimiento = v_parametros.id_movimiento;
+            WHERE id_movimiento = v_parametros.id_movimiento
+            AND id_movimiento_af NOT IN (SELECT
+                                         maf.id_movimiento_af
+                                         FROM kaf.tmovimiento_af_especial mesp
+                                         INNER JOIN kaf.tmovimiento_af maf
+                                         ON maf.id_movimiento_af = mesp.id_movimiento_af
+                                         WHERE maf.id_movimiento = v_parametros.id_movimiento);
+            --Fin #69
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Registros del movimiento eliminados');
@@ -369,8 +383,51 @@ BEGIN
             return v_resp;
 
         END;
-
     --Fin #39
+
+    --Inicio #69
+    /*********************************
+    #TRANSACCION:  'SKA_OBTMAFID_SEL'
+    #DESCRIPCION:   DEvuelve el ID movimiento af a partir del código del activo fijo
+    #AUTOR:         RCM
+    #FECHA:         18&86/2020
+    ***********************************/
+    ELSIF(p_transaccion = 'SKA_OBTMAFID_SEL') THEN
+
+        BEGIN
+
+            --Obtiene el ID_ACTIVO_FIJO
+            SELECT id_activo_fijo
+            INTO v_id_activo_fijo
+            FROM kaf.tactivo_fijo
+            WHERE codigo = trim(v_parametros.codigo_activo);
+
+            IF v_id_activo_fijo IS NULL THEN
+                RAISE EXCEPTION 'Activo fijo inexistente: %', v_parametros.codigo_activo;
+            END IF;
+
+            --Verificación de existencia del activo en el movimiento
+            SELECT
+            maf.id_movimiento_af
+            INTO v_id_movimiento_af
+            FROM kaf.tmovimiento_af maf
+            WHERE maf.id_movimiento = v_parametros.id_movimiento
+            AND maf.id_activo_fijo = v_id_activo_fijo;
+
+            --Inserción del movimiento
+            IF v_id_movimiento_af IS NULL THEN
+                v_id_movimiento_af = -1;
+            END IF;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Movimiento AF recuperado (codigo: ' || v_parametros.codigo_activo || ')');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_movimiento_af', v_id_movimiento_af::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        END;
+    --Fin #69
 
 	else
 

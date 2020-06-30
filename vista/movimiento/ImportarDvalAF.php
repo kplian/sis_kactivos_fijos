@@ -5,6 +5,11 @@
 *@author  RCM
 *@date    22/11/2018
 *@description permite importar datos para distribución de valores a Activos Fijos
+/***************************************************************************
+#ISSUE   SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+         KAF     ETR         22-11-2018  RCM     Creación del archivo
+ #69     KAF     ETR         18-06-2020  RCM     Envío del tipo de importación, para que sólo elimine ese tipo
+**************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -32,16 +37,16 @@ Phx.vista.ImportarDvalAF = Ext.extend(Phx.frmInterfaz, {
 
     Atributos:[
         {
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
+            config: {
+                labelSeparator: '',
+                inputType: 'hidden',
                 name: 'id_movimiento'
             },
-            type:'Field',
-            form:true
+            type: 'Field',
+            form: true
         },
         {
-            config:{
+            config: {
                 fieldLabel: 'Archivo',
                 gwidth: 130,
                 inputType: 'file',
@@ -49,14 +54,19 @@ Phx.vista.ImportarDvalAF = Ext.extend(Phx.frmInterfaz, {
                 allowBlank: false,
                 buttonText: '',
                 maxLength: 150,
-                anchor:'100%'
+                anchor: '100%'
             },
-            type:'Field',
-            form:true
+            type: 'Field',
+            form: true
         }
     ],
-    title:'Subir Archivo',
-    fileUpload:true
+    title: 'Subir Archivo',
+    fileUpload: true,
+
+    agregarArgsExtraSubmit: function() {
+        this.argumentExtraSubmit = {};
+        this.argumentExtraSubmit.tipo = 'activo';
+    }
 
 })
 </script>
