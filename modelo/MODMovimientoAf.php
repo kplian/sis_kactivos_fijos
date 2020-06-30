@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           21/01/2019  RCM         Opción para traspasar valores de un activo fijo a otro
+ #69    KAF       ETR           18-06-2020  RCM         Envío del tipo de importación, para que sólo elimine ese tipo
 ***************************************************************************
 */
 class MODMovimientoAf extends MODbase{
@@ -182,6 +183,7 @@ class MODMovimientoAf extends MODbase{
 
 		//Define los parametros para la funcion
 		$this->setParametro('id_movimiento','id_movimiento','int4');
+		$this->setParametro('tipo','tipo','varchar'); //#69
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -209,6 +211,26 @@ class MODMovimientoAf extends MODbase{
 		return $this->respuesta;
 	}
 	//Fin #39
+
+	//Inicio #69
+	function obtenerMovimientoAfID() {
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento = 'kaf.ft_movimiento_af_ime';
+		$this->transaccion = 'SKA_OBTMAFID_SEL';
+		$this->tipo_procedimiento = 'IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_movimiento','id_movimiento','int4');
+		$this->setParametro('codigo_activo','codigo_activo','varchar'); //#69
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #69
 
 }
 ?>

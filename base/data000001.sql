@@ -611,3 +611,8 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD32','AF-DVA
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD33','AF-DVALAL','si',NULL,NULL,'33','activo_fijo_18','activo_fijo_18','string',NULL,'activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD34','AF-DVALAL','si',NULL,NULL,'34','activo_fijo_19','activo_fijo_19','string',NULL,'activo');
 /***********************************F-DAT-RCM-KAF-66-11/05/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-69-23/06/2020****************************************/
+select conta.f_import_ttipo_relacion_contable ('insert','AFDVALDACUMHABE',NULL,'Activos Fijos Desglose Dep. Acum. al HABER','activo','no','si','no','flujo','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','AFDVALDACUMDEBE',NULL,'Activos Fijos Desglose Dep. Acum al DEBE','activo','no','si','no','flujo','recurso_gasto','no','no','no',NULL);
+/***********************************F-DAT-RCM-KAF-69-23/06/2020****************************************/

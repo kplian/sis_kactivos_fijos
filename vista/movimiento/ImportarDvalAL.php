@@ -9,13 +9,14 @@
 /***************************************************************************
 #ISSUE   SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
  #39     KAF     ETR         22-11-2019  RCM     Creación del archivo
+ #69     KAF     ETR         18-06-2020  RCM     Envío del tipo de importación, para que sólo elimine ese tipo
 **************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ImportarDvalAL = Ext.extend(Phx.frmInterfaz, {
-    ActSave:'../../sis_kactivos_fijos/control/Movimiento/ImportarDvalAL',
+    ActSave: '../../sis_kactivos_fijos/control/Movimiento/ImportarDvalAL',
 
     constructor: function(config) {
         Phx.vista.ImportarDvalAL.superclass.constructor.call(this,config);
@@ -38,12 +39,12 @@ Phx.vista.ImportarDvalAL = Ext.extend(Phx.frmInterfaz, {
     Atributos:[
         {
             config:{
-                labelSeparator:'',
-                inputType:'hidden',
+                labelSeparator: '',
+                inputType: 'hidden',
                 name: 'id_movimiento'
             },
-            type:'Field',
-            form:true
+            type: 'Field',
+            form: true
         },
         {
             config:{
@@ -54,14 +55,19 @@ Phx.vista.ImportarDvalAL = Ext.extend(Phx.frmInterfaz, {
                 allowBlank: false,
                 buttonText: '',
                 maxLength: 150,
-                anchor:'100%'
+                anchor: '100%'
             },
-            type:'Field',
-            form:true
+            type: 'Field',
+            form: true
         }
     ],
-    title:'Subir Archivo',
-    fileUpload:true
+    title: 'Subir Archivo',
+    fileUpload: true,
+
+    agregarArgsExtraSubmit: function() {
+        this.argumentExtraSubmit = {};
+        this.argumentExtraSubmit.tipo = 'almacen';
+    }
 
 })
 </script>
