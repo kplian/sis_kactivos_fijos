@@ -23,6 +23,7 @@ $body$
  #43    KAF       ETR           16/12/2019  RCM         Bug de duplicación de AFV al finalizar Altas que vienen de cierre de proyectos o movimientos especiales
  #57    KAF       ETR           25/03/2020  RCM         Adición de id_preingreso_det en kaf.tactivo_fijo_valores
  #59    KAF       ETR           07/04/2020  RCM         Enviar marca a la función de creación del movimiento para que no inserte automáticamente todos los activos fijos registrados
+ #67    KAF       ETR           19/05/2020  RCM         Codificar los AFVs al procesar la disgregación
 ***************************************************************************/
 
 DECLARE
@@ -668,6 +669,26 @@ BEGIN
                     from kaf.tmovimiento_af movaf
                     where kaf.tactivo_fijo.id_activo_fijo = movaf.id_activo_fijo
                     and movaf.id_movimiento = v_movimiento.id_movimiento;
+
+                    --Inicio #67: Codifica los AFVs ya creados para el caso de las disgregaciones
+                    UPDATE kaf.tactivo_fijo_valores AA SET
+                    codigo = DD.codigo
+                    FROM (
+                        SELECT
+                        afv.id_activo_fijo_valor, afv.codigo, af.codigo
+                        FROM kaf.tmovimiento_af maf
+                        INNER JOIN kaf.tmovimiento_af_especial mesp
+                        ON mesp.id_activo_fijo = maf.id_activo_fijo
+                        INNER JOIN kaf.tactivo_fijo_valores afv
+                        ON afv.id_activo_fijo = mesp.id_activo_fijo
+                        INNER JOIN kaf.tactivo_fijo af
+                        ON af.id_activo_fijo = afv.id_activo_fijo
+                        AND afv.codigo IS NULL
+                        WHERE maf.id_movimiento = v_movimiento.id_movimiento
+                    ) DD
+                    WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor
+                    AND AA.codigo IS NULL;
+                    --Fin #67
 
                     --Recorrido de los activos fijos dentro del movimiento
                     for v_registros_af_mov in (select

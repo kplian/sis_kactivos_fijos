@@ -982,7 +982,7 @@ BEGIN
         WHERE DATE_TRUNC('month', fecha) = DATE_TRUNC('month', p_fecha)
         AND id_moneda = v_id_moneda
         AND ROUND(inc_actualiz, 2) <> ROUND(monto_actualiz - monto_vigente_orig - af_altas - COALESCE(af_traspasos,0 ), 2)
-        AND COALESCE(monto_actualiz, 0) <> 0
+        --AND COALESCE(monto_actualiz, 0) <> 0
     ) DD
     WHERE DATE_TRUNC('month', AA.fecha) = DATE_TRUNC('month', p_fecha)
     AND AA.id_moneda = v_id_moneda
