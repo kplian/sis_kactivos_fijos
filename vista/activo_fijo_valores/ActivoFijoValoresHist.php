@@ -10,6 +10,7 @@
 #ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
 		KAF 	ETR 		01/11/2017  RCM 	Creación del archivo
  #40    KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
+ #70    KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -586,7 +587,24 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				grid:false,
 				form:false
 		},
-
+		//Inicio #70
+		{
+			config:{
+				name: 'fecha_tc_ini_dep',
+				fieldLabel: 'Fecha UFV Ini',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				format: 'd/m/Y',
+				renderer: function (value, p, record){return value?value.dateFormat('d/m/Y'):''}
+			},
+			type: 'DateField',
+			filters: {pfiltro: 'actval.fecha_tc_ini_dep', type:'date'},
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		//Fin #70
 		{
 			config:{
 				name: 'estado_reg',
@@ -743,8 +761,9 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
         {name:'depreciacion_acum_inicial', type: 'numeric'},
         {name:'depreciacion_per_inicial', type: 'numeric'},
         {name:'importe_modif', type: 'numeric'},
-        {name:'importe_modif_sin_act', type: 'numeric'}
+        {name:'importe_modif_sin_act', type: 'numeric'},
         //Fin #40
+        {name:'fecha_tc_ini_dep', type: 'date',dateFormat:'Y-m-d'} //#70
 	],
 	sortInfo:{
 		field: 'id_activo_fijo_valor',
