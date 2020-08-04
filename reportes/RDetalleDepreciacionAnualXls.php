@@ -9,6 +9,7 @@
 /***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #58    KAF       ETR           21/04/2020  RCM         Creación del archivo
+ #70    KAF       ETR           31/07/2020  RCM         Ajustes al formato
  ****************************************************************************
 */
 class RDetalleDepreciacionAnualXls
@@ -168,13 +169,14 @@ class RDetalleDepreciacionAnualXls
 		$this->cell($sheet,'Vida Útil Original (meses)'	,"T$f" ,19,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//N->O//#55
 		$this->cell($sheet,'Vida Útil Transcurrida (meses)'	,"U$f" ,20,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//N->O//#55
 		$this->cell($sheet,'Vida Útil Residual (meses)'	,"V$f" ,21,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//O->P//#55
-		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Depreciación del Mes'		,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Acum. Bajas'			,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Dep.Acum. Traspasos'		,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Depreciación Acum.'			,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
-		$this->cell($sheet,'Depreciación Gestión'		,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Acum. Gest.Ant.'		,"W$f" ,22,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#70
+		$this->cell($sheet,'Dep.Acum. Mes.Ant.'		,"X$f" ,23,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Inc.x Actualiz. Dep.Acum.'	,"Y$f" ,24,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación del Mes'		,"Z$f" ,25,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Acum. Bajas'			,"AA$f",26,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Dep.Acum. Traspasos'		,"AB$f",27,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Acum.'			,"AC$f",28,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		//$this->cell($sheet,'Depreciación Gestión'		,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		$this->cell($sheet,'Valor Neto'					,"AD$f",29,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 
 		$this->cell($sheet,'AITB AF Ene'				,"AE$f",30,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);
@@ -236,6 +238,8 @@ class RDetalleDepreciacionAnualXls
 		$this->cell($sheet,'Cuenta Deprec.'				,"CG$f",84,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		$this->cell($sheet,'Agrupador AE'				,"CH$f",85,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 		$this->cell($sheet,'Clasificador AE'			,"CI$f",86,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
+		$this->cell($sheet,'Depreciación Acum. Nueva'	,"CJ$f",87,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#70
+		$this->cell($sheet,'Código 2018'				,"CK$f",88,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#70
 		/*$this->cell($sheet,'Dep. Acum. Nueva'   		,"CI$f",86,$f,"center",true,$this->tam_letra_detalle,'Arial',true,true);//#55
 
 		//Inicio #9: Inclusión de nuevas columnas en método de reporte detalle depreciación
@@ -528,8 +532,8 @@ class RDetalleDepreciacionAnualXls
 		$sheet->getColumnDimension('CG')->setWidth(15);
 		$sheet->getColumnDimension('CH')->setWidth(15);
 		$sheet->getColumnDimension('CI')->setWidth(15);
-		$sheet->getColumnDimension('CJ')->setWidth(15);
-		$sheet->getColumnDimension('CK')->setWidth(15);
+		$sheet->getColumnDimension('CJ')->setWidth(35);
+		$sheet->getColumnDimension('CK')->setWidth(20);
 		$sheet->getColumnDimension('CL')->setWidth(15);
 		$sheet->getColumnDimension('CM')->setWidth(15);
 		$sheet->getColumnDimension('CN')->setWidth(15);

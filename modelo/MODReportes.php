@@ -20,6 +20,7 @@
  #29    KAF       ETR           20/09/2019  RCM         Corrección reportes
  #42	KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
  #58	KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
+ #70	KAF 	  ETR 			30/07/2020  RCM 		Adición de columna para consulta, ajustes en base a revisión
 ***************************************************************************/
 
 class MODReportes extends MODbase{
@@ -878,6 +879,7 @@ class MODReportes extends MODbase{
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
 		//Devuelve la respuesta
@@ -1160,12 +1162,13 @@ class MODReportes extends MODbase{
 		$this->captura('vida_util_transc', 'INTEGER');
 		$this->captura('vida_util', 'INTEGER');
 		$this->captura('depreciacion_acum_gest_ant', 'NUMERIC');
+		$this->captura('depreciacion_acum_mes_ant', 'NUMERIC'); //#70
 		$this->captura('inc_actualiz_dep_acum', 'NUMERIC');
 		$this->captura('depreciacion', 'NUMERIC');
 		$this->captura('dep_acum_bajas', 'NUMERIC');
 		$this->captura('dep_acum_tras', 'INTEGER');
 		$this->captura('depreciacion_acum', 'NUMERIC');
-		$this->captura('depreciacion_per', 'NUMERIC');
+		//$this->captura('depreciacion_per', 'NUMERIC'); //#70
 		$this->captura('monto_vigente', 'NUMERIC');
 
 		$this->captura('aitb_af_ene', 'NUMERIC');
@@ -1198,6 +1201,7 @@ class MODReportes extends MODbase{
 		$this->captura('dep_feb', 'NUMERIC');
 		$this->captura('dep_mar', 'NUMERIC');
 		$this->captura('dep_abr', 'NUMERIC');
+
 		$this->captura('dep_may', 'NUMERIC');
 		$this->captura('dep_jun', 'NUMERIC');
 		$this->captura('dep_jul', 'NUMERIC');
@@ -1225,6 +1229,10 @@ class MODReportes extends MODbase{
 		$this->captura('cuenta_deprec', 'VARCHAR');
 		$this->captura('desc_grupo', 'VARCHAR');
 		$this->captura('desc_grupo_clasif', 'VARCHAR');
+		//Inicio #70
+		$this->captura('cuenta_dep_acum_dos','text');
+        $this->captura('bk_codigo','varchar');
+        //Fin #70
 		$this->captura('tipo', 'VARCHAR');
 
 		//Ejecuta la instruccion

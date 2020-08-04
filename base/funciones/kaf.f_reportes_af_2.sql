@@ -27,6 +27,7 @@ $body$
  #31    KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
  #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
  #58    KAF       ETR           21/04/2020  RCM         Consulta para reporte anual de depreciaciones
+ #70    KAF       ETR           30/07/2020  RCM         Adición de columna para consulta, ajustes en base a revisión
 ****************************************************************************/
 DECLARE
 
@@ -1860,7 +1861,7 @@ BEGIN
                         SELECT
                         afv.id_activo_fijo,
                         DATE_PART(''month'', mdep.fecha)::integer as mes,
-                        mdep.depreciacion_acum_actualiz - dp.depreciacion_acum as aitb_dep_acum
+                        mdep.depreciacion_acum_actualiz - COALESCE(dp.depreciacion_acum, mdep.depreciacion_acum_ant) as aitb_dep_acum --#70
                         FROM kaf.tmovimiento_af_dep mdep
                         INNER JOIN kaf.tactivo_fijo_valores afv
                         ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -1989,17 +1990,17 @@ BEGIN
                     ELSE 0
                 END AS traspasos,
 
-                CASE kaf.f_define_origen (afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo)
+                /*CASE kaf.f_define_origen (afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo)
                     WHEN ''dval-bolsa'' THEN
                         mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig) -
                         (-1 *
-                        (
+                        COALESCE(( --#70
                             SELECT
                             SUM(mesp.porcentaje)
                             FROM kaf.tmovimiento_af_especial mesp
                             WHERE mesp.id_movimiento_af = afv.id_movimiento_af
-                        ) *
-                        (
+                        ), 0) * --#70
+                        COALESCE(( --#70
                             SELECT _mdep1.monto_vigente
                             FROM kaf.tmovimiento_af_dep _mdep
                             INNER JOIN kaf.tactivo_fijo_valores _afv
@@ -2011,10 +2012,11 @@ BEGIN
                             AND _mdep1.id_moneda = ' || v_parametros.id_moneda || '
                             AND DATE_TRUNC(''month'', _mdep1.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_ini - '1 day'::INTERVAL || '''::DATE)
                             WHERE _mdep.id_movimiento_af_dep = maf.id_movimiento_af_dep
-                        ) / 100)
+                        ), 0) / 100) --#70
                     ELSE
                         mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
-                END AS inc_actualiz,
+                END AS inc_actualiz,*/
+                mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig) AS inc_actualiz,
 
                 mdep.monto_actualiz as valor_actualiz,
                 COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig,
@@ -2037,7 +2039,8 @@ BEGIN
                 END as dep_acum_tras,
                 mdep.depreciacion_acum,
                 mdep.depreciacion_per,
-                mdep.monto_vigente,
+                mdep.monto_actualiz - COALESCE(mdep.depreciacion_acum, 0) AS monto_vigente, --mdep.monto_vigente, #70
+
 
                 ROUND(COALESCE(aia.aitb_af_ene, 0), 2) AS aitb_af_ene,
                 ROUND(COALESCE(aia.aitb_af_feb, 0), 2) AS aitb_af_feb,
@@ -2094,10 +2097,13 @@ BEGIN
                 rc.cuenta AS cuenta_activo,
                 rc1.cuenta AS cuenta_dep_acum,
                 rc2.cuenta AS cuenta_deprec,
-                gr.nombre as desc_grupo,
-                gr1.nombre as desc_grupo_clasif,
+                gr.nombre AS desc_grupo,
+                gr1.nombre AS desc_grupo_clasif,
+                --Inicio #70
+                cta.nro_cuenta || ''-'' || cta.nombre_cuenta AS cuenta_dep_acum_dos,
+                af.bk_codigo,
+                --Fin #70
                 kaf.f_define_origen(afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo) AS tipo
-
                 FROM kaf.tmovimiento_af_dep mdep
                 INNER JOIN kaf.tactivo_fijo_valores afv
                 ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -2148,6 +2154,15 @@ BEGIN
                 ON ame.id_activo_fijo = afv.id_activo_fijo
                 LEFT JOIN tpri_dep pd
                 ON pd.id_activo_fijo = afv.id_activo_fijo
+                --Inicio #70
+                LEFT JOIN kaf.tactivo_fijo_cta_tmp act
+                ON act.id_activo_fijo = af.id_activo_fijo
+                LEFT JOIN conta.tcuenta cta
+                ON cta.nro_cuenta = act.nro_cuenta
+                AND cta.id_gestion = (SELECT id_gestion
+                                    FROM param.tgestion
+                                    WHERE DATE_TRUNC(''year'', fecha_ini) = DATE_TRUNC(''year'', ''' || v_parametros.fecha_hasta || '''::date))
+                --Fin #70
 
                 WHERE mdep.fecha >= ''' || v_fecha_ini ||''' and mdep.fecha <= ''' || v_fecha_fin || '''
                 AND mdep.id_moneda = ' || v_parametros.id_moneda || '
@@ -2158,7 +2173,8 @@ BEGIN
                 cc, nro_serie, lugar, responsable, valor_compra, valor_inicial, valor_mes_ant, altas, bajas, traspasos,
                 inc_actualiz, valor_actualiz, vida_util_orig, vida_util_transc, vida_util, depreciacion_acum_gest_ant,
                 depreciacion_acum_mes_ant,
-                inc_actualiz_dep_acum, depreciacion, dep_acum_bajas, dep_acum_tras, depreciacion_acum, depreciacion_per,
+                inc_actualiz_dep_acum, depreciacion, dep_acum_bajas, dep_acum_tras, depreciacion_acum,
+                --depreciacion_per, --#70
                 monto_vigente, aitb_af_ene, aitb_af_feb, aitb_af_mar, aitb_af_abr, aitb_af_may, aitb_af_jun, aitb_af_jul,
                 aitb_af_ago, aitb_af_sep, aitb_af_oct, aitb_af_nov, aitb_af_dic,
                 (aitb_af_ene + aitb_af_feb + aitb_af_mar + aitb_af_abr + aitb_af_may + aitb_af_jun + aitb_af_jul +
@@ -2171,6 +2187,7 @@ BEGIN
                 aitb_dep_ene, aitb_dep_feb, aitb_dep_mar, aitb_dep_abr, aitb_dep_may, aitb_dep_jun, aitb_dep_jul, aitb_dep_ago, aitb_dep_sep, aitb_dep_oct, aitb_dep_nov, aitb_dep_dic,
                 (aitb_dep_ene + aitb_dep_feb + aitb_dep_mar + aitb_dep_abr + aitb_dep_may + aitb_dep_jun + aitb_dep_jul + aitb_dep_ago + aitb_dep_sep + aitb_dep_oct + aitb_dep_nov + aitb_dep_dic) AS total_aitb_dep,
                 cuenta_activo, cuenta_dep_acum, cuenta_deprec, desc_grupo, desc_grupo_clasif,
+                cuenta_dep_acum_dos, bk_codigo, --#70
                 tipo
                 FROM tdata
                 ORDER BY codigo';
