@@ -675,7 +675,7 @@ BEGIN
                     codigo = DD.codigo
                     FROM (
                         SELECT
-                        afv.id_activo_fijo_valor, afv.codigo, af.codigo
+                        afv.id_activo_fijo_valor, af.codigo
                         FROM kaf.tmovimiento_af maf
                         INNER JOIN kaf.tmovimiento_af_especial mesp
                         ON mesp.id_activo_fijo = maf.id_activo_fijo

@@ -19,6 +19,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           11/01/2019  RCM         Actualización de archivo con producción. Consultas para obtener últimos valores de la depreciación
  #40    KAF       ETR           05/12/2019  RCM         Adición de campos faltantes
+ #70    KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación'
  ***************************************************************************/
 
 DECLARE
@@ -83,8 +84,9 @@ BEGIN
 				        actval.depreciacion_per_inicial,
 				        actval.importe_modif,
 				        actval.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', actval.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
-                                        param.f_get_tipo_cambio(3, DATE_TRUNC(''year'', actval.fecha_ini_dep)::date, ''O''))
+                                        param.f_get_tipo_cambio(3, DATE_TRUNC(''year'', actval.fecha_ini_dep)::date, ''O'')),
 				        --Fin #40
+				        actval.fecha_tc_ini_dep --#70
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod
