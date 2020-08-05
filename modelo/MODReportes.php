@@ -1170,7 +1170,7 @@ class MODReportes extends MODbase{
 		$this->captura('depreciacion_acum', 'NUMERIC');
 		//$this->captura('depreciacion_per', 'NUMERIC'); //#70
 		$this->captura('monto_vigente', 'NUMERIC');
-
+		$this->captura('aitb_dep_mes', 'NUMERIC'); //#70
 		$this->captura('aitb_af_ene', 'NUMERIC');
 		$this->captura('aitb_af_feb', 'NUMERIC');
 		$this->captura('aitb_af_mar', 'NUMERIC');

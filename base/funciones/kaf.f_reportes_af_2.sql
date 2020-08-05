@@ -2016,8 +2016,12 @@ BEGIN
                     ELSE
                         mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
                 END AS inc_actualiz,*/
-                mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig) AS inc_actualiz,
-
+                CASE
+                    WHEN mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig) >= 0 THEN
+                        mdep.monto_actualiz - COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
+                    ELSE
+                        mdep.monto_actualiz - mdep.monto_actualiz_ant
+                END AS inc_actualiz,
                 mdep.monto_actualiz as valor_actualiz,
                 COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig,
                 COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc,
@@ -2102,6 +2106,7 @@ BEGIN
                 --Inicio #70
                 cta.nro_cuenta || ''-'' || cta.nombre_cuenta AS cuenta_dep_acum_dos,
                 af.bk_codigo,
+                (mdep.depreciacion_per * mdep.factor) - mdep.depreciacion_per as aitb_dep_mes,
                 --Fin #70
                 kaf.f_define_origen(afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo) AS tipo
                 FROM kaf.tmovimiento_af_dep mdep
@@ -2175,7 +2180,9 @@ BEGIN
                 depreciacion_acum_mes_ant,
                 inc_actualiz_dep_acum, depreciacion, dep_acum_bajas, dep_acum_tras, depreciacion_acum,
                 --depreciacion_per, --#70
-                monto_vigente, aitb_af_ene, aitb_af_feb, aitb_af_mar, aitb_af_abr, aitb_af_may, aitb_af_jun, aitb_af_jul,
+                monto_vigente,
+                aitb_dep_mes, --#70
+                aitb_af_ene, aitb_af_feb, aitb_af_mar, aitb_af_abr, aitb_af_may, aitb_af_jun, aitb_af_jul,
                 aitb_af_ago, aitb_af_sep, aitb_af_oct, aitb_af_nov, aitb_af_dic,
                 (aitb_af_ene + aitb_af_feb + aitb_af_mar + aitb_af_abr + aitb_af_may + aitb_af_jun + aitb_af_jul +
                 aitb_af_ago + aitb_af_sep + aitb_af_oct + aitb_af_nov + aitb_af_dic) AS total_aitb_af,
