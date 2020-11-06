@@ -1731,10 +1731,127 @@ CREATE EXTENSION tablefunc;
 DROP FUNCTION kaf.f_define_origen(integer, integer, integer, integer, character varying);
 /***********************************F-SCP-RCM-KAF-58-27/04/2020****************************************/
 
-/***********************************I-SCP-RCM-KAF-60-28/04/2020****************************************/
+/***********************************I-SCP-RCM-KAF-70-11/08/2020****************************************/
 ALTER TABLE kaf.tactivo_fijo_valores
 ADD COLUMN fecha_tc_ini_dep DATE;
 
 COMMENT ON COLUMN kaf.tactivo_fijo_valores.fecha_tc_ini_dep
 IS 'Fecha para obtener el TC inicial de la primera depreciación del AF, caso cierre de proyectos y disgregaciones';
-/***********************************F-SCP-RCM-KAF-60-28/04/2020****************************************/
+
+ALTER TABLE kaf.tactivo_fijo_valores
+ADD COLUMN importe_modif_sin_act NUMERIC;
+
+COMMENT ON COLUMN kaf.tactivo_fijo_valores.importe_modif_sin_act
+IS 'Importe de la adición del cierre de proyectos sin actualización';
+
+CREATE TABLE kaf.treporte_detalle_dep2 (
+  id BIGSERIAL,
+  id_movimiento INTEGER,
+  id_moneda INTEGER,
+  fecha DATE,
+  numero BIGINT,
+  codigo VARCHAR,
+  codigo_sap VARCHAR,
+  denominacion VARCHAR,
+  fecha_ini_dep DATE,
+  cantidad_af INTEGER,
+  unidad_medida VARCHAR,
+  cc VARCHAR,
+  nro_serie VARCHAR,
+  lugar VARCHAR,
+  responsable TEXT,
+  valor_compra NUMERIC,
+  valor_inicial NUMERIC,
+  valor_mes_ant NUMERIC,
+  altas NUMERIC,
+  bajas NUMERIC,
+  traspasos NUMERIC,
+  inc_actualiz NUMERIC,
+  valor_actualiz NUMERIC,
+  vida_util_orig INTEGER,
+  vida_util_transc INTEGER,
+  vida_util INTEGER,
+  depreciacion_acum_gest_ant NUMERIC,
+  depreciacion_acum_mes_ant NUMERIC,
+  inc_actualiz_dep_acum NUMERIC,
+  depreciacion NUMERIC,
+  dep_acum_bajas NUMERIC,
+  dep_acum_tras INTEGER,
+  depreciacion_acum NUMERIC,
+  monto_vigente NUMERIC,
+  aitb_dep_mes NUMERIC,
+  aitb_af_ene NUMERIC,
+  aitb_af_feb NUMERIC,
+  aitb_af_mar NUMERIC,
+  aitb_af_abr NUMERIC,
+  aitb_af_may NUMERIC,
+  aitb_af_jun NUMERIC,
+  aitb_af_jul NUMERIC,
+  aitb_af_ago NUMERIC,
+  aitb_af_sep NUMERIC,
+  aitb_af_oct NUMERIC,
+  aitb_af_nov NUMERIC,
+  aitb_af_dic NUMERIC,
+  total_aitb_af NUMERIC,
+  aitb_dep_acum_ene NUMERIC,
+  aitb_dep_acum_feb NUMERIC,
+  aitb_dep_acum_mar NUMERIC,
+  aitb_dep_acum_abr NUMERIC,
+  aitb_dep_acum_may NUMERIC,
+  aitb_dep_acum_jun NUMERIC,
+  aitb_dep_acum_jul NUMERIC,
+  aitb_dep_acum_ago NUMERIC,
+  aitb_dep_acum_sep NUMERIC,
+  aitb_dep_acum_oct NUMERIC,
+  aitb_dep_acum_nov NUMERIC,
+  aitb_dep_acum_dic NUMERIC,
+  total_aitb_dep_acum NUMERIC,
+  dep_ene NUMERIC,
+  dep_feb NUMERIC,
+  dep_mar NUMERIC,
+  dep_abr NUMERIC,
+  dep_may NUMERIC,
+  dep_jun NUMERIC,
+  dep_jul NUMERIC,
+  dep_ago NUMERIC,
+  dep_sep NUMERIC,
+  dep_oct NUMERIC,
+  dep_nov NUMERIC,
+  dep_dic NUMERIC,
+  total_dep NUMERIC,
+  aitb_dep_ene NUMERIC,
+  aitb_dep_feb NUMERIC,
+  aitb_dep_mar NUMERIC,
+  aitb_dep_abr NUMERIC,
+  aitb_dep_may NUMERIC,
+  aitb_dep_jun NUMERIC,
+  aitb_dep_jul NUMERIC,
+  aitb_dep_ago NUMERIC,
+  aitb_dep_sep NUMERIC,
+  aitb_dep_oct NUMERIC,
+  aitb_dep_nov NUMERIC,
+  aitb_dep_dic NUMERIC,
+  total_aitb_dep NUMERIC,
+  cuenta_activo VARCHAR,
+  cuenta_dep_acum VARCHAR,
+  cuenta_deprec VARCHAR,
+  desc_grupo VARCHAR,
+  desc_grupo_clasif VARCHAR,
+  cuenta_dep_acum_dos TEXT,
+  bk_codigo VARCHAR,
+  tipo VARCHAR,
+  id_activo_fijo INTEGER,
+  id_activo_fijo_valor INTEGER,
+  CONSTRAINT treporte_detalle_dep2_pkey PRIMARY KEY(id)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE INDEX treporte_detalle_dep2_idx ON kaf.treporte_detalle_dep2
+  USING btree (id_movimiento, fecha, id_moneda);
+
+CREATE INDEX treporte_detalle_dep2_idx1 ON kaf.treporte_detalle_dep2
+  USING btree (numero);
+
+ALTER TABLE kaf.treporte_detalle_dep2
+  ALTER COLUMN dep_acum_tras TYPE NUMERIC;
+/***********************************F-SCP-RCM-KAF-70-11/08/2020****************************************/
