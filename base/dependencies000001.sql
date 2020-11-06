@@ -5650,3 +5650,312 @@ AND cc1.id_gestion IN (
              mov.fecha_hasta,
              cta.id_cuenta;
 /***********************************F-DEP-RCM-KAF-58-20/04/2020****************************************/
+
+/***********************************I-DEP-RCM-KAF-70-08/08/2020****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_1_v2(
+    id_movimiento,
+    id_clasificacion,
+    monto_actualiz
+) AS
+SELECT
+rd.id_movimiento,
+af.id_clasificacion,
+SUM(inc_actualiz) AS monto_actualiz
+FROM kaf.treporte_detalle_dep2 rd
+INNER JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = rd.id_activo_fijo
+WHERE rd.id_moneda = param.f_get_moneda_base()
+GROUP BY rd.id_movimiento, af.id_clasificacion;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_2_v2(
+    id_movimiento,
+    id_clasificacion,
+    dep_acum_actualiz
+) AS
+SELECT
+rd.id_movimiento,
+af.id_clasificacion,
+sum(rd.inc_actualiz_dep_acum) AS dep_acum_actualiz
+FROM kaf.treporte_detalle_dep2 rd
+JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = rd.id_activo_fijo
+WHERE rd.id_moneda = param.f_get_moneda_base()
+GROUP BY af.id_clasificacion, rd.id_movimiento;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_haber_v2(
+    id_movimiento,
+    id_clasificacion,
+    monto_depreciacion
+) AS
+SELECT
+rd.id_movimiento,
+af.id_clasificacion,
+sum(rd.depreciacion) AS monto_depreciacion
+FROM kaf.treporte_detalle_dep2 rd
+JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = rd.id_activo_fijo
+WHERE rd.id_moneda = param.f_get_moneda_base()
+GROUP BY rd.id_movimiento, af.id_clasificacion;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_v2(
+    id_movimiento,
+    id_clasificacion,
+    id_centro_costo,
+    id_cuenta,
+    id_partida,
+    monto_depreciacion
+) AS
+WITH trel_contable AS(
+  SELECT
+  rc.id_tabla AS id_clasificacion, rc.id_cuenta, rc.id_partida, rc.id_gestion,
+  (('{'||kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos'))||'}')::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+  JOIN conta.ttipo_relacion_contable trc
+  ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+  JOIN conta.trelacion_contable rc
+  ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+  WHERE tb.esquema = 'KAF'
+  AND tb.tabla = 'tclasificacion'
+  AND trc.codigo_tipo_relacion = 'DEPCLAS'
+), tprorrateo_af AS(
+  SELECT
+  acc.id_activo_fijo,
+  sum(acc.cantidad_horas) AS total_hrs_af
+  FROM kaf.tactivo_fijo_cc acc
+  WHERE acc.estado_reg = 'activo'
+  GROUP BY acc.id_activo_fijo
+)
+SELECT
+rd.id_movimiento,
+rc.id_clasificacion,
+COALESCE(acc.id_centro_costo, tcc.id_centro_costo) AS id_centro_costo,
+COALESCE(cta.id_cuenta, rc.id_cuenta) AS id_cuenta,
+rc.id_partida,
+sum(rd.depreciacion) AS monto_depreciacion
+FROM kaf.treporte_detalle_dep2 rd
+JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = rd.id_activo_fijo
+JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = rd.id_movimiento
+JOIN trel_contable rc
+ON (af.id_clasificacion = ANY (rc.nodos))
+AND (rc.id_gestion IN (
+    SELECT tgestion.id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year', fecha_ini) = date_trunc('year', mov.fecha_hasta)
+))
+LEFT JOIN param.vcentro_costo cc
+ON cc.id_centro_costo = af.id_centro_costo
+LEFT JOIN param.tcentro_costo tcc
+ON tcc.id_tipo_cc = cc.id_tipo_cc
+AND (tcc.id_gestion IN (
+    SELECT id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year',fecha_ini) = date_trunc('year',mov.fecha_hasta)
+))
+LEFT JOIN kaf.tactivo_fijo_cta_tmp act
+ON act.id_activo_fijo = af.id_activo_fijo
+LEFT JOIN conta.tcuenta cta
+ON cta.nro_cuenta = act.nro_cuenta
+AND (cta.id_gestion IN (
+    SELECT
+    id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year',fecha_ini) = date_trunc('year',mov.fecha_hasta)
+))
+LEFT JOIN kaf.tactivo_fijo_cc acc
+ON acc.id_activo_fijo = rd.id_activo_fijo
+AND acc.estado_reg = 'activo'
+LEFT JOIN tprorrateo_af paf
+ON paf.id_activo_fijo = rd.id_activo_fijo
+WHERE rd.id_moneda = param.f_get_moneda_base()
+GROUP BY rd.id_movimiento, rc.id_clasificacion, cta.id_cuenta, rc.id_cuenta, rc.id_partida, acc.id_centro_costo, tcc.id_centro_costo;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_4_v2(
+    id_movimiento,
+    id_clasificacion,
+    id_centro_costo,
+    id_cuenta,
+    id_partida,
+    dep_per_actualiz
+)
+AS
+WITH trel_contable AS(
+  SELECT
+  rc.id_tabla AS id_clasificacion, rc.id_cuenta, rc.id_partida, rc.id_gestion,
+  (('{'||kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos'))||'}')::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+  JOIN conta.ttipo_relacion_contable trc
+  ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+  JOIN conta.trelacion_contable rc
+  ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+  WHERE tb.esquema = 'KAF'
+  AND tb.tabla = 'tclasificacion'
+  AND trc.codigo_tipo_relacion = 'DEPCLAS'
+), tprorrateo_af AS(
+  SELECT
+  acc.id_activo_fijo,
+  sum(acc.cantidad_horas) AS total_hrs_af
+  FROM kaf.tactivo_fijo_cc acc
+  WHERE acc.estado_reg = 'activo'
+  GROUP BY acc.id_activo_fijo
+)
+SELECT
+rd.id_movimiento,
+rc.id_clasificacion,
+COALESCE(acc.id_centro_costo, tcc.id_centro_costo) AS id_centro_costo,
+COALESCE(cta.id_cuenta, rc.id_cuenta) AS id_cuenta,
+rc.id_partida,
+sum(rd.aitb_dep_mes) AS dep_per_actualiz
+FROM kaf.treporte_detalle_dep2 rd
+JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = rd.id_activo_fijo
+JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = rd.id_movimiento
+JOIN trel_contable rc
+ON (af.id_clasificacion = ANY (rc.nodos))
+AND (rc.id_gestion IN (
+    SELECT tgestion.id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year', fecha_ini) = date_trunc('year', mov.fecha_hasta)
+))
+LEFT JOIN param.vcentro_costo cc
+ON cc.id_centro_costo = af.id_centro_costo
+LEFT JOIN param.tcentro_costo tcc
+ON tcc.id_tipo_cc = cc.id_tipo_cc
+AND (tcc.id_gestion IN (
+    SELECT id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year',fecha_ini) = date_trunc('year',mov.fecha_hasta)
+))
+LEFT JOIN kaf.tactivo_fijo_cta_tmp act
+ON act.id_activo_fijo = af.id_activo_fijo
+LEFT JOIN conta.tcuenta cta
+ON cta.nro_cuenta = act.nro_cuenta
+AND (cta.id_gestion IN (
+    SELECT
+    id_gestion
+    FROM param.tgestion
+    WHERE date_trunc('year',fecha_ini) = date_trunc('year',mov.fecha_hasta)
+))
+LEFT JOIN kaf.tactivo_fijo_cc acc
+ON acc.id_activo_fijo = rd.id_activo_fijo
+AND acc.estado_reg = 'activo'
+LEFT JOIN tprorrateo_af paf
+ON paf.id_activo_fijo = rd.id_activo_fijo
+WHERE rd.id_moneda = param.f_get_moneda_base()
+GROUP BY rd.id_movimiento, rc.id_clasificacion, cta.id_cuenta, rc.id_cuenta, rc.id_partida, acc.id_centro_costo, tcc.id_centro_costo;
+/***********************************F-DEP-RCM-KAF-70-08/08/2020****************************************/
+
+/***********************************I-DEP-RCM-KAF-ETR-1443-27/10/2020****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_v3 AS
+    WITH trel_contable AS (
+        SELECT rc.id_tabla AS id_clasificacion,
+        rc.id_cuenta,
+        rc.id_partida,
+        rc.id_gestion,
+        (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
+        FROM conta.ttabla_relacion_contable tb
+        JOIN conta.ttipo_relacion_contable trc
+        ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+        JOIN conta.trelacion_contable rc
+        ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+        WHERE tb.esquema = 'KAF'
+        AND tb.tabla = 'tclasificacion'
+        AND trc.codigo_tipo_relacion = 'DEPCLAS'
+    ), tprorrateo_af AS (
+        SELECT acc.id_activo_fijo,
+        SUM(acc.cantidad_horas) AS total_hrs_af
+        FROM kaf.tactivo_fijo_cc acc
+        WHERE acc.estado_reg = 'activo'
+        GROUP BY acc.id_activo_fijo
+    )
+    SELECT
+    rd.id_movimiento,
+    rc.id_clasificacion,
+    rd.id_moneda,
+    COALESCE(acc.id_centro_costo, tcc.id_centro_costo) AS id_centro_costo,
+    COALESCE(cta.id_cuenta, rc.id_cuenta) AS id_cuenta,
+    rc.id_partida,
+    SUM(rd.depreciacion) AS monto_depreciacion
+    FROM kaf.treporte_detalle_dep2 rd
+    JOIN kaf.tactivo_fijo af
+    ON af.id_activo_fijo = rd.id_activo_fijo
+    JOIN kaf.tmovimiento mov
+    ON mov.id_movimiento = rd.id_movimiento
+    LEFT JOIN param.vcentro_costo cc
+    ON cc.id_centro_costo = af.id_centro_costo
+    LEFT JOIN param.tcentro_costo tcc
+    ON tcc.id_tipo_cc = cc.id_tipo_cc
+    AND (tcc.id_gestion IN (
+                              SELECT ges.id_gestion
+                              FROM param.tgestion ges
+                              WHERE date_trunc('year', ges.fecha_ini) = date_trunc('year', mov.fecha_hasta)
+    ))
+    JOIN trel_contable rc ON (af.id_clasificacion = ANY (rc.nodos))
+    AND (
+     rc.id_gestion IN (
+                        SELECT tgestion.id_gestion
+                        FROM param.tgestion
+                        WHERE date_trunc('year', tgestion.fecha_ini) = date_trunc('year', mov.fecha_hasta)
+    ))
+    LEFT JOIN kaf.tactivo_fijo_cta_tmp act
+    ON act.id_activo_fijo = af.id_activo_fijo
+    LEFT JOIN conta.tcuenta cta
+    ON cta.nro_cuenta = act.nro_cuenta
+    AND (cta.id_gestion IN (
+                                     SELECT ges.id_gestion
+                                     FROM param.tgestion ges
+                                     WHERE date_trunc('year', ges.fecha_ini) = date_trunc('year', mov.fecha_hasta)
+    ))
+    LEFT JOIN kaf.tactivo_fijo_cc acc
+    ON acc.id_activo_fijo = rd.id_activo_fijo
+    AND acc.estado_reg = 'activo'
+    LEFT JOIN tprorrateo_af paf
+    ON paf.id_activo_fijo = rd.id_activo_fijo
+    GROUP BY rd.id_movimiento,
+                   rc.id_clasificacion,
+                   rd.id_moneda,
+                   cta.id_cuenta,
+                   rc.id_cuenta,
+                   rc.id_partida,
+                   acc.id_centro_costo,
+                   tcc.id_centro_costo;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_haber_v3 AS
+    WITH trel_contable AS (
+        SELECT rc.id_tabla AS id_clasificacion,
+        rc.id_cuenta,
+        rc.id_partida,
+        rc.id_gestion,
+        (('{' || kaf.f_get_id_clasificaciones(rc.id_tabla, 'hijos')) || '}')::integer [ ] AS nodos
+        FROM conta.ttabla_relacion_contable tb
+        JOIN conta.ttipo_relacion_contable trc
+        ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+        JOIN conta.trelacion_contable rc
+        ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+        WHERE tb.esquema = 'KAF'
+        AND tb.tabla = 'tclasificacion'
+        AND trc.codigo_tipo_relacion = 'DEPACCLAS'
+    )
+    SELECT
+    rd.id_movimiento,
+    rc.id_clasificacion,
+    rc.id_cuenta,
+    rc.id_partida,
+    sum(rd.depreciacion) AS monto_depreciacion
+    FROM kaf.treporte_detalle_dep2 rd
+    JOIN kaf.tactivo_fijo af
+    ON af.id_activo_fijo = rd.id_activo_fijo
+    JOIN kaf.tmovimiento mov
+    ON mov.id_movimiento = rd.id_movimiento
+    JOIN trel_contable rc
+    ON (af.id_clasificacion = ANY (rc.nodos))
+    AND (
+     rc.id_gestion IN (
+                        SELECT tgestion.id_gestion
+                        FROM param.tgestion
+                        WHERE date_trunc('year', tgestion.fecha_ini) = date_trunc('year', mov.fecha_hasta)
+    ))
+    GROUP BY rd.id_movimiento, rc.id_clasificacion, rd.id_moneda, rc.id_cuenta, rc.id_partida;
+/***********************************F-DEP-RCM-KAF-ETR-1443-27/10/2020****************************************/

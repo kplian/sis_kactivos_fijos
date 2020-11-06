@@ -7,11 +7,12 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
 /***************************************************************************
-#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
- #2     KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
- #23    KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación AF y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
- #35    KAF     ETR         11/10/2019  RCM     Adición de botón para procesar Detalle Depreciación
- #58    KAF     ETR         20/04/2020  RCM     Adición de botón para nuevo reporte de depreciación
+#ISSUE      SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #2         KAF     ETR         22-05-2019  RCM     Se aumenta filtro para la distribución de valores dval
+ #23        KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación AF y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
+ #35        KAF     ETR         11/10/2019  RCM     Adición de botón para procesar Detalle Depreciación
+ #58        KAF     ETR         20/04/2020  RCM     Adición de botón para nuevo reporte de depreciación
+ #ETR-1443  KAF     ETR         22/20/2020  RCM     Modificación de servicio para procesamiento de Detalle Depreciación
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -255,7 +256,7 @@ Phx.vista.MovimientoPrincipal = {
                 text: 'Deprec.',
                 iconCls: 'bexcel',
                 disabled: false,
-                handler: this.imprimirDetalleDepAnual,
+                handler: this.abrirVentanaRep,
                 tooltip: '<b>Detalle Depreciación</b><br/>Nuevo formato reporte de Detalle de Depreciación',
                 grupo: [0,5]
             }
@@ -269,6 +270,10 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnCbte4').hide(); //#23
         this.getBoton('btnRepCompAfConta').hide(); //#23
         this.getBoton('btnPocDetalleDep').hide(); //#35
+        this.getBoton('btnRepDep').hide(); //#ETR-1443
+        this.getBoton('btnRepDepAnual').hide(); //#ETR-1443
+
+        this.crearVentanaRep(); //#ETR-1443
 
     },
 
@@ -531,6 +536,7 @@ Phx.vista.MovimientoPrincipal = {
         this.getBoton('btnImportDataDvalAF').hide(); //#39
         this.getBoton('btnImportDataDvalAL').hide(); //#39
         this.getBoton('btnRepDep').hide(); //#35
+        this.getBoton('btnRepDepAnual').hide(); //#ETR-1443
 
         if(data.cod_movimiento != 'asig' && data.cod_movimiento != 'transf' && data.cod_movimiento != 'devol'){
             this.getBoton('btnReporte').enable();
@@ -548,6 +554,7 @@ Phx.vista.MovimientoPrincipal = {
             this.getBoton('btnRepCompAfConta').show();
             this.getBoton('btnPocDetalleDep').show();//#35
             this.getBoton('btnRepDep').show();//#35
+            this.getBoton('btnRepDepAnual').show(); //#ETR-1443
             //Fin #23
         }
         //Fin #39
@@ -789,7 +796,7 @@ Phx.vista.MovimientoPrincipal = {
             url: '../../sis_kactivos_fijos/control/MovimientoAfDep/procesarDetalleDepreciacion',
             params: { id_movimiento: data.id_movimiento },
             success: function(resp){
-                Ext.MessageBox.alert('Respuesta', 'Información procesada con éxito');
+                Ext.MessageBox.alert('Respuesta', 'Información procesada con éxito en las 3 monedas');
                 Phx.CP.loadingHide();
             },
             failure: this.conexionFailure,
@@ -811,7 +818,7 @@ Phx.vista.MovimientoPrincipal = {
                 var rec = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText)).ROOT;
                 //Verifica si ya existen datos procesados para la fecha del movimiento
                 if(rec.datos.existe == 'si'){
-                    let v_mensaje = `Ya se encuentra procesada la información a la fecha del movimiento seleccionado ${new Date(data.fecha_hasta).format("d/m/Y")}. La fecha de procesamiento fue el ${rec.datos.fecha_proc}.<br><br> ¿Desea reprocesar los datos?<br><br>Este proceso tomará varios minutos.`;
+                    let v_mensaje = `Ya se encuentra procesada la información a la fecha del movimiento seleccionado ${new Date(data.fecha_hasta).format("d/m/Y")}. La fecha de procesamiento fue el ${rec.datos.fecha_proc}.<br><br> ¿Desea reprocesar los datos?<br><br>Este proceso tomará varios minutos tomando en cuenta todas las monedas.`; //#ETR-1443
                     Ext.MessageBox.confirm('Confirmación', v_mensaje, function(resp) {
                         if(resp == 'yes') {
                             //Reprocesa la información
@@ -912,13 +919,13 @@ Phx.vista.MovimientoPrincipal = {
     //Inicio #58
     imprimirDetalleDepAnual: function(){
         //Verifica si ya existen datos procesados para la fecha del movimiento
-        let v_mensaje = `¿Desea generar a Excel el reporte Detalle de Depreciación? <br><br>Este proceso tomará varios minutos.`;
+        let v_mensaje = `¿Desea generar a Excel el reporte Detalle de Depreciación en ${this.monedaDescrip.data.moneda}? <br><br>Este proceso tomará varios minutos.`;
         let data = this.sm.getSelected().data;
         Ext.MessageBox.confirm('Confirmación', v_mensaje, function(resp) {
             if(resp == 'yes') {
                 Phx.CP.loadingShow();
                 //Obtención de la moneda dep
-                Ext.Ajax.request({
+                /*Ext.Ajax.request({
                     url:'../../sis_kactivos_fijos/control/MonedaDep/obtenerMonedaDep',
                     params: {
                         id_moneda: data.id_moneda
@@ -944,11 +951,114 @@ Phx.vista.MovimientoPrincipal = {
                     failure: this.conexionFailure,
                     timeout: this.timeout,
                     scope: this
+                });*/
+                //Genera el reporte
+                Ext.Ajax.request({
+                    url:'../../sis_kactivos_fijos/control/Reportes/generarReporteDeprecAnual',
+                    params: {
+                        tipo_salida: 'excel',
+                        fecha_hasta: data.fecha_hasta,
+                        id_moneda: this.cmbMonedaRep.getValue(),
+                        desc_moneda: this.monedaDescrip.data.moneda
+                    },
+                    success: this.successExport,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
                 });
             }
         }, this);
-    }
+    },
     //Fin #58
+
+    //Inicio #ETR-1443
+    crearVentanaRep: function(){
+        //Creación de componente combo para el formulario
+        this.cmbMonedaRep = new Ext.form.ComboBox({
+            id: this.idContenedor + '_cmb_moneda_rep',
+            name: 'moneda_rep',
+            fieldLabel: 'Moneda',
+            allowBlank: false,
+            emptyText:'Seleccione moneda ...',
+            store:new Ext.data.JsonStore(
+                {
+                    url: '../../sis_parametros/control/Moneda/listarMoneda',
+                    id: 'id_moneda',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'prioridad',
+                        direction: 'DESC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_moneda','codigo','moneda'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams:{par_filtro:'codigo'}
+                }),
+            valueField: 'id_moneda',
+            triggerAction: 'all',
+            displayField: 'codigo',
+            hiddenName: 'moneda_rep',
+            mode:'remote',
+            pageSize:50,
+            queryDelay:500,
+            listWidth:'280',
+            hidden:false,
+            width:120
+        });
+
+        //Creación del formulario
+        this.formRep = new Ext.form.FormPanel({
+            id: this.idContenedor + '_af_rep',
+            items: [this.cmbMonedaRep],
+            padding: this.paddingForm,
+            bodyStyle: this.bodyStyleForm,
+            border: this.borderForm,
+            frame: this.frameForm,
+            autoScroll: false,
+            autoDestroy: true,
+            autoScroll: true,
+            region: 'center'
+        });
+
+        this.submitRep = function(){
+            this.winRep.hide();
+            this.monedaDescrip = this.cmbMonedaRep.store.getById(this.cmbMonedaRep.getValue());
+
+            if(this.formRep.getForm().isValid()){
+                this.imprimirDetalleDepAnual();
+            }
+        }
+
+        //Creación de ventana
+        this.winRep = new Ext.Window({
+            width: 300,
+            height: 120,
+            modal: true,
+            closeAction: 'hide',
+            labelAlign: 'top',
+            title: 'Seleccione Moneda',
+            bodyStyle: 'padding:5px',
+            layout: 'border',
+            items: [this.formRep],
+            buttons: [{
+                text: 'Generar',
+                handler: this.submitRep,
+                scope: this
+            }, {
+                text: 'Declinar',
+                handler: function() {
+                    this.winRep.hide();
+                },
+                scope: this
+            }]
+        });
+    },
+
+    abrirVentanaRep: function() {
+        this.winRep.show();
+    }
+    //Fin #ETR-1443
 
 
 };

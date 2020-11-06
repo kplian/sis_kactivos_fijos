@@ -13,17 +13,18 @@ $body$
  FECHA:         30/05/2019
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           30/05/2019  RCM         Creación del archivo
- #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se aumenta parámetro id_tipo_estado
- #48    KAF       ETR           11/02/2020  RCM         Modificación de la finalización y creación de nuevos AFV de activos fijos originales
- #57    KAF       ETR           25/03/2020  RCM         Adición de id_movimiento_af_especial en kaf.tactivo_fijo y kaf.tactivo_fijo_valores
- #58    KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
- #60    KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
- #61    KAF       ETR           30/04/2020  RCM         Al generar el AF falta incluir marca y nro de serie
- #67    KAF       ETR           20/05/2020  RCM         Codificar los AFVs al procesar la disgregación
- #68    KAF       ETR           22/05/2020  RCM         Considerar disgregación con monto parcial del AF origen
- #69    KAF       ETR           20/06/2020  RCM         Cambio lógica basada en vaor neto para considerar el valor actualizado
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2         KAF       ETR           30/05/2019  RCM         Creación del archivo
+ #39        KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se aumenta parámetro id_tipo_estado
+ #48        KAF       ETR           11/02/2020  RCM         Modificación de la finalización y creación de nuevos AFV de activos fijos originales
+ #57        KAF       ETR           25/03/2020  RCM         Adición de id_movimiento_af_especial en kaf.tactivo_fijo y kaf.tactivo_fijo_valores
+ #58        KAF       ETR           14/04/2020  RCM         Cambio de tipo en AFVs para las bolsas a dval-b
+ #60        KAF       ETR           28/04/2020  RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
+ #61        KAF       ETR           30/04/2020  RCM         Al generar el AF falta incluir marca y nro de serie
+ #67        KAF       ETR           20/05/2020  RCM         Codificar los AFVs al procesar la disgregación
+ #68        KAF       ETR           22/05/2020  RCM         Considerar disgregación con monto parcial del AF origen
+ #69        KAF       ETR           20/06/2020  RCM         Cambio lógica basada en vaor neto para considerar el valor actualizado
+ #ETR-1443  KAF       ETR           28/10/2020  RCM         Ccorrección de la lógica de la nueva vida útil para los nuevos AFVs en caso activos fijos nuevos y adición de costo en consulta
 ***************************************************************************
 */
 DECLARE
@@ -458,7 +459,8 @@ BEGIN
             WHEN v_id_moneda THEN ROUND(v_rec_af.costo_orig, 2) --#48 --#69
             ELSE ROUND(mdep.monto_actualiz * v_rec_af.porcentaje / 100, 2) --#48  --#69
         END AS monto_vigente_orig,
-        v_rec_af.vida_util - (afv.vida_util_orig - mdep.vida_util), --#48
+        --v_rec_af.vida_util - (afv.vida_util_orig - mdep.vida_util), --#48
+        mdep.vida_util, --#ETR-1443
         v_rec_af.fecha_ini_dep,
         mdep.depreciacion_acum * v_rec_af.porcentaje / 100 AS depreciacion_acum,
         CASE mdep.id_moneda
@@ -606,7 +608,7 @@ BEGIN
         mdep.id_activo_fijo_valor, mafe.id_movimiento_af_especial, mafe.importe, mafe.porcentaje,
         mdep.monto_actualiz, mdep.depreciacion_acum,
         mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mafe.id_activo_fijo,
-        mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento
+        mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento, mafe.costo_orig --#ETR-1443
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento

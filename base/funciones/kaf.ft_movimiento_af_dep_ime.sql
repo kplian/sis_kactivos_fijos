@@ -11,11 +11,11 @@ $BODY$
  FECHA:	        16-04-2016 08:14:17
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
-        KAF       ETR           16/04/2016  RCM         Creación del archivo
- #35    KAF       ETR           14/10/2019  RCM         Procesamiento del detalle depreciación
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+        	KAF       ETR           16/04/2016  RCM         Creación del archivo
+ #35    	KAF       ETR           14/10/2019  RCM         Procesamiento del detalle depreciación
+ #ETR-1443  KAF    	  ETR         	22/20/2020  RCM     	Modificación de la verificación del procesamiento para la depreciación por cambio de proceso
 ***************************************************************************/
-
 DECLARE
 
 	v_nro_requerimiento    	integer;
@@ -31,6 +31,11 @@ DECLARE
 	v_total					integer;--#35
 	v_existe				varchar;--#35
 	v_fecha_reg 			date; --#35
+	--Inicio ETR-1443
+	v_id_moneda 			INTEGER;
+	v_id_moneda_tri 		INTEGER;
+	v_id_moneda_act 		INTEGER;
+	--Fin ETR-1443
 
 BEGIN
 
@@ -199,7 +204,7 @@ BEGIN
 			FROM kaf.tmovimiento
 			WHERE id_movimiento = v_parametros.id_movimiento;
 
-			--Obtención de la moneda de depreciación
+			/*--Obtención de la moneda de depreciación
 			SELECT id_moneda_dep
 			INTO v_id_moneda_dep
 			FROM kaf.tmoneda_dep
@@ -212,6 +217,34 @@ BEGIN
 						  	v_fecha_hasta,
 						  	v_id_moneda_dep
 						);
+			*/
+			--Inicio #ETR-1443
+			--Obtención de IDs de las monedas
+			v_id_moneda = param.f_get_moneda_base();
+			v_id_moneda_tri = param.f_get_moneda_triangulacion();
+			v_id_moneda_act = param.f_get_moneda_actualizacion();
+
+			v_result = kaf.f_procesa_detalle_depreciacion_2
+						(
+			  				p_id_usuario,
+			  				v_fecha_hasta,
+			  				v_id_moneda
+						);
+
+			v_result = kaf.f_procesa_detalle_depreciacion_2
+						(
+			  				p_id_usuario,
+			  				v_fecha_hasta,
+			  				v_id_moneda_tri
+						);
+
+			v_result = kaf.f_procesa_detalle_depreciacion_2
+						(
+			  				p_id_usuario,
+			  				v_fecha_hasta,
+			  				v_id_moneda_act
+						);
+			--Fin #ETR-1443
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Procesamiento detalle depreciación realizado con éxito');
@@ -241,7 +274,7 @@ BEGIN
 			--Ejecuta el proceso de detalle de depreciación
 			SELECT COUNT(1)
 			INTO v_total
-			FROM kaf.treporte_detalle_dep
+			FROM kaf.treporte_detalle_dep2 --#ETR-1443
 			WHERE id_moneda = param.f_get_moneda_base()
 			AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', v_fecha_hasta);
 
@@ -251,7 +284,7 @@ BEGIN
 				--Obtiene la fecha en que se procesó la información (fecha_reg)
 				SELECT fecha_reg
 				INTO v_fecha_reg
-				FROM kaf.treporte_detalle_dep
+				FROM kaf.treporte_detalle_dep2 --#ETR-1443
 				WHERE id_moneda = param.f_get_moneda_base()
 				AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', v_fecha_hasta)
 				LIMIT 1;

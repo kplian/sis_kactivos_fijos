@@ -1218,12 +1218,14 @@ BEGIN
                     --Obtención del código de plantilla para depreciación
                     v_kaf_cbte = kaf.f_obtener_plantilla_cbte(v_movimiento.id_movimiento,3); --'KAF-DEP-DEPREC';
 
-                    v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento,
+                    /*v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento,
                                                                     v_kaf_cbte ,
                                                                     v_id_estado_actual,
                                                                     p_id_usuario,
                                                                     v_parametros._id_usuario_ai,
-                                                                    v_parametros._nombre_usuario_ai);
+                                                                    v_parametros._nombre_usuario_ai);*/
+                    --#ETR-1443
+                    v_id_int_comprobante = kaf.f_genera_cbte_deprec_monedas(v_movimiento.id_movimiento);
 
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set
