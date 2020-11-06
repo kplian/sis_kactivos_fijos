@@ -643,3 +643,11 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','KAF-DEP-ACTDEPER
 select pxp.f_insert_tgui ('8 Comparación Saldos BS-UFV', 'Saldos por fecha y comparación entre moneda Bolivianos y UFV', 'KAF.REP.14', 'si', 15, 'sis_kactivos_fijos/vista/reportes/ParametrosRepSaldoAf.php', 3, '', 'ParametrosRepSaldoAf', 'KAF');
 select pxp.f_insert_testructura_gui ('KAF.REP.14', 'KAFREP');
 /***********************************F-DAT-RCM-KAF-AF-13-23/09/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-1443-06/11/2020****************************************/
+select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-DEPREC3','kaf.f_gestionar_cbte_deprec_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','kaf.f_gestionar_cbte_depreciacion','{$tabla.fecha_mov}','activo','ENDE TRANSMISIÓN S.A.','{$tabla.id_depto_conta}','presupuestario','','kaf.v_cbte_deprec_depreciacion_cab','DIARIO','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','si','si','no','','','','','{$tabla.num_tramite}','','','','','','(3/4) V3 Comprobante de la depreciación mensual','','','','','');
+
+UPDATE kaf.tmovimiento_tipo SET
+plantilla_cbte_tres = 'KAF-DEP-DEPREC3'
+WHERE id_cat_movimiento = 59;
+/***********************************F-DAT-RCM-KAF-ETR-1443-06/11/2020****************************************/
