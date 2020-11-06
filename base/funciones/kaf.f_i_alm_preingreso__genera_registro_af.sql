@@ -15,6 +15,7 @@ $body$
  ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
         KAF     ETR      05/08/2017   RCM         Creación del archivo
  #58    KAF     ETR      21/04/2020   RCM         Agregación de datos para la creación del activo fijo
+ #AF-14 KAF     ETR      03/11/2020   RCM         Adición de validación de la marca de generación de activos previamente
 ***************************************************************************
 */
 DECLARE
@@ -110,7 +111,8 @@ BEGIN
                 where ping.id_preingreso  = p_id_preingreso
                 and pdet.sw_generar = 'si'
                 and pdet.estado = 'mod'
-                and pdet.estado_reg = 'activo' loop
+                and pdet.estado_reg = 'activo'
+                and pdet.generado = 'no' loop --#AF-14
 
         --Vida útil
         /*select vida_util
