@@ -83,7 +83,7 @@ BEGIN
         FROM kaf.v_cbte_deprec_3_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_triangulacion()
-    )
+    ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
     AND AA.glosa = DD.id_clasificacion::varchar;
 
@@ -98,7 +98,7 @@ BEGIN
         FROM kaf.v_cbte_deprec_3_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_actualizacion()
-    )
+    ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
     AND AA.glosa = DD.id_clasificacion::varchar;
 
@@ -153,7 +153,7 @@ BEGIN
         FROM kaf.v_cbte_deprec_3_haber_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_triangulacion()
-    )
+    ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
     AND AA.glosa = DD.id_clasificacion::varchar;
 
@@ -168,7 +168,7 @@ BEGIN
         FROM kaf.v_cbte_deprec_3_haber_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_actualizacion()
-    )
+    ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
     AND AA.glosa = DD.id_clasificacion::varchar;
 
