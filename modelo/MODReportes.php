@@ -21,8 +21,9 @@
  #42	KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
  #58	KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
  #70	KAF 	  ETR 			30/07/2020  RCM 		Adición de columna para consulta, ajustes en base a revisión
+ #BB03	KAF 	  ETR 			08/09/2020  RCM 		Corrección tipo de dato, integer por numeric
+ #AF-13	KAF 	  ETR 			18/10/2020  RCM 		Reporte de Saldos a una fecha
 ***************************************************************************/
-
 class MODReportes extends MODbase{
 
 	function __construct(CTParametro $pParam){
@@ -1243,6 +1244,169 @@ class MODReportes extends MODbase{
 		return $this->respuesta;
 	}
 	//Fin #58
+
+	//Inicio #70
+	function listarReporteDeprecAnualGenerado(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='kaf.f_reportes_af_3';
+		$this->transaccion='SKA_RDEPANUALGEN_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Define los parametros para la funcion
+		$this->setParametro('fecha_hasta','fecha_hasta','date');
+		$this->setParametro('id_moneda','id_moneda','integer');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('numero', 'BIGINT');
+		$this->captura('codigo', 'VARCHAR');
+		$this->captura('codigo_sap', 'VARCHAR');
+		$this->captura('denominacion', 'VARCHAR');
+		$this->captura('fecha_ini_dep', 'DATE');
+		$this->captura('cantidad_af', 'INTEGER');
+		$this->captura('unidad_medida', 'VARCHAR');
+		$this->captura('cc', 'VARCHAR');
+		$this->captura('nro_serie', 'VARCHAR');
+		$this->captura('lugar', 'VARCHAR');
+		$this->captura('responsable', 'TEXT');
+
+		$this->captura('vida_util_orig', 'INTEGER');
+		$this->captura('vida_util_transc', 'INTEGER');
+		$this->captura('vida_util', 'INTEGER');
+
+
+		$this->captura('valor_compra', 'NUMERIC');
+		$this->captura('valor_inicial', 'NUMERIC');
+		$this->captura('valor_mes_ant', 'NUMERIC');
+		$this->captura('altas', 'NUMERIC');
+		$this->captura('bajas', 'NUMERIC');
+		$this->captura('traspasos', 'NUMERIC');
+		$this->captura('inc_actualiz', 'NUMERIC');
+		$this->captura('valor_actualiz', 'NUMERIC');
+
+		$this->captura('depreciacion_acum_gest_ant', 'NUMERIC');
+
+		$this->captura('depreciacion_acum_mes_ant', 'NUMERIC');
+
+		$this->captura('dep_acum_bajas', 'NUMERIC');
+		$this->captura('dep_acum_tras', 'NUMERIC'); //#BB03
+
+		$this->captura('inc_actualiz_dep_acum', 'NUMERIC');
+		$this->captura('depreciacion', 'NUMERIC');
+
+		$this->captura('depreciacion_acum', 'NUMERIC');
+		$this->captura('monto_vigente', 'NUMERIC');
+		$this->captura('aitb_dep_mes', 'NUMERIC');
+		$this->captura('aitb_af_ene', 'NUMERIC');
+		$this->captura('aitb_af_feb', 'NUMERIC');
+		$this->captura('aitb_af_mar', 'NUMERIC');
+		$this->captura('aitb_af_abr', 'NUMERIC');
+		$this->captura('aitb_af_may', 'NUMERIC');
+		$this->captura('aitb_af_jun', 'NUMERIC');
+		$this->captura('aitb_af_jul', 'NUMERIC');
+		$this->captura('aitb_af_ago', 'NUMERIC');
+		$this->captura('aitb_af_sep', 'NUMERIC');
+		$this->captura('aitb_af_oct', 'NUMERIC');
+		$this->captura('aitb_af_nov', 'NUMERIC');
+		$this->captura('aitb_af_dic', 'NUMERIC');
+		$this->captura('total_aitb_af', 'NUMERIC');
+		$this->captura('aitb_dep_acum_ene', 'NUMERIC');
+		$this->captura('aitb_dep_acum_feb', 'NUMERIC');
+		$this->captura('aitb_dep_acum_mar', 'NUMERIC');
+		$this->captura('aitb_dep_acum_abr', 'NUMERIC');
+		$this->captura('aitb_dep_acum_may', 'NUMERIC');
+		$this->captura('aitb_dep_acum_jun', 'NUMERIC');
+		$this->captura('aitb_dep_acum_jul', 'NUMERIC');
+		$this->captura('aitb_dep_acum_ago', 'NUMERIC');
+		$this->captura('aitb_dep_acum_sep', 'NUMERIC');
+		$this->captura('aitb_dep_acum_oct', 'NUMERIC');
+		$this->captura('aitb_dep_acum_nov', 'NUMERIC');
+		$this->captura('aitb_dep_acum_dic', 'NUMERIC');
+		$this->captura('total_aitb_dep_acum', 'NUMERIC');
+		$this->captura('dep_ene', 'NUMERIC');
+		$this->captura('dep_feb', 'NUMERIC');
+		$this->captura('dep_mar', 'NUMERIC');
+		$this->captura('dep_abr', 'NUMERIC');
+
+		$this->captura('dep_may', 'NUMERIC');
+		$this->captura('dep_jun', 'NUMERIC');
+		$this->captura('dep_jul', 'NUMERIC');
+		$this->captura('dep_ago', 'NUMERIC');
+		$this->captura('dep_sep', 'NUMERIC');
+		$this->captura('dep_oct', 'NUMERIC');
+		$this->captura('dep_nov', 'NUMERIC');
+		$this->captura('dep_dic', 'NUMERIC');
+		$this->captura('total_dep', 'NUMERIC');
+		$this->captura('aitb_dep_ene', 'NUMERIC');
+		$this->captura('aitb_dep_feb', 'NUMERIC');
+		$this->captura('aitb_dep_mar', 'NUMERIC');
+		$this->captura('aitb_dep_abr', 'NUMERIC');
+		$this->captura('aitb_dep_may', 'NUMERIC');
+		$this->captura('aitb_dep_jun', 'NUMERIC');
+		$this->captura('aitb_dep_jul', 'NUMERIC');
+		$this->captura('aitb_dep_ago', 'NUMERIC');
+		$this->captura('aitb_dep_sep', 'NUMERIC');
+		$this->captura('aitb_dep_oct', 'NUMERIC');
+		$this->captura('aitb_dep_nov', 'NUMERIC');
+		$this->captura('aitb_dep_dic', 'NUMERIC');
+		$this->captura('total_aitb_dep', 'NUMERIC');
+		$this->captura('cuenta_activo', 'VARCHAR');
+		$this->captura('cuenta_dep_acum', 'VARCHAR');
+		$this->captura('cuenta_deprec', 'VARCHAR');
+		$this->captura('desc_grupo', 'VARCHAR');
+		$this->captura('desc_grupo_clasif', 'VARCHAR');
+		$this->captura('cuenta_dep_acum_dos','TEXT');
+        $this->captura('bk_codigo','VARCHAR');
+		$this->captura('tipo', 'VARCHAR');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #70
+
+	//Inicio #AF-13
+	function listarReporteSaldoAf(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.f_reportes_af_3';
+		$this->transaccion = 'SKA_RSALDAF_SEL';
+		$this->tipo_procedimiento = 'SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Define los parametros para la funcion
+		$this->setParametro('fecha','fecha','date');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('codigo', 'VARCHAR');
+		$this->captura('codigo_sap', 'VARCHAR');
+		$this->captura('denominacion', 'VARCHAR');
+		$this->captura('vida_util', 'INTEGER');
+
+		$this->captura('val_actualiz_bs', 'NUMERIC');
+		$this->captura('dep_acum_bs', 'NUMERIC');
+		$this->captura('dep_per_bs', 'NUMERIC');
+		$this->captura('val_neto_bs', 'NUMERIC');
+
+		$this->captura('val_actualiz_ufv', 'NUMERIC');
+		$this->captura('dep_acum_ufv', 'NUMERIC');
+		$this->captura('dep_per_ufv', 'NUMERIC');
+		$this->captura('val_neto_ufv', 'NUMERIC');
+
+		$this->captura('test_val_actualiz', 'NUMERIC');
+		$this->captura('test_dep_acum', 'NUMERIC');
+		$this->captura('test_dep_per', 'NUMERIC');
+		$this->captura('test_val_neto', 'NUMERIC');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 
 }
 ?>

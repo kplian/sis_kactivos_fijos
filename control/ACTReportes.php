@@ -17,6 +17,8 @@
  #26    KAF       ETR           22/08/2019  RCM         Adición método para Reporte Altas por Origen
  #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
  #58	KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
+ #70	KAF 	  ETR 			07/08/2020  RCM 		Consulta para reporte anual de depreciación apuntando a tabla preprocesada
+ #AF-13	KAF 	  ETR 			18/10/2020  RCM 		Reporte de Saldos a una fecha
 ****************************************************************************
 */
 require_once(dirname(__FILE__).'/../../pxp/pxpReport/DataSource.php');
@@ -33,6 +35,7 @@ require_once(dirname(__FILE__).'/../reportes/RAfDistValoresXls.php'); //#20
 require_once(dirname(__FILE__).'/../reportes/RAltaOrigenXls.php'); //#26
 require_once(dirname(__FILE__).'/../reportes/RComparacionAfContaXls.php'); //#23
 require_once(dirname(__FILE__).'/../reportes/RDetalleDepreciacionAnualXls.php');//#58
+require_once(dirname(__FILE__).'/../reportes/RSaldoAfXls.php');//#AF-13
 
 class ACTReportes extends ACTbase {
 
@@ -832,7 +835,8 @@ class ACTReportes extends ACTbase {
 	function obtenerDeprecAnual(){
 		$this->definirFiltros();
 		$this->objFunc=$this->create('MODReportes');
-		$data = $this->objFunc->listarReporteDeprecAnual($this->objParam);
+		//$data = $this->objFunc->listarReporteDeprecAnual($this->objParam);
+		$data = $this->objFunc->listarReporteDeprecAnualGenerado($this->objParam); //#70
 
 		if($data->getTipo() == 'EXITO'){
 			return $data;
@@ -842,6 +846,44 @@ class ACTReportes extends ACTbase {
 		}
     }
 	//Fin #58
+
+	//Inicio #58
+	function generarReporteSaldoAf(){
+		$nombreArchivo = 'SaldoAf.xls';
+		$dataSource = $this->listarReporteSaldoAf();
+
+		//Parámetros básicos
+		$tamano = 'LETTER';
+		$orientacion = 'L';
+		$titulo = 'Consolidado';
+
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+		$reporte = new RSaldoAfXls($this->objParam);
+		$reporte->setData($dataSource->datos);
+		$reporte->generarReporte();
+
+		$this->mensajeExito = new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function listarReporteSaldoAf(){
+		$this->objFunc = $this->create('MODReportes');
+		$data = $this->objFunc->listarReporteSaldoAf($this->objParam);
+
+		if($data->getTipo() == 'EXITO') {
+			return $data;
+		}
+        else {
+		    $data->imprimirRespuesta($data->generarJson());
+			exit;
+		}
+    }
 
 }
 ?>
