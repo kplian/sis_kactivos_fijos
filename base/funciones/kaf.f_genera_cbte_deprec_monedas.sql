@@ -75,7 +75,7 @@ BEGIN
     --(2.2) En Dólares
     UPDATE conta.tint_transaccion AA SET
     importe_debe_mt = DD.monto_depreciacion,
-    importe_gasto_mt = DD.monto_depreciacion,
+    importe_gasto_mt = DD.monto_depreciacion
     FROM (
         SELECT
         cd.monto_depreciacion,
@@ -90,7 +90,7 @@ BEGIN
     --(2.3) En UFV
     UPDATE conta.tint_transaccion AA SET
     importe_debe_ma = DD.monto_depreciacion,
-    importe_gasto_ma = DD.monto_depreciacion,
+    importe_gasto_ma = DD.monto_depreciacion
     FROM (
         SELECT
         cd.monto_depreciacion,
@@ -145,7 +145,7 @@ BEGIN
     --(3.2) En USD
     UPDATE conta.tint_transaccion AA SET
     importe_haber_mt = DD.monto_depreciacion,
-    importe_recurso_mt = DD.monto_depreciacion,
+    importe_recurso_mt = DD.monto_depreciacion
     FROM (
         SELECT
         cd.monto_depreciacion,
@@ -160,7 +160,7 @@ BEGIN
     --(3.3) En UFV
     UPDATE conta.tint_transaccion AA SET
     importe_haber_ma = DD.monto_depreciacion,
-    importe_recurso_ma = DD.monto_depreciacion,
+    importe_recurso_ma = DD.monto_depreciacion
     FROM (
         SELECT
         cd.monto_depreciacion,
