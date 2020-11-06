@@ -16,6 +16,7 @@ $body$
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #12    KAF       ETR           16/05/2019  RCM         Modificación funcionario por regularización
+ #AF-11 KAF       ETR           24/08/2020  RCM         Adición de Nro. de serie en el código QR
 ***************************************************************************/
 
 DECLARE
@@ -382,39 +383,41 @@ BEGIN
 
     begin
 
-      select
-              kaf.id_activo_fijo,
-              kaf.codigo,
-              kaf.codigo_ant,
-              kaf.denominacion,
-              COALESCE(dep.nombre_corto, '') as nombre_depto,
-              COALESCE(ent.nombre, '') as nombre_entidad,
-              kaf.descripcion
-             into
-               v_rec_af
-            from kaf.tactivo_fijo  kaf
-            inner join param.tdepto dep on dep.id_depto = kaf.id_depto
-            left join param.tentidad ent on ent.id_entidad = dep.id_entidad
-      where id_activo_fijo = v_parametros.id_activo_fijo;
+        select
+        kaf.id_activo_fijo,
+        kaf.codigo,
+        kaf.codigo_ant,
+        kaf.denominacion,
+        COALESCE(dep.nombre_corto, '') as nombre_depto,
+        COALESCE(ent.nombre, '') as nombre_entidad,
+        kaf.descripcion,
+        kaf.nro_serie --#AF-11
+        into
+        v_rec_af
+        from kaf.tactivo_fijo  kaf
+        inner join param.tdepto dep on dep.id_depto = kaf.id_depto
+        left join param.tentidad ent on ent.id_entidad = dep.id_entidad
+        where id_activo_fijo = v_parametros.id_activo_fijo;
 
-            --Recuperar configuracion del reporte de codigo de barrar por defecto de variable global
-             v_clase_reporte = pxp.f_get_variable_global('kaf_clase_reporte_codigo');
+        --Recuperar configuracion del reporte de codigo de barrar por defecto de variable global
+        v_clase_reporte = pxp.f_get_variable_global('kaf_clase_reporte_codigo');
 
-            --Definicion de la respuesta
-      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Código recuperado');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_rec_af.codigo::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'codigo_ant',v_rec_af.codigo_ant::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'denominacion',v_rec_af.denominacion::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'nombre_depto',v_rec_af.nombre_depto::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'nombre_entidad',v_rec_af.nombre_entidad::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
+        --Definicion de la respuesta
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Código recuperado');
+        v_resp = pxp.f_agrega_clave(v_resp,'id_activo_fijo',v_parametros.id_activo_fijo::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'codigo',v_rec_af.codigo::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'codigo_ant',v_rec_af.codigo_ant::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'denominacion',v_rec_af.denominacion::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'nombre_depto',v_rec_af.nombre_depto::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'nombre_entidad',v_rec_af.nombre_entidad::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'nro_serie',v_rec_af.nro_serie::varchar); --#AF-11
 
-            --Devuelve la respuesta
-            return v_resp;
+        --Devuelve la respuesta
+        return v_resp;
 
-        end;
+    end;
 
     /*********************************
   #TRANSACCION:  'SKA_PHOTO_UPL'
