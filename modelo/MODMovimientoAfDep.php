@@ -10,6 +10,7 @@
  ISSUE  SIS     EMPRESA     FECHA       AUTOR       DESCRIPCION
  #2     KAF     ETR         11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
  #35    KAF     ETR         11/10/2019  RCM     	Adición de botón para procesar Detalle Depreciación
+ #AF-12 KAF     ETR      	08/09/2020  RCM         Reporte de saldos en las tres monedas a una fecha
  ***************************************************************************/
 class MODMovimientoAfDep extends MODbase{
 
@@ -445,6 +446,51 @@ class MODMovimientoAfDep extends MODbase{
 		return $this->respuesta;
 	}
 	//Fin #35
+
+	//Inicio #AF-12
+	function listarSaldoAf(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento = 'kaf.ft_movimiento_af_dep_sel';
+		$this->transaccion = 'SKA_SALDOAF_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+
+		//Define los parametros para la funcion
+		$this->setParametro('fecha', 'fecha', 'date');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('codigo', 'VARCHAR');
+		$this->captura('codigo_sap', 'VARCHAR');
+		$this->captura('denominacion', 'VARCHAR');
+		$this->captura('vida_util_original','INTEGER');
+		$this->captura('vida_util','INTEGER');
+		$this->captura('val_actualiz_bs', 'NUMERIC');
+		$this->captura('dep_acum_bs', 'NUMERIC');
+		$this->captura('val_neto_bs','NUMERIC');
+		$this->captura('val_actualiz_usd', 'NUMERIC');
+		$this->captura('dep_acum_usd', 'NUMERIC');
+		$this->captura('val_neto_usd','NUMERIC');
+		$this->captura('val_actualiz_ufv', 'NUMERIC');
+		$this->captura('dep_acum_ufv', 'NUMERIC');
+		$this->captura('val_neto_ufv', 'NUMERIC');
+		$this->captura('tipo_cambio_fin', 'NUMERIC');
+		$this->captura('ctrl_monto_actualiz_bs_usd', 'NUMERIC');
+		$this->captura('ctrl_monto_actualiz_bs_ufv', 'NUMERIC');
+		$this->captura('dif_ctrl_monto_actualiz_bs_ufv', 'NUMERIC');
+		$this->captura('dif_ctrl_monto_actualiz_bs_usd', 'NUMERIC');
+		$this->captura('ctrl_depreciacion_acum_bs_usd', 'NUMERIC');
+		$this->captura('ctrl_monto_actualiz_bs_ufv', 'NUMERIC');
+		$this->captura('dif_ctrl_depreciacion_acum_bs_ufv', 'NUMERIC');
+		$this->captura('dif_ctrl_monto_actualiz_bs_usd', 'NUMERIC');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	//Fin #AF-12
 
 }
 ?>

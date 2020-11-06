@@ -10,6 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #11    KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
  #35    KAF       ETR           11/10/2019  RCM     	Adición de botón para procesar Detalle Depreciación
+ #AF-12 KAF       ETR      		08/09/2020  RCM         Reporte de saldos en las tres monedas a una fecha
  ***************************************************************************/
 
 class ACTMovimientoAfDep extends ACTbase{
@@ -244,6 +245,14 @@ class ACTMovimientoAfDep extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 	//Fin #35
+
+	//Inicio #AF-12
+	function listarSaldoAf(){
+		$this->objFunc = $this->create('MODMovimientoAfDep');
+		$this->res = $this->objFunc->listarSaldoAf($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	//Fin #AF-12
 
 }
 

@@ -15,8 +15,9 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2    KAF       ETR           11/01/2019   RCM         Actualización de listado detalle depreciación interfaz
- #33   KAF       ETR      	   01/10/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
+ #2     KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
+ #33    KAF       ETR      	    01/10/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
+ #AF-12 KAF       ETR      	    08/09/2020  RCM         Reporte de saldos en las tres monedas a una fecha
  ***************************************************************************/
 
 DECLARE
@@ -25,6 +26,13 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+	--Inicio #AF-12
+	v_id_moneda_bs		INTEGER;
+	v_id_moneda_usd		INTEGER;
+	v_id_moneda_ufv		INTEGER;
+	v_fecha_tmp 		DATE;
+    v_tc_usd 			NUMERIC;
+	--Fin #AF-12
 
 BEGIN
 
@@ -757,6 +765,115 @@ BEGIN
         end;
     --Fin #2
 
+    --Inicio #AF-12
+    /*********************************
+    #TRANSACCION:  'SKA_SALDOAF_SEL'
+    #DESCRIPCION:   Saldo de Activos Fijos a una fecha
+    #AUTOR:         RCM
+    #FECHA:         08/09/2020
+    ***********************************/
+    elsif(p_transaccion = 'SKA_SALDOAF_SEL')then
+
+        begin
+        	v_id_moneda_bs = param.f_get_moneda_base();
+
+        	SELECT id_moneda
+        	INTO v_id_moneda_usd
+        	FROM param.tmoneda
+        	WHERE codigo = '$us';
+
+        	SELECT id_moneda
+        	INTO v_id_moneda_ufv
+        	FROM param.tmoneda
+        	WHERE codigo = 'UFV';
+
+        	--Obtención del TC en dólares de la fecha hasta
+        	v_fecha_tmp = (v_parametros.fecha + '1 month'::interval) - '1 day'::interval;
+        	v_tc_usd = param.f_get_tipo_cambio(v_id_moneda_usd, v_fecha_tmp ,'O');
+
+            --Sentencia de la consulta
+            v_consulta:='WITH tdepbs AS (
+						    SELECT
+						    afv.id_activo_fijo, mdep.vida_util, mdep.monto_actualiz, mdep.depreciacion_acum,
+						    mdep.monto_actualiz - mdep.depreciacion_acum as valor_neto, mdep.tipo_cambio_fin
+						    FROM kaf.tmovimiento_af_dep mdep
+						    INNER JOIN kaf.tactivo_fijo_valores afv
+						    ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+						    WHERE DATE_TRUNC(''month'', mdep.fecha) = DATE_TRUNC(''month'', ''' || v_parametros.fecha || '''::DATE)
+						    AND mdep.id_moneda = ' || v_id_moneda_bs || '
+						), tdepusd AS (
+						    SELECT
+						    afv.id_activo_fijo, mdep.vida_util, mdep.monto_actualiz, mdep.depreciacion_acum,
+						    mdep.monto_actualiz - mdep.depreciacion_acum as valor_neto
+						    FROM kaf.tmovimiento_af_dep mdep
+						    INNER JOIN kaf.tactivo_fijo_valores afv
+						    ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+						    WHERE DATE_TRUNC(''month'', mdep.fecha) = DATE_TRUNC(''month'', ''' || v_parametros.fecha || '''::DATE)
+						    AND mdep.id_moneda = ' || v_id_moneda_usd || '
+						), tdepufv AS (
+						    SELECT
+						    afv.id_activo_fijo, mdep.vida_util, mdep.monto_actualiz, mdep.depreciacion_acum,
+						    mdep.monto_actualiz - mdep.depreciacion_acum as valor_neto
+						    FROM kaf.tmovimiento_af_dep mdep
+						    INNER JOIN kaf.tactivo_fijo_valores afv
+						    ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+						    WHERE DATE_TRUNC(''month'', mdep.fecha) = DATE_TRUNC(''month'', ''' || v_parametros.fecha || '''::DATE)
+						    AND mdep.id_moneda = ' || v_id_moneda_ufv || '
+						)
+						SELECT
+						af.codigo, af.codigo_ant as codigo_sap, af.denominacion, af.vida_util_original, bs.vida_util,
+						bs.monto_actualiz as val_actualiz_bs, bs.depreciacion_acum as dep_acum_bs, bs.valor_neto as val_neto_bs,
+						usd.monto_actualiz as val_actualiz_usd, usd.depreciacion_acum as dep_acum_usd, usd.valor_neto as val_neto_usd,
+						ufv.monto_actualiz as val_actualiz_ufv, ufv.depreciacion_acum as dep_acum_ufv, ufv.valor_neto as val_neto_ufv,
+						bs.tipo_cambio_fin,
+						CASE
+							WHEN usd.monto_actualiz = 0 THEN 0
+							ELSE ROUND(bs.monto_actualiz / usd.monto_actualiz, 6)
+						END AS ctrl_monto_actualiz_bs_usd,
+						CASE
+							WHEN ufv.monto_actualiz = 0 THEN 0
+							ELSE ROUND(bs.monto_actualiz / ufv.monto_actualiz, 6)
+						END AS ctrl_monto_actualiz_bs_ufv,
+						CASE
+							WHEN ufv.monto_actualiz = 0 THEN 0
+							ELSE ' || v_tc_usd || ' - ROUND(bs.monto_actualiz / ufv.monto_actualiz, 6)
+						END AS dif_ctrl_monto_actualiz_bs_ufv,
+						CASE
+							WHEN usd.monto_actualiz = 0 THEN 0
+							ELSE bs.tipo_cambio_fin - ROUND(bs.monto_actualiz / usd.monto_actualiz, 6)
+						END AS dif_ctrl_monto_actualiz_bs_usd,
+						CASE
+							WHEN usd.depreciacion_acum = 0 THEN 0
+							ELSE ROUND(bs.depreciacion_acum / usd.depreciacion_acum, 6)
+						END AS ctrl_depreciacion_acum_bs_usd,
+						CASE
+							WHEN ufv.depreciacion_acum = 0 THEN 0
+							ELSE ROUND(bs.depreciacion_acum / ufv.depreciacion_acum, 6)
+						END AS ctrl_monto_actualiz_bs_ufv,
+						CASE
+							WHEN ufv.depreciacion_acum = 0 THEN 0
+							ELSE ' || v_tc_usd || ' - ROUND(bs.depreciacion_acum / ufv.depreciacion_acum, 6)
+						END AS dif_ctrl_depreciacion_acum_bs_ufv,
+						CASE
+							WHEN usd.depreciacion_acum = 0 THEN 0
+							ELSE bs.tipo_cambio_fin - ROUND(bs.depreciacion_acum / usd.depreciacion_acum, 6)
+						END AS dif_ctrl_monto_actualiz_bs_usd
+						FROM tdepbs bs
+						INNER JOIN tdepusd usd
+						ON usd.id_activo_fijo = bs.id_activo_fijo
+						INNER JOIN tdepufv ufv
+						ON ufv.id_activo_fijo = bs.id_activo_fijo
+						INNER JOIN kaf.tactivo_fijo af
+						ON af.id_activo_fijo = bs.id_activo_fijo ';
+
+            --Definicion de la respuesta
+            v_consulta := v_consulta || ' ORDER BY 1';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+    --Fin #AF-12
 	else
 
 		raise exception 'Transaccion inexistente';
