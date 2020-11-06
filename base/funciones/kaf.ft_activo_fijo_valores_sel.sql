@@ -20,6 +20,7 @@ $body$
  #2     KAF       ETR           11/01/2019  RCM         Actualización de archivo con producción. Consultas para obtener últimos valores de la depreciación
  #40    KAF       ETR           05/12/2019  RCM         Adición de campos faltantes
  #70    KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación'
+ #AF-16 KAF       ETR           30/10/2020  RCM         Cambio en consulta para hacer la actualización de importe adicional en base a la fecha de cierre de proyecto
  ***************************************************************************/
 
 DECLARE
@@ -84,7 +85,7 @@ BEGIN
 				        actval.depreciacion_per_inicial,
 				        actval.importe_modif,
 				        actval.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', actval.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
-                                        param.f_get_tipo_cambio(3, DATE_TRUNC(''year'', actval.fecha_ini_dep)::date, ''O'')),
+                                        param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', actval.fecha_ini_dep)::date), ''O'')), --#70
 				        --Fin #40
 				        actval.fecha_tc_ini_dep --#70
 						from kaf.tactivo_fijo_valores actval
@@ -98,6 +99,12 @@ BEGIN
 						left join kaf.tmovimiento mov
 						on mov.id_movimiento = maf.id_movimiento
 						--Fin #40
+						--Inicio #70
+						LEFT JOIN pro.tproyecto_activo pa
+						ON pa.id_proyecto_activo = actval.id_proyecto_activo
+						LEFT JOIN pro.tproyecto py
+						ON py.id_proyecto = pa.id_proyecto
+						--Fin #70
 				        where  ';
 
 			--Definicion de la respuesta
@@ -132,6 +139,12 @@ BEGIN
 						left join kaf.tmovimiento mov
 						on mov.id_movimiento = maf.id_movimiento
 						--Fin #40
+						--Inicio #70
+						LEFT JOIN pro.tproyecto_activo pa
+						ON pa.id_proyecto_activo = actval.id_proyecto_activo
+						LEFT JOIN pro.tproyecto py
+						ON py.id_proyecto = pa.id_proyecto
+						--Fin #70
 					    where ';
 
 			--Definicion de la respuesta

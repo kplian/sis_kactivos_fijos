@@ -10,7 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
  #40    KAF       ETR           05/12/2019  RCM         Adición de campos faltantes
- #70    KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación
+ #AF-16  KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación
  ***************************************************************************/
 class MODActivoFijoValores extends MODbase{
 
@@ -61,7 +61,7 @@ class MODActivoFijoValores extends MODbase{
         $this->captura('depreciacion_per_inicial', 'numeric');
         $this->captura('importe_modif', 'numeric');
         $this->captura('importe_modif_sin_act', 'numeric');
-        $this->captura('fecha_tc_ini_dep', 'date');
+        $this->captura('fecha_tc_ini_dep', 'date');//#AF-16
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -97,7 +97,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
 		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
-		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');
+		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');//#AF-16
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -134,7 +134,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('id_movimiento_af','id_movimiento_af','int4');
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
 		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
-		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');
+		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');//#AF-16
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
