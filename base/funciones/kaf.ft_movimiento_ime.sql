@@ -14,16 +14,17 @@ $body$
  FECHA:         22-10-2015 20:42:41
  COMENTARIOS:
  ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #4     KAF       ETR           11/01/2019  RCM         Se quita restricción de dar baja el mismo mes de depreciación
- #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
- #2     KAF       ETR           11/06/2019  RCM         Inclusion de logica para el caso de Distribucion de Valores (dval)
- #16    KAF       ETR           18/06/2019  RCM         Completa el prorrateo mensual con el CC por defecto por AF cuando no completa el total mensual
- #39    KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se manda parámetro id_tipo_estado a función de proc. mov. af.esp
- #43    KAF       ETR           16/12/2019  RCM         Bug de duplicación de AFV al finalizar Altas que vienen de cierre de proyectos o movimientos especiales
- #57    KAF       ETR           25/03/2020  RCM         Adición de id_preingreso_det en kaf.tactivo_fijo_valores
- #59    KAF       ETR           07/04/2020  RCM         Enviar marca a la función de creación del movimiento para que no inserte automáticamente todos los activos fijos registrados
- #67    KAF       ETR           19/05/2020  RCM         Codificar los AFVs al procesar la disgregación
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #4         KAF       ETR           11/01/2019  RCM         Se quita restricción de dar baja el mismo mes de depreciación
+ #7         KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
+ #2         KAF       ETR           11/06/2019  RCM         Inclusion de logica para el caso de Distribucion de Valores (dval)
+ #16        KAF       ETR           18/06/2019  RCM         Completa el prorrateo mensual con el CC por defecto por AF cuando no completa el total mensual
+ #39        KAF       ETR           26/11/2019  RCM         Importación masiva Distribución de valores: se manda parámetro id_tipo_estado a función de proc. mov. af.esp
+ #43        KAF       ETR           16/12/2019  RCM         Bug de duplicación de AFV al finalizar Altas que vienen de cierre de proyectos o movimientos especiales
+ #57        KAF       ETR           25/03/2020  RCM         Adición de id_preingreso_det en kaf.tactivo_fijo_valores
+ #59        KAF       ETR           07/04/2020  RCM         Enviar marca a la función de creación del movimiento para que no inserte automáticamente todos los activos fijos registrados
+ #67        KAF       ETR           19/05/2020  RCM         Codificar los AFVs al procesar la disgregación
+ #ETR-1443  KAF       ETR           26/10/2020  RCM         Generación del comprobante de depreciación en las tres monedas
 ***************************************************************************/
 
 DECLARE
@@ -1225,10 +1226,19 @@ BEGIN
                                                                     v_parametros._id_usuario_ai,
                                                                     v_parametros._nombre_usuario_ai);*/
                     --#ETR-1443
-                    v_id_int_comprobante = kaf.f_genera_cbte_deprec_monedas(v_movimiento.id_movimiento);
+                    v_id_int_comprobante = kaf.f_genera_cbte_deprec_monedas(p_id_usuario, v_movimiento.id_movimiento, v_id_estado_actual);
+
+                    update conta.tint_comprobante set
+                    cbte_aitb = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
+
+                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+                    update conta.tint_transaccion set
+                    actualizacion = 'si'
+                    where id_int_comprobante = v_id_int_comprobante;
 
                     --Se relaciona los comprobantes generados con el movimiento
-                    update  kaf.tmovimiento  set
+                    update kaf.tmovimiento  set
                     id_int_comprobante_3 = v_id_int_comprobante
                     where id_movimiento = v_movimiento.id_movimiento;
 
