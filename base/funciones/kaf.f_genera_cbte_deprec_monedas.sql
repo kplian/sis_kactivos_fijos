@@ -15,7 +15,8 @@ $body$
  ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-1443  KAF       ETR           26/10/2020  RCM         Creación del archivo
- ***************************************************************************/
+ #ETR-2013  KAF       ETR           02/12/2020  RCM         Restringir montos que sean mayores a 0.01
+***************************************************************************/
 DECLARE
 
     v_resp                  VARCHAR;
@@ -27,8 +28,11 @@ DECLARE
     v_tc_usd                NUMERIC;
     v_tc_ufv                NUMERIC;
     v_fecha_mov             DATE;
+    v_minimo                NUMERIC; --ETR-2013
 
 BEGIN
+    --Valor por defecto
+    v_minimo = 0.01; --ETR-2013
 
     --Obtención de fecha del movimiento
     SELECT fecha_mov
@@ -70,34 +74,37 @@ BEGIN
         cd.id_partida,
         cd.id_centro_costo,
         cd.id_cuenta,
-        cd.monto_depreciacion,
+        ROUND(cd.monto_depreciacion, 2) AS monto_depreciacion,
         cd.id_clasificacion
         FROM kaf.v_cbte_deprec_3_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_base()
         AND cd.id_centro_costo IS NOT NULL
+        AND cd.monto_depreciacion >= v_minimo --#ETR/2013
     ), tusd AS (
         SELECT
         cd.id_partida,
         cd.id_centro_costo,
         cd.id_cuenta,
-        cd.monto_depreciacion,,
+        ROUND(cd.monto_depreciacion, 2) AS monto_depreciacion,
         cd.id_clasificacion
         FROM kaf.v_cbte_deprec_3_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_triangulacion()
         AND cd.id_centro_costo IS NOT NULL
+        AND cd.monto_depreciacion >= v_minimo --#ETR/2013
     ), tufv AS (
         SELECT
         cd.id_partida,
         cd.id_centro_costo,
         cd.id_cuenta,
-        cd.monto_depreciacion,,
+        ROUND(cd.monto_depreciacion, 2) AS monto_depreciacion,
         cd.id_clasificacion
         FROM kaf.v_cbte_deprec_3_v3 cd
         WHERE cd.id_movimiento = p_id_movimiento
         AND cd.id_moneda = param.f_get_moneda_actualizacion()
         AND cd.id_centro_costo IS NOT NULL
+        AND cd.monto_depreciacion >= v_minimo --#ETR/2013
     )
     INSERT INTO conta.tint_transaccion
     (
@@ -196,10 +203,10 @@ BEGIN
     'activo',
     cd.id_cuenta,
     v_id_int_comprobante,
-    cd.monto_depreciacion,
-    cd.monto_depreciacion,
-    cd.monto_depreciacion,
-    cd.monto_depreciacion,
+    ROUND(cd.monto_depreciacion, 2),
+    ROUND(cd.monto_depreciacion, 2),
+    ROUND(cd.monto_depreciacion, 2),
+    ROUND(cd.monto_depreciacion, 2),
     0, 0, 0, 0, 0, 0, 0, 0,
     p_id_usuario,
     now(),
@@ -209,12 +216,13 @@ BEGIN
     v_tc_ufv
     FROM kaf.v_cbte_deprec_3_haber_v3 cd
     WHERE cd.id_movimiento = p_id_movimiento
-    AND cd.id_moneda = param.f_get_moneda_base();
+    AND cd.id_moneda = param.f_get_moneda_base()
+    AND cd.monto_depreciacion >= v_minimo; --ETR-2013
 
     --(3.2) En USD
     UPDATE conta.tint_transaccion AA SET
-    importe_haber_mt = DD.monto_depreciacion,
-    importe_recurso_mt = DD.monto_depreciacion
+    importe_haber_mt = ROUND(DD.monto_depreciacion, 2),
+    importe_recurso_mt = ROUND(DD.monto_depreciacion, 2)
     FROM (
         SELECT
         cd.monto_depreciacion,
@@ -224,12 +232,13 @@ BEGIN
         AND cd.id_moneda = param.f_get_moneda_triangulacion()
     ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
-    AND AA.glosa = DD.id_clasificacion::varchar;
+    AND AA.glosa = DD.id_clasificacion::varchar
+    AND DD.monto_depreciacion >= v_minimo; --ETR-2013
 
     --(3.3) En UFV
     UPDATE conta.tint_transaccion AA SET
-    importe_haber_ma = DD.monto_depreciacion,
-    importe_recurso_ma = DD.monto_depreciacion
+    importe_haber_ma = ROUND(DD.monto_depreciacion, 2),
+    importe_recurso_ma = ROUND(DD.monto_depreciacion, 2)
     FROM (
         SELECT
         cd.monto_depreciacion,
@@ -239,7 +248,8 @@ BEGIN
         AND cd.id_moneda = param.f_get_moneda_actualizacion()
     ) DD
     WHERE AA.id_int_comprobante = v_id_int_comprobante
-    AND AA.glosa = DD.id_clasificacion::varchar;
+    AND AA.glosa = DD.id_clasificacion::varchar
+    AND DD.monto_depreciacion >= v_minimo; --ETR-2013
 
     --Vacía el campo auxiliar usado en la glosa
     UPDATE conta.tint_transaccion SET
