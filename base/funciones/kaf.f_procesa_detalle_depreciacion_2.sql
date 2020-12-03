@@ -46,7 +46,7 @@ BEGIN
             FROM kaf.tmovimiento
             WHERE id_movimiento = v_id_movimiento
             AND estado = 'finalizado') THEN
-        --RAISE EXCEPTION 'No puede se puede procesar nuevamente porque la Depreciación ya fue Finalizada';
+        RAISE EXCEPTION 'No puede se puede procesar nuevamente porque la Depreciación ya fue Finalizada'; --#AF-10
     END IF;
 
     --Elimina los datos del movimiento en la moneda especificada
@@ -518,7 +518,7 @@ BEGIN
                             ELSE
                                 0
                         END
-                    WHEN ''dval-bolsa'' THEN 0
+                    WHEN ''dval-bolsa'' THEN --#AF-10
                         CASE
                             WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
                                 -1 *

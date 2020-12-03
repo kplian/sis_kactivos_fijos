@@ -1,8 +1,9 @@
 <?php
 /*
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #23    KAF       ETR           23/08/2019  RCM         Reporte Comparación Activos Fijos Contabilidad
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #23    	KAF       ETR           23/08/2019  RCM         Reporte Comparación Activos Fijos Contabilidad
+ #ETR-1717  KAF       ETR           09/11/2020  RCM         Cambio en la generación de cbte. de igualización considerando todas las monedas
 ***************************************************************************
 */
 class RComparacionAfContaXls
@@ -137,6 +138,7 @@ class RComparacionAfContaXls
 		$this->cell($sheet, "SALDO DESDE ACTIVOS FIJOS", 	"D$f", 3, $f, "center", true, $this->tam_letra_detalle, "Arial", true, true);
 		$this->cell($sheet, "SALDO DESDE CONTABILIDAD", 	"E$f", 4, $f, "center", true, $this->tam_letra_detalle, "Arial", true, true);
 		$this->cell($sheet, "DIFERENCIA", 					"F$f", 5, $f, "center", true, $this->tam_letra_detalle, "Arial", true, true);
+		$this->cell($sheet, "MONEDA", 						"G$f", 6, $f, "center", true, $this->tam_letra_detalle, "Arial", true, true); //ETR-1717
 		$this->fila++;
 
 		//////////////////
@@ -222,7 +224,7 @@ class RComparacionAfContaXls
 		$sheet->getColumnDimension('D')->setWidth(20);
 		$sheet->getColumnDimension('E')->setWidth(20);
 		$sheet->getColumnDimension('F')->setWidth(20);
-		$sheet->getColumnDimension('G')->setWidth(0);
+		$sheet->getColumnDimension('G')->setWidth(20); //ETR-1717
 		$sheet->getColumnDimension('H')->setWidth(0);
 		$sheet->getColumnDimension('I')->setWidth(0);
 		$sheet->getColumnDimension('J')->setWidth(0);

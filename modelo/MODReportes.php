@@ -7,22 +7,23 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
 /***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #9     KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
- #20    KAF       ETR           03/08/2019  RCM         Reporte Activos Fijos con Distribución de Valores
- #25 	KAF 	  ETR 			05/08/2019  RCM 		Adición reporte 2 Form.605
- #24 	KAF 	  ETR 			12/08/2019  RCM 		Adición método para Reporte Inventario Detallado
- #17    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos a la Propiedad e Inmuebles
- #19    KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos de Vehículos
- #26    KAF       ETR           16/08/2019  RCM         Adición método para Reporte Altas por Origen
- #23    KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
- #31    KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
- #29    KAF       ETR           20/09/2019  RCM         Corrección reportes
- #42	KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
- #58	KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
- #70	KAF 	  ETR 			30/07/2020  RCM 		Adición de columna para consulta, ajustes en base a revisión
- #BB03	KAF 	  ETR 			08/09/2020  RCM 		Corrección tipo de dato, integer por numeric
- #AF-13	KAF 	  ETR 			18/10/2020  RCM 		Reporte de Saldos a una fecha
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #9     	KAF       ETR           10/05/2019  RCM         Inclusión de nuevas columnas en método de reporte detalle depreciación
+ #20    	KAF       ETR           03/08/2019  RCM         Reporte Activos Fijos con Distribución de Valores
+ #25 		KAF 	  ETR 			05/08/2019  RCM 		Adición reporte 2 Form.605
+ #24 		KAF 	  ETR 			12/08/2019  RCM 		Adición método para Reporte Inventario Detallado
+ #17    	KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos a la Propiedad e Inmuebles
+ #19    	KAF       ETR           14/08/2019  RCM         Adición método para Reporte Impuestos de Vehículos
+ #26    	KAF       ETR           16/08/2019  RCM         Adición método para Reporte Altas por Origen
+ #23    	KAF       ETR           23/08/2019  RCM         Adición método para Reporte Comparación Activos Fijos y Contabilidad
+ #31    	KAF       ETR           17/09/2019  RCM         Adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
+ #29    	KAF       ETR           20/09/2019  RCM         Corrección reportes
+ #42		KAF 	  ETR 			13/12/2019  RCM 		Modificación de parámetro para reporte
+ #58		KAF 	  ETR 			21/04/2020  RCM 		Consulta para reporte anual de depreciación
+ #70		KAF 	  ETR 			30/07/2020  RCM 		Adición de columna para consulta, ajustes en base a revisión
+ #BB03		KAF 	  ETR 			08/09/2020  RCM 		Corrección tipo de dato, integer por numeric
+ #AF-13		KAF 	  ETR 			18/10/2020  RCM 		Reporte de Saldos a una fecha
+ #ETR-1717  KAF       ETR           10/11/2020  RCM         Cambio en la generación de cbte. de igualización considerando todas las monedas
 ***************************************************************************/
 class MODReportes extends MODbase{
 
@@ -1001,6 +1002,7 @@ class MODReportes extends MODbase{
 		$this->captura('estado_reg', 'varchar');
 		$this->captura('id_movimiento', 'integer');
 		$this->captura('id_cuenta', 'integer');
+		$this->captura('codigo', 'varchar'); //#ETR-1717
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

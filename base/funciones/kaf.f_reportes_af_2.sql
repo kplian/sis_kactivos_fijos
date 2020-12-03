@@ -14,21 +14,22 @@ $body$
  FECHA:          25/06/2018
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- 0      KAF       ETR           25/06/2018  RCM         Creación del archivo
- #20    KAF       ETR           22/07/2019  RCM         Reporte Activos Fijos con Distribución de Valores
- #25    KAF       ETR           05/08/2019  RCM         Reporte 2 Form. 605
- #24    KAF       ETR           12/08/2019  RCM         Reporte 1 Inventario Detallado por Grupo Contable
- #17    KAF       ETR           14/08/2019  RCM         Reporte 3 Impuestos a la Propiedad e Inmuebles
- #19    KAF       ETR           14/08/2019  RCM         Reporte 4 Impuestos de Vehículos
- #26    KAF       ETR           22/08/2019  RCM         Reporte 7 Altas por Origen
- #23    KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
- #29    KAF       ETR           23/08/2019  RCM         Corrección reportes
- #31    KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
- #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
- #58    KAF       ETR           21/04/2020  RCM         Consulta para reporte anual de depreciaciones
- #70    KAF       ETR           30/07/2020  RCM         Adición de columna para consulta, ajustes en base a revisión
- #AF-15 KAF       ETR           30/09/2020  RCM         Modificación de cálculo de importe para reporte
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ 0          KAF       ETR           25/06/2018  RCM         Creación del archivo
+ #20        KAF       ETR           22/07/2019  RCM         Reporte Activos Fijos con Distribución de Valores
+ #25        KAF       ETR           05/08/2019  RCM         Reporte 2 Form. 605
+ #24        KAF       ETR           12/08/2019  RCM         Reporte 1 Inventario Detallado por Grupo Contable
+ #17        KAF       ETR           14/08/2019  RCM         Reporte 3 Impuestos a la Propiedad e Inmuebles
+ #19        KAF       ETR           14/08/2019  RCM         Reporte 4 Impuestos de Vehículos
+ #26        KAF       ETR           22/08/2019  RCM         Reporte 7 Altas por Origen
+ #23        KAF       ETR           23/08/2019  RCM         Reporte 8 Comparación Activos Fijos y Contabilidad
+ #29        KAF       ETR           23/08/2019  RCM         Corrección reportes
+ #31        KAF       ETR           17/09/2019  RCM         Modificación llamada a detalle depreciación por adición en el reporte detalle depreciación de las columnas de anexos 1 (cbte. 2) y 2 (cbte. 4)
+ #34        KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
+ #58        KAF       ETR           21/04/2020  RCM         Consulta para reporte anual de depreciaciones
+ #70        KAF       ETR           30/07/2020  RCM         Adición de columna para consulta, ajustes en base a revisión
+ #AF-15     KAF       ETR           30/09/2020  RCM         Modificación de cálculo de importe para reporte
+ #ETR-1717  KAF       ETR           09/11/2020  RCM         Cambio en la generación de cbte. de igualación considerando todas las monedas
 ****************************************************************************/
 DECLARE
 
@@ -65,6 +66,19 @@ DECLARE
     v_fecha_ini_ant    DATE;
     v_fecha_fin_ant    DATE;
     --FIn #58
+    --Inicio ETR-1717
+    v_id_cuenta_debe   INTEGER;
+    v_id_cuenta_haber  INTEGER;
+    v_id_partida_debe  INTEGER;
+    v_id_partida_haber INTEGER;
+    v_id_centro_costo  INTEGER;
+    v_fecha_mov        DATE;
+    v_depto_conta      INTEGER;
+    v_id_moneda_tri    INTEGER;
+    v_id_moneda_act    INTEGER;
+    v_tc_usd           NUMERIC;
+    v_tc_ufv           NUMERIC;
+    --Fin ETR-1717
 
 BEGIN
 
@@ -1278,7 +1292,7 @@ BEGIN
     --Fin #26
 
     --Inicio #23
-    /*********************************
+        /*********************************
      #TRANSACCION:  'SKA_RCOMPAFCT_SEL'
      #DESCRIPCION:  Reporte Comparación Activos Fijos y Contabilidad
      #AUTOR:        RCM
@@ -1287,23 +1301,20 @@ BEGIN
     ELSIF(p_transaccion = 'SKA_RCOMPAFCT_SEL') THEN
 
         BEGIN
-
+            --Inicialización de variables
+            --Inicio #ETR-1717
             v_id_moneda_base = param.f_get_moneda_base();
-
-            --Obtiene la moneda para la actualización
-            SELECT id_moneda_dep
-            INTO
-            v_id_moneda_dep
-            FROM kaf.tmoneda_dep
-            WHERE id_moneda = v_id_moneda_base;
+            v_id_moneda_tri = param.f_get_moneda_triangulacion();
+            v_id_moneda_act = param.f_get_moneda_actualizacion();
+            v_depto_conta = 3;
+            v_sw_insert = TRUE;
+            --Fin #ETR-1717
 
             --Obtiene datos del movimiento
-            SELECT id_estado_wf
-            INTO v_id_estado_wf
+            SELECT id_estado_wf, fecha_mov
+            INTO v_id_estado_wf, v_fecha_mov
             FROM kaf.tmovimiento
             WHERE id_movimiento = v_parametros.id_movimiento;
-
-            v_sw_insert = TRUE;
 
             --Elimina los registros cuando existen y no tienen comprobante
             DELETE FROM kaf.tcomparacion_af_conta
@@ -1320,67 +1331,22 @@ BEGIN
 
             --Inserción de las posibles diferencias
             IF v_sw_insert THEN
-
+                --Inicio #ETR-1717
                 WITH tdetalle_dep AS (
-                    --Inicio #34
-                    /*SELECT
-                    cuenta_activo,
-                    cuenta_dep_acum,
-                    cuenta_deprec,
-                    cuenta_dep_acum_dos,
-                    SUM(monto_actualiz) AS monto_actualiz,
-                    SUM(depreciacion) AS depreciacion,
-                    SUM(depreciacion_per) AS depreciacion_per,
-                    SUM(depreciacion_acum) AS depreciacion_acum
-                    FROM pxp.f_intermediario_sel
-                    (
-                        p_id_usuario, NULL, NULL::varchar,
-                        'gau0s6qa8lo8kl2r11riers2j2', 99999, '127.0.0.1', '99:99:99:99:99:99',
-                        'kaf.f_reportes_af', 'SKA_RDEPREC_SEL', NULL, NULL,
-                        array ['filtro', 'ordenacion', 'dir_ordenacion', 'puntero', 'cantidad', '_id_usuario_ai', '_nombre_usuario_ai', 'tipo_salida', 'fecha_hasta', 'id_moneda', 'af_deprec', 'id_moneda_dep'], --#29 se agrega parámetro id_moneda_dep
-                        array [E' 0 = 0 ',E'codigo ASC', E' ', E'0', E'100000', E'NULL', E'NULL', E'grid', (''''||v_parametros.fecha::varchar||'''')::varchar, (''''||v_id_moneda_dep::varchar||'''')::varchar, E'completo', (''''||v_id_moneda_dep::varchar||'''')::varchar],--#29 se agrega parámetro id_moneda_dep
-                        array ['varchar', 'varchar', 'varchar', 'integer','integer', 'int4', 'varchar', 'varchar', 'date', 'integer', 'varchar', 'integer'],
-                        false, 'varchar', NULL
-                    ) AS
-                    (
-                        numero bigint,                                  codigo varchar,             codigo_ant varchar,
-                        denominacion varchar,                           fecha_ini_dep date,         cantidad_af integer,
-                        desc_unidad_medida varchar,                     codigo_tcc varchar,         nro_serie varchar,
-                        desc_ubicacion varchar,                         responsable text,           monto_vigente_orig_100 numeric,
-                        monto_vigente_orig numeric,                     af_altas numeric,           af_bajas numeric,                   af_traspasos numeric,
-                        inc_actualiz numeric,                           monto_actualiz numeric,     vida_util_orig integer,
-                        vida_util integer,                              vida_util_usada integer,    depreciacion_acum_gest_ant numeric,
-                        depreciacion_acum_actualiz_gest_ant numeric,    depreciacion numeric,
-                        depreciacion_acum_bajas numeric,                depreciacion_acum_traspasos numeric,
-                        depreciacion_acum numeric,                      depreciacion_per numeric,   monto_vigente numeric,
-                        aitb_dep_acum numeric,                          aitb_dep numeric,           aitb_dep_acum_anual numeric,        aitb_dep_anual numeric, --#31
-                        cuenta_activo text,                             cuenta_dep_acum text,       cuenta_deprec text,                 desc_grupo varchar,
-                        desc_grupo_clasif varchar,                      cuenta_dep_acum_dos text,   bk_codigo varchar,
-                        cc1 varchar,                                    dep_mes_cc1 numeric,        cc2 varchar,                        dep_mes_cc2 numeric,    cc3 varchar,
-                        dep_mes_cc3 numeric,                            cc4 varchar,                dep_mes_cc4 numeric,                cc5 varchar,            dep_mes_cc5 numeric,
-                        cc6 varchar,                                    dep_mes_cc6 numeric,        cc7 varchar,                        dep_mes_cc7 numeric,    cc8 varchar,
-                        dep_mes_cc8 numeric,                            cc9 varchar,                dep_mes_cc9 numeric,                cc10 varchar,           dep_mes_cc10 numeric,
-                        id_activo_fijo integer,                         nivel integer,              orden bigint,                       tipo varchar
-                    )
-                    GROUP BY cuenta_activo, cuenta_dep_acum, cuenta_deprec, cuenta_dep_acum_dos*/
                     SELECT
-                    cuenta_activo,
-                    cuenta_dep_acum,
-                    cuenta_deprec,
-                    cuenta_dep_acum_dos,
-                    /*SUM(monto_actualiz) AS monto_actualiz,
-                    SUM(depreciacion) AS depreciacion,
-                    SUM(depreciacion_per) AS depreciacion_per,
-                    SUM(depreciacion_acum) AS depreciacion_acum*/
-                    SUM(valor_actualiz) AS monto_actualiz,
-                    SUM(depreciacion) AS depreciacion,
-                    SUM(aitb_dep_mes) AS depreciacion_per,
-                    SUM(depreciacion_acum) AS depreciacion_acum
-                    FROM kaf.treporte_detalle_dep2 --#70
-                    WHERE DATE_TRUNC('month', fecha) = DATE_TRUNC('month', v_parametros.fecha)
-                    AND id_moneda = v_id_moneda_base
-                    GROUP BY cuenta_activo, cuenta_dep_acum, cuenta_deprec, cuenta_dep_acum_dos
-                    --Fin #34
+                    rd.id_moneda,
+                    rd.cuenta_activo,
+                    rd.cuenta_dep_acum,
+                    rd.cuenta_deprec,
+                    rd.cuenta_dep_acum_dos,
+                    SUM(rd.valor_actualiz) AS monto_actualiz,
+                    SUM(rd.depreciacion) AS depreciacion,
+                    SUM(rd.aitb_dep_mes) AS depreciacion_per,
+                    SUM(rd.depreciacion_acum) AS depreciacion_acum
+                    FROM kaf.treporte_detalle_dep2 rd
+                    WHERE DATE_TRUNC('month', rd.fecha) = DATE_TRUNC('month', v_parametros.fecha)
+                    AND rd.id_moneda = v_id_moneda_base
+                    GROUP BY rd.id_moneda, rd.cuenta_activo, rd.cuenta_dep_acum, rd.cuenta_deprec, rd.cuenta_dep_acum_dos
                 ), tdetalle_conta AS (
                     WITH tcuenta_activo AS (
                         SELECT DISTINCT
@@ -1394,15 +1360,21 @@ BEGIN
                         ON ges.id_gestion = rc.id_gestion
                         AND DATE_TRUNC('year', ges.fecha_ini) = DATE_TRUNC('year', v_parametros.fecha::date)
                         INNER JOIN conta.tcuenta cu
-                        on cu.id_cuenta = rc.id_cuenta
+                        ON cu.id_cuenta = rc.id_cuenta
                         WHERE tb.esquema = 'KAF'
                         AND tb.tabla = 'tclasificacion'
-                        AND trc.codigo_tipo_relacion IN ('ALTAAF', 'DEPACCLAS', 'DEPCLAS')
+                        AND trc.codigo_tipo_relacion IN ('ALTAAF', 'DEPACCLAS') --, 'DEPCLAS')
                     )
                     SELECT
                     c.nro_cuenta || '-' || c.nombre_cuenta AS desc_cuenta,
                     c.nro_cuenta, c.nombre_cuenta, c.id_cuenta,
-                    ABS(SUM(tr.importe_debe_mb) - SUM(tr.importe_haber_mb)) AS importe
+                    CASE c.codigo_tipo_relacion
+                        WHEN 'ALTAAF' THEN 'debe'
+                        WHEN 'DEPACCLAS' THEN 'haber'
+                    END AS lado_saldo,
+                    ABS(SUM(tr.importe_debe_mb) - SUM(tr.importe_haber_mb)) AS saldo_mb,
+                    ABS(SUM(tr.importe_debe_mt) - SUM(tr.importe_haber_mt)) AS saldo_mt,
+                    ABS(SUM(tr.importe_debe_ma) - SUM(tr.importe_haber_ma)) AS saldo_ma
                     FROM conta.tint_transaccion tr
                     INNER JOIN conta.tint_comprobante cb
                     ON cb.id_int_comprobante = tr.id_int_comprobante
@@ -1419,9 +1391,11 @@ BEGIN
                     id_movimiento,
                     id_cuenta,
                     fecha,
+                    id_moneda,
                     saldo_af,
                     saldo_conta,
-                    diferencia_af_conta
+                    diferencia_af_conta,
+                    lado_saldo
                 )
                 SELECT
                 p_id_usuario,
@@ -1430,32 +1404,43 @@ BEGIN
                 v_parametros.id_movimiento,
                 dc.id_cuenta,
                 now(),
+                af.id_moneda,
                 af.importe AS saldo_af,
-                dc.importe AS saldo_conta,
-                af.importe - dc.importe AS diferencia
+                CASE af.id_moneda
+                    WHEN v_id_moneda_base THEN dc.saldo_mb
+                    WHEN v_id_moneda_tri THEN dc.saldo_mt
+                    WHEN v_id_moneda_act THEN dc.saldo_ma
+                END AS saldo_conta,
+                CASE af.id_moneda
+                    WHEN v_id_moneda_base THEN af.importe - dc.saldo_mb
+                    WHEN v_id_moneda_tri THEN af.importe - dc.saldo_mt
+                    WHEN v_id_moneda_act THEN af.importe - dc.saldo_ma
+                END AS diferencia
                 FROM (
                     SELECT
-                    cuenta_activo AS desc_cuenta, SUM(monto_actualiz) AS importe
+                    id_moneda, cuenta_activo AS desc_cuenta, SUM(monto_actualiz) AS importe
                     FROM tdetalle_dep
                     WHERE cuenta_activo IS NOT NULL
-                    GROUP BY cuenta_activo
+                    GROUP BY id_moneda, cuenta_activo
                     UNION
                     SELECT DISTINCT
-                    cuenta_dep_acum AS desc_cuenta, SUM(depreciacion_acum) AS importe
+                    id_moneda, cuenta_dep_acum AS desc_cuenta, SUM(depreciacion_acum) AS importe
                     FROM tdetalle_dep
                     WHERE cuenta_dep_acum IS NOT NULL
-                    GROUP BY cuenta_dep_acum
+                    GROUP BY id_moneda, cuenta_dep_acum
                     UNION
                     SELECT DISTINCT
-                    cuenta_deprec AS desc_cuenta, depreciacion_per AS importe
+                    id_moneda, cuenta_deprec AS desc_cuenta, depreciacion_per AS importe
                     FROM tdetalle_dep
                     WHERE cuenta_deprec IS NOT NULL
                     AND cuenta_dep_acum_dos IS NULL
+                    GROUP BY id_moneda, cuenta_deprec
                     UNION
                     SELECT DISTINCT
-                    cuenta_dep_acum_dos AS desc_cuenta, depreciacion_per AS importe
+                    id_moneda, cuenta_dep_acum_dos AS desc_cuenta, depreciacion_per AS importe
                     FROM tdetalle_dep
                     WHERE cuenta_dep_acum_dos IS NOT NULL
+                    GROUP BY id_moneda, cuenta_deprec
                 ) af
                 INNER JOIN tdetalle_conta dc
                 ON dc.desc_cuenta = af.desc_cuenta;
@@ -1469,7 +1454,7 @@ BEGIN
                     v_id_int_cbte = conta.f_gen_comprobante
                                     (
                                         v_parametros.id_movimiento,
-                                        'KAF-DEP-IGUAL',
+                                        'KAF-DEP-IGUALV2',
                                         v_id_estado_wf,
                                         p_id_usuario,
                                         NULL,
@@ -1481,21 +1466,694 @@ BEGIN
                     cbte_aitb = 'si'
                     WHERE id_int_comprobante = v_id_int_cbte;
 
-                    --Inicio #34
-                    --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
-                    UPDATE conta.tint_transaccion SET
-                    importe_debe_mt = 0,
-                    importe_haber_mt = 0,
-                    importe_recurso_mt = 0,
-                    importe_gasto_mt = 0,
-                    importe_debe_ma = 0,
-                    importe_haber_ma = 0,
-                    importe_recurso_ma = 0,
-                    importe_gasto_ma = 0,
-                    actualizacion = 'si'
-                    WHERE id_int_comprobante = v_id_int_cbte;
-                    --Fin #34
+                    --------------------------------
+                    --Generación Manual comprobante
+                    --------------------------------
+                    --Tipo de cambio
+                    v_tc_usd = param.f_get_tipo_cambio_v2(param.f_get_moneda_base(), param.f_get_moneda_triangulacion(), v_fecha_mov, 'O');
+                    v_tc_ufv = param.f_get_tipo_cambio_v2(param.f_get_moneda_base(), param.f_get_moneda_actualizacion(), v_fecha_mov, 'O');
 
+                    --Depto
+                    SELECT ps_id_centro_costo
+                    INTO v_id_centro_costo
+                    FROM conta.f_get_config_relacion_contable ('CCDEPCON', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('YEAR', v_fecha_mov)), v_depto_conta, NULL);
+
+                    --Cuenta y partida para el Debe
+                    SELECT ps_id_cuenta, ps_id_partida
+                    INTO v_id_cuenta_debe, v_id_partida_debe
+                    FROM conta.f_get_config_relacion_contable('DEPGASTO', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+
+                    --Cuenta y partida para el Haber
+                    SELECT ps_id_cuenta, ps_id_partida
+                    INTO v_id_cuenta_haber, v_id_partida_haber
+                    FROM conta.f_get_config_relacion_contable('DEPACTIVO', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+
+
+                    ---------------------------------------------------------------------------------------------
+                    -----------------------------------------(A) DEBE -------------------------------------------
+                    ---------------------------------------------------------------------------------------------
+                    --(A) (1/4) Transacciones al Debe con saldo positivo
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'debe'
+                    AND tbs.diferencia_af_conta > 0;
+
+                    --(A) (2/4) Transacciones al Haber (con saldo negativo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_haber,
+                    v_id_centro_costo,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'debe'
+                    AND tbs.diferencia_af_conta < 0;
+
+                    --(A) (3/4) Transacciones contracuenta del Debe (haber) (saldo positivo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_haber,
+                    v_id_partida_haber,
+                    v_id_centro_costo,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'debe'
+                    AND tbs.diferencia_af_conta > 0;
+
+                    --(A) (4/4) Transacciones contracuenta del Haber (debe) (con saldo negativo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_debe,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'debe'
+                    AND tbs.diferencia_af_conta < 0;
+
+                    ---------------------------------------------------------------------------------------------
+                    -----------------------------------------(B) HABER -------------------------------------------
+                    ---------------------------------------------------------------------------------------------
+                    --(B) (1/4) Transacciones al Haber con saldo positivo
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_haber,
+                    v_id_centro_costo,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'haber'
+                    AND tbs.diferencia_af_conta > 0;
+
+                    --(B) (2/4) Transacciones al Debe (con saldo negativo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'haber'
+                    AND tbs.diferencia_af_conta < 0;
+
+                    --(B) (3/4) Transacciones contracuenta del Haber (debe) (con saldo positivo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_debe,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tbs.diferencia_af_conta,
+                    tusd.diferencia_af_conta,
+                    tufv.diferencia_af_conta,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'haber'
+                    AND tbs.diferencia_af_conta > 0;
+
+                    --(B) (4/4) Transacciones contracuenta del Debe (haber) (con saldo negativo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_bs
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_usd
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta as saldo_ufv
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_haber,
+                    v_id_partida_haber,
+                    v_id_centro_costo,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tbs.diferencia_af_conta),
+                    ABS(tusd.diferencia_af_conta),
+                    ABS(tufv.diferencia_af_conta),
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    AND tusd.id_moneda = tbs.id_moneda
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    AND tufv.id_moneda = tbs.id_moneda
+                    WHERE tbs.lado_saldo = 'haber'
+                    AND tbs.diferencia_af_conta < 0;
+
+                    -----------------------------------
+                    --(C) GUARDAR RELACIÓN DEL COMPROBANTE
+                    -----------------------------------
                     UPDATE kaf.tcomparacion_af_conta SET
                     id_int_comprobante = v_id_int_cbte
                     WHERE id_movimiento = v_parametros.id_movimiento;
@@ -1517,123 +2175,14 @@ BEGIN
                         cac.fecha_reg,
                         cac.estado_reg,
                         cac.id_movimiento,
-                        cac.id_cuenta
+                        cac.id_cuenta,
+                        mon.codigo
                         FROM kaf.tcomparacion_af_conta cac
                         INNER JOIN conta.tcuenta  cu
                         ON cu.id_cuenta = cac.id_cuenta
+                        JOIN param.tmoneda mon
+                        ON mon.id_moneda = cac.id_moneda
                         WHERE id_movimiento = ' || v_parametros.id_movimiento;
-
-            /*v_consulta = '
-            WITH tdetalle_dep AS (
-                SELECT
-                cuenta_activo,
-                cuenta_dep_acum,
-                cuenta_deprec,
-                cuenta_dep_acum_dos,
-                SUM(monto_actualiz) AS monto_actualiz,
-                SUM(depreciacion) AS depreciacion,
-                SUM(depreciacion_per) AS depreciacion_per,
-                SUM(depreciacion_acum) AS depreciacion_acum
-                FROM pxp.f_intermediario_sel
-                (
-                    ' || p_id_usuario || ', NULL, NULL::varchar,
-                    ''gau0s6qa8lo8kl2r11riers2j2'', 99999, ''127.0.0.1'', ''99:99:99:99:99:99'',
-                    ''kaf.f_reportes_af'', ''SKA_RDEPREC_SEL'', NULL, NULL, array [''filtro'',
-                    ''ordenacion'', ''dir_ordenacion'', ''puntero'', ''cantidad'', ''_id_usuario_ai'',
-                    ''_nombre_usuario_ai'', ''tipo_salida'', ''fecha_hasta'', ''id_moneda'', ''af_deprec''],
-                    array [E'' 0 = 0 '',
-                    E''codigo ASC'', E'' '', E''0'', E''100000'', E''NULL'', E''NULL'', E''grid'',
-                    E''' || v_parametros.fecha || ''', --fecha cambiar a la que se requiera
-                    E''' || v_id_moneda_dep || ''', --id_moneda 2: Bs, 3: USD, 4: UFV
-                    E''completo''], array [''varchar'', ''varchar'', ''varchar'', ''integer'',
-                    ''integer'', ''int4'', ''varchar'', ''varchar'', ''date'', ''integer'', ''varchar''],
-                    false, ''varchar'', NULL
-                ) AS
-                (
-                    numero bigint,                                  codigo varchar,             codigo_ant varchar,
-                    denominacion varchar,                           fecha_ini_dep date,         cantidad_af integer,
-                    desc_unidad_medida varchar,                     codigo_tcc varchar,         nro_serie varchar,
-                    desc_ubicacion varchar,                         responsable text,           monto_vigente_orig_100 numeric,
-                    monto_vigente_orig numeric,                     af_altas numeric,           af_bajas numeric,                   af_traspasos numeric,
-                    inc_actualiz numeric,                           monto_actualiz numeric,     vida_util_orig integer,
-                    vida_util integer,                              vida_util_usada integer,    depreciacion_acum_gest_ant numeric,
-                    depreciacion_acum_actualiz_gest_ant numeric,    depreciacion numeric,
-                    depreciacion_acum_bajas numeric,                depreciacion_acum_traspasos numeric,
-                    depreciacion_acum numeric,                      depreciacion_per numeric,   monto_vigente numeric,
-                    cuenta_activo text,                             cuenta_dep_acum text,       cuenta_deprec text,                 desc_grupo varchar,
-                    desc_grupo_clasif varchar,                      cuenta_dep_acum_dos text,   bk_codigo varchar,
-                    cc1 varchar,                                    dep_mes_cc1 numeric,        cc2 varchar,                        dep_mes_cc2 numeric,    cc3 varchar,
-                    dep_mes_cc3 numeric,                            cc4 varchar,                dep_mes_cc4 numeric,                cc5 varchar,            dep_mes_cc5 numeric,
-                    cc6 varchar,                                    dep_mes_cc6 numeric,        cc7 varchar,                        dep_mes_cc7 numeric,    cc8 varchar,
-                    dep_mes_cc8 numeric,                            cc9 varchar,                dep_mes_cc9 numeric,                cc10 varchar,           dep_mes_cc10 numeric,
-                    id_activo_fijo integer,                         nivel integer,              orden bigint,                       tipo varchar
-                )
-                GROUP BY cuenta_activo, cuenta_dep_acum, cuenta_deprec, cuenta_dep_acum_dos
-            ), tdetalle_conta AS (
-                WITH tcuenta_activo AS (
-                    SELECT DISTINCT
-                    rc.id_cuenta, cu.nro_cuenta, cu.nombre_cuenta
-                    FROM conta.ttabla_relacion_contable tb
-                    JOIN conta.ttipo_relacion_contable trc
-                    ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
-                    JOIN conta.trelacion_contable rc
-                    ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
-                    INNER JOIN param.tgestion ges
-                    ON ges.id_gestion = rc.id_gestion
-                    AND DATE_TRUNC(''year'', ges.fecha_ini) = DATE_TRUNC(''year'', ''' || v_parametros.fecha || '''::date)
-                    INNER JOIN conta.tcuenta cu
-                    on cu.id_cuenta = rc.id_cuenta
-                    WHERE tb.esquema = ''KAF''
-                    AND tb.tabla = ''tclasificacion''
-                    AND trc.codigo_tipo_relacion IN (''ALTAAF'', ''DEPACCLAS'', ''DEPCLAS'')
-                )
-                SELECT
-                c.nro_cuenta || ''-'' || c.nombre_cuenta AS desc_cuenta,
-                c.nro_cuenta, c.nombre_cuenta, c.id_cuenta,
-                ABS(SUM(tr.importe_debe_mb) - SUM(tr.importe_haber_mb)) AS importe
-                FROM conta.tint_transaccion tr
-                INNER JOIN conta.tint_comprobante cb
-                ON cb.id_int_comprobante = tr.id_int_comprobante
-                INNER JOIN tcuenta_activo c
-                ON c.id_cuenta = tr.id_cuenta
-                WHERE cb.estado_reg = ''validado''
-                AND cb.fecha BETWEEN DATE_TRUNC(''year'', ''' || v_parametros.fecha || '''::date) and ''' || v_parametros.fecha || '''::date
-                GROUP BY c.nro_cuenta, c.nombre_cuenta, c.id_cuenta
-            )
-            SELECT
-            dc.desc_cuenta,
-            af.importe AS saldo_af,
-            dc.importe AS saldo_conta,
-            af.importe - dc.importe AS diferencia,
-            dc.nro_cuenta,
-            dc.nombre_cuenta,
-            dc.id_cuenta
-            FROM (
-                SELECT
-                cuenta_activo AS desc_cuenta, SUM(monto_actualiz) AS importe
-                FROM tdetalle_dep
-                WHERE cuenta_activo IS NOT NULL
-                GROUP BY cuenta_activo
-                UNION
-                SELECT distinct
-                cuenta_dep_acum AS desc_cuenta, SUM(depreciacion_acum) AS importe
-                FROM tdetalle_dep
-                WHERE cuenta_dep_acum IS NOT NULL
-                GROUP BY cuenta_dep_acum
-                UNION
-                SELECT distinct
-                cuenta_deprec AS desc_cuenta, depreciacion_per AS importe
-                FROM tdetalle_dep
-                WHERE cuenta_deprec IS NOT NULL
-                AND cuenta_dep_acum_dos IS NULL
-                UNION
-                SELECT distinct
-                cuenta_dep_acum_dos AS desc_cuenta, depreciacion_per AS importe
-                FROM tdetalle_dep
-                WHERE cuenta_dep_acum_dos IS NOT NULL
-            ) af
-            INNER JOIN tdetalle_conta dc
-            ON dc.desc_cuenta = af.desc_cuenta';*/
 
             RETURN v_consulta;
 
