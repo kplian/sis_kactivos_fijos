@@ -25,6 +25,7 @@ $body$
  #59        KAF       ETR           07/04/2020  RCM         Enviar marca a la función de creación del movimiento para que no inserte automáticamente todos los activos fijos registrados
  #67        KAF       ETR           19/05/2020  RCM         Codificar los AFVs al procesar la disgregación
  #ETR-1443  KAF       ETR           26/10/2020  RCM         Generación del comprobante de depreciación en las tres monedas
+ #ETR-2045  KAF       ETR           03/12/2020  RCM         Implementación plantillas para bajas considerando cada moneda por separado
 ***************************************************************************/
 
 DECLARE
@@ -848,11 +849,15 @@ BEGIN
 
                     --Generación comprobante de depreciación
                     v_id_int_comprobante = conta.f_gen_comprobante (v_movimiento.id_movimiento,
-                                                                    v_kaf_cbte ,
+                                                                    v_kaf_cbte,
                                                                     v_id_estado_actual,
                                                                     p_id_usuario,
                                                                     v_parametros._id_usuario_ai,
                                                                     v_parametros._nombre_usuario_ai);
+
+                    --Inicio ETR-2045
+                    v_resp = kaf.f_genera_cbte_baja_monedas(p_id_usuario, v_movimiento.id_movimiento, v_id_int_comprobante, v_kaf_cbte);
+                    --Fin ETR-2045
 
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set

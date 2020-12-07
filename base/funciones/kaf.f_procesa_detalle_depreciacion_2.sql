@@ -13,8 +13,9 @@ $body$
  FECHA:          07/08/2020
  COMENTARIOS:
  ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #AF-10 KAF       ETR           07/08/2020  RCM         Creación
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #AF-10     KAF       ETR           07/08/2020  RCM         Creación
+ #ETR-2045  KAF       ETR           06/12/2020  RCM         Traspasos de AF y DAcum., en caso de disgregaciones a antiguos existentes cambiar la fórmula de despliegue para que salga sólo lo disgregado
 ***************************************************************************/
 DECLARE
 
@@ -423,7 +424,17 @@ BEGIN
                     WHEN ''dval'' THEN
                         CASE
                             WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
-                                afv.monto_vigente_orig
+                                --Inicio #ETR-2045
+                                CASE (SELECT id_activo_fijo_valor
+                                      FROM kaf.tactivo_fijo_valores aafv
+                                      WHERE aafv.id_activo_fijo = afv.id_activo_fijo
+                                      AND aafv.id_moneda = afv.id_moneda
+                                      AND aafv.id_activo_fijo_valor < afv.id_activo_fijo_valor)
+                                    WHEN NULL THEN afv.monto_vigente_orig
+                                    ELSE
+                                        COALESCE(afvo.monto_vigente_orig_100, afv.monto_vigente_orig_100) - COALESCE(ame.monto_actualiz, 0)
+                                END
+                                --Fin #ETR-2045
                             ELSE
                                 0
                         END
@@ -514,7 +525,17 @@ BEGIN
                     WHEN ''dval'' THEN
                         CASE
                             WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
-                                afv.depreciacion_acum_inicial
+                                --Inicio #ETR-2045
+                                CASE (SELECT id_activo_fijo_valor
+                                      FROM kaf.tactivo_fijo_valores aafv
+                                      WHERE aafv.id_activo_fijo = afv.id_activo_fijo
+                                      AND aafv.id_moneda = afv.id_moneda
+                                      AND aafv.id_activo_fijo_valor < afv.id_activo_fijo_valor)
+                                    WHEN NULL THEN afv.depreciacion_acum_inicial
+                                    ELSE
+                                        afv.depreciacion_acum_inicial - COALESCE(ame.depreciacion_acum, 0)
+                                END
+                                --Fin #ETR-2045
                             ELSE
                                 0
                         END
@@ -684,10 +705,9 @@ BEGIN
                 LEFT JOIN pro.tproyecto py
                 ON py.id_proyecto = pa.id_proyecto
                 --Fin #70
-
                 WHERE mdep.fecha >= ''' || v_fecha_ini ||''' and mdep.fecha <= ''' || v_fecha_fin || '''
                 AND mdep.id_moneda = ' || p_id_moneda || '
-                --AND af.id_activo_fijo = 59427
+                --AND af.id_activo_fijo = 40054
                 )
                 SELECT
                 ' || p_id_usuario || ',

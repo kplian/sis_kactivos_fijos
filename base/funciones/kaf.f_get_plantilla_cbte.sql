@@ -9,13 +9,10 @@ $body$
  DESCRIPCION:   Obtiene el código de la Plantilla de Comprobante según el Motivo Movimiento Id
  AUTOR: 		RCM
  FECHA:	        25-08-2017
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #ETR-2045  KAF       ETR           04/12/2020  RCM         Levantar validación de plantilla en tabla de plantilla de comprobantes
 ***************************************************************************/
 DECLARE
 
@@ -36,7 +33,7 @@ BEGIN
     inner join  kaf.tmovimiento mov
     on mov.id_cat_movimiento = mmot.id_cat_movimiento
     inner join param.tcatalogo cat
-    on cat.id_catalogo = mov.id_cat_movimiento 
+    on cat.id_catalogo = mov.id_cat_movimiento
     where mmot.id_movimiento_motivo = p_id_movimiento_motivo;
 
     --Obtención de la plantilla
@@ -50,18 +47,20 @@ BEGIN
         raise exception 'Plantilla de Comprobante no definida para % por %',v_movimiento,v_motivo;
     end if;
 
+    --Inicio ETR-2045
     --Verificación de existencia en el sistema de contabilidad
-    if not exists(select 1 from conta.tplantilla_comprobante
+    /*if not exists(select 1 from conta.tplantilla_comprobante
                 where codigo = v_plantilla_cbte) then
         raise exception 'Código de Plantilla no existente (%)',v_plantilla_cbte;
-    end if;
+    end if;*/
+    --Fin ETR-2045
 
     --Respuesta
     return v_plantilla_cbte;
-    
+
 
 EXCEPTION
-                
+
     WHEN OTHERS THEN
         v_resp='';
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

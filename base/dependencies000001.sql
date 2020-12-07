@@ -5969,3 +5969,110 @@ WITH trel_contable AS(
              rc.id_cuenta,
              rc.id_partida;
 /***********************************F-DEP-RCM-KAF-ETR-1443-27/10/2020****************************************/
+
+/***********************************I-DEP-RCM-KAF-ETR-2045-03/12/2020****************************************/
+--cambiada
+CREATE OR REPLACE VIEW kaf.v_cbte_baja_v2 AS
+WITH tult_dep AS (
+    SELECT
+    afv.id_activo_fijo, MAX(mdep.fecha) AS fecha
+    FROM kaf.tmovimiento_af_dep mdep
+    JOIN kaf.tactivo_fijo_valores afv
+    ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+    GROUP BY afv.id_activo_fijo
+)
+SELECT
+af.id_clasificacion,
+cla.codigo_completo_tmp,
+cla.nombre,
+sum(mdep.monto_actualiz) AS monto_actualiz,
+sum(mdep.depreciacion_acum) AS depreciacion_acum,
+maf.id_movimiento,
+mdep.id_moneda,
+cc.codigo_tcc,
+(((af.codigo::text || ', '::text) || af.codigo_ant::text) || ', '::text) || af.descripcion::text AS descripcion,
+cc1.id_centro_costo
+FROM kaf.tmovimiento_af maf
+JOIN kaf.tmovimiento mov
+ON mov.id_movimiento = maf.id_movimiento
+JOIN kaf.tactivo_fijo_valores afv
+ON afv.id_activo_fijo = maf.id_activo_fijo
+JOIN tult_dep tu
+ON tu.id_activo_fijo = afv.id_activo_fijo
+JOIN kaf.tmovimiento_af_dep mdep
+ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor
+AND mdep.fecha = tu.fecha
+JOIN kaf.tactivo_fijo af
+ON af.id_activo_fijo = maf.id_activo_fijo
+JOIN kaf.tclasificacion cla
+ON cla.id_clasificacion = af.id_clasificacion
+LEFT JOIN param.vcentro_costo cc
+ON cc.id_centro_costo = af.id_centro_costo
+JOIN param.tcentro_costo cc1
+ON cc1.id_tipo_cc = cc.id_tipo_cc
+AND (
+cc1.id_gestion IN (
+                   SELECT tgestion.id_gestion
+                   FROM param.tgestion
+                   WHERE date_trunc('year'::text, tgestion.fecha_ini
+                     ::timestamp with time zone) = date_trunc('year'
+                     ::text, mov.fecha_mov::timestamp with time zone
+                     )
+))
+GROUP BY af.id_clasificacion,
+         cla.codigo_completo_tmp,
+         cla.nombre,
+         maf.id_movimiento,
+         mdep.id_moneda,
+         cc.codigo_tcc,
+         af.codigo,
+         af.codigo_ant,
+         af.denominacion,
+         af.descripcion,
+         cc1.id_centro_costo;
+
+CREATE OR REPLACE VIEW kaf.v_cbte_baja_cab(
+    id_movimiento,
+    id_depto_af,
+    fecha_mov,
+    id_cat_movimiento,
+    codigo_catalogo,
+    desc_catalogo,
+    num_tramite,
+    fecha_hasta,
+    glosa,
+    id_depto_conta,
+    codigo_depto_conta,
+    id_gestion,
+    gestion,
+    id_moneda,
+    descripcion,
+    glosa_cbte)
+AS
+  SELECT mov.id_movimiento,
+         mov.id_depto AS id_depto_af,
+         mov.fecha_mov,
+         mov.id_cat_movimiento,
+         cat.codigo AS codigo_catalogo,
+         cat.descripcion AS desc_catalogo,
+         mov.num_tramite,
+         mov.fecha_hasta,
+         mov.glosa,
+         depc.id_depto AS id_depto_conta,
+         depc.codigo AS codigo_depto_conta,
+         per.id_gestion,
+         ges.gestion,
+         md.id_moneda,
+         md.descripcion,
+         mov.glosa::text AS glosa_cbte
+  FROM kaf.tmovimiento mov
+       JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+       JOIN param.tdepto_depto dd ON dd.id_depto_origen = mov.id_depto
+       JOIN param.tdepto depc ON depc.id_depto = dd.id_depto_destino
+       JOIN segu.tsubsistema sis ON sis.id_subsistema = depc.id_subsistema AND
+         sis.codigo::text = 'CONTA'::text
+       JOIN param.tperiodo per ON mov.fecha_mov >= per.fecha_ini AND
+         mov.fecha_mov <= per.fecha_fin
+       JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
+       JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
+/***********************************F-DEP-RCM-KAF-ETR-2045-03/12/2020****************************************/

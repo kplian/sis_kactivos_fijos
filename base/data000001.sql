@@ -651,3 +651,29 @@ UPDATE kaf.tmovimiento_tipo SET
 plantilla_cbte_tres = 'KAF-DEP-DEPREC3'
 WHERE id_cat_movimiento = 59;
 /***********************************F-DAT-RCM-KAF-ETR-1443-06/11/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2045-04/12/2020****************************************/
+select conta.f_import_tplantilla_comprobante ('insert','KAF-BAJA-VEN','kaf.f_gestionar_cbte_baja_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','kaf.f_gestionar_cbte_baja','{$tabla.fecha_mov}','activo','ENDE TRANSMISION S.A.','{$tabla.id_depto_conta}','presupuestario','','kaf.v_cbte_baja_cab','DIARIO','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','si','si','si','','','','','{$tabla.num_tramite}','','','','','','Comprobante de Baja por Venta','','','','','');
+select conta.f_import_tplantilla_comprobante ('insert','KAF-BAJA-SIN','kaf.f_gestionar_cbte_baja_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','kaf.f_gestionar_cbte_baja','{$tabla.fecha_mov}','activo','ENDE TRANSMISION S.A.','{$tabla.id_depto_conta}','presupuestario','','kaf.v_cbte_baja_cab','DIARIO','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','si','si','si','','','','','{$tabla.num_tramite}','','','','','','Comprobante de Baja por Siniestro','','','','','');
+select conta.f_import_ttipo_relacion_contable ('insert','KAF-BAJA-SIN',NULL,'Bajas por Siniestro de Activos Fijos','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','AF-BAJA-VEN','TCLS','Baja por Venta de Activos Fijos','activo','si-general','si','no','flujo_presupuestaria','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','AF-BAJA-DACUM','TCLS','Depreciación acumulada para Bajas','activo','si-general','si','no','flujo_presupuestaria','recurso_gasto','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','AF-BAJA-VACT','TCLS','Valor Actualizado para Bajas','activo','si-general','si','no','flujo_presupuestaria','recurso_gasto','no','no','no','');
+
+UPDATE kaf.tmovimiento_motivo SET
+motivo = 'Siniestro',
+plantilla_cbte = 'KAF-BAJA-SIN'
+WHERE id_movimiento_motivo = 4;
+
+UPDATE kaf.tactivo_fijo SET
+id_clasificacion = 447
+WHERE id_activo_fijo = 47506;
+
+UPDATE kaf.tactivo_fijo_valores afv SET
+codigo = af.codigo
+FROM kaf.tactivo_fijo af
+WHERE af.id_activo_fijo = afv.id_activo_fijo
+AND afv.codigo IS NULL;
+
+DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 13827140;
+/***********************************F-DAT-RCM-KAF-ETR-2045-04/12/2020****************************************/
