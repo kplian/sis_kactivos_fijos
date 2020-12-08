@@ -683,6 +683,6 @@ select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-IGUALV2','kaf.f_
 /***********************************F-DAT-RCM-KAF-ETR-2045-07/12/2020****************************************/
 
 /***********************************I-DAT-RCM-KAF-ETR-2045-08/12/2020****************************************/
-DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 14108737 AND codigo = '01.06.8.00178';
-DELETE FROM kaf.treporte_detalle_dep2 where id = 1678780;
+DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 14108737;
+DELETE FROM kaf.treporte_detalle_dep2 where id = 1678780  AND codigo = '01.06.8.00178';
 /***********************************F-DAT-RCM-KAF-ETR-2045-08/12/2020****************************************/
