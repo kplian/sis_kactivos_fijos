@@ -6076,3 +6076,52 @@ AS
        JOIN param.tgestion ges ON ges.id_gestion = per.id_gestion
        JOIN kaf.tmoneda_dep md ON md.contabilizar::text = 'si'::text;
 /***********************************F-DEP-RCM-KAF-ETR-2045-03/12/2020****************************************/
+
+/***********************************I-DEP-RCM-KAF-ETR-2045-07/12/2020****************************************/
+CREATE OR REPLACE VIEW kaf.v_cbte_deprec_3_haber_v3(
+    id_movimiento,
+    id_clasificacion,
+    id_cuenta,
+    id_partida,
+    monto_depreciacion,
+    id_moneda)
+AS
+WITH trel_contable AS(
+  SELECT rc_1.id_tabla AS id_clasificacion,
+         rc_1.id_cuenta,
+         rc_1.id_partida,
+         rc_1.id_gestion,
+         (('{'::text || kaf.f_get_id_clasificaciones(rc_1.id_tabla, 'hijos'::
+           character varying)::text) || '}'::text)::integer [ ] AS nodos
+  FROM conta.ttabla_relacion_contable tb
+       JOIN conta.ttipo_relacion_contable trc ON trc.id_tabla_relacion_contable
+         = tb.id_tabla_relacion_contable
+       JOIN conta.trelacion_contable rc_1 ON rc_1.id_tipo_relacion_contable =
+         trc.id_tipo_relacion_contable
+  WHERE tb.esquema::text = 'KAF'::text AND
+        tb.tabla::text = 'tclasificacion'::text AND
+        trc.codigo_tipo_relacion::text = 'DEPACCLAS'::text)
+    SELECT rd.id_movimiento,
+           rc.id_clasificacion,
+           rc.id_cuenta,
+           rc.id_partida,
+           sum(rd.depreciacion) AS monto_depreciacion,
+           rd.id_moneda
+    FROM kaf.treporte_detalle_dep2 rd
+         JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = rd.id_activo_fijo
+         JOIN kaf.tmovimiento mov ON mov.id_movimiento = rd.id_movimiento
+         JOIN trel_contable rc ON (af.id_clasificacion = ANY (rc.nodos)) AND (
+           rc.id_gestion IN (
+                              SELECT tgestion.id_gestion
+                              FROM param.tgestion
+                              WHERE date_trunc('year'::text, tgestion.fecha_ini
+                                ::timestamp with time zone) = date_trunc('year'
+                                ::text, mov.fecha_hasta::timestamp with time
+                                zone)
+         ))
+    GROUP BY rd.id_movimiento,
+             rc.id_clasificacion,
+             rd.id_moneda,
+             rc.id_cuenta,
+             rc.id_partida;
+/***********************************F-DEP-RCM-KAF-ETR-2045-07/12/2020****************************************/

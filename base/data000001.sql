@@ -677,3 +677,7 @@ AND afv.codigo IS NULL;
 
 DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 13827140;
 /***********************************F-DAT-RCM-KAF-ETR-2045-04/12/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2045-07/12/2020****************************************/
+select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-IGUALV2','kaf.f_gestionar_cbte_igualacion_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','','{$tabla.fecha_mov}','activo','ENDE TRANSMISIÓN S.A.','{$tabla.id_depto_conta}','contable','','kaf.vdeprec_igualacion_conta_haber_cab','DIARIOCON','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','no','no','no','','','','','{$tabla.num_tramite}','','','','','','Comprobante para igualar saldos del cálculo de depreciación con saldos contables por diferencias por redondeo','','','','','');
+/***********************************F-DAT-RCM-KAF-ETR-2045-07/12/2020****************************************/
