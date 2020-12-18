@@ -1855,3 +1855,72 @@ CREATE INDEX treporte_detalle_dep2_idx1 ON kaf.treporte_detalle_dep2
 ALTER TABLE kaf.treporte_detalle_dep2
   ALTER COLUMN dep_acum_tras TYPE NUMERIC;
 /***********************************F-SCP-RCM-KAF-70-11/08/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
+CREATE TABLE kaf.tactivo_mod_masivo (
+	id_activo_mod_masivo SERIAL,
+	id_proceso_wf INTEGER,
+	id_estado_wf INTEGER,
+	fecha DATE,
+	num_tramite VARCHAR(200),
+	motivo VARCHAR(5000),
+	estado VARCHAR(30),
+	CONSTRAINT pk_tactivo_mod_masivo__id_activo_mod_masivo PRIMARY KEY (id_activo_mod_masivo)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE kaf.tactivo_mod_masivo_det (
+	id_activo_mod_masivo_det SERIAL,
+	id_activo_mod_masivo INTEGER,
+	codigo VARCHAR(50) NOT NULL,
+	nro_serie VARCHAR(50),
+	marca VARCHAR(200),
+	denominacion VARCHAR(500),
+	descripcion VARCHAR(5000),
+	unidad_medida VARCHAR(100),
+	observaciones VARCHAR(5000),
+	ubicacion VARCHAR(1000),
+	local VARCHAR(100),
+	responsable VARCHAR(100),
+	proveedor VARCHAR(100),
+	fecha_compra DATE,
+	documento VARCHAR(100),
+	cbte_asociado VARCHAR(50),
+	fecha_cbte_asociado DATE,
+	grupo_ae VARCHAR(100),
+	clasificador_ae VARCHAR(100),
+	centro_costo VARCHAR(100),
+	CONSTRAINT pk_tactivo_mod_masivo__id_activo_mod_masivo_det PRIMARY KEY (id_activo_mod_masivo_det)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE kaf.tactivo_mod_masivo_det
+  ADD CONSTRAINT uq_tactivo_mod_masivo_det__id_activo_mod_masivo__codigo
+    UNIQUE (id_activo_mod_masivo, codigo) NOT DEFERRABLE;
+
+CREATE TABLE kaf.tactivo_mod_masivo_det_original (
+	id_activo_mod_masivo_det_original SERIAL,
+	id_activo_mod_masivo_det INTEGER,
+	id_activo_fijo INTEGER,
+	codigo VARCHAR(50),
+	nro_serie VARCHAR(50),
+	marca VARCHAR(200),
+	denominacion VARCHAR(500),
+	descripcion VARCHAR(5000),
+	id_unidad_medida INTEGER,
+	observaciones VARCHAR(5000),
+	ubicacion VARCHAR(1000),
+	id_ubicacion INTEGER, --local
+	id_funcionario INTEGER,
+	id_proveedor INTEGER,
+	fecha_compra DATE,
+	documento VARCHAR(100),
+	cbte_asociado VARCHAR(50),
+	fecha_cbte_asociado DATE,
+	id_grupo INTEGER, --grupo_ae
+	id_grupo_clasif INTEGER, --clasificador_ae
+	id_centro_costo INTEGER,
+	CONSTRAINT pk_tactivo_mod_ma_det_or__id_activo_mod_mas_det_orig PRIMARY KEY (id_activo_mod_masivo_det_original)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
