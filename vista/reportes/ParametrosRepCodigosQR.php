@@ -1,5 +1,9 @@
 <?php
 header("content-type: text/javascript; charset=UTF-8");
+/***************************************************************************
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #ETR-2116	KAF 	  ETR 			11/12/2020	RCM 		Modificación de formato de reporte de etiqueta, adición de parámetro Local
+***************************************************************************/
 ?>
 <script>
 Phx.vista.ParametrosRepCodigosQR = {
@@ -58,22 +62,23 @@ Phx.vista.ParametrosRepCodigosQR = {
 		this.configElement(this.cmpMontos,false,true);
 		this.configElement(this.cmbMoneda,false,true);
 		this.configElement(this.radGroupEstadoMov,false,true);
+		this.configElement(this.cmbUbicacion,true,true); //ETR-2116
 
 		this.configElement(this.fieldSetGeneral,true,true);
 		this.configElement(this.fieldSetIncluir,false,true);
 		this.configElement(this.fieldSetCompra,false,true);
 	},
 	onSubmit: function(){
-		console.log('aaa',Phx.CP.successExport);
 		if(this.formParam.getForm().isValid()){
-			if(this.cmbActivo.getValue()!=''||this.cmbClasificacion.getValue()!=''){
+			if(this.cmbActivo.getValue()!=''||this.cmbClasificacion.getValue()!=''||this.cmbUbicacion.getValue()!=''){ //ETR-2119
 				Phx.CP.loadingShow();
 				//Generación del reporte
 		        Ext.Ajax.request({
 	                url: '../../sis_kactivos_fijos/control/ActivoFijo/repCodigoQRVarios',
 	                params: {
 	                	id_activo_fijo: this.cmbActivo.getValue(),
-	                	id_clasificacion: this.cmbClasificacion.getValue()
+	                	id_clasificacion: this.cmbClasificacion.getValue(),
+	                	id_ubicacion: this.cmbUbicacion.getValue()
 	                },
 	                success: this.successExport,
 	                failure: this.conexionFailure,
@@ -81,9 +86,9 @@ Phx.vista.ParametrosRepCodigosQR = {
 	                scope: this
 	            });
 			} else {
-				Ext.MessageBox.alert('Información','Debe seleccionar alguno de los dos criterios.');
+				Ext.MessageBox.alert('Información','Debe seleccionar alguno de los criterios.');
 			}
-			
+
 		}
 	}
 
