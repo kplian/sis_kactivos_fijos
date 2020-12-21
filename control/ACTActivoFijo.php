@@ -7,13 +7,15 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
- #18    KAF       ETR           15/07/2019  RCM         Corrección de filtro por característica
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     	KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
+ #18    	KAF       ETR           15/07/2019  RCM         Corrección de filtro por característica
+ #ETR-2116	KAF 	  ETR 			11/12/2020	RCM 		Modificación de formato de reporte de etiqueta, adición de parámetro Local
 ***************************************************************************
 */
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF_v1.php');
+header('Content-Type: text/html; charset=utf-8');
 
 class ACTActivoFijo extends ACTbase{
 
@@ -216,50 +218,35 @@ class ACTActivoFijo extends ACTbase{
     }
 
 
-
     function impCodigoActivoFijo(){
 
-			    $nombreArchivo = 'CodigoAF'.uniqid(md5(session_id())).'.pdf';
-				$dataSource = $this->recuperarCodigoQR();
+	    $nombreArchivo = 'CodigoAF'.uniqid(md5(session_id())).'.pdf';
+		$dataSource = $this->recuperarCodigoQR();
 
+		//parametros basicos
+		$orientacion = 'L';
+		$titulo = 'Códigos Activos Fijos';
 
+        $width = 210; //ETR-2116
+        $height = 80;
 
-				//parametros basicos
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',array($width, $height));
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 
-				$orientacion = 'L';
-				$titulo = 'Códigos Activos Fijos';
+		$clsRep = $dataSource->getDatos();
 
-				//$width = 40;
-		        //$height = 20;
+		eval('$reporte = new '.$clsRep['v_clase_reporte'].'($this->objParam);');
 
-		        $width = 160;
-		        $height = 80;
+		$reporte->datosHeader( 'unico', $dataSource->getDatos());
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');
 
-
-
-				$this->objParam->addParametro('orientacion',$orientacion);
-				$this->objParam->addParametro('tamano',array($width, $height));
-				$this->objParam->addParametro('titulo_archivo',$titulo);
-				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-				//var_dump($dataSource->getDatos());
-				//exit;
-				$clsRep = $dataSource->getDatos();
-
-				//$reporte = new RCodigoQRAF($this->objParam);
-
-				eval('$reporte = new '.$clsRep['v_clase_reporte'].'($this->objParam);');
-
-
-
-				$reporte->datosHeader( 'unico', $dataSource->getDatos());
-				$reporte->generarReporte();
-				$reporte->output($reporte->url_archivo,'F');
-
-
-				$this->mensajeExito=new Mensaje();
-				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
-				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
 	}
 
@@ -473,16 +460,18 @@ class ACTActivoFijo extends ACTbase{
 					FROM t)");
 		}
 
-		$dataSource = $this->listarCodigoQRVarios();
+		//Inicio #ETR-2116
+		if($this->objParam->getParametro('id_ubicacion')!=''){
+			$this->objParam->addFiltro("kaf.id_ubicacion = ".$this->objParam->getParametro('id_ubicacion'));
+		}
+		//Fin #ETR-2116
 
+		$dataSource = $this->listarCodigoQRVarios();
 		//parametros basicos
 		$orientacion = 'L';
 		$titulo = 'Códigos Activos Fijos';
 
-		//$width = 40;
-        //$height = 20;
-
-        $width = 160;
+        $width = 210; //ETR-2116
         $height = 80;
 
 		$this->objParam->addParametro('orientacion',$orientacion);
