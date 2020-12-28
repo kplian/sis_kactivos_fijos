@@ -687,7 +687,7 @@ DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 14108737;
 DELETE FROM kaf.treporte_detalle_dep2 where id = 1678780  AND codigo = '01.06.8.00178';
 /***********************************F-DAT-RCM-KAF-ETR-2045-08/12/2020****************************************/
 
-/***********************************I-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
+/***********************************I-DAT-RCM-KAF-ETR-2029-15/12/2020****************************************/
 select param.f_import_tplantilla_archivo_excel ('insert','AF-DATAUPD','AF -Actualiz. datos','activo',NULL,'2',NULL,'','xlsx','');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD00','AF-DATAUPD','si','',NULL,'1','codigo','codigo','string','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD01','AF-DATAUPD','si','',NULL,'2','nro_serie','nro_serie','string','','activo');
@@ -718,4 +718,4 @@ select wf.f_import_ttipo_estado ('insert','procesado','KAF-MASIV','Procesado','n
 select wf.f_import_ttipo_estado ('insert','finalizado','KAF-MASIV','Finalizado','no','no','si','ninguno','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no','Final','','',NULL,'no',NULL,'','');
 select wf.f_import_testructura_estado ('insert','borrador','procesado','KAF-MASIV',1,'','no');
 select wf.f_import_testructura_estado ('insert','procesado','finalizado','KAF-MASIV',1,'','no');
-/***********************************F-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
+/***********************************F-DAT-RCM-KAF-ETR-2029-15/12/2020****************************************/
