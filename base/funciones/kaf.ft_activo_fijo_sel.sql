@@ -14,8 +14,9 @@ $body$
  FECHA:         29-10-2015 03:18:45
  COMENTARIOS:
  ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos (SKA_ULTDAT_SEL)
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2         KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos (SKA_ULTDAT_SEL)
+ #ETR-2116  KAF       ETR           28/12/2020  RCM         Adición de criterio de ordenación listado varios QR
  ***************************************************************************/
 
 DECLARE
@@ -619,6 +620,8 @@ BEGIN
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
+
+            v_consulta = v_consulta || ' ORDER BY kaf.codigo'; --#ETR-2116
 
             --Devuelve la respuesta
             return v_consulta;
