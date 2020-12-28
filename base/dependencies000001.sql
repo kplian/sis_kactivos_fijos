@@ -6125,3 +6125,19 @@ WITH trel_contable AS(
              rc.id_cuenta,
              rc.id_partida;
 /***********************************F-DEP-RCM-KAF-ETR-2045-07/12/2020****************************************/
+
+/***********************************I-DEP-RCM-KAF-ETR-2029-10/12/2020****************************************/
+ALTER TABLE kaf.tactivo_mod_masivo_det
+  ADD CONSTRAINT tactivo_mod_masivo_det_fk FOREIGN KEY (id_activo_mod_masivo)
+    REFERENCES kaf.tactivo_mod_masivo(id_activo_mod_masivo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE kaf.tactivo_mod_masivo_det_original
+  ADD CONSTRAINT tactivo_mod_masivo_det_original_fk FOREIGN KEY (id_activo_mod_masivo_det)
+    REFERENCES kaf.tactivo_mod_masivo_det(id_activo_mod_masivo_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-RCM-KAF-ETR-2029-10/12/2020****************************************/

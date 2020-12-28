@@ -686,3 +686,36 @@ select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-IGUALV2','kaf.f_
 DELETE FROM kaf.tmovimiento_af_dep WHERE id_movimiento_af_dep = 14108737;
 DELETE FROM kaf.treporte_detalle_dep2 where id = 1678780  AND codigo = '01.06.8.00178';
 /***********************************F-DAT-RCM-KAF-ETR-2045-08/12/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
+select param.f_import_tplantilla_archivo_excel ('insert','AF-DATAUPD','AF -Actualiz. datos','activo',NULL,'2',NULL,'','xlsx','');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD00','AF-DATAUPD','si','',NULL,'1','codigo','codigo','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD01','AF-DATAUPD','si','',NULL,'2','nro_serie','nro_serie','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD02','AF-DATAUPD','si','',NULL,'3','marca','marca','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD03','AF-DATAUPD','si','',NULL,'4','denominacion','denominacion','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD04','AF-DATAUPD','si','',NULL,'5','descripcion','descripcion','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD05','AF-DATAUPD','si','',NULL,'6','unidad_medida','unidad_medida','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD06','AF-DATAUPD','si','',NULL,'7','observaciones','observaciones','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD07','AF-DATAUPD','si','',NULL,'8','ubicacion','ubicacion','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD08','AF-DATAUPD','si','',NULL,'9','local','local','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD09','AF-DATAUPD','si','',NULL,'10','responsable','responsable','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_10','AF-DATAUPD','si','',NULL,'11','proveedor','proveedor','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_11','AF-DATAUPD','si','dd-mm-yyyy',NULL,'12','fecha_compra','fecha_compra','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_12','AF-DATAUPD','si','',NULL,'13','documento','documento','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_13','AF-DATAUPD','si','',NULL,'14','cbte_asociado','cbte_asociado','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_14','AF-DATAUPD','si','dd-mm-yyyy',NULL,'15','fecha_cbte_asociado','fecha_cbte_asociado','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_15','AF-DATAUPD','si','',NULL,'16','grupo_ae','grupo_ae','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_16','AF-DATAUPD','si','',NULL,'17','clasificador_ae','clasificador_ae','string','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_17','AF-DATAUPD','si','',NULL,'18','centro_costo','centro_costo','string','','activo');
+
+select pxp.f_insert_tgui ('Actualización Masiva', 'Actualización Masiva', 'KAFACMAS', 'si', 6, 'sis_kactivos_fijos/vista/activo_mod_masivo/ActivoModMasivo.php', 2, '', 'ActivoModMasivo', 'KAF');
+select pxp.f_insert_testructura_gui ('KAFACMAS', 'KAF');
+
+select wf.f_import_tproceso_macro ('insert','KAF-MASIV', 'KAF', 'Actualización Masiva','si');
+select wf.f_import_ttipo_proceso ('insert','KAF-MASIV',NULL,NULL,'KAF-MASIV','Actualización Masiva Activos Fijos','kaf.tmovimiento','id_movimiento','si','','','','KAF-MASIV',NULL);
+select wf.f_import_ttipo_estado ('insert','borrador','KAF-MASIV','Borrador','si','no','no','ninguno','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no','Inicial','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','procesado','KAF-MASIV','Procesado','no','no','no','ninguno','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no','Proceso','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','finalizado','KAF-MASIV','Finalizado','no','no','si','ninguno','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no','Final','','',NULL,'no',NULL,'','');
+select wf.f_import_testructura_estado ('insert','borrador','procesado','KAF-MASIV',1,'','no');
+select wf.f_import_testructura_estado ('insert','procesado','finalizado','KAF-MASIV',1,'','no');
+/***********************************F-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
