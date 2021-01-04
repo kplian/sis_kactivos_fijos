@@ -12,7 +12,8 @@
  #23        KAF     ETR         23/08/2019  RCM     Inclusión de botón para Impresión Reporte 8 Comparación AF y Conta. Además se aprovecha de ocultar botón de cbte 4 de entrada
  #35        KAF     ETR         11/10/2019  RCM     Adición de botón para procesar Detalle Depreciación
  #58        KAF     ETR         20/04/2020  RCM     Adición de botón para nuevo reporte de depreciación
- #ETR-1443  KAF     ETR         22/20/2020  RCM     Modificación de servicio para procesamiento de Detalle Depreciación
+ #ETR-1443  KAF     ETR         22/10/2020  RCM     Modificación de servicio para procesamiento de Detalle Depreciación
+ #ETR-2170  KAF     ETR         18/12/2020  RCM     Adición de campo para registro del tipo de cambio final para actualización
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -462,6 +463,7 @@ Phx.vista.MovimientoPrincipal = {
         this.Cmp.prestamo.setVisible(swPrestamo);
         this.Cmp.fecha_dev_prestamo.setVisible(swPrestamo);
         this.Cmp.tipo_asig.setVisible(swTipoAsig);
+        this.Cmp.tc_final_act.setVisible(swFechaHasta); //#ETR-2170
 
         //Set required or not
         this.Cmp.direccion.allowBlank=!swDireccion;
@@ -719,6 +721,7 @@ Phx.vista.MovimientoPrincipal = {
         this.Cmp.prestamo.hide();
         this.Cmp.fecha_dev_prestamo.hide();
         this.Cmp.tipo_asig.hide();
+        this.Cmp.tc_final_act.hide(); //#ETR-2170
     }  ,
     arrayDefaultColumHidden:['fecha_reg','usr_reg','fecha_mod','usr_mod','fecha_hasta','id_proceso_wf','id_estado_wf','id_funcionario','estado_reg','id_usuario_ai','usuario_ai','direccion','id_oficina'],
     rowExpander: new Ext.ux.grid.RowExpander({

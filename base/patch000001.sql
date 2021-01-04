@@ -1924,3 +1924,17 @@ CREATE TABLE kaf.tactivo_mod_masivo_det_original (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 /***********************************F-DAT-RCM-KAF-ETR-2029-09/12/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2170-18/12/2020****************************************/
+ALTER TABLE kaf.tmovimiento
+ADD COLUMN tc_final_act NUMERIC;
+
+CREATE INDEX tmovimiento_af_dep_idx ON kaf.tmovimiento_af_dep
+  USING btree (id_movimiento_af);
+
+CREATE INDEX tactivo_fijo_valores_idx ON kaf.tactivo_fijo_valores
+  USING btree (id_movimiento_af);
+
+CREATE INDEX tmovimiento_af_especial_idx ON kaf.tmovimiento_af_especial
+  USING btree (id_movimiento_af);
+/***********************************F-DAT-RCM-KAF-ETR-2170-18/12/2020****************************************/

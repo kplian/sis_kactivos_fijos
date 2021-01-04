@@ -12,15 +12,16 @@ $body$
  FECHA:         24/10/2017
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
-        KAF       ETR           24/10/2017  RCM         Creación del archivo
- #4     KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
- #33    KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
- #34    KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
- #39    KAF       ETR           29/11/2019  RCM         Lógica para considerar valores iniciales seteados en primera depreciación
- #51    KAF       ETR           04/12/2020  RCM         Modificación de monto inicial para ejecutar la depreciación
- #60    KAF       ETR           28/04/2020  RCM         Inclusión de TC inicial predefinido para la primera depreciación del AF
- #AF-10 KAF       ETR           21/08/2020  RCM         Volver dinámico el valor de rescate de UFV y USD en función a la fecha de fin de mes depreciado
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+            KAF       ETR           24/10/2017  RCM         Creación del archivo
+ #4         KAF       ETR           11/01/2019  RCM         Ajuste por incremento a AF antiguos por cierre de proyectos
+ #33        KAF       ETR           30/09/2019  RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
+ #34        KAF       ETR           07/10/2019  RCM         Ajustes por cierre de Proyectos caso incremento AF existentes
+ #39        KAF       ETR           29/11/2019  RCM         Lógica para considerar valores iniciales seteados en primera depreciación
+ #51        KAF       ETR           04/12/2020  RCM         Modificación de monto inicial para ejecutar la depreciación
+ #60        KAF       ETR           28/04/2020  RCM         Inclusión de TC inicial predefinido para la primera depreciación del AF
+ #AF-10     KAF       ETR           21/08/2020  RCM         Volver dinámico el valor de rescate de UFV y USD en función a la fecha de fin de mes depreciado
+ #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
 ***************************************************************************/
 DECLARE
 
@@ -60,6 +61,7 @@ DECLARE
     v_id_moneda_base        INTEGER; --#AF-10
     v_monto_rescate         NUMERIC; --#AF-10
     v_tc                    NUMERIC; --#AF-10
+    v_tc_final_act          NUMERIC; --#ETR-2170
 
 BEGIN
 
@@ -77,8 +79,8 @@ BEGIN
     where codigo = 'KAF';
 
     --Obtención de la fecha tope de la depreciación
-    select fecha_hasta
-    into v_fecha_hasta
+    select fecha_hasta, tc_final_act
+    into v_fecha_hasta, v_tc_final_act
     from kaf.tmovimiento
     where id_movimiento = p_id_movimiento;
 
@@ -189,12 +191,14 @@ BEGIN
             v_ant_vida_util         = 0;
             v_ant_monto_actualiz    = v_rec.monto_actualiz_real;
 
-            --Inicio 08/10/2020
-            IF COALESCE(v_rec.monto_vigente_actualiz_inicial, 0) > 0 THEN
+            --Inicio #ETR-2170
+            --Inicio 08/10/2020: comentado porque no aplica a terrenos
+            /*IF COALESCE(v_rec.monto_vigente_actualiz_inicial, 0) > 0 THEN
                 v_ant_monto_actualiz = COALESCE(v_rec.monto_vigente_actualiz_inicial, v_rec.monto_actualiz_real) + COALESCE(v_rec.importe_modif, 0); --#4
                 v_ant_monto_vigente = COALESCE(v_rec.monto_vigente_actualiz_inicial, v_rec.monto_actualiz_real) + COALESCE(v_rec.importe_modif, 0); --#50
-            END IF;
+            END IF;*/
             --Fin 08/10/2020
+            --Fin #ETR-2170
         end if;
 
         --Si las gestion anterior y última son diferentes resetear la depreciación de la gestión
@@ -254,13 +258,13 @@ BEGIN
                 select
                 o_tc_inicial, o_tc_final, o_tc_factor, o_fecha_ini, o_fecha_fin
                 into v_rec_tc
-                from kaf.f_get_tipo_cambio(v_rec.id_moneda_act, v_rec.id_moneda, v_tipo_cambio_anterior, v_mes_dep);
+                from kaf.f_get_tipo_cambio(v_rec.id_moneda_act, v_rec.id_moneda, v_tipo_cambio_anterior, v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
             else
                 --Si no requiere actulizacion el factor es igual a 1
                 select
                 o_tc_inicial, o_tc_final, o_tc_factor, o_fecha_ini, o_fecha_fin
                 into v_rec_tc
-                from kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda, v_tipo_cambio_anterior,  v_mes_dep);
+                from kaf.f_get_tipo_cambio(v_rec.id_moneda, v_rec.id_moneda, v_tipo_cambio_anterior,  v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
             end if;
 
             v_monto_rescate = v_rec.monto_rescate; --#AF-10
@@ -275,7 +279,7 @@ BEGIN
                 --Cálculo nuevos valores por depreciación, validacion de division por cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
                     --exit; --v_nuevo_dep_mes       = 0;
-                    SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep);
+                    SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
 
                     --Inicio 08/10/2020
                     v_nuevo_dep_mes = (v_ant_monto_actualiz - v_ant_dep_acum) - (1 / v_tc);
@@ -286,7 +290,7 @@ BEGIN
                 else
                     --Inicio #AF-10
                     IF v_rec.id_moneda <> v_id_moneda_base THEN
-                        SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep);
+                        SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
                         v_monto_rescate = 1 / v_tc;
                     END IF;
 

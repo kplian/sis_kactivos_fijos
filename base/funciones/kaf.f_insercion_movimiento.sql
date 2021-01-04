@@ -12,10 +12,11 @@ $body$
  FECHA:         03/08/2017
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #7     KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
- #55    KAF       ETR           12/03/2020  RCM         Al crear alta registro por defecto de todos los activos fijos en estado registrado
- #59    KAF       ETR           07/04/2020  RCM         Controlar que no inserte activos fijos en el alta cuando viene de movimientos rápidos
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #7         KAF       ETR           06/05/2019  RCM         Modificación consulta para inclusión de Activos Fijos en el detalle al registrar Depreciación
+ #55        KAF       ETR           12/03/2020  RCM         Al crear alta registro por defecto de todos los activos fijos en estado registrado
+ #59        KAF       ETR           07/04/2020  RCM         Controlar que no inserte activos fijos en el alta cuando viene de movimientos rápidos
+ #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
 ***************************************************************************/
 DECLARE
 
@@ -183,7 +184,8 @@ BEGIN
         id_funcionario_dest,
         id_movimiento_motivo,
         prestamo,
-        fecha_dev_prestamo
+        fecha_dev_prestamo,
+        tc_final_act --#ETR-2170
     ) values(
         (p_parametros->'direccion')::varchar,
         (p_parametros->'fecha_hasta')::date,
@@ -213,7 +215,8 @@ BEGIN
         (p_parametros->'id_funcionario_dest')::integer,
         (p_parametros->'id_movimiento_motivo')::integer,
         (p_parametros->'prestamo')::varchar,
-        (p_parametros->'fecha_dev_prestamo')::date
+        (p_parametros->'fecha_dev_prestamo')::date,
+        (p_parametros->'tc_final_act')::numeric
     ) returning id_movimiento into v_id_movimiento;
 
     -------------------------------------

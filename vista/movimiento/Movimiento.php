@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-10-2015 20:42:41
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+/***************************************************************************
+#ISSUE      SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #ETR-2170  KAF     ETR         18/12/2020  RCM     Adición de campo para registro del tipo de cambio final para actualización
+***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -21,14 +24,14 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             enableToggle: true,
             pressed: false,
             toggleHandler: function(btn, pressed) {
-               
+
                 if(pressed){
                     this.historico = 'si';
                 }
                 else{
-                   this.historico = 'no' 
+                   this.historico = 'no'
                 }
-                
+
                 this.store.baseParams.historico = this.historico;
 				this.store.baseParams.cod_movimiento = this.filterMov;
         		this.store.baseParams.id_movimiento = this.maestro.lnk_id_movimiento;
@@ -89,7 +92,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
         );
 
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -99,7 +102,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_movimiento'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -109,7 +112,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					name: 'cod_movimiento'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config: {
@@ -196,7 +199,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 70,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -256,7 +259,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					} else {
 						desc='<tpl for="."><div class="x-combo-list-item"><p><b>Dpto.:</b> '+record.data['depto']+'</p></div></tpl>';
 					}
-					return desc; 
+					return desc;
 				}
 			},
 			type : 'ComboBox',
@@ -307,7 +310,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				hidden: true,
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
@@ -324,7 +327,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_proceso_wf'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -333,7 +336,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_estado_wf'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
    			config:{
@@ -466,7 +469,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                         direction: 'ASC'
                     },
                     baseParams:{par_filtro:'dep.codigo#dep.nombre'}
-                    
+
                 }),
 				valueField: 'id_deposito',
 				displayField: 'nombre',
@@ -751,7 +754,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 70,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 			type:'DateField',
@@ -783,6 +786,21 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 			grid: false,
 			form: true
 		},
+		//Inicio #ETR-2170
+		{
+			config:{
+				name: 'tc_final_act',
+				fieldLabel: 'TC Final Act.',
+				allowBlank: true,
+				gwidth: 70
+			},
+			type: 'TextField',
+			filters: {pfiltro:'mov.tc_final_act', type: 'numeric'},
+			id_grupo: 0,
+			grid: true,
+			form: true
+		},
+		//Fin #ETR-2170
 		{
 			config:{
 				name: 'estado_reg',
@@ -835,7 +853,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -866,7 +884,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -891,7 +909,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Movimiento de Activos Fijos',
 	ActSave:'../../sis_kactivos_fijos/control/Movimiento/insertarMovimiento',
 	ActDel:'../../sis_kactivos_fijos/control/Movimiento/eliminarMovimiento',
@@ -952,7 +970,8 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_proceso_wf_cbte2', type: 'numeric'},
 		{name:'id_proceso_wf_cbte3', type: 'numeric'},
 		{name:'id_int_comprobante_4', type: 'numeric'},
-		{name:'id_proceso_wf_cbte4', type: 'numeric'}
+		{name:'id_proceso_wf_cbte4', type: 'numeric'},
+		{name:'tc_final_act', type: 'numeric'} //#ETR-2170
 	],
 	sortInfo:{
 		field: 'id_movimiento',
@@ -968,9 +987,9 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this
-        });  
+        });
 	},
-	
+
 	onButtonReportDepreciacion: function(){
 	    var rec=this.sm.getSelected();
 	    Phx.CP.loadingShow();
@@ -981,7 +1000,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
             failure: this.conexionFailure,
             timeout:this.timeout,
             scope:this
-        });  
+        });
 	},
 
 	onButtonReporte: function(){
@@ -1021,5 +1040,5 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
 
 })
 </script>
-		
-		
+
+

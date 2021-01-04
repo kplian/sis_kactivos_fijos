@@ -719,3 +719,96 @@ select wf.f_import_ttipo_estado ('insert','finalizado','KAF-MASIV','Finalizado',
 select wf.f_import_testructura_estado ('insert','borrador','procesado','KAF-MASIV',1,'','no');
 select wf.f_import_testructura_estado ('insert','procesado','finalizado','KAF-MASIV',1,'','no');
 /***********************************F-DAT-RCM-KAF-ETR-2029-15/12/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2170-31/12/2020****************************************/
+--SEPTIEMBRE 2020
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 269098.832573739 WHERE id_movimiento_af_dep = 13750415;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2224901.6492635 WHERE id_movimiento_af_dep = 13768542;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2431463.13629132 WHERE id_movimiento_af_dep = 13766986;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 157815.195118555 WHERE id_movimiento_af_dep = 13767092;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 69647.0252407307 WHERE id_movimiento_af_dep = 13750708;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 788176.634571781 WHERE id_movimiento_af_dep = 13770949;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 79646.4160350747 WHERE id_movimiento_af_dep = 13771008;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1882658.54012401 WHERE id_movimiento_af_dep = 13756422;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 940971.75908339 WHERE id_movimiento_af_dep = 13769599;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 15846.8707207166 WHERE id_movimiento_af_dep = 13771265;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 396171.957505789 WHERE id_movimiento_af_dep = 13815949;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 240111.904327116 WHERE id_movimiento_af_dep = 13817852;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 866779.214556492 WHERE id_movimiento_af_dep = 13805041;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 271932.423681905 WHERE id_movimiento_af_dep = 13821336;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 784962.099151519 WHERE id_movimiento_af_dep = 13817997;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 603201.23745362 WHERE id_movimiento_af_dep = 13806886;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 578102.021346125 WHERE id_movimiento_af_dep = 13816541;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 88350.6045899755 WHERE id_movimiento_af_dep = 13807196;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 350247.697944514 WHERE id_movimiento_af_dep = 13821895;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 439969.626262886 WHERE id_movimiento_af_dep = 13807281;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1630829.59007998 WHERE id_movimiento_af_dep = 13804041;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 364953.588499245 WHERE id_movimiento_af_dep = 13820516;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 190162.543392536 WHERE id_movimiento_af_dep = 13817261;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1010349.38520591 WHERE id_movimiento_af_dep = 13802833;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1791537.07543854 WHERE id_movimiento_af_dep = 13819154;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 931986.591595885 WHERE id_movimiento_af_dep = 13817468;
+
+--OCTUBRE 2020
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 269407.375965 WHERE id_movimiento_af_dep = 13962405;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2227452.658236 WHERE id_movimiento_af_dep = 13951590;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2434250.9796345 WHERE id_movimiento_af_dep = 13946617;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 157996.1405295 WHERE id_movimiento_af_dep = 13946941;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 69726.8752245 WHERE id_movimiento_af_dep = 13963345;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 789080.330727 WHERE id_movimiento_af_dep = 13959397;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 79737.7397895 WHERE id_movimiento_af_dep = 13959555;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1884817.138815 WHERE id_movimiento_af_dep = 13981249;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 942050.6461665 WHERE id_movimiento_af_dep = 13954972;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 15865.038423 WHERE id_movimiento_af_dep = 13960408;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 396626.19633 WHERE id_movimiento_af_dep = 13983169;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 240387.208542 WHERE id_movimiento_af_dep = 13989357;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 867773.039328 WHERE id_movimiento_af_dep = 14016765;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 272244.21588 WHERE id_movimiento_af_dep = 14000439;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 785862.1099485 WHERE id_movimiento_af_dep = 13989781;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 603892.845036 WHERE id_movimiento_af_dep = 14022805;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 578764.85121 WHERE id_movimiento_af_dep = 13985139;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 88451.9047035 WHERE id_movimiento_af_dep = 14023749;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 350649.2798055 WHERE id_movimiento_af_dep = 14002164;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 440474.080176 WHERE id_movimiento_af_dep = 14023995;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1632699.4451625 WHERE id_movimiento_af_dep = 14013631;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 365372.0381025 WHERE id_movimiento_af_dep = 13997736;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 190380.5789535 WHERE id_movimiento_af_dep = 13987455;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1011507.817671 WHERE id_movimiento_af_dep = 14009818;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1793591.1993285 WHERE id_movimiento_af_dep = 13993468;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 933055.1783865 WHERE id_movimiento_af_dep = 13988164;
+
+--NOVIEMBRE 2020
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 269582.215644 WHERE id_movimiento_af_dep = 14073581;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2228898.2278176 WHERE id_movimiento_af_dep = 14038714;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 2435830.7569452 WHERE id_movimiento_af_dep = 14056518;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 158098.6766772 WHERE id_movimiento_af_dep = 14056852;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 69772.1264892 WHERE id_movimiento_af_dep = 14097347;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 789592.4271432 WHERE id_movimiento_af_dep = 14046469;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 79789.4878932 WHERE id_movimiento_af_dep = 14046627;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1886040.345204 WHERE id_movimiento_af_dep = 14115651;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 942662.0170764 WHERE id_movimiento_af_dep = 14064998;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 15875.3344968 WHERE id_movimiento_af_dep = 14070589;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 396883.598328 WHERE id_movimiento_af_dep = 14026642;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 240543.2147472 WHERE id_movimiento_af_dep = 14032831;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 868336.2056448 WHERE id_movimiento_af_dep = 14107426;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 272420.896608 WHERE id_movimiento_af_dep = 14067209;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 786372.1178076 WHERE id_movimiento_af_dep = 14056227;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 604284.7586976 WHERE id_movimiento_af_dep = 14113733;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 579140.457336 WHERE id_movimiento_af_dep = 14051593;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 88509.3081156 WHERE id_movimiento_af_dep = 14114731;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 350876.8437588 WHERE id_movimiento_af_dep = 14068953;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 440759.9385216 WHERE id_movimiento_af_dep = 14091933;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1633759.03251 WHERE id_movimiento_af_dep = 14081521;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 365609.156814 WHERE id_movimiento_af_dep = 14064335;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 190504.1319156 WHERE id_movimiento_af_dep = 14030923;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1012164.2648136 WHERE id_movimiento_af_dep = 14077694;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 1794755.2020156 WHERE id_movimiento_af_dep = 14059870;
+UPDATE kaf.tmovimiento_af_dep SET monto_actualiz_ant = 933660.7114284 WHERE id_movimiento_af_dep = 14054588;
+
+--Variable global para ya no actualizar y con que fecha de TC UFV realizar la act (caso de baja en la UFV). Si el valor es vacío se hace la actualización normalmente
+INSERT INTO pxp.variable_global (
+	"variable", "valor", "descripcion"
+) VALUES (
+	E'kaf_actualizar_baja_ufv', E'10-12-2020', E'Considerando el caso de baja en la UFV, en esta variable se coloca fecha exacta, donde en el mes que se defina actualizará loas AF que iniciaron su depreciación antes de la fecha específica; en meses distintos directamente no actualizará en ningún caso'
+);
+/***********************************F-DAT-RCM-KAF-ETR-2170-31/12/2020****************************************/

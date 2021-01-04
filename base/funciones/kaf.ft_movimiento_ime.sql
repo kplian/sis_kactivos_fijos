@@ -26,6 +26,7 @@ $body$
  #67        KAF       ETR           19/05/2020  RCM         Codificar los AFVs al procesar la disgregación
  #ETR-1443  KAF       ETR           26/10/2020  RCM         Generación del comprobante de depreciación en las tres monedas
  #ETR-2045  KAF       ETR           03/12/2020  RCM         Implementación plantillas para bajas considerando cada moneda por separado
+ #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización, cambio habilitando eliminación desde la cabecera
 ***************************************************************************/
 
 DECLARE
@@ -147,7 +148,8 @@ BEGIN
         coalesce(v_parametros.prestamo,null) as prestamo,
         coalesce(v_parametros.fecha_dev_prestamo,null) as fecha_dev_prestamo,
         coalesce(v_parametros.tipo_asig,null) as tipo_asig,
-        v_reg_masivo as reg_masivo
+        v_reg_masivo as reg_masivo,
+        coalesce(v_parametros.tc_final_act,null) as tc_final_act --#ETR-2170
         into v_rec_af;
 
         --Inserción del movimiento
@@ -267,7 +269,8 @@ BEGIN
                 id_funcionario_dest=v_parametros.id_funcionario_dest,
                 id_movimiento_motivo=v_parametros.id_movimiento_motivo,
                 prestamo = v_parametros.prestamo,
-                fecha_dev_prestamo = v_parametros.fecha_dev_prestamo
+                fecha_dev_prestamo = v_parametros.fecha_dev_prestamo,
+                tc_final_act = v_parametros.tc_final_act --#ETR-2170
             where id_movimiento=v_parametros.id_movimiento;
 
             --Verifica el tipo de movimiento para aplicar reglas
@@ -450,13 +453,15 @@ BEGIN
             where id_movimiento = v_parametros.id_movimiento;
 
             if v_rec.estado = 'borrador' then
-                if exists(select 1 from kaf.tmovimiento_af
-                    where id_movimiento = v_parametros.id_movimiento) then
-                  raise exception 'Elimine el detalle del Movimiento previamente y vuelva a intentarlo';
-                end if;
+                --Inicio #ETR-2170: Eliminación del detalle
+                DELETE FROM kaf.tmovimiento_af
+                WHERE id_movimiento = v_parametros.id_movimiento;
+                --Fin #ETR-2170
+
                 --Sentencia de la eliminacion
                 delete from kaf.tmovimiento
                 where id_movimiento=v_parametros.id_movimiento;
+
             else
                 raise exception 'Eliminacion no permitida, debe estar en Estado Borrador';
             end if;
