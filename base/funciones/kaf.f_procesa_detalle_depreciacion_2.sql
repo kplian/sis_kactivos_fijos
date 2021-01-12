@@ -16,6 +16,7 @@ $body$
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #AF-10     KAF       ETR           07/08/2020  RCM         Creación
  #ETR-2045  KAF       ETR           06/12/2020  RCM         Traspasos de AF y DAcum., en caso de disgregaciones a antiguos existentes cambiar la fórmula de despliegue para que salga sólo lo disgregado
+ #AF-38     KAF       ETR           12/01/2020  RCM         En el procesamiento del reporte de depreciación, para el caso de adiciones desde cierre de proyecto, cambiar el cálculo aritmético para obtener la adición sin actualización para utilizar directamente el nuevo campo en la tabla. Además Cambio criterio para caso Altas de tipo: AF
 ***************************************************************************/
 DECLARE
 
@@ -391,8 +392,9 @@ BEGIN
                             WHEN DATE_TRUNC(''month'', pd.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
                                 CASE
                                     WHEN COALESCE(afv.importe_modif) > 0 THEN
-                                        afv.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', afv.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
-                                                    param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', afv.fecha_ini_dep)::date), ''O''))
+                                        --afv.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', afv.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
+                                        --            param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', afv.fecha_ini_dep)::date), ''O''))
+                                        afv.importe_modif_sin_act --#AF-38
                                     ELSE
                                         COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
                                 END
@@ -406,7 +408,7 @@ BEGIN
                         0
                     ELSE
                         CASE
-                            WHEN DATE_TRUNC(''month'', afv.fecha_ini_dep) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN
+                            WHEN DATE_TRUNC(''month'', pd.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN --#AF-38
                                 COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
                             ELSE
                                 0
