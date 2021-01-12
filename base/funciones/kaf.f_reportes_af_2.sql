@@ -30,6 +30,7 @@ $body$
  #70        KAF       ETR           30/07/2020  RCM         Adición de columna para consulta, ajustes en base a revisión
  #AF-15     KAF       ETR           30/09/2020  RCM         Modificación de cálculo de importe para reporte
  #ETR-1717  KAF       ETR           09/11/2020  RCM         Cambio en la generación de cbte. de igualación considerando todas las monedas
+ #ETR-2170  KAF       ETR           12/01/2020  RCM         Modificación comprobante de comparación de la depreciación
 ****************************************************************************/
 DECLARE
 
@@ -1393,7 +1394,8 @@ BEGIN
                     id_moneda,
                     saldo_af,
                     saldo_conta,
-                    diferencia_af_conta
+                    diferencia_af_conta,
+                    lado_saldo
                 )
                 SELECT
                 p_id_usuario,
@@ -1413,7 +1415,8 @@ BEGIN
                     WHEN v_id_moneda_base THEN af.importe - dc.saldo_mb
                     WHEN v_id_moneda_tri THEN af.importe - dc.saldo_mt
                     WHEN v_id_moneda_act THEN af.importe - dc.saldo_ma
-                END AS diferencia
+                END AS diferencia,
+                dc.lado_saldo
                 FROM (
                     SELECT
                     id_moneda, cuenta_activo AS desc_cuenta, SUM(monto_actualiz) AS importe
@@ -1459,7 +1462,6 @@ BEGIN
                                         NULL
                                     );
 
-
                     --Marcación del comprobante como actualización
                     UPDATE conta.tint_comprobante SET
                     cbte_aitb = 'si'
@@ -1489,7 +1491,7 @@ BEGIN
 
 
                     ---------------------------------------------------------------------------------------------
-                    -----------------------------------------(A) DEBE -------------------------------------------
+                    -----------------------------------------(A) DEBE (lado_saldo: debe) ------------------------
                     ---------------------------------------------------------------------------------------------
                     --(A) (1/2) Transacciones al Debe con saldo positivo (cuando Conta está de menos)
                     WITH tbs AS (
@@ -1551,14 +1553,14 @@ BEGIN
                     tbs.id_cuenta,
                     v_id_partida_debe,
                     v_id_centro_costo,
-                    tbs.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tusd.diferencia_af_conta,
-                    tufv.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tusd.diferencia_af_conta,
-                    tufv.diferencia_af_conta,
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
                     0, 0, 0, 0, 0, 0, 0, 0,
                     1,
                     v_tc_usd,
@@ -1568,7 +1570,8 @@ BEGIN
                     ON tusd.id_cuenta = tbs.id_cuenta
                     JOIN tufv
                     ON tufv.id_cuenta = tbs.id_cuenta
-                    WHERE tbs.diferencia_af_conta > 0;
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
+                    AND tbs.lado_saldo = 'debe';
 
                     --(A) (2/2) Transacciones al debe con saldo negativo (cuando Conta está de más)
                     WITH tbs AS (
@@ -1630,14 +1633,16 @@ BEGIN
                     v_id_cuenta_debe,
                     v_id_partida_debe,
                     v_id_centro_costo,
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tusd.diferencia_af_conta),
-                    ABS(tufv.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tusd.diferencia_af_conta),
-                    ABS(tufv.diferencia_af_conta),
+                    --Inicio #ETR-1717
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    --Fin #ETR-1717
                     0, 0, 0, 0, 0, 0, 0, 0,
                     1,
                     v_tc_usd,
@@ -1647,10 +1652,11 @@ BEGIN
                     ON tusd.id_cuenta = tbs.id_cuenta
                     JOIN tufv
                     ON tufv.id_cuenta = tbs.id_cuenta
-                    WHERE tbs.diferencia_af_conta < 0;
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) < 0
+                    AND tbs.lado_saldo = 'debe';
 
                     ---------------------------------------------------------------------------------------------
-                    -----------------------------------------(B) HABER -------------------------------------------
+                    -----------------------------------------(B) HABER (lado_saldo: debe) -----------------------
                     ---------------------------------------------------------------------------------------------
                     --(B) (1/2) Transacciones al Haber con saldo positivo (cuando Conta está de menos)
                     WITH tbs AS (
@@ -1713,14 +1719,16 @@ BEGIN
                     v_id_partida_haber,
                     v_id_centro_costo,
                     0, 0, 0, 0, 0, 0, 0, 0,
-                    tbs.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tusd.diferencia_af_conta,
-                    tufv.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tbs.diferencia_af_conta,
-                    tusd.diferencia_af_conta,
-                    tufv.diferencia_af_conta,
+                    --Inicio #ETR-1717
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    --Fin #ETR-1717
                     1,
                     v_tc_usd,
                     v_tc_ufv
@@ -1729,7 +1737,8 @@ BEGIN
                     ON tusd.id_cuenta = tbs.id_cuenta
                     JOIN tufv
                     ON tufv.id_cuenta = tbs.id_cuenta
-                    WHERE tbs.diferencia_af_conta > 0;
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
+                    AND tbs.lado_saldo = 'debe';
 
                     --(B) (2/4) Transacciones al Debe (con saldo negativo)
                     WITH tbs AS (
@@ -1792,14 +1801,16 @@ BEGIN
                     v_id_partida_debe,
                     v_id_centro_costo,
                     0, 0, 0, 0, 0, 0, 0, 0,
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tusd.diferencia_af_conta),
-                    ABS(tufv.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tbs.diferencia_af_conta),
-                    ABS(tusd.diferencia_af_conta),
-                    ABS(tufv.diferencia_af_conta),
+                    --Inicio #ETR-1717
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    --Fin #ETR-1717
                     1,
                     v_tc_usd,
                     v_tc_ufv
@@ -1808,10 +1819,345 @@ BEGIN
                     ON tusd.id_cuenta = tbs.id_cuenta
                     JOIN tufv
                     ON tufv.id_cuenta = tbs.id_cuenta
-                    WHERE tbs.diferencia_af_conta < 0;
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) < 0
+                    AND tbs.lado_saldo = 'debe';
+
+
+                    ---------------------------------------------------------------------------------------------
+                    -----------------------------------------(C) HABER (lado_saldo: haber) ------------------------
+                    ---------------------------------------------------------------------------------------------
+                    --(C) (1/2) Transacciones al HABER con saldo positivo (cuando Conta está de menos)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
+                    AND tbs.lado_saldo = 'haber';
+
+                    --(C) (2/2) Transacciones al HABER con saldo negativo (cuando Conta está de más)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_debe,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    --Inicio #ETR-1717
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    --Fin #ETR-1717
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) < 0
+                    AND tbs.lado_saldo = 'haber';
+
+                    ---------------------------------------------------------------------------------------------
+                    -----------------------------------------(D) DEBE (lado_saldo: haber) ----------------------
+                    ---------------------------------------------------------------------------------------------
+                    --(D) (1/2) Transacciones al DEBE con saldo positivo (cuando Conta está de menos)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    v_id_cuenta_haber,
+                    v_id_partida_haber,
+                    v_id_centro_costo,
+                    --Inicio #ETR-1717
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tbs.diferencia_af_conta, 2),
+                    ROUND(tusd.diferencia_af_conta, 2),
+                    ROUND(tufv.diferencia_af_conta, 2),
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    --Fin #ETR-1717
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
+                    AND tbs.lado_saldo = 'haber';
+
+                    --(D) (2/4) Transacciones al Debe (con saldo negativo)
+                    WITH tbs AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_base
+                    ), tusd AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_tri
+                    ), tufv AS (
+                        SELECT
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        FROM kaf.tcomparacion_af_conta
+                        WHERE id_movimiento = v_parametros.id_movimiento
+                        AND diferencia_af_conta <> 0
+                        AND id_moneda = v_id_moneda_act
+                    )
+                    INSERT INTO conta.tint_transaccion
+                    (
+                        id_usuario_reg,
+                        fecha_reg,
+                        estado_reg,
+                        id_int_comprobante,
+                        id_cuenta,
+                        id_partida,
+                        id_centro_costo,
+                        importe_debe,
+                        importe_debe_mb,
+                        importe_debe_mt,
+                        importe_debe_ma,
+                        importe_gasto,
+                        importe_gasto_mb,
+                        importe_gasto_mt,
+                        importe_gasto_ma,
+                        importe_haber,
+                        importe_haber_mb,
+                        importe_haber_mt,
+                        importe_haber_ma,
+                        importe_recurso,
+                        importe_recurso_mb,
+                        importe_recurso_mt,
+                        importe_recurso_ma,
+                        tipo_cambio,
+                        tipo_cambio_2,
+                        tipo_cambio_3
+                    )
+                    SELECT
+                    p_id_usuario,
+                    v_fecha_mov,
+                    'activo',
+                    v_id_int_cbte,
+                    tbs.id_cuenta,
+                    v_id_partida_debe,
+                    v_id_centro_costo,
+                    --Inicio #ETR-1717
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tbs.diferencia_af_conta), 2),
+                    ROUND(ABS(tusd.diferencia_af_conta), 2),
+                    ROUND(ABS(tufv.diferencia_af_conta), 2),
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    --Fin #ETR-1717
+                    1,
+                    v_tc_usd,
+                    v_tc_ufv
+                    FROM tbs
+                    JOIN tusd
+                    ON tusd.id_cuenta = tbs.id_cuenta
+                    JOIN tufv
+                    ON tufv.id_cuenta = tbs.id_cuenta
+                    WHERE ROUND(tbs.diferencia_af_conta, 2) < 0
+                    AND tbs.lado_saldo = 'haber';
+
 
                     -----------------------------------
-                    --(C) GUARDAR RELACIÓN DEL COMPROBANTE
+                    --(E) GUARDAR RELACIÓN DEL COMPROBANTE
                     -----------------------------------
                     UPDATE kaf.tcomparacion_af_conta SET
                     id_int_comprobante = v_id_int_cbte

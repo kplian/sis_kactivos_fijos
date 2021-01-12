@@ -279,7 +279,7 @@ BEGIN
                 --Cálculo nuevos valores por depreciación, validacion de division por cero
                 if coalesce(v_ant_vida_util,0) = 0 and v_rec.depreciable = 'si' then
                     --exit; --v_nuevo_dep_mes       = 0;
-                    SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
+                    SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, NULL/*v_tc_final_act*/, v_rec.fecha_ini_dep); --#ETR-2170
 
                     --Inicio 08/10/2020
                     v_nuevo_dep_mes = (v_ant_monto_actualiz - v_ant_dep_acum) - (1 / v_tc);
@@ -290,7 +290,7 @@ BEGIN
                 else
                     --Inicio #AF-10
                     IF v_rec.id_moneda <> v_id_moneda_base THEN
-                        SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, v_tc_final_act, v_rec.fecha_ini_dep); --#ETR-2170
+                        SELECT o_tc_final into v_tc FROM kaf.f_get_tipo_cambio(v_rec.id_moneda, v_id_moneda_base, NULL, v_mes_dep, NULL /*v_tc_final_act*/, v_rec.fecha_ini_dep); --#ETR-2170
                         v_monto_rescate = 1 / v_tc;
                     END IF;
 

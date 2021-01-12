@@ -12,8 +12,9 @@ $body$
  FECHA:         21/08/2020
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #AF-10 KAF       ETR           21/08/2020  RCM         Creación del archivo
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #AF-10     KAF       ETR           21/08/2020  RCM         Creación del archivo
+ #ETR-2170  KAF       ETR           10/01/2021  RCM         Adición de condición para no igualar los posteriores a 10/12/2020 debido a la baja de UFV
 ***************************************************************************/
 DECLARE
 
@@ -22,6 +23,7 @@ DECLARE
     v_resp VARCHAR;
     v_id_moneda_base INTEGER;
     v_id_moneda_ufv INTEGER;
+    v_fecha_act_ufv DATE; --#ETR-2170
 
 BEGIN
 
@@ -41,6 +43,15 @@ BEGIN
     INTO v_id_moneda_ufv
     FROM param.tmoneda
     WHERE codigo = 'UFV';
+
+    --Inicio #ETR-2170
+    --Verificación de bandera para la actualización/igualación
+    IF pxp.f_get_variable_global('kaf_actualizar_baja_ufv') = 'NULL' THEN
+        v_fecha_act_ufv = NULL;
+    ELSE
+        v_fecha_act_ufv = pxp.f_get_variable_global('kaf_actualizar_baja_ufv')::DATE;
+    END IF;
+    --Fin #ETR-2170
 
     --Ajuste de Monto actualizado (1)
     UPDATE kaf.tmovimiento_af_dep AA SET
@@ -67,6 +78,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.monto_actualiz * mdep.tipo_cambio_fin) - mdep.monto_actualiz <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
@@ -95,6 +112,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion * mdep.tipo_cambio_fin) - mdep.depreciacion <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
@@ -123,6 +146,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_acum * mdep.tipo_cambio_fin) - mdep.depreciacion_acum <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
@@ -151,6 +180,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_per * mdep.tipo_cambio_fin) - mdep.depreciacion_per <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
@@ -179,6 +214,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.monto_vigente * mdep.tipo_cambio_fin) - mdep.monto_vigente <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
@@ -207,6 +248,12 @@ BEGIN
         WHERE DATE_TRUNC('month', mdep.fecha) = DATE_TRUNC('month', v_fecha)
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_acum_actualiz * mdep.tipo_cambio_fin) - mdep.depreciacion_acum_actualiz <> 0
+        --Inicio #ETR-2170
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0
+                ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
+            END
+        --Fin #ETR-2170
     ) DD
     WHERE DD.id_movimiento_af_dep = AA.id_movimiento_af_dep;
 
