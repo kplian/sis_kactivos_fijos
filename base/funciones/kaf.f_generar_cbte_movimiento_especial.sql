@@ -12,15 +12,16 @@ $body$
  FECHA:         06/06/2019
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           06/06/2019  RCM         Creación del archivo
- #21    KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
- #36    KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud. Cambio de moneda por defecto, de UFV a USD
- #37    KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
- #41    KAF       ETR           10/12/2019  RCM         Cambio de Relaciones contables ALINGTA, ALINGTD por las definidas en la clasificación de altas y dep. acum.
- #48    KAF       ETR           10/03/2020  RCM         Ajuste a la generación de comprobante caso activos fijos nuevos
- #66    KAF       ETR           08/05/2020  RCM         Ajuste a la generación de comprobante caso almacenes
- #69    KAF       ETR           20/06/2020  RCM         Cambio lógica basada en vaor neto para considerar el valor actualizado
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2         KAF       ETR           06/06/2019  RCM         Creación del archivo
+ #21        KAF       ETR           24/07/2019  RCM         Inclusión de glosa por transacción
+ #36        KAF       ETR           21/10/2019  RCM         Considerar CC de la gestión de la solicitud. Cambio de moneda por defecto, de UFV a USD
+ #37        KAF       ETR           24/10/2019  RCM         Cambio en la lógica de generación comprobante caso salida de almacén
+ #41        KAF       ETR           10/12/2019  RCM         Cambio de Relaciones contables ALINGTA, ALINGTD por las definidas en la clasificación de altas y dep. acum.
+ #48        KAF       ETR           10/03/2020  RCM         Ajuste a la generación de comprobante caso activos fijos nuevos
+ #66        KAF       ETR           08/05/2020  RCM         Ajuste a la generación de comprobante caso almacenes
+ #69        KAF       ETR           20/06/2020  RCM         Cambio lógica basada en valor neto para considerar el valor actualizado
+ #ETR-2798  KAF       ETR           02/02/2021  RCM         Adición de tipos de cambio en el comprobante generado
 ***************************************************************************
 */
 DECLARE
@@ -1809,6 +1810,29 @@ BEGIN
     OR COALESCE(t.depreciacion_acum_ufv, 0) > 0)
     AND COALESCE(t.tipo, '') = 'af_almacen';
     --Fin #66
+
+    --Inicio #ETR-2798
+    UPDATE conta.tint_transaccion SET
+    tipo_cambio = 1,
+    tipo_cambio_2 = CASE
+                        WHEN COALESCE(importe_debe, 0) > 0 THEN
+                            ROUND(importe_debe_mb / importe_debe_mt, 5)
+                        ELSE
+                            ROUND(importe_haber_mb / importe_haber_mt, 5)
+                    END,
+    tipo_cambio_3 = CASE
+                        WHEN COALESCE(importe_debe, 0) > 0 THEN
+                            ROUND(importe_debe_mb / importe_debe_ma, 5)
+                        ELSE
+                            ROUND(importe_haber_mb / importe_haber_ma, 5)
+                    END 
+    WHERE id_int_comprobante = v_id_int_comprobante;
+
+    UPDATE conta.tint_comprobante SET
+    forma_cambio = 'convenido'
+    --cbte_aitb = 'si'
+    WHERE id_int_comprobante = v_id_int_comprobante;
+    --Fin #ETR-2798
 
     -------------------------------------------------
     --Actualizar el ID comprobante en el Movimiento
