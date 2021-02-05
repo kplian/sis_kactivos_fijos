@@ -8,10 +8,9 @@
 
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR                DESCRIPCION
-  #0                10-12-2020 03:43:46    rchumacero             Creacion
-  #
+ #0                10-12-2020 03:43:46    rchumacero             Creacion
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 *****************************************************************************************/
-
 class MODActivoModMasivoDetOriginal extends MODbase{
 
     function __construct(CTParametro $pParam){
@@ -63,6 +62,54 @@ class MODActivoModMasivoDetOriginal extends MODbase{
         $this->captura('desc_grupo', 'TEXT');
         $this->captura('desc_grupo_clasif', 'TEXT');
         $this->captura('desc_centro_costo', 'VARCHAR');
+
+        //Inicio #ETR-2778
+        $this->captura('id_activo_fijo_valor', 'INTEGER');
+		$this->captura('valor_compra', 'NUMERIC');
+		$this->captura('valor_inicial', 'NUMERIC');
+		$this->captura('fecha_ini_dep', 'DATE');
+		$this->captura('vutil_orig', 'INTEGER');
+		$this->captura('vutil', 'INTEGER');
+		$this->captura('fult_dep', 'DATE');
+		$this->captura('fecha_fin', 'DATE');
+		$this->captura('val_resc', 'NUMERIC');
+		$this->captura('vact_ini', 'NUMERIC');
+		$this->captura('dacum_ini', 'NUMERIC');
+		$this->captura('dper_ini', 'NUMERIC');
+		$this->captura('inc', 'NUMERIC');
+		$this->captura('inc_sact', 'NUMERIC');
+		$this->captura('fechaufv_ini', 'DATE');
+		$this->captura('usd_id_activo_fijo_valor', 'INTEGER');
+		$this->captura('usd_valor_compra', 'NUMERIC');
+		$this->captura('usd_valor_inicial', 'NUMERIC');
+		$this->captura('usd_fecha_ini_dep', 'DATE');
+		$this->captura('usd_vutil_orig', 'INTEGER');
+		$this->captura('usd_vutil', 'INTEGER');
+		$this->captura('usd_fult_dep', 'DATE');
+		$this->captura('usd_fecha_fin', 'DATE');
+		$this->captura('usd_val_resc', 'NUMERIC');
+		$this->captura('usd_vact_ini', 'NUMERIC');
+		$this->captura('usd_dacum_ini', 'NUMERIC');
+		$this->captura('usd_dper_ini', 'NUMERIC');
+		$this->captura('usd_inc', 'NUMERIC');
+		$this->captura('usd_inc_sact', 'NUMERIC');
+		$this->captura('usd_fechaufv_ini', 'DATE');
+		$this->captura('ufv_id_activo_fijo_valor', 'INTEGER');
+		$this->captura('ufv_valor_compra', 'NUMERIC');
+		$this->captura('ufv_valor_inicial', 'NUMERIC');
+		$this->captura('ufv_fecha_ini_dep', 'DATE');
+		$this->captura('ufv_vutil_orig', 'INTEGER');
+		$this->captura('ufv_vutil', 'INTEGER');
+		$this->captura('ufv_fult_dep', 'DATE');
+		$this->captura('ufv_fecha_fin', 'DATE');
+		$this->captura('ufv_val_resc', 'NUMERIC');
+		$this->captura('ufv_vact_ini', 'NUMERIC');
+		$this->captura('ufv_dacum_ini', 'NUMERIC');
+		$this->captura('ufv_dper_ini', 'NUMERIC');
+		$this->captura('ufv_inc', 'NUMERIC');
+		$this->captura('ufv_inc_sact', 'NUMERIC');
+		$this->captura('ufv_fechaufv_ini', 'DATE');
+        //Fin #ETR-2778
 
         //Ejecuta la instruccion
         $this->armarConsulta();

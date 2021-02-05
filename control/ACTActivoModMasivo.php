@@ -8,6 +8,7 @@
 *****************************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 *****************************************************************************************/
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 
@@ -92,6 +93,52 @@ class ACTActivoModMasivo extends ACTbase{
                     $this->objParam->addParametro('grupo_ae', $fila['grupo_ae']);
                     $this->objParam->addParametro('clasificador_ae', $fila['clasificador_ae']);
                     $this->objParam->addParametro('centro_costo', $fila['centro_costo']);
+
+                    //Inicio #ETR-2778
+                    $this->objParam->addParametro('bs_valor_compra', $fila['bs_valor_compra']);
+                    $this->objParam->addParametro('bs_valor_inicial', $fila['bs_valor_inicial']);
+                    $this->objParam->addParametro('bs_fecha_ini_dep', $fila['bs_fecha_ini_dep']);
+                    $this->objParam->addParametro('bs_vutil_orig', $fila['bs_vutil_orig']);
+                    $this->objParam->addParametro('bs_vutil', $fila['bs_vutil']);
+                    $this->objParam->addParametro('bs_fult_dep', $fila['bs_fult_dep']);
+                    $this->objParam->addParametro('bs_fecha_fin', $fila['bs_fecha_fin']);
+                    $this->objParam->addParametro('bs_val_resc', $fila['bs_val_resc']);
+                    $this->objParam->addParametro('bs_vact_ini', $fila['bs_vact_ini']);
+                    $this->objParam->addParametro('bs_dacum_ini', $fila['bs_dacum_ini']);
+                    $this->objParam->addParametro('bs_dper_ini', $fila['bs_dper_ini']);
+                    $this->objParam->addParametro('bs_inc', $fila['bs_inc']);
+                    $this->objParam->addParametro('bs_inc_sact', $fila['bs_inc_sact']);
+                    $this->objParam->addParametro('bs_fechaufv_ini', $fila['bs_fechaufv_ini']);
+                    $this->objParam->addParametro('usd_valor_compra', $fila['usd_valor_compra']);
+                    $this->objParam->addParametro('usd_valor_inicial', $fila['usd_valor_inicial']);
+                    $this->objParam->addParametro('usd_fecha_ini_dep', $fila['usd_fecha_ini_dep']);
+                    $this->objParam->addParametro('usd_vutil_orig', $fila['usd_vutil_orig']);
+                    $this->objParam->addParametro('usd_vutil', $fila['usd_vutil']);
+                    $this->objParam->addParametro('usd_fult_dep', $fila['usd_fult_dep']);
+                    $this->objParam->addParametro('usd_fecha_fin', $fila['usd_fecha_fin']);
+                    $this->objParam->addParametro('usd_val_resc', $fila['usd_val_resc']);
+                    $this->objParam->addParametro('usd_vact_ini', $fila['usd_vact_ini']);
+                    $this->objParam->addParametro('usd_dacum_ini', $fila['usd_dacum_ini']);
+                    $this->objParam->addParametro('usd_dper_ini', $fila['usd_dper_ini']);
+                    $this->objParam->addParametro('usd_inc', $fila['usd_inc']);
+                    $this->objParam->addParametro('usd_inc_sact', $fila['usd_inc_sact']);
+                    $this->objParam->addParametro('usd_fecha_ufv_ini', $fila['usd_fecha_ufv_ini']);
+                    $this->objParam->addParametro('ufv_valor_compra', $fila['ufv_valor_compra']);
+                    $this->objParam->addParametro('ufv_valor_inicial', $fila['ufv_valor_inicial']);
+                    $this->objParam->addParametro('ufv_fecha_ini_dep', $fila['ufv_fecha_ini_dep']);
+                    $this->objParam->addParametro('ufv_vutil_orig', $fila['ufv_vutil_orig']);
+                    $this->objParam->addParametro('ufv_vutil', $fila['ufv_vutil']);
+                    $this->objParam->addParametro('ufv_fult_dep', $fila['ufv_fult_dep']);
+                    $this->objParam->addParametro('ufv_fecha_fin', $fila['ufv_fecha_fin']);
+                    $this->objParam->addParametro('ufv_val_resc', $fila['ufv_val_resc']);
+                    $this->objParam->addParametro('ufv_vact_ini', $fila['ufv_vact_ini']);
+                    $this->objParam->addParametro('ufv_dacum_ini', $fila['ufv_dacum_ini']);
+                    $this->objParam->addParametro('ufv_dper_ini', $fila['ufv_dper_ini']);
+                    $this->objParam->addParametro('ufv_inc', $fila['ufv_inc']);
+                    $this->objParam->addParametro('ufv_inc_sact', $fila['ufv_inc_sact']);
+                    $this->objParam->addParametro('ufv_fecha_ufv_ini', $fila['ufv_fecha_ufv_ini']);
+                    //Fin #ETR-2778
+
                     $this->objParam->addParametro('fila', $cont);
 
                     //Guarda el registro nuevo

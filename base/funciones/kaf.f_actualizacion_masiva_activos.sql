@@ -12,6 +12,7 @@ $BODY$
 ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           01/02/2021  RCM         Adición de modificación para los campos de la cabecera de los activo fijo valor
 ****************************************************************************/
 DECLARE
 
@@ -25,13 +26,18 @@ DECLARE
     v_id_activo_fijo           INTEGER;
     v_unidad_medida            TEXT;
     v_local                    TEXT;
-    v_responsable               TEXT;
+    v_responsable              TEXT;
     v_proveedor                TEXT;
     v_grupo_ae                 TEXT;
     v_clasificador_ae          TEXT;
     v_centro_costo             TEXT;
     v_centro_costo_gestion     TEXT;
-
+    --Inicio #ETR-2778
+    v_afv_update               TEXT;
+    v_id_moneda_base           INTEGER;
+    v_id_moneda_usd            INTEGER;
+    v_id_moneda_ufv            INTEGER;
+    --Fin #ETR-2778
 
 BEGIN
 
@@ -155,7 +161,51 @@ BEGIN
                 fun.id_funcionario, pr.id_proveedor, amm.fecha_compra, amm.documento,
                 amm.cbte_asociado, amm.fecha_cbte_asociado,  gru.id_grupo, gru1.id_grupo AS id_grupo_clasif,
                 cc.id_centro_costo, amm.unidad_medida, amm.local, amm.responsable, amm.proveedor,
-                amm.grupo_ae, amm.clasificador_ae, amm.centro_costo
+                amm.grupo_ae, amm.clasificador_ae, amm.centro_costo,
+                --Inicio #ETR-2778
+                amm.bs_valor_compra,
+                amm.bs_valor_inicial,
+                amm.bs_fecha_ini_dep,
+                amm.bs_vutil_orig,
+                amm.bs_vutil,
+                amm.bs_fult_dep,
+                amm.bs_fecha_fin,
+                amm.bs_val_resc,
+                amm.bs_vact_ini,
+                amm.bs_dacum_ini,
+                amm.bs_dper_ini,
+                amm.bs_inc,
+                amm.bs_inc_sact,
+                amm.bs_fechaufv_ini,
+                amm.usd_valor_compra,
+                amm.usd_valor_inicial,
+                amm.usd_fecha_ini_dep,
+                amm.usd_vutil_orig,
+                amm.usd_vutil,
+                amm.usd_fult_dep,
+                amm.usd_fecha_fin,
+                amm.usd_val_resc,
+                amm.usd_vact_ini,
+                amm.usd_dacum_ini,
+                amm.usd_dper_ini,
+                amm.usd_inc,
+                amm.usd_inc_sact,
+                amm.usd_fecha_ufv_ini,
+                amm.ufv_valor_compra,
+                amm.ufv_valor_inicial,
+                amm.ufv_fecha_ini_dep,
+                amm.ufv_vutil_orig,
+                amm.ufv_vutil,
+                amm.ufv_fult_dep,
+                amm.ufv_fecha_fin,
+                amm.ufv_val_resc,
+                amm.ufv_vact_ini,
+                amm.ufv_dacum_ini,
+                amm.ufv_dper_ini,
+                amm.ufv_inc,
+                amm.ufv_inc_sact,
+                amm.ufv_fecha_ufv_ini
+                --Fin #ETR-2778
                 FROM kaf.tactivo_mod_masivo_det amm
                 JOIN kaf.tactivo_mod_masivo am
                 ON am.id_activo_mod_masivo = amm.id_activo_mod_masivo
@@ -183,6 +233,7 @@ BEGIN
                 ORDER BY amm.id_activo_mod_masivo_det LOOP
         --Inicialización de variables
         v_dinamico = '';
+        v_afv_update = '';
 
         --nro_serie VARCHAR(50),
         IF v_rec.nro_serie = '#borrar' THEN
@@ -343,6 +394,14 @@ BEGIN
         IF v_dinamico <> '' THEN
             v_update = v_update || ' UPDATE kaf.tactivo_fijo SET ' || v_dinamico || ' WHERE id_activo_fijo = ' || v_rec.id_activo_fijo || ';';
         END IF;
+
+        --Inicio #ETR-2778
+        v_afv_update = kaf.f_actualizacion_masiva_afv(v_rec);
+
+        IF v_afv_update <> '' THEN
+            v_update = v_update || v_afv_update;
+        END IF;
+        --Fin #ETR-2778
 
     END LOOP;
 

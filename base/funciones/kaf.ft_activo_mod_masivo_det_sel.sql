@@ -12,6 +12,7 @@ $BODY$
 ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 ****************************************************************************/
 DECLARE
 
@@ -65,15 +66,59 @@ BEGIN
                         amd.id_usuario_mod,
                         amd.fecha_mod,
                         usu1.cuenta as usr_reg,
-                        usu2.cuenta as usr_mod
+                        usu2.cuenta as usr_mod,
+                        --Inicio #ETR-2778
+                        amd.bs_valor_compra,
+                        amd.bs_valor_inicial,
+                        amd.bs_fecha_ini_dep,
+                        amd.bs_vutil_orig,
+                        amd.bs_vutil,
+                        amd.bs_fult_dep,
+                        amd.bs_fecha_fin,
+                        amd.bs_val_resc,
+                        amd.bs_vact_ini,
+                        amd.bs_dacum_ini,
+                        amd.bs_dper_ini,
+                        amd.bs_inc,
+                        amd.bs_inc_sact,
+                        amd.bs_fechaufv_ini,
+                        amd.usd_valor_compra,
+                        amd.usd_valor_inicial,
+                        amd.usd_fecha_ini_dep,
+                        amd.usd_vutil_orig,
+                        amd.usd_vutil,
+                        amd.usd_fult_dep,
+                        amd.usd_fecha_fin,
+                        amd.usd_val_resc,
+                        amd.usd_vact_ini,
+                        amd.usd_dacum_ini,
+                        amd.usd_dper_ini,
+                        amd.usd_inc,
+                        amd.usd_inc_sact,
+                        amd.usd_fecha_ufv_ini,
+                        amd.ufv_valor_compra,
+                        amd.ufv_valor_inicial,
+                        amd.ufv_fecha_ini_dep,
+                        amd.ufv_vutil_orig,
+                        amd.ufv_vutil,
+                        amd.ufv_fult_dep,
+                        amd.ufv_fecha_fin,
+                        amd.ufv_val_resc,
+                        amd.ufv_vact_ini,
+                        amd.ufv_dacum_ini,
+                        amd.ufv_dper_ini,
+                        amd.ufv_inc,
+                        amd.ufv_inc_sact,
+                        amd.ufv_fecha_ufv_ini
+                        --Fin #ETR-2778
                         FROM kaf.tactivo_mod_masivo_det amd
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = amd.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = amd.id_usuario_mod
                         WHERE  ';
 
             --Definicion de la respuesta
-            v_consulta:=v_consulta||v_parametros.filtro;
-            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            v_consulta := v_consulta || v_parametros.filtro;
+            v_consulta := v_consulta || ' order by ' || v_parametros.ordenacion || ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
             --Devuelve la respuesta
             RETURN v_consulta;

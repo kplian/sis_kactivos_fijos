@@ -8,6 +8,7 @@
 *****************************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 *****************************************************************************************/
 class MODActivoModMasivoDet extends MODbase{
 
@@ -52,6 +53,51 @@ class MODActivoModMasivoDet extends MODbase{
 		$this->captura('usr_reg','varchar');
         $this->captura('usr_mod','varchar');
 
+        //Inicio #ETR-2778
+        $this->captura('bs_valor_compra', 'NUMERIC');
+		$this->captura('bs_valor_inicial', 'NUMERIC');
+		$this->captura('bs_fecha_ini_dep', 'DATE');
+		$this->captura('bs_vutil_orig', 'INTEGER');
+		$this->captura('bs_vutil', 'INTEGER');
+		$this->captura('bs_fult_dep', 'DATE');
+		$this->captura('bs_fecha_fin', 'DATE');
+		$this->captura('bs_val_resc', 'NUMERIC');
+		$this->captura('bs_vact_ini', 'NUMERIC');
+		$this->captura('bs_dacum_ini', 'NUMERIC');
+		$this->captura('bs_dper_ini', 'NUMERIC');
+		$this->captura('bs_inc', 'NUMERIC');
+		$this->captura('bs_inc_sact', 'NUMERIC');
+		$this->captura('bs_fechaufv_ini', 'DATE');
+		$this->captura('usd_valor_compra', 'NUMERIC');
+		$this->captura('usd_valor_inicial', 'NUMERIC');
+		$this->captura('usd_fecha_ini_dep', 'DATE');
+		$this->captura('usd_vutil_orig', 'INTEGER');
+		$this->captura('usd_vutil', 'INTEGER');
+		$this->captura('usd_fult_dep', 'DATE');
+		$this->captura('usd_fecha_fin', 'DATE');
+		$this->captura('usd_val_resc', 'NUMERIC');
+		$this->captura('usd_vact_ini', 'NUMERIC');
+		$this->captura('usd_dacum_ini', 'NUMERIC');
+		$this->captura('usd_dper_ini', 'NUMERIC');
+		$this->captura('usd_inc', 'NUMERIC');
+		$this->captura('usd_inc_sact', 'NUMERIC');
+		$this->captura('usd_fecha_ufv_ini', 'DATE');
+		$this->captura('ufv_valor_compra', 'NUMERIC');
+		$this->captura('ufv_valor_inicial', 'NUMERIC');
+		$this->captura('ufv_fecha_ini_dep', 'DATE');
+		$this->captura('ufv_vutil_orig', 'INTEGER');
+		$this->captura('ufv_vutil', 'INTEGER');
+		$this->captura('ufv_fult_dep', 'DATE');
+		$this->captura('ufv_fecha_fin', 'DATE');
+		$this->captura('ufv_val_resc', 'NUMERIC');
+		$this->captura('ufv_vact_ini', 'NUMERIC');
+		$this->captura('ufv_dacum_ini', 'NUMERIC');
+		$this->captura('ufv_dper_ini', 'NUMERIC');
+		$this->captura('ufv_inc', 'NUMERIC');
+		$this->captura('ufv_inc_sact', 'NUMERIC');
+		$this->captura('ufv_fecha_ufv_ini', 'DATE');
+        //Fin #ETR-2778
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -86,6 +132,51 @@ class MODActivoModMasivoDet extends MODbase{
 		$this->setParametro('grupo_ae','grupo_ae','varchar');
 		$this->setParametro('clasificador_ae','clasificador_ae','varchar');
 		$this->setParametro('centro_costo','centro_costo','varchar');
+
+		//Inicio #ETR-2778
+		$this->setParametro('bs_valor_compra', 'bs_valor_compra', 'NUMERIC');
+		$this->setParametro('bs_valor_inicial', 'bs_valor_inicial', 'NUMERIC');
+		$this->setParametro('bs_fecha_ini_dep', 'bs_fecha_ini_dep', 'DATE');
+		$this->setParametro('bs_vutil_orig', 'bs_vutil_orig', 'INTEGER');
+		$this->setParametro('bs_vutil', 'bs_vutil', 'INTEGER');
+		$this->setParametro('bs_fult_dep', 'bs_fult_dep', 'DATE');
+		$this->setParametro('bs_fecha_fin', 'bs_fecha_fin', 'DATE');
+		$this->setParametro('bs_val_resc', 'bs_val_resc', 'NUMERIC');
+		$this->setParametro('bs_vact_ini', 'bs_vact_ini', 'NUMERIC');
+		$this->setParametro('bs_dacum_ini', 'bs_dacum_ini', 'NUMERIC');
+		$this->setParametro('bs_dper_ini', 'bs_dper_ini', 'NUMERIC');
+		$this->setParametro('bs_inc', 'bs_inc', 'NUMERIC');
+		$this->setParametro('bs_inc_sact', 'bs_inc_sact', 'NUMERIC');
+		$this->setParametro('bs_fechaufv_ini', 'bs_fechaufv_ini', 'DATE');
+		$this->setParametro('usd_valor_compra', 'usd_valor_compra', 'NUMERIC');
+		$this->setParametro('usd_valor_inicial', 'usd_valor_inicial', 'NUMERIC');
+		$this->setParametro('usd_fecha_ini_dep', 'usd_fecha_ini_dep', 'DATE');
+		$this->setParametro('usd_vutil_orig', 'usd_vutil_orig', 'INTEGER');
+		$this->setParametro('usd_vutil', 'usd_vutil', 'INTEGER');
+		$this->setParametro('usd_fult_dep', 'usd_fult_dep', 'DATE');
+		$this->setParametro('usd_fecha_fin', 'usd_fecha_fin', 'DATE');
+		$this->setParametro('usd_val_resc', 'usd_val_resc', 'NUMERIC');
+		$this->setParametro('usd_vact_ini', 'usd_vact_ini', 'NUMERIC');
+		$this->setParametro('usd_dacum_ini', 'usd_dacum_ini', 'NUMERIC');
+		$this->setParametro('usd_dper_ini', 'usd_dper_ini', 'NUMERIC');
+		$this->setParametro('usd_inc', 'usd_inc', 'NUMERIC');
+		$this->setParametro('usd_inc_sact', 'usd_inc_sact', 'NUMERIC');
+		$this->setParametro('usd_fecha_ufv_ini', 'usd_fecha_ufv_ini', 'DATE');
+		$this->setParametro('ufv_valor_compra', 'ufv_valor_compra', 'NUMERIC');
+		$this->setParametro('ufv_valor_inicial', 'ufv_valor_inicial', 'NUMERIC');
+		$this->setParametro('ufv_fecha_ini_dep', 'ufv_fecha_ini_dep', 'DATE');
+		$this->setParametro('ufv_vutil_orig', 'ufv_vutil_orig', 'INTEGER');
+		$this->setParametro('ufv_vutil', 'ufv_vutil', 'INTEGER');
+		$this->setParametro('ufv_fult_dep', 'ufv_fult_dep', 'DATE');
+		$this->setParametro('ufv_fecha_fin', 'ufv_fecha_fin', 'DATE');
+		$this->setParametro('ufv_val_resc', 'ufv_val_resc', 'NUMERIC');
+		$this->setParametro('ufv_vact_ini', 'ufv_vact_ini', 'NUMERIC');
+		$this->setParametro('ufv_dacum_ini', 'ufv_dacum_ini', 'NUMERIC');
+		$this->setParametro('ufv_dper_ini', 'ufv_dper_ini', 'NUMERIC');
+		$this->setParametro('ufv_inc', 'ufv_inc', 'NUMERIC');
+		$this->setParametro('ufv_inc_sact', 'ufv_inc_sact', 'NUMERIC');
+		$this->setParametro('ufv_fecha_ufv_ini', 'ufv_fecha_ufv_ini', 'DATE');
+		//Fin #ETR-2778
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -123,6 +214,51 @@ class MODActivoModMasivoDet extends MODbase{
 		$this->setParametro('grupo_ae','grupo_ae','varchar');
 		$this->setParametro('clasificador_ae','clasificador_ae','varchar');
 		$this->setParametro('centro_costo','centro_costo','varchar');
+
+		//Inicio #ETR-2778
+		$this->setParametro('bs_valor_compra', 'bs_valor_compra', 'NUMERIC');
+		$this->setParametro('bs_valor_inicial', 'bs_valor_inicial', 'NUMERIC');
+		$this->setParametro('bs_fecha_ini_dep', 'bs_fecha_ini_dep', 'DATE');
+		$this->setParametro('bs_vutil_orig', 'bs_vutil_orig', 'INTEGER');
+		$this->setParametro('bs_vutil', 'bs_vutil', 'INTEGER');
+		$this->setParametro('bs_fult_dep', 'bs_fult_dep', 'DATE');
+		$this->setParametro('bs_fecha_fin', 'bs_fecha_fin', 'DATE');
+		$this->setParametro('bs_val_resc', 'bs_val_resc', 'NUMERIC');
+		$this->setParametro('bs_vact_ini', 'bs_vact_ini', 'NUMERIC');
+		$this->setParametro('bs_dacum_ini', 'bs_dacum_ini', 'NUMERIC');
+		$this->setParametro('bs_dper_ini', 'bs_dper_ini', 'NUMERIC');
+		$this->setParametro('bs_inc', 'bs_inc', 'NUMERIC');
+		$this->setParametro('bs_inc_sact', 'bs_inc_sact', 'NUMERIC');
+		$this->setParametro('bs_fechaufv_ini', 'bs_fechaufv_ini', 'DATE');
+		$this->setParametro('usd_valor_compra', 'usd_valor_compra', 'NUMERIC');
+		$this->setParametro('usd_valor_inicial', 'usd_valor_inicial', 'NUMERIC');
+		$this->setParametro('usd_fecha_ini_dep', 'usd_fecha_ini_dep', 'DATE');
+		$this->setParametro('usd_vutil_orig', 'usd_vutil_orig', 'INTEGER');
+		$this->setParametro('usd_vutil', 'usd_vutil', 'INTEGER');
+		$this->setParametro('usd_fult_dep', 'usd_fult_dep', 'DATE');
+		$this->setParametro('usd_fecha_fin', 'usd_fecha_fin', 'DATE');
+		$this->setParametro('usd_val_resc', 'usd_val_resc', 'NUMERIC');
+		$this->setParametro('usd_vact_ini', 'usd_vact_ini', 'NUMERIC');
+		$this->setParametro('usd_dacum_ini', 'usd_dacum_ini', 'NUMERIC');
+		$this->setParametro('usd_dper_ini', 'usd_dper_ini', 'NUMERIC');
+		$this->setParametro('usd_inc', 'usd_inc', 'NUMERIC');
+		$this->setParametro('usd_inc_sact', 'usd_inc_sact', 'NUMERIC');
+		$this->setParametro('usd_fecha_ufv_ini', 'usd_fecha_ufv_ini', 'DATE');
+		$this->setParametro('ufv_valor_compra', 'ufv_valor_compra', 'NUMERIC');
+		$this->setParametro('ufv_valor_inicial', 'ufv_valor_inicial', 'NUMERIC');
+		$this->setParametro('ufv_fecha_ini_dep', 'ufv_fecha_ini_dep', 'DATE');
+		$this->setParametro('ufv_vutil_orig', 'ufv_vutil_orig', 'INTEGER');
+		$this->setParametro('ufv_vutil', 'ufv_vutil', 'INTEGER');
+		$this->setParametro('ufv_fult_dep', 'ufv_fult_dep', 'DATE');
+		$this->setParametro('ufv_fecha_fin', 'ufv_fecha_fin', 'DATE');
+		$this->setParametro('ufv_val_resc', 'ufv_val_resc', 'NUMERIC');
+		$this->setParametro('ufv_vact_ini', 'ufv_vact_ini', 'NUMERIC');
+		$this->setParametro('ufv_dacum_ini', 'ufv_dacum_ini', 'NUMERIC');
+		$this->setParametro('ufv_dper_ini', 'ufv_dper_ini', 'NUMERIC');
+		$this->setParametro('ufv_inc', 'ufv_inc', 'NUMERIC');
+		$this->setParametro('ufv_inc_sact', 'ufv_inc_sact', 'NUMERIC');
+		$this->setParametro('ufv_fecha_ufv_ini', 'ufv_fecha_ufv_ini', 'DATE');
+		//Fin #ETR-2778
 
         //Ejecuta la instruccion
         $this->armarConsulta();

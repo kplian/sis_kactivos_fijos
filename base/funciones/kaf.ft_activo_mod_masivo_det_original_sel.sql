@@ -12,6 +12,7 @@ $BODY$
 ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 ***************************************************************************/
 DECLARE
 
@@ -73,7 +74,54 @@ BEGIN
                         pro.desc_proveedor,
                         gru.codigo || '' - '' || gru.nombre as desc_grupo,
                         gru1.codigo || '' - '' || gru1.nombre as desc_grupo_clasif,
-                        cc.codigo_tcc as desc_centro_costo
+                        cc.codigo_tcc as desc_centro_costo,
+                        --Inicio #ETR-2778
+                        mador.id_activo_fijo_valor,
+                        mador.valor_compra,
+                        mador.valor_inicial,
+                        mador.fecha_ini_dep,
+                        mador.vutil_orig,
+                        mador.vutil,
+                        mador.fult_dep,
+                        mador.fecha_fin,
+                        mador.val_resc,
+                        mador.vact_ini,
+                        mador.dacum_ini,
+                        mador.dper_ini,
+                        mador.inc,
+                        mador.inc_sact,
+                        mador.fechaufv_ini,
+                        mador.usd_id_activo_fijo_valor,
+                        mador.usd_valor_compra,
+                        mador.usd_valor_inicial,
+                        mador.usd_fecha_ini_dep,
+                        mador.usd_vutil_orig,
+                        mador.usd_vutil,
+                        mador.usd_fult_dep,
+                        mador.usd_fecha_fin,
+                        mador.usd_val_resc,
+                        mador.usd_vact_ini,
+                        mador.usd_dacum_ini,
+                        mador.usd_dper_ini,
+                        mador.usd_inc,
+                        mador.usd_inc_sact,
+                        mador.usd_fechaufv_ini,
+                        mador.ufv_id_activo_fijo_valor,
+                        mador.ufv_valor_compra,
+                        mador.ufv_valor_inicial,
+                        mador.ufv_fecha_ini_dep,
+                        mador.ufv_vutil_orig,
+                        mador.ufv_vutil,
+                        mador.ufv_fult_dep,
+                        mador.ufv_fecha_fin,
+                        mador.ufv_val_resc,
+                        mador.ufv_vact_ini,
+                        mador.ufv_dacum_ini,
+                        mador.ufv_dper_ini,
+                        mador.ufv_inc,
+                        mador.ufv_inc_sact,
+                        mador.ufv_fechaufv_ini
+                        --Fin #ETR-2778
                         FROM kaf.tactivo_mod_masivo_det_original mador
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = mador.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = mador.id_usuario_mod

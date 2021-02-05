@@ -13,6 +13,7 @@ $BODY$
 ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 ****************************************************************************/
 DECLARE
 
@@ -372,6 +373,72 @@ BEGIN
                 END IF;
 
                 --2 Obtención del backup original antes de los cambios
+                --Inicio #ETR-2778
+                WITH tbs AS (
+                    SELECT
+                    id_activo_fijo,
+                    id_activo_fijo_valor,
+                    monto_vigente_orig_100 as valor_compra,
+                    monto_vigente_orig as valor_inicial,
+                    fecha_ini_dep,
+                    vida_util_orig as vutil_orig,
+                    vida_util as vutil,
+                    fecha_ult_dep as fult_dep,
+                    fecha_fin,
+                    monto_rescate as val_resc,
+                    monto_vigente_actualiz_inicial as vact_ini,
+                    depreciacion_acum_inicial as dacum_ini,
+                    depreciacion_per_inicial as dper_ini,
+                    importe_modif as inc,
+                    importe_modif_sin_act as inc_sact,
+                    fecha_tc_ini_dep as fechaufv_ini
+                    FROM kaf.tactivo_fijo_valores
+                    WHERE id_moneda = param.f_get_moneda_base()
+                    AND fecha_fin IS NULL
+                ), tusd AS (
+                    SELECT
+                    id_activo_fijo,
+                    id_activo_fijo_valor,
+                    monto_vigente_orig_100 as valor_compra,
+                    monto_vigente_orig as valor_inicial,
+                    fecha_ini_dep,
+                    vida_util_orig as vutil_orig,
+                    vida_util as vutil,
+                    fecha_ult_dep as fult_dep,
+                    fecha_fin,
+                    monto_rescate as val_resc,
+                    monto_vigente_actualiz_inicial as vact_ini,
+                    depreciacion_acum_inicial as dacum_ini,
+                    depreciacion_per_inicial as dper_ini,
+                    importe_modif as inc,
+                    importe_modif_sin_act as inc_sact,
+                    fecha_tc_ini_dep as fechaufv_ini
+                    FROM kaf.tactivo_fijo_valores
+                    WHERE id_moneda = param.f_get_moneda_triangulacion()
+                    AND fecha_fin IS NULL
+                ), tufv AS (
+                    SELECT
+                    id_activo_fijo,
+                    id_activo_fijo_valor,
+                    monto_vigente_orig_100 as valor_compra,
+                    monto_vigente_orig as valor_inicial,
+                    fecha_ini_dep,
+                    vida_util_orig as vutil_orig,
+                    vida_util as vutil,
+                    fecha_ult_dep as fult_dep,
+                    fecha_fin,
+                    monto_rescate as val_resc,
+                    monto_vigente_actualiz_inicial as vact_ini,
+                    depreciacion_acum_inicial as dacum_ini,
+                    depreciacion_per_inicial as dper_ini,
+                    importe_modif as inc,
+                    importe_modif_sin_act as inc_sact,
+                    fecha_tc_ini_dep as fechaufv_ini
+                    FROM kaf.tactivo_fijo_valores
+                    WHERE id_moneda = param.f_get_moneda_actualizacion()
+                    AND fecha_fin IS NULL
+                )
+                --Fin #ETR-2778
                 INSERT INTO kaf.tactivo_mod_masivo_det_original (
                     id_usuario_reg,
                     fecha_reg,
@@ -395,7 +462,54 @@ BEGIN
                     fecha_cbte_asociado,
                     id_grupo,
                     id_grupo_clasif,
-                    id_centro_costo
+                    id_centro_costo,
+                    --Inicio #ETR-2778
+                    id_activo_fijo_valor,
+                    valor_compra,
+                    valor_inicial,
+                    fecha_ini_dep,
+                    vutil_orig,
+                    vutil,
+                    fult_dep,
+                    fecha_fin,
+                    val_resc,
+                    vact_ini,
+                    dacum_ini,
+                    dper_ini,
+                    inc,
+                    inc_sact,
+                    fechaufv_ini,
+                    usd_id_activo_fijo_valor,
+                    usd_valor_compra,
+                    usd_valor_inicial,
+                    usd_fecha_ini_dep,
+                    usd_vutil_orig,
+                    usd_vutil,
+                    usd_fult_dep,
+                    usd_fecha_fin,
+                    usd_val_resc,
+                    usd_vact_ini,
+                    usd_dacum_ini,
+                    usd_dper_ini,
+                    usd_inc,
+                    usd_inc_sact,
+                    usd_fechaufv_ini,
+                    ufv_id_activo_fijo_valor,
+                    ufv_valor_compra,
+                    ufv_valor_inicial,
+                    ufv_fecha_ini_dep,
+                    ufv_vutil_orig,
+                    ufv_vutil,
+                    ufv_fult_dep,
+                    ufv_fecha_fin,
+                    ufv_val_resc,
+                    ufv_vact_ini,
+                    ufv_dacum_ini,
+                    ufv_dper_ini,
+                    ufv_inc,
+                    ufv_inc_sact,
+                    ufv_fechaufv_ini
+                    --Fin #ETR-2778
                 )
                 SELECT
                 p_id_usuario,
@@ -420,10 +534,63 @@ BEGIN
                 af.fecha_cbte_asociado,
                 af.id_grupo, --grupo_ae
                 af.id_grupo_clasif, --clasificador_ae
-                af.id_centro_costo
+                af.id_centro_costo,
+                --Inicio #ETR-2778
+                tbs.id_activo_fijo_valor,
+                tbs.valor_compra,
+                tbs.valor_inicial,
+                tbs.fecha_ini_dep,
+                tbs.vutil_orig,
+                tbs.vutil,
+                tbs.fult_dep,
+                tbs.fecha_fin,
+                tbs.val_resc,
+                tbs.vact_ini,
+                tbs.dacum_ini,
+                tbs.dper_ini,
+                tbs.inc,
+                tbs.inc_sact,
+                tbs.fechaufv_ini,
+                tusd.id_activo_fijo_valor as usd_id_activo_fijo_valor,
+                tusd.valor_compra as usd_valor_compra,
+                tusd.valor_inicial as usd_valor_inicial,
+                tusd.fecha_ini_dep as usd_fecha_ini_dep,
+                tusd.vutil_orig as usd_vutil_orig,
+                tusd.vutil as usd_vutil,
+                tusd.fult_dep as usd_fult_dep,
+                tusd.fecha_fin as usd_fecha_fin,
+                tusd.val_resc as usd_val_resc,
+                tusd.vact_ini as usd_vact_ini,
+                tusd.dacum_ini as usd_dacum_ini,
+                tusd.dper_ini as usd_dper_ini,
+                tusd.inc as usd_inc,
+                tusd.inc_sact as usd_inc_sact,
+                tusd.fechaufv_ini as usd_fechaufv_ini,
+                tufv.id_activo_fijo_valor as ufv_id_activo_fijo_valor,
+                tufv.valor_compra as ufv_valor_compra,
+                tufv.valor_inicial as ufv_valor_inicial,
+                tufv.fecha_ini_dep as ufv_fecha_ini_dep,
+                tufv.vutil_orig as ufv_vutil_orig,
+                tufv.vutil as ufv_vutil,
+                tufv.fult_dep as ufv_fult_dep,
+                tufv.fecha_fin as ufv_fecha_fin,
+                tufv.val_resc as ufv_val_resc,
+                tufv.vact_ini as ufv_vact_ini,
+                tufv.dacum_ini as ufv_dacum_ini,
+                tufv.dper_ini as ufv_dper_ini,
+                tufv.inc as ufv_inc,
+                tufv.inc_sact as ufv_inc_sact,
+                tufv.fechaufv_ini as ufv_fechaufv_ini 
+                --Fin #ETR-2778
                 FROM kaf.tactivo_mod_masivo_det amm
                 JOIN kaf.tactivo_fijo af
                 ON LOWER(af.codigo) = LOWER(TRIM(amm.codigo))
+                LEFT JOIN tbs
+                ON tbs.id_activo_fijo = af.id_activo_fijo
+                LEFT JOIN tusd
+                ON tusd.id_activo_fijo = af.id_activo_fijo
+                LEFT JOIN tufv
+                ON tufv.id_activo_fijo = af.id_activo_fijo
                 WHERE amm.id_activo_mod_masivo = v_id_activo_mod_masivo;
 
                 --3 Modificación de los datos en la tabla kaf.tactivo_fijo

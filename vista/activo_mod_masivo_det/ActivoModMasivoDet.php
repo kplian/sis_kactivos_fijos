@@ -8,8 +8,8 @@
 *****************************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
+ #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
 *******************************************************************************************/
-
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -323,6 +323,650 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
                 grid:true,
                 form:true
 		},
+        //Inicio #ETR-2778
+        {
+            config:{
+                name: 'bs_valor_compra',
+                fieldLabel: 'Bs.Valor Compra',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_valor_compra', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_valor_inicial',
+                fieldLabel: 'Bs.Valor Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_valor_inicial', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_fecha_ini_dep',
+                fieldLabel: 'Bs.Fecha Ini.Dep.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.bs_fecha_ini_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_vutil_orig',
+                fieldLabel: 'Bs.Vida Útil Orig.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_vutil_orig', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_vutil',
+                fieldLabel: 'Bs.Vida Útil',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_vutil', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_fult_dep',
+                fieldLabel: 'Fecha Ult.Deprec.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.bs_fult_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_fecha_fin',
+                fieldLabel: 'Bs.Fecha Fin',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.bs_fecha_fin', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_val_resc',
+                fieldLabel: 'Bs.Valor Rescate',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_val_resc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_vact_ini',
+                fieldLabel: 'Bs.Valor Actualiz.Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_vact_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_dacum_ini',
+                fieldLabel: 'Bs.Deprec.Anual Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_dacum_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_dper_ini',
+                fieldLabel: 'Bs.Deprec.Per. Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_dper_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_inc',
+                fieldLabel: 'Bs.Incremento',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_inc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_inc_sact',
+                fieldLabel: 'Bs.Incremento Sin Act.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.bs_inc_sact', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'bs_fechaufv_ini',
+                fieldLabel: 'Bs.Fecha UFV Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.bs_fechaufv_ini', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_valor_compra',
+                fieldLabel: 'USD Valor Compra',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_valor_compra', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_valor_inicial',
+                fieldLabel: 'USD Valor Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_valor_inicial', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_fecha_ini_dep',
+                fieldLabel: 'USD Fecha Ini.Dep.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.usd_fecha_ini_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_vutil_orig',
+                fieldLabel: 'USD Vida Útil Orig.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_vutil_orig', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_vutil',
+                fieldLabel: 'USD Vida Útil',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_vutil', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_fult_dep',
+                fieldLabel: 'Fecha Ult.Deprec.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.usd_fult_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_fecha_fin',
+                fieldLabel: 'USD Fecha Fin',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.usd_fecha_fin', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_val_resc',
+                fieldLabel: 'USD Valor Rescate',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_val_resc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_vact_ini',
+                fieldLabel: 'USD Valor Actualiz.Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_vact_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_dacum_ini',
+                fieldLabel: 'USD Deprec.Anual Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_dacum_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_dper_ini',
+                fieldLabel: 'USD Deprec.Per. Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_dper_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_inc',
+                fieldLabel: 'USD Incremento',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_inc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_inc_sact',
+                fieldLabel: 'USD Incremento Sin Act.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.usd_inc_sact', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'usd_fechaufv_ini',
+                fieldLabel: 'USD Fecha UFV Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.usd_fechaufv_ini', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_valor_compra',
+                fieldLabel: 'UFV Valor Compra',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_valor_compra', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_valor_inicial',
+                fieldLabel: 'UFV Valor Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_valor_inicial', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_fecha_ini_dep',
+                fieldLabel: 'UFV Fecha Ini.Dep.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.ufv_fecha_ini_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_vutil_orig',
+                fieldLabel: 'UFV Vida Útil Orig.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_vutil_orig', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_vutil',
+                fieldLabel: 'UFV Vida Útil',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_vutil', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_fult_dep',
+                fieldLabel: 'Fecha Ult.Deprec.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.ufv_fult_dep', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_fecha_fin',
+                fieldLabel: 'UFV Fecha Fin',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.ufv_fecha_fin', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_val_resc',
+                fieldLabel: 'UFV Valor Rescate',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_val_resc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_vact_ini',
+                fieldLabel: 'UFV Valor Actualiz.Inicial',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_vact_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_dacum_ini',
+                fieldLabel: 'UFV Deprec.Anual Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_dacum_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_dper_ini',
+                fieldLabel: 'UFV Deprec.Per. Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_dper_ini', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_inc',
+                fieldLabel: 'UFV Incremento',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_inc', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_inc_sact',
+                fieldLabel: 'UFV Incremento Sin Act.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type: 'NumberField',
+            filters: { pfiltro: 'amd.ufv_inc_sact', type: 'numeric' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        {
+            config:{
+                name: 'ufv_fechaufv_ini',
+                fieldLabel: 'UFV Fecha UFV Ini.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value,p,record){ return value?value.dateFormat('d/m/Y'):'' }
+            },
+            type: 'DateField',
+            filters: { pfiltro: 'amd.ufv_fechaufv_ini', type: 'date' },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        //Fin #ETR-2778
         {
             config:{
                 name: 'usr_reg',
@@ -345,8 +989,8 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                            format: 'd/m/Y',
-                            renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                format: 'd/m/Y',
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
             },
                 type:'DateField',
                 filters:{pfiltro:'amd.fecha_reg',type:'date'},
@@ -421,8 +1065,8 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                            format: 'd/m/Y',
-                            renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                format: 'd/m/Y',
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
             },
                 type:'DateField',
                 filters:{pfiltro:'amd.fecha_mod',type:'date'},
@@ -467,6 +1111,51 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+
+        //Inicio #ETR-2778
+        {name:'bs_valor_compra', type: 'numeric'},
+        {name:'bs_valor_inicial', type: 'numeric'},
+        {name:'bs_fecha_ini_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'bs_vutil_orig', type: 'numeric'},
+        {name:'bs_vutil', type: 'numeric'},
+        {name:'bs_fult_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'bs_fecha_fin', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'bs_val_resc', type: 'numeric'},
+        {name:'bs_vact_ini', type: 'numeric'},
+        {name:'bs_dacum_ini', type: 'numeric'},
+        {name:'bs_dper_ini', type: 'numeric'},
+        {name:'bs_inc', type: 'numeric'},
+        {name:'bs_inc_sact', type: 'numeric'},
+        {name:'bs_fechaufv_ini', type: 'date'},
+        {name:'usd_valor_compra', type: 'numeric'},
+        {name:'usd_valor_inicial', type: 'numeric'},
+        {name:'usd_fecha_ini_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'usd_vutil_orig', type: 'numeric'},
+        {name:'usd_vutil', type: 'numeric'},
+        {name:'usd_fult_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'usd_fecha_fin', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'usd_val_resc', type: 'numeric'},
+        {name:'usd_vact_ini', type: 'numeric'},
+        {name:'usd_dacum_ini', type: 'numeric'},
+        {name:'usd_dper_ini', type: 'numeric'},
+        {name:'usd_inc', type: 'numeric'},
+        {name:'usd_inc_sact', type: 'numeric'},
+        {name:'usd_fecha_ufv_ini', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'ufv_valor_compra', type: 'numeric'},
+        {name:'ufv_valor_inicial', type: 'numeric'},
+        {name:'ufv_fecha_ini_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'ufv_vutil_orig', type: 'numeric'},
+        {name:'ufv_vutil', type: 'numeric'},
+        {name:'ufv_fult_dep', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'ufv_fecha_fin', type: 'date', dateFormat: 'Y-m-d'},
+        {name:'ufv_val_resc', type: 'numeric'},
+        {name:'ufv_vact_ini', type: 'numeric'},
+        {name:'ufv_dacum_ini', type: 'numeric'},
+        {name:'ufv_dper_ini', type: 'numeric'},
+        {name:'ufv_inc', type: 'numeric'},
+        {name:'ufv_inc_sact', type: 'numeric'},
+        {name:'ufv_fecha_ufv_ini', type: 'date', dateFormat: 'Y-m-d'},
+        //Fin #ETR-2778
 
     ],
     sortInfo:{
