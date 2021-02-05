@@ -812,3 +812,48 @@ INSERT INTO pxp.variable_global (
 	E'kaf_actualizar_baja_ufv', E'10-12-2020', E'Considerando el caso de baja en la UFV, en esta variable se coloca fecha exacta, donde en el mes que se defina actualizará loas AF que iniciaron su depreciación antes de la fecha específica; en meses distintos directamente no actualizará en ningún caso'
 );
 /***********************************F-DAT-RCM-KAF-ETR-2170-31/12/2020****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-2778-05/02/2021****************************************/
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_18','AF-DATAUPD','si','',NULL,'19','bs_valor_compra','bs_valor_compra','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_19','AF-DATAUPD','si','',NULL,'20','bs_valor_inicial','bs_valor_inicial','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_22','COD_22','si','',NULL,'23','bs_vutil','bs_vutil','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_25','AF-DATAUPD','si','',NULL,'26','bs_val_resc','bs_val_resc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_26','AF-DATAUPD','si','',NULL,'27','bs_vact_ini','bs_vact_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_21','COD_21','si','',NULL,'22','bs_vutil_orig','bs_vutil_orig','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_23','COD_23','si','dd-mm-yyyy',NULL,'24','bs_fult_dep','bs_fult_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_24','COD_24','si','dd-mm-yyyy',NULL,'25','bs_fecha_fin','bs_fecha_fin','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_27','AF-DATAUPD','si','',NULL,'28','bs_dacum_ini','bs_dacum_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_28','AF-DATAUPD','si','',NULL,'29','bs_dper_ini','bs_dper_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_29','AF-DATAUPD','si','',NULL,'30','bs_inc','bs_inc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_30','AF-DATAUPD','si','',NULL,'31','bs_inc_sact','bs_inc_sact','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_20','COD_20','si','dd-mm-yyyy',NULL,'21','bs_fecha_ini_dep','bs_fecha_ini_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_31','COD_31','si','dd-mm-yyyy',NULL,'32','bs_fechaufv_ini','bs_fechaufv_ini','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_32','AF-DATAUPD','si','',NULL,'33','usd_valor_compra','usd_valor_compra','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_33','AF-DATAUPD','si','',NULL,'34','usd_valor_inicial','usd_valor_inicial','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_34','AF-DATAUPD','si','dd-mm-yyyy',NULL,'35','usd_fecha_ini_dep','usd_fecha_ini_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_35','AF-DATAUPD','si','',NULL,'36','usd_vutil_orig','usd_vutil_orig','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_36','AF-DATAUPD','si','',NULL,'37','usd_vutil','usd_vutil','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_37','AF-DATAUPD','si','dd-mm-yyyy',NULL,'38','usd_fult_dep','usd_fult_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_38','AF-DATAUPD','si','dd-mm-yyyy',NULL,'39','usd_fecha_fin','usd_fecha_fin','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_39','AF-DATAUPD','si','',NULL,'40','usd_val_resc','usd_val_resc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_40','AF-DATAUPD','si','',NULL,'41','usd_vact_ini','usd_vact_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_41','AF-DATAUPD','si','',NULL,'42','usd_dacum_ini','usd_dacum_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_42','AF-DATAUPD','si','',NULL,'43','usd_dper_ini','usd_dper_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_43','AF-DATAUPD','si','',NULL,'44','usd_inc','usd_inc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_44','AF-DATAUPD','si','',NULL,'45','usd_inc_sact','usd_inc_sact','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_45','AF-DATAUPD','si','dd-mm-yyyy',NULL,'46','usd_fecha_ufv_ini','usd_fecha_ufv_ini','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_46','AF-DATAUPD','si','',NULL,'47','ufv_valor_compra','ufv_valor_compra','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_47','AF-DATAUPD','si','',NULL,'48','ufv_valor_inicial','ufv_valor_inicial','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_48','AF-DATAUPD','si','dd-mm-yyyy',NULL,'49','ufv_fecha_ini_dep','ufv_fecha_ini_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_49','AF-DATAUPD','si','',NULL,'50','ufv_vutil_orig','ufv_vutil_orig','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_50','AF-DATAUPD','si','',NULL,'51','ufv_vutil','ufv_vutil','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_51','AF-DATAUPD','si','dd-mm-yyyy',NULL,'52','ufv_fult_dep','ufv_fult_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_52','AF-DATAUPD','si','dd-mm-yyyy',NULL,'53','ufv_fecha_fin','ufv_fecha_fin','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_53','AF-DATAUPD','si','',NULL,'54','ufv_val_resc','ufv_val_resc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_54','AF-DATAUPD','si','',NULL,'55','ufv_vact_ini','ufv_vact_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_55','AF-DATAUPD','si','',NULL,'56','ufv_dacum_ini','ufv_dacum_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_56','AF-DATAUPD','si','',NULL,'57','ufv_dper_ini','ufv_dper_ini','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_57','AF-DATAUPD','si','',NULL,'58','ufv_inc','ufv_inc','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_58','AF-DATAUPD','si','',NULL,'59','ufv_inc_sact','ufv_inc_sact','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_59','AF-DATAUPD','si','dd-mm-yyyy',NULL,'60','ufv_fecha_ufv_ini','ufv_fecha_ufv_ini','date','','activo');
+/***********************************F-DAT-RCM-KAF-ETR-2778-05/02/2021****************************************/
