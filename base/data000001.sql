@@ -814,20 +814,20 @@ INSERT INTO pxp.variable_global (
 /***********************************F-DAT-RCM-KAF-ETR-2170-31/12/2020****************************************/
 
 /***********************************I-DAT-RCM-KAF-ETR-2778-05/02/2021****************************************/
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_18','AF-DATAUPD','si','',NULL,'19','bs_valor_compra','bs_valor_compra','numeric',',','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_18','AF-DATAUPD','si','',NULL,'19','bs_valor_compra','bs_valor_compra', 'numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_19','AF-DATAUPD','si','',NULL,'20','bs_valor_inicial','bs_valor_inicial','numeric',',','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_22','COD_22','si','',NULL,'23','bs_vutil','bs_vutil','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_20','AF-DATAUPD','si','dd-mm-yyyy',NULL,'21','bs_fecha_ini_dep','bs_fecha_ini_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_21','AF-DATAUPD','si','',NULL,'22','bs_vutil_orig','bs_vutil_orig','entero','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_22','AF-DATAUPD','si','',NULL,'23','bs_vutil','bs_vutil','entero', '' ,'activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_23','AF-DATAUPD','si','dd-mm-yyyy',NULL,'24','bs_fult_dep','bs_fult_dep','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_24','AF-DATAUPD','si','dd-mm-yyyy',NULL,'25','bs_fecha_fin','bs_fecha_fin','date','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_25','AF-DATAUPD','si','',NULL,'26','bs_val_resc','bs_val_resc','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_26','AF-DATAUPD','si','',NULL,'27','bs_vact_ini','bs_vact_ini','numeric',',','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_21','COD_21','si','',NULL,'22','bs_vutil_orig','bs_vutil_orig','entero','','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_23','COD_23','si','dd-mm-yyyy',NULL,'24','bs_fult_dep','bs_fult_dep','date','','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_24','COD_24','si','dd-mm-yyyy',NULL,'25','bs_fecha_fin','bs_fecha_fin','date','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_27','AF-DATAUPD','si','',NULL,'28','bs_dacum_ini','bs_dacum_ini','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_28','AF-DATAUPD','si','',NULL,'29','bs_dper_ini','bs_dper_ini','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_29','AF-DATAUPD','si','',NULL,'30','bs_inc','bs_inc','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_30','AF-DATAUPD','si','',NULL,'31','bs_inc_sact','bs_inc_sact','numeric',',','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_20','COD_20','si','dd-mm-yyyy',NULL,'21','bs_fecha_ini_dep','bs_fecha_ini_dep','date','','activo');
-select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_31','COD_31','si','dd-mm-yyyy',NULL,'32','bs_fechaufv_ini','bs_fechaufv_ini','date','','activo');
+select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_31','AF-DATAUPD','si','dd-mm-yyyy',NULL,'32','bs_fechaufv_ini','bs_fechaufv_ini','date','','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_32','AF-DATAUPD','si','',NULL,'33','usd_valor_compra','usd_valor_compra','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_33','AF-DATAUPD','si','',NULL,'34','usd_valor_inicial','usd_valor_inicial','numeric',',','activo');
 select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_34','AF-DATAUPD','si','dd-mm-yyyy',NULL,'35','usd_fecha_ini_dep','usd_fecha_ini_dep','date','','activo');
