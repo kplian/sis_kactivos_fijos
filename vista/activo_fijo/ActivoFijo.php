@@ -7,10 +7,11 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
 /***************************************************************************
-#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
- #8     KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
- #16    KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
- #18    KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
+#ISSUE      SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #8         KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
+ #16        KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
+ #18        KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
+ #ETR-2941  KAF     ETR         11/02/2021  RCM     Al exportar los datos no esta saliendo la descripcion de la ubicacion sino el ID
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -1256,7 +1257,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             maxLength: 100,
             renderer: function(value, p, record) {
                 return String.format('{0}', record.data['desc_ubicacion']);
-            }
+            },
+            gdisplayField: 'desc_ubicacion' //#ETR-2941
         },
         type: 'TextField',
         filters: {
