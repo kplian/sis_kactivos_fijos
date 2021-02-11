@@ -23,6 +23,7 @@ Descripción: Se modifica la función por la generación de 3 comprobantes para 
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #5     KAF       ETR           11/02/2019  RCM         Se agrega código para setear fecha de última depreciación cuando pasa a estado finalizado
+ #AF-39 KAF       ETR           08/02/2021  RCM         Cambio en verificacion de encendido de bandera para validacion, considerando que cuando no hay actualizacion soo genera el 3er cbte.
 *****************************************************************************/
 
 DECLARE
@@ -107,9 +108,14 @@ BEGIN
     where id_int_comprobante = v_registros.id_int_comprobante_4;
 
     if v_registros.movimiento = 'deprec' then
-        if coalesce(v_estado_1,'')='validado' and coalesce(v_estado_2,'')='validado' and coalesce(v_estado_3,'')='validado' and coalesce(v_estado_4,'')='validado' then
+        --Inicio AF-39
+        if (coalesce(v_estado_1,'') = 'validado' or v_registros.id_int_comprobante is null)
+            and (coalesce(v_estado_2,'') = 'validado' or v_registros.id_int_comprobante_aitb is null)
+            and coalesce(v_estado_3,'') = 'validado'
+            and (coalesce(v_estado_4,'') = 'validado' or v_registros.id_int_comprobante is null) then
             v_sw_fin = true;
         end if;
+        --Fin AF-39
     elsif v_registros.movimiento = 'actua' then
         if coalesce(v_estado_1,'')='validado' then
             v_sw_fin = true;
