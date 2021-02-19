@@ -12,6 +12,7 @@
  #16        KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
  #18        KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
  #ETR-2941  KAF     ETR         11/02/2021  RCM     Al exportar los datos no esta saliendo la descripcion de la ubicacion sino el ID
+ #AF-40     KAF     ETR         19/02/2021  RCM     Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -1012,7 +1013,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         form: true
     }, {
         config: {
-            name: 'monto_vigente_real_af',
+            name: 'dep_valor_neto', //#AF-40
             fieldLabel: 'Monto Vigente',
             allowBlank: true,
             anchor: '80%',
@@ -1938,7 +1939,12 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'id_ubicacion',type:'numeric'},
              {name:'desc_ubicacion',type:'string'},
              {name:'id_grupo_clasif',type:'numeric'},
-             {name:'desc_grupo_clasif',type:'string'}
+             {name:'desc_grupo_clasif',type:'string'},
+             //Inicio #AF-40
+             {name:'dep_monto_actualiz',type:'numeric'},
+             {name:'dep_depreciacion_acum',type:'numeric'},
+             {name:'dep_valor_neto',type:'numeric'}
+             //Fin #AF-40
              ],
     arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'],
     sortInfo: {

@@ -7,11 +7,11 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
+ ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #2     	KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
+ #AF-40     KAF       ETR           19/02/2021  RCM         Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
 ***************************************************************************
 */
-
 class MODActivoFijo extends MODbase{
 
 	function __construct(CTParametro $pParam){
@@ -116,6 +116,11 @@ class MODActivoFijo extends MODbase{
 		$this->captura('id_grupo_clasif','int4');
 		$this->captura('desc_grupo_clasif','varchar');
 		//$this->captura('cuenta_activo','text');
+		//Inicio #AF-40
+		$this->captura('dep_monto_actualiz','numeric');
+		$this->captura('dep_depreciacion_acum','numeric');
+		$this->captura('dep_valor_neto','numeric');
+		//Fin #AF-40
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

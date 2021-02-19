@@ -17,6 +17,7 @@ $body$
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2         KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos (SKA_ULTDAT_SEL)
  #ETR-2116  KAF       ETR           28/12/2020  RCM         Adición de criterio de ordenación listado varios QR
+ #AF-40     KAF       ETR           19/02/2021  RCM         Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
  ***************************************************************************/
 
 DECLARE
@@ -44,7 +45,14 @@ BEGIN
 
         begin
             --Sentencia de la consulta
-            v_consulta:='select
+            v_consulta:='with tactual as (
+                                select afv.id_activo_fijo, max(mdep.fecha) as fecha
+                                from kaf.tmovimiento_af_dep mdep
+                                join kaf.tactivo_fijo_valores afv
+                                on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+                                group by afv.id_activo_fijo
+                            )
+                            select
                             afij.id_activo_fijo,
                             afij.id_persona,
                             afij.cantidad_revaloriz,
@@ -132,8 +140,8 @@ BEGIN
                             afij.id_ubicacion,
                             ubic.codigo as desc_ubicacion,
                             afij.id_grupo_clasif,
-                            gru1.nombre as desc_grupo_clasif/*,
-                            (select c.nro_cuenta||''-''||c.nombre_cuenta
+                            gru1.nombre as desc_grupo_clasif,
+                            /*(select c.nro_cuenta||''-''||c.nombre_cuenta
                              from conta.tcuenta c
                              where c.id_cuenta in (select id_cuenta
                                                     from conta.trelacion_contable rc
@@ -145,6 +153,9 @@ BEGIN
                                                     and rc.id_tabla =
                                                 )
                             ) as cuenta_activo*/
+                        --Inicio #AF-40
+                        ROUND(mdep.monto_actualiz, 2) as dep_monto_actualiz, ROUND(mdep.depreciacion_acum, 2) as dep_depreciacion_acum, ROUND(mdep.monto_vigente, 2) as dep_valor_neto
+                        --Fin #AF-40
                         from kaf.tactivo_fijo afij
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
                         left join param.tcatalogo cat1 on cat1.id_catalogo = afij.id_cat_estado_fun
@@ -181,6 +192,13 @@ BEGIN
                         left join kaf.tubicacion ubic
                         on ubic.id_ubicacion = afij.id_ubicacion
                         left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
+                        --Inicio #AF-40
+                        left join tactual ac on ac.id_activo_fijo = afij.id_activo_fijo 
+                        left join kaf.tactivo_fijo_valores afvv on afvv.id_activo_fijo = ac.id_activo_fijo
+                            and afvv.id_moneda = 1
+                        left join kaf.tmovimiento_af_dep mdep on mdep.id_activo_fijo_valor = afvv.id_activo_fijo_valor 
+                            and mdep.fecha = ac.fecha
+                        --Fin #AF-40
                         where  ';
 
             --Verifica si la consulta es por usuario
