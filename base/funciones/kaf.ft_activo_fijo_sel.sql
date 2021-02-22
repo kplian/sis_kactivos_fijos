@@ -46,11 +46,12 @@ BEGIN
         begin
             --Sentencia de la consulta
             v_consulta:='with tactual as (
-                                select afv.id_activo_fijo, max(mdep.fecha) as fecha
+                                select afv.id_activo_fijo, afv.id_moneda, max(mdep.id_activo_fijo_valor) as id_activo_fijo_valor, max(mdep.fecha) as fecha
                                 from kaf.tmovimiento_af_dep mdep
                                 join kaf.tactivo_fijo_valores afv
                                 on afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
-                                group by afv.id_activo_fijo
+                                where mdep.id_moneda = 1
+                                group by afv.id_activo_fijo, afv.id_moneda
                             )
                             select
                             afij.id_activo_fijo,
@@ -154,7 +155,8 @@ BEGIN
                                                 )
                             ) as cuenta_activo*/
                         --Inicio #AF-40
-                        ROUND(mdep.monto_actualiz, 2) as dep_monto_actualiz, ROUND(mdep.depreciacion_acum, 2) as dep_depreciacion_acum, ROUND(mdep.monto_vigente, 2) as dep_valor_neto
+                        ROUND(mdep.monto_actualiz, 2) as dep_monto_actualiz, ROUND(mdep.depreciacion_acum, 2) as dep_depreciacion_acum, 
+                        COALESCE(ROUND(mdep.monto_actualiz, 2), 0) - COALESCE(ROUND(mdep.depreciacion_acum, 2), 0) as dep_valor_neto
                         --Fin #AF-40
                         from kaf.tactivo_fijo afij
                         inner join segu.tusuario usu1 on usu1.id_usuario = afij.id_usuario_reg
@@ -194,8 +196,7 @@ BEGIN
                         left join kaf.tgrupo gru1 on gru1.id_grupo = afij.id_grupo_clasif
                         --Inicio #AF-40
                         left join tactual ac on ac.id_activo_fijo = afij.id_activo_fijo 
-                        left join kaf.tactivo_fijo_valores afvv on afvv.id_activo_fijo = ac.id_activo_fijo
-                            and afvv.id_moneda = 1
+                        left join kaf.tactivo_fijo_valores afvv on afvv.id_activo_fijo_valor = ac.id_activo_fijo_valor
                         left join kaf.tmovimiento_af_dep mdep on mdep.id_activo_fijo_valor = afvv.id_activo_fijo_valor 
                             and mdep.fecha = ac.fecha
                         --Fin #AF-40
