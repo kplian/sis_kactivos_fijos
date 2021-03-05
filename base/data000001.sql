@@ -859,102 +859,102 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_59','AF-DA
 /***********************************F-DAT-RCM-KAF-ETR-2778-05/02/2021****************************************/
 
 /***********************************I-DAT-RCM-KAF-AF-42-03/03/2021****************************************/
-/*DO
-$BODY$
-DECLARE
-
-	va_id_tipo_estado           integer[];
-    va_codigo_estado            varchar[];
-    va_disparador               varchar[];
-    va_regla                    varchar[];
-    va_prioridad                integer[];
-    p_id_int_comprobante		integer;
-    v_registros					record;
-    v_id_estado_actual			integer;
-    p_id_usuario 				integer;
-   
-BEGIN
-	
-	p_id_int_comprobante = 108141;
-	p_id_usuario = 505;
-	
-	select
-    mov.id_movimiento,
-    mov.id_estado_wf,
-    mov.id_proceso_wf,
-    mov.estado,
-    mov.fecha_mov,
-    ew.id_funcionario,
-    ew.id_depto,
-    mov.id_int_comprobante,
-    mov.id_int_comprobante_aitb,
-    cat.codigo as movimiento,
-    mov.id_int_comprobante_3,
-    mov.id_int_comprobante_4
-    into
-    v_registros
-    from  kaf.tmovimiento mov
-    inner join wf.testado_wf ew
-    on ew.id_estado_wf = mov.id_estado_wf
-    inner join param.tcatalogo cat
-    on cat.id_catalogo = mov.id_cat_movimiento
-    where mov.id_int_comprobante_3 = p_id_int_comprobante;
-	
-	
-	select
-        *
-        into
-        va_id_tipo_estado,
-        va_codigo_estado,
-        va_disparador,
-        va_regla,
-        va_prioridad
-        from wf.f_obtener_estado_wf(v_registros.id_proceso_wf, v_registros.id_estado_wf,null,'siguiente');
-
-        if va_codigo_estado[2] is not null then
-          raise exception 'El proceso de WF esta mal parametrizado, sólo admite un estado siguiente para el estado: %', v_registros.estado;
-        end if;
-
-        if va_codigo_estado[1] is null then
-          raise exception 'El proceso de WF esta mal parametrizado, no se encuentra el estado siguiente, para el estado: %', v_registros.estado;
-        end if;
-
-        --Estado siguiente
-        v_id_estado_actual = wf.f_registra_estado_wf(va_id_tipo_estado[1],
-                                                    v_registros.id_funcionario,
-                                                    v_registros.id_estado_wf,
-                                                    v_registros.id_proceso_wf,
-                                                    p_id_usuario,
-                                                    null, -- id_usuario_ai
-                                                    null, -- usuario_ai
-                                                    v_registros.id_depto,
-                                                    'Comprobantes de depreciación validados');
-
-        --Actualiza estado del proceso
-        update kaf.tmovimiento mov  set
-        id_estado_wf =  v_id_estado_actual,
-        estado = va_codigo_estado[1],
-        id_usuario_mod = p_id_usuario,
-        fecha_mod = now()
-        where mov.id_movimiento = v_registros.id_movimiento;
-
-        --#5 Inicio: Si el estado es finalizado, coloca la fecha de ultima depreciación a los AFV
-        if va_codigo_estado[1] = 'finalizado' then
-
-            --Actualiza la última fecha de depreciación
-            update kaf.tactivo_fijo_valores set
-            fecha_ult_dep = mov.fecha_hasta
-            from kaf.tmovimiento_af maf
-            inner join kaf.tmovimiento_af_dep mdep
-            on mdep.id_movimiento_af = maf.id_movimiento_af
-            inner join kaf.tmovimiento mov
-            on mov.id_movimiento = maf.id_movimiento
-            where maf.id_movimiento = v_registros.id_movimiento
-            and kaf.tactivo_fijo_valores.id_activo_fijo_valor = mdep.id_activo_fijo_valor;
-
-        end if;
-	RAISE NOTICE 'Depreciacion finalizada correctamente: %', va_codigo_estado[1];
-	
-END;
-$BODY$ language plpgsql*/
+-- DO
+-- $BODY$
+-- DECLARE
+--
+-- 	va_id_tipo_estado           integer[];
+--     va_codigo_estado            varchar[];
+--     va_disparador               varchar[];
+--     va_regla                    varchar[];
+--     va_prioridad                integer[];
+--     p_id_int_comprobante		integer;
+--     v_registros					record;
+--     v_id_estado_actual			integer;
+--     p_id_usuario 				integer;
+--
+-- BEGIN
+--
+-- 	p_id_int_comprobante = 108141;
+-- 	p_id_usuario = 505;
+--
+-- 	select
+--     mov.id_movimiento,
+--     mov.id_estado_wf,
+--     mov.id_proceso_wf,
+--     mov.estado,
+--     mov.fecha_mov,
+--     ew.id_funcionario,
+--     ew.id_depto,
+--     mov.id_int_comprobante,
+--     mov.id_int_comprobante_aitb,
+--     cat.codigo as movimiento,
+--     mov.id_int_comprobante_3,
+--     mov.id_int_comprobante_4
+--     into
+--     v_registros
+--     from  kaf.tmovimiento mov
+--     inner join wf.testado_wf ew
+--     on ew.id_estado_wf = mov.id_estado_wf
+--     inner join param.tcatalogo cat
+--     on cat.id_catalogo = mov.id_cat_movimiento
+--     where mov.id_int_comprobante_3 = p_id_int_comprobante;
+--
+--
+-- 	select
+--         *
+--         into
+--         va_id_tipo_estado,
+--         va_codigo_estado,
+--         va_disparador,
+--         va_regla,
+--         va_prioridad
+--         from wf.f_obtener_estado_wf(v_registros.id_proceso_wf, v_registros.id_estado_wf,null,'siguiente');
+--
+--         if va_codigo_estado[2] is not null then
+--           raise exception 'El proceso de WF esta mal parametrizado, sólo admite un estado siguiente para el estado: %', v_registros.estado;
+--         end if;
+--
+--         if va_codigo_estado[1] is null then
+--           raise exception 'El proceso de WF esta mal parametrizado, no se encuentra el estado siguiente, para el estado: %', v_registros.estado;
+--         end if;
+--
+--         --Estado siguiente
+--         v_id_estado_actual = wf.f_registra_estado_wf(va_id_tipo_estado[1],
+--                                                     v_registros.id_funcionario,
+--                                                     v_registros.id_estado_wf,
+--                                                     v_registros.id_proceso_wf,
+--                                                     p_id_usuario,
+--                                                     null, -- id_usuario_ai
+--                                                     null, -- usuario_ai
+--                                                     v_registros.id_depto,
+--                                                     'Comprobantes de depreciación validados');
+--
+--         --Actualiza estado del proceso
+--         update kaf.tmovimiento mov  set
+--         id_estado_wf =  v_id_estado_actual,
+--         estado = va_codigo_estado[1],
+--         id_usuario_mod = p_id_usuario,
+--         fecha_mod = now()
+--         where mov.id_movimiento = v_registros.id_movimiento;
+--
+--         --#5 Inicio: Si el estado es finalizado, coloca la fecha de ultima depreciación a los AFV
+--         if va_codigo_estado[1] = 'finalizado' then
+--
+--             --Actualiza la última fecha de depreciación
+--             update kaf.tactivo_fijo_valores set
+--             fecha_ult_dep = mov.fecha_hasta
+--             from kaf.tmovimiento_af maf
+--             inner join kaf.tmovimiento_af_dep mdep
+--             on mdep.id_movimiento_af = maf.id_movimiento_af
+--             inner join kaf.tmovimiento mov
+--             on mov.id_movimiento = maf.id_movimiento
+--             where maf.id_movimiento = v_registros.id_movimiento
+--             and kaf.tactivo_fijo_valores.id_activo_fijo_valor = mdep.id_activo_fijo_valor;
+--
+--         end if;
+-- 	RAISE NOTICE 'Depreciacion finalizada correctamente: %', va_codigo_estado[1];
+-- 	
+-- END;
+-- $BODY$ language plpgsql
 /***********************************F-DAT-RCM-KAF-AF-42-03/03/2021****************************************/
