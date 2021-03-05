@@ -17,6 +17,7 @@ $body$
  #AF-10     KAF       ETR           07/08/2020  RCM         Creación
  #ETR-2045  KAF       ETR           06/12/2020  RCM         Traspasos de AF y DAcum., en caso de disgregaciones a antiguos existentes cambiar la fórmula de despliegue para que salga sólo lo disgregado
  #AF-38     KAF       ETR           12/01/2020  RCM         En el procesamiento del reporte de depreciación, para el caso de adiciones desde cierre de proyecto, cambiar el cálculo aritmético para obtener la adición sin actualización para utilizar directamente el nuevo campo en la tabla. Además Cambio criterio para caso Altas de tipo: AF
+ #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
 ***************************************************************************/
 DECLARE
 
