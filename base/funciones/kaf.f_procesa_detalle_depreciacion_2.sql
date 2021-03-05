@@ -378,7 +378,18 @@ BEGIN
                     ON py.id_proyecto = pa.id_proyecto
                     INNER JOIN conta.tint_comprobante cb
                     ON cb.id_int_comprobante = py.id_int_comprobante_1
+                ),
+                --Inicio #AF-43
+                tmov_alta AS (
+                    SELECT
+                    maf.id_activo_fijo, MIN(mov.fecha_mov) AS fecha
+                    FROM kaf.tmovimiento_af maf
+                    JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+                    JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento
+                        AND cat.codigo = ''alta''
+                    GROUP BY maf.id_activo_fijo
                 )
+                --Fin #AF-43
                 SELECT DISTINCT
                 af.codigo, af.codigo_ant as codigo_sap, af.denominacion, af.fecha_ini_dep, af.cantidad_af, --#58 cambio de afv.fecha_ini_dep por af.fecha_ini_dep
                 umed.descripcion as unidad_medida, tcc.codigo as cc, af.nro_serie, ub.codigo as lugar,
@@ -408,7 +419,7 @@ BEGIN
                         0
                     ELSE
                         CASE
-                            WHEN DATE_TRUNC(''month'', pd.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN --#AF-38
+                            WHEN DATE_TRUNC(''month'', ma.fecha) = DATE_TRUNC(''month'', ''' || v_fecha_fin || '''::DATE) THEN --#AF-43
                                 COALESCE(age.monto_actualiz, afv.monto_vigente_orig)
                             ELSE
                                 0
@@ -573,58 +584,59 @@ BEGIN
                 mdep.depreciacion_per,
                 mdep.monto_actualiz - COALESCE(mdep.depreciacion_acum, 0) AS monto_vigente, --mdep.monto_vigente, #70
 
-
-                ROUND(COALESCE(aia.aitb_af_ene, 0), 2) AS aitb_af_ene,
-                ROUND(COALESCE(aia.aitb_af_feb, 0), 2) AS aitb_af_feb,
-                ROUND(COALESCE(aia.aitb_af_mar, 0), 2) AS aitb_af_mar,
-                ROUND(COALESCE(aia.aitb_af_abr, 0), 2) AS aitb_af_abr,
-                ROUND(COALESCE(aia.aitb_af_may, 0), 2) AS aitb_af_may,
-                ROUND(COALESCE(aia.aitb_af_jun, 0), 2) AS aitb_af_jun,
-                ROUND(COALESCE(aia.aitb_af_jul, 0), 2) AS aitb_af_jul,
-                ROUND(COALESCE(aia.aitb_af_ago, 0), 2) AS aitb_af_ago,
-                ROUND(COALESCE(aia.aitb_af_sep, 0), 2) AS aitb_af_sep,
-                ROUND(COALESCE(aia.aitb_af_oct, 0), 2) AS aitb_af_oct,
-                ROUND(COALESCE(aia.aitb_af_nov, 0), 2) AS aitb_af_nov,
-                ROUND(COALESCE(aia.aitb_af_dic, 0), 2) AS aitb_af_dic,
+                --Inicio #AF-43
+                COALESCE(aia.aitb_af_ene, 0) AS aitb_af_ene,
+                COALESCE(aia.aitb_af_feb, 0) AS aitb_af_feb,
+                COALESCE(aia.aitb_af_mar, 0) AS aitb_af_mar,
+                COALESCE(aia.aitb_af_abr, 0) AS aitb_af_abr,
+                COALESCE(aia.aitb_af_may, 0) AS aitb_af_may,
+                COALESCE(aia.aitb_af_jun, 0) AS aitb_af_jun,
+                COALESCE(aia.aitb_af_jul, 0) AS aitb_af_jul,
+                COALESCE(aia.aitb_af_ago, 0) AS aitb_af_ago,
+                COALESCE(aia.aitb_af_sep, 0) AS aitb_af_sep,
+                COALESCE(aia.aitb_af_oct, 0) AS aitb_af_oct,
+                COALESCE(aia.aitb_af_nov, 0) AS aitb_af_nov,
+                COALESCE(aia.aitb_af_dic, 0) AS aitb_af_dic,
                 0::NUMERIC AS total_aitb_af,
-                ROUND(COALESCE(aitb_dep_acum_ene, 0), 2) AS aitb_dep_acum_ene,
-                ROUND(COALESCE(aitb_dep_acum_feb, 0), 2) AS aitb_dep_acum_feb,
-                ROUND(COALESCE(aitb_dep_acum_mar, 0), 2) AS aitb_dep_acum_mar,
-                ROUND(COALESCE(aitb_dep_acum_abr, 0), 2) AS aitb_dep_acum_abr,
-                ROUND(COALESCE(aitb_dep_acum_may, 0), 2) AS aitb_dep_acum_may,
-                ROUND(COALESCE(aitb_dep_acum_jun, 0), 2) AS aitb_dep_acum_jun,
-                ROUND(COALESCE(aitb_dep_acum_jul, 0), 2) AS aitb_dep_acum_jul,
-                ROUND(COALESCE(aitb_dep_acum_ago, 0), 2) AS aitb_dep_acum_ago,
-                ROUND(COALESCE(aitb_dep_acum_sep, 0), 2) AS aitb_dep_acum_sep,
-                ROUND(COALESCE(aitb_dep_acum_oct, 0), 2) AS aitb_dep_acum_oct,
-                ROUND(COALESCE(aitb_dep_acum_nov, 0), 2) AS aitb_dep_acum_nov,
-                ROUND(COALESCE(aitb_dep_acum_dic, 0), 2) AS aitb_dep_acum_dic,
+                COALESCE(aitb_dep_acum_ene, 0) AS aitb_dep_acum_ene,
+                COALESCE(aitb_dep_acum_feb, 0) AS aitb_dep_acum_feb,
+                COALESCE(aitb_dep_acum_mar, 0) AS aitb_dep_acum_mar,
+                COALESCE(aitb_dep_acum_abr, 0) AS aitb_dep_acum_abr,
+                COALESCE(aitb_dep_acum_may, 0) AS aitb_dep_acum_may,
+                COALESCE(aitb_dep_acum_jun, 0) AS aitb_dep_acum_jun,
+                COALESCE(aitb_dep_acum_jul, 0) AS aitb_dep_acum_jul,
+                COALESCE(aitb_dep_acum_ago, 0) AS aitb_dep_acum_ago,
+                COALESCE(aitb_dep_acum_sep, 0) AS aitb_dep_acum_sep,
+                COALESCE(aitb_dep_acum_oct, 0) AS aitb_dep_acum_oct,
+                COALESCE(aitb_dep_acum_nov, 0) AS aitb_dep_acum_nov,
+                COALESCE(aitb_dep_acum_dic, 0) AS aitb_dep_acum_dic,
                 0::NUMERIC AS total_aitb_dep_acum,
-                ROUND(COALESCE(dep.dep_ene, 0), 2) AS dep_ene,
-                ROUND(COALESCE(dep.dep_feb, 0), 2) AS dep_feb,
-                ROUND(COALESCE(dep.dep_mar, 0), 2) AS dep_mar,
-                ROUND(COALESCE(dep.dep_abr, 0), 2) AS dep_abr,
-                ROUND(COALESCE(dep.dep_may, 0), 2) AS dep_may,
-                ROUND(COALESCE(dep.dep_jun, 0), 2) AS dep_jun,
-                ROUND(COALESCE(dep.dep_jul, 0), 2) AS dep_jul,
-                ROUND(COALESCE(dep.dep_ago, 0), 2) AS dep_ago,
-                ROUND(COALESCE(dep.dep_sep, 0), 2) AS dep_sep,
-                ROUND(COALESCE(dep.dep_oct, 0), 2) AS dep_oct,
-                ROUND(COALESCE(dep.dep_nov, 0), 2) AS dep_nov,
-                ROUND(COALESCE(dep.dep_dic, 0), 2) AS dep_dic,
+                COALESCE(dep.dep_ene, 0) AS dep_ene,
+                COALESCE(dep.dep_feb, 0) AS dep_feb,
+                COALESCE(dep.dep_mar, 0) AS dep_mar,
+                COALESCE(dep.dep_abr, 0) AS dep_abr,
+                COALESCE(dep.dep_may, 0) AS dep_may,
+                COALESCE(dep.dep_jun, 0) AS dep_jun,
+                COALESCE(dep.dep_jul, 0) AS dep_jul,
+                COALESCE(dep.dep_ago, 0) AS dep_ago,
+                COALESCE(dep.dep_sep, 0) AS dep_sep,
+                COALESCE(dep.dep_oct, 0) AS dep_oct,
+                COALESCE(dep.dep_nov, 0) AS dep_nov,
+                COALESCE(dep.dep_dic, 0) AS dep_dic,
                 0::NUMERIC AS total_dep,
-                ROUND(COALESCE(ad.aitb_dep_ene, 0), 2) AS aitb_dep_ene,
-                ROUND(COALESCE(ad.aitb_dep_feb, 0), 2) AS aitb_dep_feb,
-                ROUND(COALESCE(ad.aitb_dep_mar, 0), 2) AS aitb_dep_mar,
-                ROUND(COALESCE(ad.aitb_dep_abr, 0), 2) AS aitb_dep_abr,
-                ROUND(COALESCE(ad.aitb_dep_may, 0), 2) AS aitb_dep_may,
-                ROUND(COALESCE(ad.aitb_dep_jun, 0), 2) AS aitb_dep_jun,
-                ROUND(COALESCE(ad.aitb_dep_jul, 0), 2) AS aitb_dep_jul,
-                ROUND(COALESCE(ad.aitb_dep_ago, 0), 2) AS aitb_dep_ago,
-                ROUND(COALESCE(ad.aitb_dep_sep, 0), 2) AS aitb_dep_sep,
-                ROUND(COALESCE(ad.aitb_dep_oct, 0), 2) AS aitb_dep_oct,
-                ROUND(COALESCE(ad.aitb_dep_nov, 0), 2) AS aitb_dep_nov,
-                ROUND(COALESCE(ad.aitb_dep_dic, 0), 2) AS aitb_dep_dic,
+                COALESCE(ad.aitb_dep_ene, 0) AS aitb_dep_ene,
+                COALESCE(ad.aitb_dep_feb, 0) AS aitb_dep_feb,
+                COALESCE(ad.aitb_dep_mar, 0) AS aitb_dep_mar,
+                COALESCE(ad.aitb_dep_abr, 0) AS aitb_dep_abr,
+                COALESCE(ad.aitb_dep_may, 0) AS aitb_dep_may,
+                COALESCE(ad.aitb_dep_jun, 0) AS aitb_dep_jun,
+                COALESCE(ad.aitb_dep_jul, 0) AS aitb_dep_jul,
+                COALESCE(ad.aitb_dep_ago, 0) AS aitb_dep_ago,
+                COALESCE(ad.aitb_dep_sep, 0) AS aitb_dep_sep,
+                COALESCE(ad.aitb_dep_oct, 0) AS aitb_dep_oct,
+                COALESCE(ad.aitb_dep_nov, 0) AS aitb_dep_nov,
+                COALESCE(ad.aitb_dep_dic, 0) AS aitb_dep_dic,
+                --Fin #AF-43
                 0::NUMERIC AS total_aitb_dep,
                 rc.cuenta AS cuenta_activo,
                 rc1.cuenta AS cuenta_dep_acum,
@@ -707,6 +719,10 @@ BEGIN
                 LEFT JOIN pro.tproyecto py
                 ON py.id_proyecto = pa.id_proyecto
                 --Fin #70
+                --Inicio #AF-43
+                LEFT JOIN tmov_alta ma
+                ON ma.id_activo_fijo = afv.id_activo_fijo
+                --Fin #AF-43
                 WHERE mdep.fecha >= ''' || v_fecha_ini ||''' and mdep.fecha <= ''' || v_fecha_fin || '''
                 AND mdep.id_moneda = ' || p_id_moneda || '
                 --AND af.id_activo_fijo = 40054
