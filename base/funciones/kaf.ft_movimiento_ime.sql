@@ -27,6 +27,7 @@ $body$
  #ETR-1443  KAF       ETR           26/10/2020  RCM         Generación del comprobante de depreciación en las tres monedas
  #ETR-2045  KAF       ETR           03/12/2020  RCM         Implementación plantillas para bajas considerando cada moneda por separado
  #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización, cambio habilitando eliminación desde la cabecera
+ #ETR-3170  KAF       ETR           08/03/2021  RCM         En caso de generar cbtes en blanco (cbtes 1 2 y 4) elimina el comprobante
 ***************************************************************************/
 
 DECLARE
@@ -1180,6 +1181,15 @@ BEGIN
                     where id_int_comprobante = v_id_int_comprobante;
                     --FIN RCM 07/06/2018
 
+                    --Inicio #ETR-3170: En caso de no haberse generado registros en el cbte. se elimina el cbte
+                    IF NOT EXISTS(SELECT 1
+                                FROM conta.tint_transaccion
+                                WHERE id_int_comprobante = v_id_int_comprobante) THEN
+                        DELETE FROM conta.tint_comprobante WHERE id_int_comprobante = v_id_int_comprobante;
+                        v_id_int_comprobante = NULL;
+                    END IF;
+                    --Fin: #ETR-3170
+
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set
                     id_int_comprobante = v_id_int_comprobante
@@ -1218,8 +1228,17 @@ BEGIN
                     where id_int_comprobante = v_id_int_comprobante;
                     --FIN RCM 07/06/2018
 
+                    --Inicio #ETR-3170: En caso de no haberse generado registros en el cbte. se elimina el cbte
+                    IF NOT EXISTS(SELECT 1
+                                FROM conta.tint_transaccion
+                                WHERE id_int_comprobante = v_id_int_comprobante) THEN
+                        DELETE FROM conta.tint_comprobante WHERE id_int_comprobante = v_id_int_comprobante;
+                        v_id_int_comprobante = NULL;
+                    END IF;
+                    --Fin: #ETR-3170
+
                     --Se relaciona los comprobantes generados con el movimiento
-                    update  kaf.tmovimiento  set
+                    update kaf.tmovimiento  set
                     id_int_comprobante_aitb = v_id_int_comprobante
                     where id_movimiento = v_movimiento.id_movimiento;
 
@@ -1282,6 +1301,15 @@ BEGIN
                     importe_gasto_ma = 0,
                     actualizacion = 'si'
                     where id_int_comprobante = v_id_int_comprobante;
+
+                    --Inicio #ETR-3170: En caso de no haberse generado registros en el cbte. se elimina el cbte
+                    IF NOT EXISTS(SELECT 1
+                                FROM conta.tint_transaccion
+                                WHERE id_int_comprobante = v_id_int_comprobante) THEN
+                        DELETE FROM conta.tint_comprobante WHERE id_int_comprobante = v_id_int_comprobante;
+                        v_id_int_comprobante = NULL;
+                    END IF;
+                    --Fin: #ETR-3170
 
                     --Se relaciona los comprobantes generados con el movimiento
                     update  kaf.tmovimiento  set
