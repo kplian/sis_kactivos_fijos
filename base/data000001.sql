@@ -958,3 +958,26 @@ select param.f_import_tcolumna_plantilla_archivo_excel ('insert','COD_59','AF-DA
 -- END;
 -- $BODY$ language plpgsql
 /***********************************F-DAT-RCM-KAF-AF-42-03/03/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-3058-10/03/2021****************************************/
+update kaf.tactivo_fijo AA set
+id_ubicacion = DD.id_ubicacion
+from (
+	select  
+	--distinct t.num_tramite, t.fecha_mov , t.id_movimiento 
+	--t.num_tramite, tf.id_activo_fijo , tf.codigo , tf.id_ubicacion , tae.id_ubicacion, t2.codigo 
+	t.num_tramite, t.fecha_mov, tf.id_activo_fijo, tf.id_ubicacion as id, tae.id_ubicacion 
+	from kaf.tactivo_fijo tf 
+	join kaf.tmovimiento_af_especial tae 
+	on tae.id_activo_fijo = tf.id_activo_fijo 
+	join kaf.tmovimiento_af ta 
+	on ta.id_movimiento_af = tae.id_movimiento_af 
+	join kaf.tmovimiento t
+	on t.id_movimiento = ta.id_movimiento
+	join kaf.tubicacion t2 
+	on t2.id_ubicacion = tae.id_ubicacion 
+	where tf.id_ubicacion is null and tae.id_ubicacion is not null
+) DD
+where AA.id_activo_fijo = DD.id_activo_fijo
+and AA.id_ubicacion is NULL;
+/***********************************F-DAT-RCM-KAF-ETR-3058-10/03/2021****************************************/
