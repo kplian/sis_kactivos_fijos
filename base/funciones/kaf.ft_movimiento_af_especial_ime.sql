@@ -14,14 +14,15 @@ $body$
  FECHA:	        22-05-2019 21:34:37
  COMENTARIOS:
 ***************************************************************************
-#ISSUE	SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
- #2		KAF		ETR 		22-05-2019	RCM		Funcion que gestiona las operaciones basicas (inserciones, modIFicaciones, eliminaciones de la tabla 'kaf.tmovimiento_af_especial'
- #39    KAF     ETR         22-11-2019  RCM     Importación masiva Distribución de valores
- #38    KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
- #47    KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
- #46	KAF		ETR			18-02-2020  MZM		Modificacion a funcion de importacion de movimientos especiales, dado que el valor en plantilla viene en base a valor actualizado y se debe obtener el valor en funcion al importe_neto.
- #53    KAF     ETR         09-03-2020  RCM     Adición de TRIM en comparación de columna
- #62    KAF     ETR         06-05-2020  RCM     Opción para importar plantilla de almacenes
+#ISSUE	    SIS 	EMPRESA		FECHA 		AUTOR	DESCRIPCION
+ #2		    KAF		ETR 		22-05-2019	RCM		Funcion que gestiona las operaciones basicas (inserciones, modIFicaciones, eliminaciones de la tabla 'kaf.tmovimiento_af_especial'
+ #39        KAF     ETR         22-11-2019  RCM     Importación masiva Distribución de valores
+ #38        KAF     ETR         11-12-2019  RCM     Reingeniería importación de plantilla para movimientos especiales
+ #47        KAF     ETR         11-02-2020  RCM     Corrección de error al eliminar registro
+ #46	    KAF		ETR			18-02-2020  MZM		Modificacion a funcion de importacion de movimientos especiales, dado que el valor en plantilla viene en base a valor actualizado y se debe obtener el valor en funcion al importe_neto.
+ #53        KAF     ETR         09-03-2020  RCM     Adición de TRIM en comparación de columna
+ #62        KAF     ETR         06-05-2020  RCM     Opción para importar plantilla de almacenes
+ #ETR-3058  KAF     ETR         10-03-2021  RCM     Adición de excepción cuando no exista el Local
 ***************************************************************************/
 DECLARE
 
@@ -652,6 +653,13 @@ BEGIN
                 into v_id_ubicacion
                 from kaf.tubicacion
                 where LOWER(codigo) = LOWER(TRIM(v_parametros.local));
+
+                --Inicio #ETR-3058: adicion de excepcion cuando no haya Local
+                IF COALESCE(v_id_ubicacion, 0) = 0 THEN
+                    RAISE EXCEPTION 'Local no encontrado: %, para el activo: %. (Fila %)', v_parametros.local, v_parametros.denominacion, v_parametros.item;
+                END IF;
+                --Fin #ETR-3058
+
             END IF;
 
             --Responsable (id_funcionario)
