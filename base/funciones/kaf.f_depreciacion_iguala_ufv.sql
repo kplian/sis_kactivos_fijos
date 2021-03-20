@@ -15,6 +15,7 @@ $body$
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #AF-10     KAF       ETR           21/08/2020  RCM         Creación del archivo
  #ETR-2170  KAF       ETR           10/01/2021  RCM         Adición de condición para no igualar los posteriores a 10/12/2020 debido a la baja de UFV
+ #ETR-3360  KAF       ETR           20/03/2021  RCM         Correccion de condicional cuando la bandera de actualizacion de UFV esta apagada (NULL por '')
 ***************************************************************************/
 DECLARE
 
@@ -46,7 +47,7 @@ BEGIN
 
     --Inicio #ETR-2170
     --Verificación de bandera para la actualización/igualación
-    IF pxp.f_get_variable_global('kaf_actualizar_baja_ufv') = 'NULL' THEN
+    IF pxp.f_get_variable_global('kaf_actualizar_baja_ufv') = '' THEN --#ETR-3360
         v_fecha_act_ufv = NULL;
     ELSE
         v_fecha_act_ufv = pxp.f_get_variable_global('kaf_actualizar_baja_ufv')::DATE;

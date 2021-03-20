@@ -22,8 +22,9 @@ $body$
  FECHA:         12/08/2020
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
- #AF-17 KAF     ETR      12/08/2020   RCM         Creación del archivo
+ ISSUE      SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+ #AF-17     KAF     ETR      12/08/2020   RCM         Creación del archivo
+ #ETR-3360  PRO     ETR      20/03/2021   RCM         No actualización de importes ni en cáluclo auxiliar de depreciación (por UFV en baja)
 ***************************************************************************/
 
 DECLARE
@@ -47,6 +48,7 @@ DECLARE
     v_inc_val_acum      NUMERIC;
     v_inc_val_dep_acum  NUMERIC;
     v_dep_mes_total     NUMERIC = 0;--#33
+    v_act_x_ufv         VARCHAR; --#ETR-3360
 
 BEGIN
 
@@ -71,6 +73,9 @@ BEGIN
     v_inc_val_acum = 0;
     v_inc_val_dep_acum = 0;
 
+    --Obtención de variable global para verificar si se actualizará o no
+    v_act_x_ufv = pxp.f_get_variable_global('kaf_actualizar_baja_ufv');--#ETR-3360
+
     --Loop por la cantidad de meses
     FOR i IN 1..v_meses LOOP
         --Cálculo del factor de actualización
@@ -87,6 +92,11 @@ BEGIN
 
         v_tc_fin = COALESCE(param.f_get_tipo_cambio(v_id_moneda, v_fecha_sup, 'O'), 1);
         v_factor = v_tc_fin / v_tc_ini;
+        --Inicio #ETR-3360
+        IF COALAESCE(v_act_x_ufv, '') <> '' THEN
+            v_factor = 1;
+        END IF;
+        --Fin #ETR-3360
 
         --Cálculo del incremento por actualizaciones
         v_inc_val = (v_importe * v_factor) - v_importe;
