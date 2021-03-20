@@ -16,6 +16,7 @@ $body$
  ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
+ #AF-41     KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
 ***************************************************************************/
 
 DECLARE
@@ -417,7 +418,8 @@ BEGIN
                             af.monto_compra_orig,
                             af.monto_compra_orig_100,
                             af.nro_cbte_asociado,
-                            af.observaciones
+                            af.observaciones,
+                            af.vida_util_original --#AF-41
                      from kaf.tmovimiento_af maf
                           inner join kaf.tactivo_fijo af on af.id_activo_fijo = maf.id_activo_fijo
                           left join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun

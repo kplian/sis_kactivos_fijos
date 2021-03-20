@@ -8,6 +8,7 @@
  ***************************************************************************
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
+ #AF-41     KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
 **************************************************************************
 */
 class MODMovimiento extends MODbase{
@@ -298,6 +299,7 @@ class MODMovimiento extends MODbase{
 		$this->captura('monto_compra_orig_100','numeric');
 		$this->captura('nro_cbte_asociado','varchar');
 		$this->captura('observaciones','varchar');
+		$this->captura('vida_util_original','int4');//#AF-41
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

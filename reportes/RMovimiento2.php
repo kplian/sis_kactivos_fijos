@@ -3,7 +3,10 @@
 /*
  * Autor RAC
  * Fecha: 16/03/2017
- * 
+ ****************************************************************************
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #AF-41     KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
+************************************************************************** 
  * */
 class RMovimiento2 extends ReportePDF {
     var $dataMaster;
@@ -236,8 +239,8 @@ class RMovimiento2 extends ReportePDF {
         $this->SetFontSize(7);
         
         $_firma100='';
-        $_firma110=$this->dataMaster[0]['responsable_depto'];
-        $_firma111='RESPONSABLE ACTIVOS FIJOS';
+        $_firma110='';//$this->dataMaster[0]['responsable_depto']; --#AF-41
+        $_firma111='';//'RESPONSABLE ACTIVOS FIJOS'; --#AF-41
         
         $_firma200='';
         $_firma210='';
@@ -413,9 +416,7 @@ class RMovimiento2 extends ReportePDF {
 
          $totalAF = 0;
          $totalCompra = 0;
-         //echo 'aqui fass pcloey:'.$tipo;
-        //var_dump($this->getDataSource());
-         //exit;
+         $i = 0;
 
 		 foreach ($this->getDataSource() as $datarow) {
             if($tipo=='baja'){
@@ -512,28 +513,38 @@ class RMovimiento2 extends ReportePDF {
                 
             } else if($tipo=='alta'){
                     
-                            
-                $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
-                $this->tablenumbers=array(0,0,0,0,0,0,0,0,0,0);
-                $this->tableborders=array('RLTB','RLTB','RLTB','RLTB','RLTB','RLTB','RLTB');
-                $this->tabletextcolor=array();
+                $this->tablealigns = array('L', 'L', 'L', 'L', 'C', 'C', 'R'); //#AF-41
+                $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 1);
+                $this->tableborders = array('RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB');
+                $this->tabletextcolor = array();
                 //totales de montos
                 $totalAF += $datarow['monto_compra_orig'];
                 $totalCompra += $datarow['monto_compra_orig_100'];
 
-                $RowArray = array(
-                            's0'  => $i+1,
+                //Inicio #AF-41
+                /*$RowArray = array(
+                            's0' => $i+1,
                             's1' => $datarow['codigo'],
                             's2' => $datarow['desc_clasificacion'],
                             's3' => $datarow['denominacion'],
-                            's4' => $datarow['descripcion'],
+                            's4' => $datarow['vida_util_original'],//#AF-41
                             's5' => date("d/m/Y",strtotime($datarow['fecha_ini_dep'])),
                             's6' => $datarow['monto_compra_orig'],
                             's7' => $datarow['monto_compra_orig_100'],
                             's8' => $datarow['nro_cbte_asociado'],
                             's9' => ''
+                            );*/
+
+                $RowArray = array(
+                            's0' => $i+1,
+                            's1' => $datarow['codigo'],
+                            's2' => $datarow['desc_clasificacion'],
+                            's3' => $datarow['denominacion'],
+                            's4' => $datarow['vida_util_original'],//#AF-41
+                            's5' => date("d/m/Y",strtotime($datarow['fecha_ini_dep'])),
+                            's6' => $datarow['monto_compra_orig']
                             );
-                
+                //FIn #AF-41
                 
             }  else if($tipo=='retiro'){
                     
@@ -579,8 +590,8 @@ class RMovimiento2 extends ReportePDF {
         }
         if($tipo=='alta'){
             $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
-            $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
-            $this->tableborders=array('','','','','','','RLTB','RLTB','','');
+            $this->tablenumbers=array(0,0,0,0,0,0,1,0,0,0);
+            $this->tableborders=array('','','','','','RLTB','RLTB','','','');
             $this->tabletextcolor=array();
             $RowArray = array(
                 's0'  => '',
@@ -588,11 +599,8 @@ class RMovimiento2 extends ReportePDF {
                 's2' => '',
                 's3' => '',
                 's4' => '',
-                's5' => 'TOTALES:',
-                's6' => $totalAF,
-                's7' => $totalCompra,
-                's8' => '',
-                's9' => ''
+                's5' => 'TOTALES', //#AF-41
+                's6' => $totalAF //#AF-41
             );
 
             $this-> MultiRow($RowArray,false,1);
@@ -698,23 +706,20 @@ class RMovimiento2 extends ReportePDF {
             
         }  else if($tipo=='alta'){
                 
-              $this->tablewidthsHD=array(8,23,23,35,57,19,25,25,20,30);
-               //$this->tablewidths=array(8,31,84.5,34,32.5,26.5,18,20.5);
-              $this->tablealignsHD=array('C','C','C','C','C','C','C','C','C','C');
-              $this->tablenumbersHD=array(0,0,0,0,0,0,0,0);
-              $this->tablebordersHD=array('LTB','TB','TB','TB','TB','TBR');
-              $this->tabletextcolorHD=array();
+              $this->tablewidthsHD = array(8, 23, 60, 90, 25, 25, 33); //#AF-41
+              $this->tablealignsHD = array('C', 'C', 'C', 'C', 'C', 'C', 'C');
+              $this->tablenumbersHD = array(0, 0, 0, 0, 0, 0, 0);
+              $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 0);
+              $this->tablebordersHD = array('LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR');
+              $this->tabletextcolorHD = array();
               $RowArray = array(
                             's0'  => 'Nro',
                             's1' => 'Código',
                             's2' => 'Clasificación',
                             's3' => 'Denominación',
-                            's4' => 'Descripción',
-                            's5' => 'Inicio.Dep.',           
-                            's6' => 'Costo AF',
-                            's7' => 'Valor Compra',
-                            's8' => 'C31',
-                            's9' => 'Observaciones'
+                            's4' => 'Vida Útil Orig.',//#AF-41
+                            's5' => 'Fecha Ini.Dep.',           
+                            's6' => 'Valor AF Bs.'
                         );
             
             
