@@ -1531,6 +1531,6 @@ END$$;
 --Actualiza correlativo de la clasificaicon
 UPDATE kaf.tclasificacion SET 
 correlativo_act = 270
-WHERE id_clasificacion;
+WHERE id_clasificacion = 430;
 
 /***********************************F-DAT-RCM-KAF-ETR-3361-22/03/2021****************************************/
