@@ -18,6 +18,7 @@ $body$
  #ETR-2045  KAF       ETR           06/12/2020  RCM         Traspasos de AF y DAcum., en caso de disgregaciones a antiguos existentes cambiar la fórmula de despliegue para que salga sólo lo disgregado
  #AF-38     KAF       ETR           12/01/2020  RCM         En el procesamiento del reporte de depreciación, para el caso de adiciones desde cierre de proyecto, cambiar el cálculo aritmético para obtener la adición sin actualización para utilizar directamente el nuevo campo en la tabla. Además Cambio criterio para caso Altas de tipo: AF
  #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
+ #ETR-3360  KAF       ETR           31/03/2021  RCM         Cambio del campo importe sin act por el campo nuevo
 ***************************************************************************/
 DECLARE
 
@@ -270,8 +271,9 @@ BEGIN
                         DATE_PART(''month'', mdep.fecha)::INTEGER AS mes,
                         CASE
                             WHEN afv.fecha_ini_dep = mdep.fecha THEN
-                                mdep.monto_actualiz - mdep.monto_actualiz_ant + COALESCE((afv.importe_modif - afv.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', afv.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
-                                param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', afv.fecha_ini_dep)::date), ''O''))),0)
+                                --mdep.monto_actualiz - mdep.monto_actualiz_ant + COALESCE((afv.importe_modif - afv.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', afv.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /
+                                --param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', afv.fecha_ini_dep)::date), ''O''))),0) --#ETR-3360
+                                mdep.monto_actualiz - mdep.monto_actualiz_ant + COALESCE((afv.importe_modif - afv.importe_modif_sin_act),0) --#ETR-3360
                             ELSE
                                 mdep.monto_actualiz - mdep.monto_actualiz_ant
                         END AS aitb_af

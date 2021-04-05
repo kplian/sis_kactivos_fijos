@@ -49,8 +49,11 @@ DECLARE
     v_inc_val_dep_acum  NUMERIC;
     v_dep_mes_total     NUMERIC = 0;--#33
     v_act_x_ufv         VARCHAR; --#ETR-3360
+    v_valor_rescate     NUMERIC; --#ETR-3360
 
 BEGIN
+
+    v_valor_rescate = 1;
 
     --Obtiene ID moneda UFV
     SELECT id_moneda_act
@@ -93,7 +96,7 @@ BEGIN
         v_tc_fin = COALESCE(param.f_get_tipo_cambio(v_id_moneda, v_fecha_sup, 'O'), 1);
         v_factor = v_tc_fin / v_tc_ini;
         --Inicio #ETR-3360
-        IF COALAESCE(v_act_x_ufv, '') <> '' THEN
+        IF COALESCE(v_act_x_ufv, '') <> '' THEN
             v_factor = 1;
         END IF;
         --Fin #ETR-3360
@@ -104,7 +107,7 @@ BEGIN
 
         --Actualización y depreciación
         v_importe = v_importe * v_factor;
-        v_deprec = (v_importe - v_deprec_acum) / v_vida_util;
+        v_deprec = (v_importe - v_deprec_acum - v_valor_rescate) / v_vida_util; --#ETR-3360
         v_deprec_acum = v_deprec_acum + v_deprec + v_inc_dep;
 
         --raise notice 'fecha_aitb: %, fecha inf: %, fecha sup: %, t/c ini: %, t/c fin: %, factor: %, importe: %, deprec: %, vida util: %, dep acum: %, inc dep: %, inc val: %',

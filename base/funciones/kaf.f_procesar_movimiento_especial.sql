@@ -24,7 +24,8 @@ $body$
  #67        KAF       ETR           20/05/2020  RCM         Codificar los AFVs al procesar la disgregación
  #68        KAF       ETR           22/05/2020  RCM         Considerar disgregación con monto parcial del AF origen
  #69        KAF       ETR           20/06/2020  RCM         Cambio lógica basada en vaor neto para considerar el valor actualizado
- #ETR-1443  KAF       ETR           28/10/2020  RCM         Ccorrección de la lógica de la nueva vida útil para los nuevos AFVs en caso activos fijos nuevos y adición de costo en consulta
+ #ETR-1443  KAF       ETR           28/10/2020  RCM         Corrección de la lógica de la nueva vida útil para los nuevos AFVs en caso activos fijos nuevos y adición de costo en consulta
+ #ETR-3334  KAF       ETR           26/03/2021  RCM         Creación de movimientos de Alta y Ajustes según corresponda
 ***************************************************************************
 */
 DECLARE
@@ -61,6 +62,15 @@ DECLARE
     v_monto_vigente_actualiz_inicial NUMERIC;
     v_depreciacion_acum_inicial      NUMERIC;
     --Fin #68
+    --Inicio #ETR-3334
+    v_id_cat_movimiento     INTEGER;
+    v_id_depto              INTEGER;
+    v_num_tramite           VARCHAR;
+    v_rec_mov               RECORD;
+    v_id_movimiento         INTEGER;
+    v_rec_af_det            RECORD;
+    v_id_movimiento_af      INTEGER;
+    --Fin #ETR-3334
 
 BEGIN
 
@@ -153,9 +163,9 @@ BEGIN
     --Inicio RCM 07/11/2019
     --Obtención de la fecha
     SELECT
-    fecha_mov
+    fecha_mov, num_tramite
     INTO
-    v_fecha_mov
+    v_fecha_mov, v_num_tramite --#ETR-3334
     FROM kaf.tmovimiento
     WHERE id_movimiento = p_id_movimiento;
     --Fin RCM 07/11/2019
@@ -307,6 +317,55 @@ BEGIN
     -------------------------------------------------
     --CASO 2.3: CREACIÓN DE LOS ACTIVOS FIJOS NUEVOS
     -------------------------------------------------
+    --Inicio #ETR-3334: Creación de cabecera de Alta
+    --Obtención del ID del movimiento Alta
+    SELECT cat.id_catalogo
+    INTO v_id_cat_movimiento
+    FROM param.tcatalogo cat
+    INNER JOIN param.tcatalogo_tipo ctip
+    ON ctip.id_catalogo_tipo = cat.id_catalogo_tipo
+    WHERE ctip.tabla = 'tmovimiento__id_cat_movimiento'
+    AND cat.codigo = 'alta';
+
+    IF v_id_cat_movimiento IS NULL THEN
+        raise exception 'No se encuentra registrado el Proceso de Alta. Comuníquese con el administrador del sistema.';
+    END IF;
+
+    --Obtención del depto de AF en relación al depto de Conta
+    SELECT id_depto
+    INTO v_id_depto
+    FROM param.tdepto dep
+    WHERE dep.codigo = 'AF'
+    AND dep.modulo = 'KAF';
+
+    --Definción de parámetros
+    SELECT
+    'N/D' AS direccion,
+    NULL AS fecha_hasta,
+    v_id_cat_movimiento AS id_cat_movimiento,
+    v_fecha_mov AS fecha_mov,
+    v_id_depto AS id_depto,
+    'Alta de activos fijos Disgregación '|| v_num_tramite AS glosa, --#ETR-3334
+    NULL AS id_funcionario,
+    NULL AS id_oficina,
+    NULL AS _id_usuario_ai,
+    p_id_usuario AS id_usuario,
+    NULL AS _nombre_usuario_ai,
+    NULL AS id_persona,
+    NULL AS codigo,
+    NULL AS id_deposito,
+    NULL AS id_depto_dest,
+    NULL AS id_deposito_dest,
+    NULL AS id_funcionario_dest,
+    NULL AS id_movimiento_motivo,
+    'si' AS mov_rapido --#58
+    INTO v_rec_mov;
+
+    --Creación del movimiento
+    v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
+    --Fin #ETR-3334
+
+    --Recorrido de los activos fijos nuevos
     FOR v_rec IN INSERT INTO kaf.tactivo_fijo ( --consulta verificada ..ok --#48
                     estado_reg,
                     fecha_compra,
@@ -415,6 +474,22 @@ BEGIN
         AND mafe.id_movimiento_af_especial = v_rec.id_proyecto
         AND mafe.tipo = 'af_nuevo';
 
+        --Inicio #ETR-3334: Registro del detalle del Alta
+        SELECT
+        v_id_movimiento AS id_movimiento,
+        v_rec.id_activo_fijo AS id_activo_fijo,
+        NULL AS id_movimiento_motivo,
+        NULL AS importe,
+        NULL AS vida_util,
+        NULL AS _nombre_usuario_ai,
+        NULL AS _id_usuario_ai,
+        NULL AS depreciacion_acum
+        INTO v_rec_af_det;
+
+        --Inserción del detalle
+        v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_rec_af_det));
+        --Fin #ETR-3334
+
         --Creación de los AFV
         INSERT INTO kaf.tactivo_fijo_valores(
             id_usuario_reg,
@@ -506,6 +581,12 @@ BEGIN
 
     END LOOP;
 
+    --Inicio #ETR-3334: Se finaliza el Alta
+    UPDATE kaf.tmovimiento SET
+    estado = 'finalizado'
+    WHERE id_movimiento = v_id_movimiento;
+    --FIn #ETR-3334
+
     -----------------------------------
     --CASO 2: ACTIVOS FIJOS EXISTENTES
     -----------------------------------
@@ -568,7 +649,8 @@ BEGIN
         depreciacion_per_inicial,
         mov_esp,
         id_movimiento_af_especial, --#57
-        fecha_tc_ini_dep --#60
+        fecha_tc_ini_dep, --#60
+        codigo --#ETR-3334
     )
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -582,7 +664,7 @@ BEGIN
         )
         SELECT
         mov.fecha_mov, mdep.id_activo_fijo_valor, mdep.monto_actualiz, mdep.depreciacion_acum,
-        mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento
+        mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento, afv.codigo --#ETR-3334
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -661,11 +743,77 @@ BEGIN
     tad.depreciacion_per AS depreciacion_per_inicial, --tad.depreciacion_per + (tao.depreciacion_per * tad.porcentaje / 100) AS depreciacion_per_inicial, #69
     'cafv-' || p_id_movimiento::varchar AS mov_esp,
     tad.id_movimiento_af_especial, --#57
-    DATE_TRUNC('month', tad.fecha_mov) - '1 day'::INTERVAL --#60
+    DATE_TRUNC('month', tad.fecha_mov) - '1 day'::INTERVAL, --#60
+    tao.codigo --#ETR-3334
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
     AND tad.id_moneda = tao.id_moneda;
+
+    ------------------------------------------------------
+    --Inicio #ETR-3334: creacion del movimiento de Ajuste
+    ------------------------------------------------------
+    --Obtención del ID del movimiento Alta
+    SELECT cat.id_catalogo
+    INTO v_id_cat_movimiento
+    FROM param.tcatalogo cat
+    INNER JOIN param.tcatalogo_tipo ctip
+    ON ctip.id_catalogo_tipo = cat.id_catalogo_tipo
+    WHERE ctip.tabla = 'tmovimiento__id_cat_movimiento'
+    AND cat.codigo = 'ajuste';
+
+    IF v_id_cat_movimiento IS NULL THEN
+        raise exception 'No se encuentra registrado el Proceso de Ajuste. Comuníquese con el administrador del sistema.';
+    END IF;
+
+    --Definción de parámetros
+    SELECT
+    'N/D' AS direccion,
+    NULL AS fecha_hasta,
+    v_id_cat_movimiento AS id_cat_movimiento,
+    v_fecha_mov AS fecha_mov,
+    v_id_depto AS id_depto,
+    'Ajuste de activos fijos Disgregación '|| v_num_tramite AS glosa, --#ETR-3334
+    NULL AS id_funcionario,
+    NULL AS id_oficina,
+    NULL AS _id_usuario_ai,
+    p_id_usuario AS id_usuario,
+    NULL AS _nombre_usuario_ai,
+    NULL AS id_persona,
+    NULL AS codigo,
+    NULL AS id_deposito,
+    NULL AS id_depto_dest,
+    NULL AS id_deposito_dest,
+    NULL AS id_funcionario_dest,
+    NULL AS id_movimiento_motivo,
+    'si' AS mov_rapido --#58
+    INTO v_rec_mov;
+
+    --Creación del movimiento
+    v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
+
+    --Inclusion del detalle del Ajuste
+    INSERT INTO kaf.tmovimiento_af(
+        id_movimiento,
+        id_activo_fijo
+    )
+    SELECT
+    v_id_movimiento,
+    mafe.id_activo_fijo
+    FROM kaf.tmovimiento mov
+    INNER JOIN kaf.tmovimiento_af maf
+    ON maf.id_movimiento = mov.id_movimiento
+    INNER JOIN kaf.tmovimiento_af_especial mafe
+    ON mafe.id_movimiento_af = maf.id_movimiento_af
+    AND mafe.tipo = 'af_exist'
+    WHERE mov.id_movimiento = p_id_movimiento;
+
+    --Finalizacion del ajuste
+    UPDATE kaf.tmovimiento SET
+    estado = 'finalizado'
+    WHERE id_movimiento = v_id_movimiento;
+
+    --Fin #ETR-3334
 
     ----------------------------------------
     --3. GENERACIÓN DE COMPROBANTE CONTABLE

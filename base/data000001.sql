@@ -981,3 +981,556 @@ from (
 where AA.id_activo_fijo = DD.id_activo_fijo
 and AA.id_ubicacion is NULL;
 /***********************************F-DAT-RCM-KAF-ETR-3058-10/03/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-3361-22/03/2021****************************************/
+---(1) FECHA UFV INI
+UPDATE kaf.tactivo_fijo_valores AA SET
+fecha_tc_ini_dep = DD.fecha_new
+FROM (
+SELECT 
+	afv.id_activo_fijo_valor, afv.codigo, mdep.fecha ,'10/12/20'::date AS fecha_new, afv.fecha_tc_ini_dep 
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE (af.codigo IN ('02.14.5.00010','02.14.5.00011')
+	AND date_trunc('month',mdep.fecha ) = '01-12-2020')
+	 OR (af.codigo IN ('03.08.3.00011')
+	AND date_trunc('month',mdep.fecha ) = '01-02-2021')
+) DD
+WHERE AA.id_activo_fijo = DD.id_activo_fijo_valor;
+
+---(2) AFV SIN CODIGO
+UPDATE kaf.tactivo_fijo_valores AA SET
+codigo = DD.cod_af
+FROM (
+	SELECT
+	af.codigo AS cod_af, afv.id_activo_fijo_valor, afv.codigo
+	FROM kaf.tactivo_fijo af
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = af.id_activo_fijo 
+		AND afv.codigo IS NULL
+	WHERE af.codigo IN (
+	'01.05.9.00731','01.05.9.00732','01.05.9.00750','01.05.9.00761','01.05.9.00778','01.05.9.00779','01.05.9.00799','01.05.9.00800',
+	'01.05.9.00817','01.05.9.00818','01.05.9.00833','01.05.9.00834','01.13.6.00075','01.13.6.00076','01.13.6.2156-0','01.13.6.2695-0',
+	'01.13.6.2697-0','01.29.6.00046','01.29.6.00047','01.29.6.00048','01.29.6.00049','03.08.3.0029-0','03.08.3.0051-0','01.13.6.5653-0',
+	'01.23.6.00008','01.23.6.00009','01.23.6.00010','01.23.6.00011','01.23.6.00012','01.23.6.00013','01.23.6.00014','01.23.6.00016',
+	'01.23.6.00017','04.08.4.0048-0')
+) DD
+WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor
+AND AA.codigo IS NULL;
+
+---(3) TIPOS DE CAMBIO
+--DIC 2020
+UPDATE kaf.tmovimiento_af_dep AA SET
+tipo_cambio_fin = 2.35998,
+factor = 2.35998 / AA.tipo_cambio_ini 
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep, mdep.fecha, af.codigo, mdep.tipo_cambio_ini, mdep.tipo_cambio_fin 
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo IN (
+	'01.06.8.01297','01.06.8.01298','01.06.8.01321','01.06.8.01323','01.06.8.01344','01.06.8.01346','01.06.8.01366',
+	'01.06.8.01367','02.03.5.00008','02.04.5.00004','02.14.5.00004','02.14.5.00010','02.14.5.00011','02.14.5.0832-0'
+	)
+	AND date_trunc('month', mdep.fecha) = '01-12-2020'
+	AND mdep.id_moneda = 1
+) DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
+
+--ENE 2021
+UPDATE kaf.tmovimiento_af_dep AA SET
+tipo_cambio_ini = 2.35998,
+tipo_cambio_fin = 2.35998
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep, mdep.fecha, af.codigo, mdep.tipo_cambio_ini, mdep.tipo_cambio_fin, mdep.factor 
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo IN (
+	'01.06.8.00448','01.06.8.01297','01.06.8.01298','01.06.8.01321','01.06.8.01323','01.06.8.01344','01.06.8.01346','01.06.8.01366','01.06.8.01367','01.20.6.00002','02.03.5.00008','02.04.5.00004','02.14.5.00004','02.14.5.00010','02.14.5.00011','02.14.5.0832-0','02.15.5.0317-0','03.08.3.0088-0','03.08.3.0103-0','03.08.3.0110-0','04.16.7.2785-0'
+	)
+	AND date_trunc('month', mdep.fecha) = '01-01-2021'
+	AND mdep.id_moneda = 1
+) DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
+
+--FEB 2021
+UPDATE kaf.tmovimiento_af_dep AA SET
+tipo_cambio_ini = 2.35998,
+tipo_cambio_fin = 2.35998
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep, mdep.fecha, af.codigo, mdep.tipo_cambio_ini, mdep.tipo_cambio_fin, mdep.factor 
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo IN (
+	'01.05.9.00729','01.05.9.00730','01.05.9.00731','01.05.9.00732','01.05.9.00747','01.05.9.00748','01.05.9.00750','01.05.9.00761','01.05.9.00766','01.05.9.00776','01.05.9.00777','01.05.9.00778','01.05.9.00779','01.05.9.00797','01.05.9.00798','01.05.9.00799','01.05.9.00800','01.05.9.00816','01.05.9.00817','01.05.9.00818','01.05.9.00831','01.05.9.00832','01.05.9.00833','01.05.9.00834','01.05.9.01383','01.05.9.01384','01.05.9.01385','01.05.9.01386','01.05.9.01387','01.05.9.01388','01.05.9.01389','01.05.9.01390','01.05.9.01391','01.05.9.01392','01.05.9.01393','01.05.9.01394','01.05.9.01395','01.05.9.01396','01.05.9.01397','01.05.9.01398','01.05.9.01399','01.05.9.01400','01.05.9.01401','01.05.9.01402','01.05.9.01403','01.05.9.01404','01.06.8.00448','01.06.8.01297','01.06.8.01298','01.06.8.01321','01.06.8.01323','01.06.8.01344','01.06.8.01346','01.06.8.01366','01.06.8.01367','01.06.8.02257','01.06.8.02258','01.06.8.02259','01.06.8.02260','01.06.8.02261','01.06.8.02262','01.06.8.02263','01.06.8.02264','01.06.8.02265','01.06.8.02266','01.06.8.02267','01.06.8.02268','01.06.8.02269','01.06.8.02270','01.06.8.02271','01.06.8.02272','01.06.8.02273','01.06.8.02274','01.06.8.02275','01.06.8.02276','01.06.8.02277','01.06.8.02278','01.06.8.02279','01.06.8.02280','01.06.8.02281','01.06.8.02282','01.06.8.02283','01.06.8.02284','01.06.8.02285','01.06.8.02286','01.06.8.02287','01.06.8.02288','01.06.8.02289','01.06.8.02290','01.06.8.02291','01.06.8.02292','01.06.8.02293','01.06.8.02294','01.06.8.02295','01.06.8.02296','01.06.8.02297','01.06.8.02298','01.06.8.02299','01.13.6.00075','01.13.6.00076','01.13.6.00077','01.13.6.00078','01.13.6.00079','01.13.6.00080','01.13.6.00081','01.13.6.00082','01.13.6.2156-0','01.13.6.2695-0','01.13.6.2697-0','01.18.6.00019','01.18.6.00020','01.18.6.00100','01.18.6.00101','01.18.6.00102','01.18.6.00103','01.18.6.00104','01.18.6.00105','01.18.6.00106','01.18.6.00107','01.18.6.00108','01.18.6.00109','01.18.6.00110','01.20.6.00002','01.21.6.00204','01.21.6.00205','01.21.6.00206','01.21.6.00207','01.21.6.00208','01.21.6.00209','01.21.6.00210','01.21.6.00211','01.21.6.00212','01.21.6.00213','01.21.6.00214','01.21.6.00215','01.21.6.00216','01.21.6.00217','01.21.6.00218','01.21.6.00219','01.21.6.00220','01.21.6.00221','01.21.6.00222','01.21.6.00223','01.21.6.00224','01.21.6.00225','01.21.6.00226','01.21.6.00227','01.21.6.00228','01.21.6.00229','01.21.6.00230','01.21.6.00231','01.21.6.00232','01.21.6.00233','01.21.6.00234','01.24.6.00234','01.24.6.00235','01.24.6.00236','01.24.6.00237','01.24.6.00238','01.24.6.00239','01.24.6.00240','01.24.6.00241','01.24.6.00242','01.24.6.00243','01.24.6.00244','01.24.6.00245','01.24.6.00246','01.24.6.00247','01.24.6.00248','01.24.6.00249','01.24.6.00250','01.24.6.00251','01.24.6.00252','01.24.6.00253','01.24.6.00254','01.24.6.00255','01.24.6.00256','01.24.6.00257','01.24.6.00258','01.24.6.00259','01.24.6.00260','01.24.6.00261','01.24.6.00262','01.24.6.00263','01.24.6.00264','01.24.6.00265','01.24.6.00266','01.25.6.00014','01.25.6.00015','01.25.6.00085','01.25.6.00086','01.25.6.00087','01.25.6.00088','01.25.6.00089','01.25.6.00090','01.25.6.00091','01.25.6.00092','01.25.6.00093','01.25.6.00094','01.25.6.00095','01.25.6.00096','01.25.6.00097','01.25.6.00098','01.25.6.00099','01.25.6.00100','01.25.6.00101','01.28.6.00457','01.28.6.00458','01.28.6.00459','01.28.6.00460','01.28.6.00461','01.28.6.00462','01.28.6.00463','01.28.6.00464','01.28.6.00465','01.28.6.00466','01.28.6.00467','01.28.6.00468','01.28.6.00469','01.28.6.00470','01.28.6.00471','01.28.6.00472','01.28.6.00473','01.28.6.00474','01.28.6.00475','01.28.6.00476','01.28.6.00477','01.28.6.00478','01.28.6.00479','01.28.6.00480','01.28.6.00481','01.28.6.00482','01.28.6.00483','01.28.6.00484','01.28.6.00485','01.28.6.00486','01.28.6.00487','01.28.6.00488','01.28.6.00489','01.28.6.00490','01.28.6.00491','01.28.6.00492','01.28.6.00493','01.28.6.00494','01.28.6.00495','01.28.6.00496','01.28.6.00497','01.28.6.00498','01.28.6.00499','01.28.6.00500','01.28.6.00501','01.28.6.00502','01.28.6.00503','01.28.6.00504','01.28.6.00505','01.28.6.00506','01.28.6.00507','01.28.6.00508','01.28.6.00509','01.28.6.00510','01.28.6.00511','01.28.6.00512','01.28.6.00513','01.28.6.00514','01.28.6.00515','01.29.6.00046','01.29.6.00047','01.29.6.00048','01.29.6.00049','01.29.6.00050','01.29.6.00051','01.29.6.00052','01.29.6.00053','02.03.5.00008','02.03.5.00048','02.03.5.00049','02.04.5.00004','02.14.5.00004','02.14.5.00010','02.14.5.00011','02.14.5.00063','02.14.5.00064','02.14.5.0832-0','02.15.5.00003','02.15.5.00004','02.15.5.00005','02.15.5.0317-0','03.08.3.00011','03.08.3.00012','03.08.3.00043','03.08.3.00044','03.08.3.00045','03.08.3.0029-0','03.08.3.0051-0','03.08.3.0088-0','03.08.3.0103-0','03.08.3.0110-0','04.16.7.00122','04.16.7.01044','04.16.7.01045','04.16.7.01046','04.16.7.2785-0','04.19.11.00152','04.19.11.02422','04.19.11.02423','04.19.11.02424','04.19.11.02425','04.19.11.02426','04.19.11.02427','04.19.11.02428','04.19.11.02429','04.19.11.02430','04.19.11.02431','04.19.11.02432','04.19.11.02433'
+	)
+	AND date_trunc('month', mdep.fecha) = '01-02-2021'
+	AND mdep.id_moneda = 1
+) DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
+
+--- 7 CTVS
+--DIC 2020
+/*UPDATE kaf.tmovimiento_af_dep AA SET
+monto_actualiz = AA.monto_actualiz - 0.07,
+monto_vigente = AA.monto_vigente - 0.07
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep, mdep.fecha, mdep.monto_actualiz, mdep.monto_vigente, mdep.monto_actualiz - 0.07, mdep.monto_vigente - 0.07
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo = '01.05.9.00026'
+	AND date_trunc('month', mdep.fecha) = '01-12-2020'::date
+	AND mdep.id_moneda = 1
+) DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
+
+
+--ENE y FEB 2021
+UPDATE kaf.tmovimiento_af_dep AA SET
+monto_actualiz_ant = 59747.23077045654744576791897288888,
+monto_actualiz     = 59747.23077045654744576791897288888,
+monto_vigente      = 59747.23077045654744576791897288888 - AA.depreciacion_acum 
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep, mdep.fecha, mdep.monto_actualiz, mdep.monto_vigente, mdep.monto_actualiz_ant 
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo = '01.05.9.00026'
+	AND date_trunc('month', mdep.fecha) BETWEEN '01-01-2021'::date AND '01-02-2021'::date
+	AND mdep.id_moneda = 1
+) DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;*/
+
+--DEP ACUM ACTUALIZ DIC2020
+UPDATE kaf.tmovimiento_af_dep AA SET
+depreciacion_acum_actualiz = DD.new_val
+FROM (
+	SELECT
+	mdep.id_movimiento_af_dep,
+	af.codigo,
+	CASE af.codigo
+		WHEN '01.06.8.01297' THEN mdep.depreciacion_acum_actualiz + 3.252490643
+		WHEN '01.06.8.01298' THEN mdep.depreciacion_acum_actualiz + 3.252490643
+		WHEN '01.06.8.01321' THEN mdep.depreciacion_acum_actualiz + 3.252488527
+		WHEN '01.06.8.01323' THEN mdep.depreciacion_acum_actualiz + 3.252488527
+		WHEN '01.06.8.01344' THEN mdep.depreciacion_acum_actualiz + 3.252482237
+		WHEN '01.06.8.01346' THEN mdep.depreciacion_acum_actualiz + 3.252482237
+		WHEN '01.06.8.01366' THEN mdep.depreciacion_acum_actualiz + 3.252484411
+		WHEN '01.06.8.01367' THEN mdep.depreciacion_acum_actualiz + 3.252484411
+		WHEN '02.03.5.00008' THEN mdep.depreciacion_acum_actualiz + 6.931437787
+		WHEN '02.04.5.00004' THEN mdep.depreciacion_acum_actualiz + 27.10734988
+		WHEN '02.14.5.00004' THEN mdep.depreciacion_acum_actualiz + 67.40364158
+		WHEN '02.14.5.00010' THEN mdep.depreciacion_acum_actualiz + 635.9663621
+		WHEN '02.14.5.00011' THEN mdep.depreciacion_acum_actualiz + 602.500695
+		WHEN '02.14.5.0832-0' THEN mdep.depreciacion_acum_actualiz + 480.5687477
+	END AS new_val
+	FROM kaf.tmovimiento_af_dep mdep
+	JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+	JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo 
+	WHERE af.codigo IN ('01.06.8.01297','01.06.8.01298','01.06.8.01321','01.06.8.01323','01.06.8.01344','01.06.8.01346','01.06.8.01366','01.06.8.01367','02.03.5.00008','02.04.5.00004','02.14.5.00004','02.14.5.00010','02.14.5.00011','02.14.5.0832-0')
+	AND date_trunc('month', mdep.fecha) = '01-12-2020'
+	AND mdep.id_moneda = 1
+)  DD
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep
+AND date_trunc('month', AA.fecha) = '01-12-2020';
+
+DO $$DECLARE
+
+	v_id_proyecto integer;
+	v_id_movimiento integer;
+	v_id_movimiento_ajuste integer;
+	v_rec record ;
+	v_id_estado_wf integer;
+	v_id_proceso_wf integer;
+	v_estado varchar;
+ 
+BEGIN
+	
+	--Obtencion de datos
+	v_id_proyecto = 170;
+	v_estado = 'af';
+	
+	IF NOT EXISTS (SELECT 1 FROM pro.tproyecto
+				WHERE id_proyecto = v_id_proyecto) THEN
+		RAISE EXCEPTION 'Proyecto inexistente';
+	END IF;
+	RAISE NOTICE 'PROCESANDO ...Altas';
+	
+	----------------------------------
+	--Borrar los activos fijos nuevos
+	----------------------------------
+	--Obtencion del alta
+	SELECT
+	DISTINCT mov.id_movimiento 
+	INTO v_id_movimiento
+	FROM pro.tproyecto_activo pa
+	JOIN kaf.tmovimiento_af maf ON maf.id_activo_fijo = pa.id_activo_fijo
+	JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+		AND mov.id_cat_movimiento = 56
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') = '';
+
+	--Obtencion del movimiento de ajuste
+	SELECT
+	DISTINCT mov.id_movimiento 
+	INTO v_id_movimiento_ajuste
+	FROM pro.tproyecto_activo pa
+	JOIN kaf.tmovimiento_af maf ON maf.id_activo_fijo = pa.id_activo_fijo
+	JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+		AND mov.id_cat_movimiento = 71
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') <> '';
+
+	IF v_id_movimiento IS NULL THEN
+		--RAISE EXCEPTION 'Alta inexistente';
+	END IF;
+	RAISE NOTICE '--> Movimientos de Alta y Ajuste...';
+
+	--Eliminacion detalle del alta y ajuste
+	DELETE FROM kaf.tmovimiento_af 
+	WHERE id_movimiento = v_id_movimiento OR id_movimiento = v_id_movimiento_ajuste;
+
+	--Eliminacion del alta y ajuste
+	DELETE FROM kaf.tmovimiento WHERE id_movimiento = v_id_movimiento OR id_movimiento = v_id_movimiento_ajuste;
+
+	RAISE NOTICE '--> kaf.tactivo_fijo_valores';
+	--Eliminacion AFVs
+	DELETE FROM kaf.tactivo_fijo_valores afv
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND afv.id_activo_fijo = pa.id_activo_fijo
+	AND COALESCE(pa.codigo_af_rel, '') = '';
+
+
+	--Quitar la relacion con los activos fijos nuevos para eliminar los registros de las tablas
+	UPDATE pro.tproyecto_activo SET
+	obs_dba = id_activo_fijo
+	WHERE id_proyecto = v_id_proyecto
+	AND COALESCE(codigo_af_rel, '') = '';
+
+	RAISE NOTICE '--> kaf.tactivo_fijo';
+	--Quitar la relacion con los activos fijos nuevos para eliminar los registros de las tablas
+	UPDATE pro.tproyecto_activo SET
+	id_activo_fijo = NULL
+	WHERE id_proyecto = v_id_proyecto
+	AND COALESCE(codigo_af_rel, '') = '';
+	
+	--Eliminacion activos fijos
+	DELETE FROM kaf.tactivo_fijo af
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND af.id_activo_fijo = pa.obs_dba::integer
+	AND COALESCE(codigo_af_rel, '') = '';
+
+
+	------------------------------
+	--Borrar las adiciones
+	------------------------------
+	RAISE NOTICE 'PROCESANDO ...Ajustes';
+
+	--Borra los ajustes
+	DELETE FROM kaf.tactivo_fijo_valores afv
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') <> '' 
+	AND afv.id_activo_fijo = pa.id_activo_fijo 
+	AND afv.tipo = 'ajuste'
+	AND afv.fecha_fin IS NULL;
+
+	RAISE NOTICE '--> Actualizando fecha_ult_dep';
+	--Quitar las fechas fin de los activos fijos originales de las adiciones
+	UPDATE kaf.tactivo_fijo_valores AA SET
+	fecha_fin = NULL
+	FROM (
+		SELECT 
+		afv.id_moneda, pa.id_proyecto_activo, MAX(afv.id_activo_fijo_valor) AS id_activo_fijo_valor
+		FROM pro.tproyecto_activo pa
+		JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = pa.id_activo_fijo
+		WHERE pa.id_proyecto = v_id_proyecto
+		AND COALESCE(pa.codigo_af_rel, '') <> ''
+		GROUP BY afv.id_moneda, pa.id_proyecto_activo
+	) DD
+	WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor;
+	
+
+	
+	--------------------------
+	--Retroceder los estados
+	--------------------------
+	RAISE NOTICE '--> Actualizando estados: %', v_estado;
+	--Obtiene el estado 'conta'
+	SELECT
+	ew.id_estado_wf, ew.id_proceso_wf 
+	INTO v_id_estado_wf, v_id_proceso_wf
+	FROM pro.tproyecto py
+	JOIN wf.testado_wf ew ON ew.id_proceso_wf = py.id_proceso_wf_cierre 
+	JOIN wf.ttipo_estado te ON te.id_tipo_estado = ew.id_tipo_estado 
+	WHERE py.id_proyecto = v_id_proyecto
+	AND te.codigo = v_estado;
+
+	--Actualiza el estado de 'conta'
+	UPDATE wf.testado_wf SET
+	estado_reg = 'activo'
+	WHERE id_estado_wf = v_id_estado_wf;
+
+	--Cambia el estado al proyecto
+	UPDATE pro.tproyecto SET
+	estado_cierre = v_estado,
+	id_estado_wf_cierre = v_id_estado_wf
+	WHERE id_proyecto = v_id_proyecto;
+
+	--Quita las dependencias en el log
+	UPDATE wf.testado_wf ew SET
+	id_estado_anterior = NULL
+	WHERE ew.id_proceso_wf = v_id_proceso_wf
+	AND ew.id_estado_wf > v_id_estado_wf;
+
+	--Elimina los estados siguientes al de conta
+	DELETE FROM wf.testado_wf 
+	WHERE id_proceso_wf = v_id_proceso_wf
+	AND id_estado_wf > v_id_estado_wf;
+	
+	--------------------------
+	--Borrar los comprobantes
+	--------------------------
+	RAISE NOTICE '--> conta.tint_transaccion';
+
+	IF v_estado IN ('borrador','vobo','conta') THEN
+		UPDATE pro.tproyecto SET
+		id_int_comprobante_1 = NULL,
+		id_int_comprobante_2 = NULL,
+		id_int_comprobante_3 = NULL,
+		id_int_comprobante_4 = NULL
+		WHERE id_proyecto = v_id_proyecto;
+		
+		DELETE FROM conta.tint_transaccion tra
+		USING pro.tproyecto py
+		WHERE py.id_proyecto = v_id_proyecto
+		AND (py.id_int_comprobante_1 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_2 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_3 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_4 = tra.id_int_comprobante);
+
+		RAISE NOTICE '--> conta.tint_comprobante';
+		DELETE FROM conta.tint_comprobante cb
+		USING pro.tproyecto py
+		WHERE py.id_proyecto = v_id_proyecto
+		AND (py.id_int_comprobante_1 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_2 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_3 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_4 = cb.id_int_comprobante);
+	END IF;
+
+	
+
+	RAISE NOTICE 'Final';
+
+END$$;
+
+DO $$DECLARE
+
+	v_id_proyecto integer;
+	v_id_movimiento integer;
+	v_id_movimiento_ajuste integer;
+	v_rec record ;
+	v_id_estado_wf integer;
+	v_id_proceso_wf integer;
+	v_estado varchar;
+ 
+BEGIN
+	
+	--Obtencion de datos
+	v_id_proyecto = 171;
+	v_estado = 'af';
+	
+	IF NOT EXISTS (SELECT 1 FROM pro.tproyecto
+				WHERE id_proyecto = v_id_proyecto) THEN
+		RAISE EXCEPTION 'Proyecto inexistente';
+	END IF;
+	RAISE NOTICE 'PROCESANDO ...Altas';
+	
+	----------------------------------
+	--Borrar los activos fijos nuevos
+	----------------------------------
+	--Obtencion del alta
+	SELECT
+	DISTINCT mov.id_movimiento 
+	INTO v_id_movimiento
+	FROM pro.tproyecto_activo pa
+	JOIN kaf.tmovimiento_af maf ON maf.id_activo_fijo = pa.id_activo_fijo
+	JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+		AND mov.id_cat_movimiento = 56
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') = '';
+
+	--Obtencion del movimiento de ajuste
+	SELECT
+	DISTINCT mov.id_movimiento 
+	INTO v_id_movimiento_ajuste
+	FROM pro.tproyecto_activo pa
+	JOIN kaf.tmovimiento_af maf ON maf.id_activo_fijo = pa.id_activo_fijo
+	JOIN kaf.tmovimiento mov ON mov.id_movimiento = maf.id_movimiento
+		AND mov.id_cat_movimiento = 71
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') <> '';
+
+	IF v_id_movimiento IS NULL THEN
+		--RAISE EXCEPTION 'Alta inexistente';
+	END IF;
+	RAISE NOTICE '--> Movimientos de Alta y Ajuste...';
+
+	--Eliminacion detalle del alta y ajuste
+	DELETE FROM kaf.tmovimiento_af 
+	WHERE id_movimiento = v_id_movimiento OR id_movimiento = v_id_movimiento_ajuste;
+
+	--Eliminacion del alta y ajuste
+	DELETE FROM kaf.tmovimiento WHERE id_movimiento = v_id_movimiento OR id_movimiento = v_id_movimiento_ajuste;
+
+	RAISE NOTICE '--> kaf.tactivo_fijo_valores';
+	--Eliminacion AFVs
+	DELETE FROM kaf.tactivo_fijo_valores afv
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND afv.id_activo_fijo = pa.id_activo_fijo
+	AND COALESCE(pa.codigo_af_rel, '') = '';
+
+
+	--Quitar la relacion con los activos fijos nuevos para eliminar los registros de las tablas
+	UPDATE pro.tproyecto_activo SET
+	obs_dba = id_activo_fijo
+	WHERE id_proyecto = v_id_proyecto
+	AND COALESCE(codigo_af_rel, '') = '';
+
+	RAISE NOTICE '--> kaf.tactivo_fijo';
+	--Quitar la relacion con los activos fijos nuevos para eliminar los registros de las tablas
+	UPDATE pro.tproyecto_activo SET
+	id_activo_fijo = NULL
+	WHERE id_proyecto = v_id_proyecto
+	AND COALESCE(codigo_af_rel, '') = '';
+	
+	--Eliminacion activos fijos
+	DELETE FROM kaf.tactivo_fijo af
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND af.id_activo_fijo = pa.obs_dba::integer
+	AND COALESCE(codigo_af_rel, '') = '';
+
+
+	------------------------------
+	--Borrar las adiciones
+	------------------------------
+	RAISE NOTICE 'PROCESANDO ...Ajustes';
+
+	--Borra los ajustes
+	DELETE FROM kaf.tactivo_fijo_valores afv
+	USING pro.tproyecto_activo pa
+	WHERE pa.id_proyecto = v_id_proyecto
+	AND COALESCE(pa.codigo_af_rel, '') <> '' 
+	AND afv.id_activo_fijo = pa.id_activo_fijo 
+	AND afv.tipo = 'ajuste'
+	AND afv.fecha_fin IS NULL;
+
+	RAISE NOTICE '--> Actualizando fecha_ult_dep';
+	--Quitar las fechas fin de los activos fijos originales de las adiciones
+	UPDATE kaf.tactivo_fijo_valores AA SET
+	fecha_fin = NULL
+	FROM (
+		SELECT 
+		afv.id_moneda, pa.id_proyecto_activo, MAX(afv.id_activo_fijo_valor) AS id_activo_fijo_valor
+		FROM pro.tproyecto_activo pa
+		JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = pa.id_activo_fijo
+		WHERE pa.id_proyecto = v_id_proyecto
+		AND COALESCE(pa.codigo_af_rel, '') <> ''
+		GROUP BY afv.id_moneda, pa.id_proyecto_activo
+	) DD
+	WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor;
+	
+
+	
+	--------------------------
+	--Retroceder los estados
+	--------------------------
+	RAISE NOTICE '--> Actualizando estados: %', v_estado;
+	--Obtiene el estado 'conta'
+	SELECT
+	ew.id_estado_wf, ew.id_proceso_wf 
+	INTO v_id_estado_wf, v_id_proceso_wf
+	FROM pro.tproyecto py
+	JOIN wf.testado_wf ew ON ew.id_proceso_wf = py.id_proceso_wf_cierre 
+	JOIN wf.ttipo_estado te ON te.id_tipo_estado = ew.id_tipo_estado 
+	WHERE py.id_proyecto = v_id_proyecto
+	AND te.codigo = v_estado;
+
+	--Actualiza el estado de 'conta'
+	UPDATE wf.testado_wf SET
+	estado_reg = 'activo'
+	WHERE id_estado_wf = v_id_estado_wf;
+
+	--Cambia el estado al proyecto
+	UPDATE pro.tproyecto SET
+	estado_cierre = v_estado,
+	id_estado_wf_cierre = v_id_estado_wf
+	WHERE id_proyecto = v_id_proyecto;
+
+	--Quita las dependencias en el log
+	UPDATE wf.testado_wf ew SET
+	id_estado_anterior = NULL
+	WHERE ew.id_proceso_wf = v_id_proceso_wf
+	AND ew.id_estado_wf > v_id_estado_wf;
+
+	--Elimina los estados siguientes al de conta
+	DELETE FROM wf.testado_wf 
+	WHERE id_proceso_wf = v_id_proceso_wf
+	AND id_estado_wf > v_id_estado_wf;
+	
+	--------------------------
+	--Borrar los comprobantes
+	--------------------------
+	RAISE NOTICE '--> conta.tint_transaccion';
+
+	IF v_estado IN ('borrador','vobo','conta') THEN
+		UPDATE pro.tproyecto SET
+		id_int_comprobante_1 = NULL,
+		id_int_comprobante_2 = NULL,
+		id_int_comprobante_3 = NULL,
+		id_int_comprobante_4 = NULL
+		WHERE id_proyecto = v_id_proyecto;
+		
+		DELETE FROM conta.tint_transaccion tra
+		USING pro.tproyecto py
+		WHERE py.id_proyecto = v_id_proyecto
+		AND (py.id_int_comprobante_1 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_2 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_3 = tra.id_int_comprobante 
+		OR py.id_int_comprobante_4 = tra.id_int_comprobante);
+
+		RAISE NOTICE '--> conta.tint_comprobante';
+		DELETE FROM conta.tint_comprobante cb
+		USING pro.tproyecto py
+		WHERE py.id_proyecto = v_id_proyecto
+		AND (py.id_int_comprobante_1 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_2 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_3 = cb.id_int_comprobante 
+		OR py.id_int_comprobante_4 = cb.id_int_comprobante);
+	END IF;
+
+	
+
+	RAISE NOTICE 'Final';
+
+END$$;
+
+--Actualiza correlativo de la clasificaicon
+UPDATE kaf.tclasificacion SET 
+correlativo_act = 270
+WHERE id_clasificacion;
+
+/***********************************F-DAT-RCM-KAF-ETR-3361-22/03/2021****************************************/

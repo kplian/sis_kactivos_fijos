@@ -7,16 +7,17 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
 /***************************************************************************
-#ISSUE  SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
-		KAF 	ETR 		01/11/2017  RCM 	Creación del archivo
- #40    KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
- #70    KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
+#ISSUE  	SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+			KAF 	ETR 		01/11/2017  RCM 	Creación del archivo
+ #40    	KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
+ #70    	KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
+ #ETR-3360  KAF     ETR         31/03/2021  RCM     Mejora para cierre de proyectos, importe din modif usar el campo nuevo, correccion de la opcion de editar
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
-
+	id_moneda: 0,
 	constructor: function(config) {
 		this.maestro = config;
 		this.initButtons = [this.cmbMonedaDep];
@@ -32,6 +33,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
             success: function(res,params){
                 Phx.CP.loadingHide();
                 var response = Ext.decode(res.responseText).ROOT.datos;
+                this.id_moneda = response.id_moneda; //#ETR-3360
                 Ext.apply(this.store.baseParams,{
                 	id_activo_fijo: this.maestro[0].data.id_activo_fijo,
                 	id_moneda: response.id_moneda});
@@ -96,7 +98,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 					name: 'id_activo_fijo'
 			},
 			type:'Field',
-			form:true
+			form: true
 		},
 		{
 			//configuracion del componente
@@ -118,7 +120,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				maxLength:50
 			},
 				type:'TextField',
-				filters:{pfiltro:'actval.depreciacion_per',type:'string'},
+				filters:{pfiltro:'actval.codigo',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:true
@@ -182,7 +184,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				filters:{pfiltro:'actval.monto_vigente_orig_100',type:'numeric'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form: true //#ETR-3360
 		},
 		{
 			config:{
@@ -205,7 +207,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				filters:{pfiltro:'actval.monto_vigente_orig',type:'numeric'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form: true //#ETR-3360
 		},
 		{
 			config:{
@@ -308,7 +310,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				filters:{pfiltro:'actval.vida_util_orig',type:'numeric'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form: true //#ETR-3360
 		},
 		{
 			config:{
@@ -331,7 +333,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				type:'NumberField',
 				filters:{pfiltro:'afv.vida_util_real',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false, //#ETR-3360
 				form:false
 		},
 		{
@@ -348,7 +350,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				filters:{pfiltro:'actval.fecha_ult_dep',type:'date'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form: true //#ETR-3360
 		},
 		{
 			config:{
@@ -536,7 +538,7 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				type:'TextField',
 				filters:{pfiltro:'actval.principal',type:'string'},
 				id_grupo:1,
-				grid:true,
+				grid:false, //#ETR-3360
 				form:false
 		},
 
@@ -780,11 +782,19 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
     },
     iniciaEventos: function(){
     	this.cmbMonedaDep.on('select',function(combo, record, index){
+    		this.id_moneda = record.data.id_moneda; //#ETR-3360
 			Ext.apply(this.store.baseParams,{
 				id_moneda: record.data.id_moneda});
 			this.load();
     	},this)
-    }
+    },
+    agregarArgsExtraSubmit: function() {
+       console.log('moneda', this.id_moneda);
+		this.argumentExtraSubmit = { 
+       		id_activo_fijo: this.maestro[0].data.id_activo_fijo,
+       		id_moneda: this.id_moneda
+       	};
+   
+   }
 })
 </script>
-

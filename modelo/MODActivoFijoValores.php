@@ -7,10 +7,11 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 */
 /***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #2     KAF       ETR           11/01/2019  RCM         Actualización de listado detalle depreciación interfaz
- #40    KAF       ETR           05/12/2019  RCM         Adición de campos faltantes
- #AF-16  KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación
+ ISSUE  	SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #2     	KAF     ETR         11/01/2019  RCM     Actualización de listado detalle depreciación interfaz
+ #40    	KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
+ #AF-16  	KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
+ #ETR-3360  KAF     ETR         31/03/2021  RCM     Mejora para cierre de proyectos, importe din modif usar el campo nuevo, correccion de la opcion de editar
  ***************************************************************************/
 class MODActivoFijoValores extends MODbase{
 
@@ -98,6 +99,16 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
 		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
 		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');//#AF-16
+		//#Inicio ETR-3360
+		$this->setParametro('codigo','codigo','varchar'); 
+		$this->setParametro('importe_modif','importe_modif','numeric');
+		$this->setParametro('importe_modif_sin_act','importe_modif_sin_act','numeric'); 
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('monto_vigente_actualiz_inicial', 'monto_vigente_actualiz_inicial', 'numeric');
+		$this->setParametro('depreciacion_acum_inicial', 'depreciacion_acum_inicial', 'numeric');
+		$this->setParametro('depreciacion_per_inicial', 'depreciacion_per_inicial', 'numeric');
+		$this->setParametro('id_moneda', 'id_moneda', 'int4');
+		//#Fin ETR-3360
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -135,6 +146,15 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('tipo_cambio_fin','tipo_cambio_fin','numeric');
 		$this->setParametro('monto_vigente_orig_100','monto_vigente_orig_100','numeric');
 		$this->setParametro('fecha_tc_ini_dep','fecha_tc_ini_dep','date');//#AF-16
+		//#Inicio ETR-3360
+		$this->setParametro('codigo','codigo','varchar'); 
+		$this->setParametro('importe_modif','importe_modif','numeric');
+		$this->setParametro('importe_modif_sin_act','importe_modif_sin_act','numeric'); 
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('monto_vigente_actualiz_inicial', 'monto_vigente_actualiz_inicial', 'numeric');
+		$this->setParametro('depreciacion_acum_inicial', 'depreciacion_acum_inicial', 'numeric');
+		$this->setParametro('depreciacion_per_inicial', 'depreciacion_per_inicial', 'numeric');
+		//#Fin ETR-3360
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
