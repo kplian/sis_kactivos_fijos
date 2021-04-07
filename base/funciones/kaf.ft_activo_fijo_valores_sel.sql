@@ -22,6 +22,7 @@ $body$
  #70    	KAF       ETR           03/08/2020  RCM         Adición de fecha para TC ini de la primera depreciación'
  #AF-16 	KAF       ETR           30/10/2020  RCM         Cambio en consulta para hacer la actualización de importe adicional en base a la fecha de cierre de proyecto
  #ETR-3360	KAF 	  ETR 			31/03/2021  RCM 		Cambio del campo importe sin act por el campo nuevo
+ #ETR-3306  KAF       ETR         	05/04/2021  RCM     	Adicion de campo fecha_inicio como fecha ini orig, y vida_util como vida util orig
  ***************************************************************************/
 
 DECLARE
@@ -88,7 +89,8 @@ BEGIN
 				        COALESCE(actval.importe_modif_sin_act, actval.importe_modif / ( param.f_get_tipo_cambio(3, (DATE_TRUNC(''month'', actval.fecha_ini_dep) - interval ''1 day'')::date, ''O'') /  
                                         param.f_get_tipo_cambio(3, COALESCE((DATE_TRUNC(''month'', py.fecha_rev_aitb) - interval ''1 day'')::date, DATE_TRUNC(''year'', actval.fecha_ini_dep)::date), ''O''))), --#70   --ETR-3360
 				        --Fin #40
-				        actval.fecha_tc_ini_dep --#70
+				        actval.fecha_tc_ini_dep, --#70
+				        DATE_TRUNC(''month'', actval.fecha_inicio)::date AS fecha_inicio --#ETR-3306
 						from kaf.tactivo_fijo_valores actval
 						inner join segu.tusuario usu1 on usu1.id_usuario = actval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = actval.id_usuario_mod

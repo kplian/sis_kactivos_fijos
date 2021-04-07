@@ -15,6 +15,7 @@ $BODY$
  0      	KAF     ETR         04/05/2016  admin   Creación del archivo
  #70    	KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
  #ETR-3360  KAF     ETR         31/03/2021  RCM     Mejora para cierre de proyectos, importe din modif usar el campo nuevo, correccion de la opcion de editar
+ #ETR-3306  KAF     ETR         05/04/2021  RCM     Adicion de campo fecha_inicio como fecha ini orig, y vida_util como vida util orig
 ***************************************************************************/
 
 DECLARE
@@ -66,7 +67,7 @@ BEGIN
 			fecha_ult_dep,
 			fecha_ini_dep,
 			monto_vigente_orig,
-			--vida_util,--#ETR-3360
+			vida_util,--#ETR-3306
 			vida_util_orig,
 			--id_movimiento_af,--#ETR-3360
 			--tipo_cambio_fin,--#ETR-3360
@@ -87,8 +88,9 @@ BEGIN
 			depreciacion_acum_inicial,
 			depreciacion_per_inicial,
 			id_moneda,
-			id_moneda_dep
+			id_moneda_dep,
 			--#Fin ETR-3360
+			fecha_inicio --#ETR-3306
           	) values(
 			v_parametros.id_activo_fijo,
 			--v_parametros.depreciacion_per,--#ETR-3360
@@ -104,7 +106,7 @@ BEGIN
 			v_parametros.fecha_ult_dep,
 			v_parametros.fecha_ini_dep,
 			v_parametros.monto_vigente_orig,
-			--v_parametros.vida_util,--#ETR-3360
+			v_parametros.vida_util, --#ETR-3306
 			v_parametros.vida_util_orig,
 			--v_parametros.id_movimiento_af,--#ETR-3360
 			--v_parametros.tipo_cambio_fin,--#ETR-3360
@@ -125,8 +127,9 @@ BEGIN
 			v_parametros.depreciacion_acum_inicial,
 			v_parametros.depreciacion_per_inicial,
 			v_parametros.id_moneda,
-			v_id_moneda_dep
+			v_id_moneda_dep,
 			--#Fin ETR-3360
+			v_parametros.fecha_inicio --#ETR-3306
 			) RETURNING id_activo_fijo_valor into v_id_activo_fijo_valor;
 
 			--Definicion de la respuesta
@@ -163,7 +166,7 @@ BEGIN
 			fecha_ult_dep = v_parametros.fecha_ult_dep,
 			fecha_ini_dep = v_parametros.fecha_ini_dep,
 			monto_vigente_orig = v_parametros.monto_vigente_orig,
-			--vida_util = v_parametros.vida_util,
+			vida_util = v_parametros.vida_util, --#ETR-3306
 			vida_util_orig = v_parametros.vida_util_orig,
 			--id_movimiento_af = v_parametros.id_movimiento_af, --#ETR-3360
 			--tipo_cambio_fin = v_parametros.tipo_cambio_fin, --#ETR-3360
@@ -180,7 +183,8 @@ BEGIN
 			fecha_fin = v_parametros.fecha_fin, 
 			monto_vigente_actualiz_inicial = v_parametros.monto_vigente_actualiz_inicial,
 			depreciacion_acum_inicial =  v_parametros.depreciacion_acum_inicial,
-			depreciacion_per_inicial = v_parametros.depreciacion_per_inicial
+			depreciacion_per_inicial = v_parametros.depreciacion_per_inicial,
+			fecha_inicio = v_parametros.fecha_inicio --#ETR-3306
 			--#Fin ETR-3360
 			where id_activo_fijo_valor = v_parametros.id_activo_fijo_valor;
 

@@ -80,8 +80,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.monto_actualiz * mdep.tipo_cambio_fin) - mdep.monto_actualiz <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170
@@ -114,8 +114,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion * mdep.tipo_cambio_fin) - mdep.depreciacion <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170
@@ -148,8 +148,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_acum * mdep.tipo_cambio_fin) - mdep.depreciacion_acum <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170
@@ -182,8 +182,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_per * mdep.tipo_cambio_fin) - mdep.depreciacion_per <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170
@@ -216,8 +216,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.monto_vigente * mdep.tipo_cambio_fin) - mdep.monto_vigente <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170
@@ -250,8 +250,8 @@ BEGIN
         AND mdep.id_moneda = v_id_moneda_base
         AND (ufv.depreciacion_acum_actualiz * mdep.tipo_cambio_fin) - mdep.depreciacion_acum_actualiz <> 0
         --Inicio #ETR-2170
-        AND CASE COALESCE(v_fecha_act_ufv, '') --#ETR-3360
-                WHEN '' THEN 0 = 0 --#ETR-3360
+        AND CASE v_fecha_act_ufv
+                WHEN NULL THEN 0 = 0 --#ETR-3360
                 ELSE afv.fecha_ini_dep <= v_fecha_act_ufv
             END
         --Fin #ETR-2170

@@ -12,6 +12,7 @@
  #40    	KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
  #AF-16  	KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
  #ETR-3360  KAF     ETR         31/03/2021  RCM     Mejora para cierre de proyectos, importe din modif usar el campo nuevo, correccion de la opcion de editar
+ #ETR-3306  KAF     ETR         05/04/2021  RCM     Adicion de campo fecha_inicio como fecha ini orig, y vida_util como vida util orig
  ***************************************************************************/
 class MODActivoFijoValores extends MODbase{
 
@@ -63,6 +64,7 @@ class MODActivoFijoValores extends MODbase{
         $this->captura('importe_modif', 'numeric');
         $this->captura('importe_modif_sin_act', 'numeric');
         $this->captura('fecha_tc_ini_dep', 'date');//#AF-16
+        $this->captura('fecha_inicio','date'); //#ETR-3306
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -109,6 +111,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('depreciacion_per_inicial', 'depreciacion_per_inicial', 'numeric');
 		$this->setParametro('id_moneda', 'id_moneda', 'int4');
 		//#Fin ETR-3360
+		$this->setParametro('fecha_inicio','fecha_inicio','date'); //#ETR-3306
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -155,6 +158,7 @@ class MODActivoFijoValores extends MODbase{
 		$this->setParametro('depreciacion_acum_inicial', 'depreciacion_acum_inicial', 'numeric');
 		$this->setParametro('depreciacion_per_inicial', 'depreciacion_per_inicial', 'numeric');
 		//#Fin ETR-3360
+		$this->setParametro('fecha_inicio','fecha_inicio','date'); //#ETR-3306
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

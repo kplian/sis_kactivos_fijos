@@ -12,6 +12,7 @@
  #40    	KAF     ETR         05/12/2019  RCM     Adición de campos faltantes
  #70    	KAF     ETR         03/08/2020  RCM     Adición de fecha para TC ini de la primera depreciación
  #ETR-3360  KAF     ETR         31/03/2021  RCM     Mejora para cierre de proyectos, importe din modif usar el campo nuevo, correccion de la opcion de editar
+ #ETR-3306  KAF     ETR         05/04/2021  RCM     Adicion de campo fecha_inicio como fecha ini orig, y vida_util como vida util orig
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -209,6 +210,24 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				grid:true,
 				form: true //#ETR-3360
 		},
+		//Inicio #ETR-3306
+		{
+			config: {
+				name: 'fecha_inicio',
+				fieldLabel: 'Fecha Inicio Hist.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				format: 'd/m/Y',
+				renderer: function (value, p, record) { return value?value.dateFormat('d/m/Y') : '' }
+			},
+			type: 'DateField',
+			filters: { pfiltro: 'actval.fecha_ini_dep', type: 'date' },
+			id_grupo: 1,
+			grid: true,
+			form: true
+		},
+		//#Fin #ETR-3306
 		{
 			config:{
 				name: 'fecha_ini_dep',
@@ -296,7 +315,23 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				grid:false,
 				form:false
 		},
-
+		//Inicio #ETR-3306
+		{
+			config: {
+				name: 'vida_util',
+				fieldLabel: 'Vida util Orig. Hist.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 110,
+				maxLength: 4
+			},
+			type: 'NumberField',
+			filters: { pfiltro: 'afv.vida_util', type: 'numeric' },
+			id_grupo: 1,
+			grid: true, //#ETR-3360
+			form: true
+		},
+		//Fin #ETR-3306
 		{
 			config:{
 				name: 'vida_util_orig',
@@ -311,30 +346,6 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 				id_grupo:1,
 				grid:true,
 				form: true //#ETR-3360
-		},
-		{
-			config:{
-				name: 'vida_util_real',
-				fieldLabel: 'Vida util',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:4,
-				renderer:function (value,p,record){
-						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
-						}
-						else{
-							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
-						}
-				}
-			},
-				type:'NumberField',
-				filters:{pfiltro:'afv.vida_util_real',type:'numeric'},
-				id_grupo:1,
-				grid:false, //#ETR-3360
-				form:false
 		},
 		{
 			config:{
@@ -765,7 +776,8 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
         {name:'importe_modif', type: 'numeric'},
         {name:'importe_modif_sin_act', type: 'numeric'},
         //Fin #40
-        {name:'fecha_tc_ini_dep', type: 'date',dateFormat:'Y-m-d'} //#70
+        {name:'fecha_tc_ini_dep', type: 'date',dateFormat:'Y-m-d'}, //#70
+        {name:'fecha_inicio', type: 'date',dateFormat:'Y-m-d'} //#ETR-3306
 	],
 	sortInfo:{
 		field: 'id_activo_fijo_valor',
@@ -789,7 +801,6 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
     	},this)
     },
     agregarArgsExtraSubmit: function() {
-       console.log('moneda', this.id_moneda);
 		this.argumentExtraSubmit = { 
        		id_activo_fijo: this.maestro[0].data.id_activo_fijo,
        		id_moneda: this.id_moneda

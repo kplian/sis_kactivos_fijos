@@ -26,6 +26,7 @@ $body$
  #69        KAF       ETR           20/06/2020  RCM         Cambio lógica basada en vaor neto para considerar el valor actualizado
  #ETR-1443  KAF       ETR           28/10/2020  RCM         Corrección de la lógica de la nueva vida útil para los nuevos AFVs en caso activos fijos nuevos y adición de costo en consulta
  #ETR-3334  KAF       ETR           26/03/2021  RCM         Creación de movimientos de Alta y Ajustes según corresponda
+ #ETR-3306  KAF       ETR           05/04/2021  RCM         Seteo de la vida util original y fecha de inicio de las bolsas para pasara las disgregaciones
 ***************************************************************************
 */
 DECLARE
@@ -64,12 +65,22 @@ DECLARE
     --Fin #68
     --Inicio #ETR-3334
     v_id_cat_movimiento     INTEGER;
-    v_id_depto              INTEGER;
     v_num_tramite           VARCHAR;
     v_rec_mov               RECORD;
     v_id_movimiento         INTEGER;
     v_rec_af_det            RECORD;
     v_id_movimiento_af      INTEGER;
+    v_id_tipo_estado        INTEGER;
+    v_id_estado_wf_act      INTEGER;
+    v_id_proceso_wf_act     INTEGER;
+    v_id_depto              INTEGER;
+    v_codigo_estado_sig     VARCHAR;
+    v_acceso_directo        VARCHAR;
+    v_clase                 VARCHAR;
+    v_parametros_ad         VARCHAR;
+    v_tipo_noti             VARCHAR;
+    v_titulo                VARCHAR;
+    v_id_estado_actual      INTEGER;
     --Fin #ETR-3334
 
 BEGIN
@@ -345,7 +356,7 @@ BEGIN
     v_id_cat_movimiento AS id_cat_movimiento,
     v_fecha_mov AS fecha_mov,
     v_id_depto AS id_depto,
-    'Alta de activos fijos Disgregación '|| v_num_tramite AS glosa, --#ETR-3334
+    'Alta de activos fijos Disgregación '|| v_num_tramite AS glosa,
     NULL AS id_funcionario,
     NULL AS id_oficina,
     NULL AS _id_usuario_ai,
@@ -582,8 +593,58 @@ BEGIN
     END LOOP;
 
     --Inicio #ETR-3334: Se finaliza el Alta
+    --Obtención del estado finalizado y datos principales para el cambio de estado
+    SELECT
+    te.id_tipo_estado,
+    ew.id_estado_wf,
+    ew.id_proceso_wf,
+    mov.id_depto,
+    te.codigo
+    INTO
+    v_id_tipo_estado,
+    v_id_estado_wf_act,
+    v_id_proceso_wf_act,
+    v_id_depto,
+    v_codigo_estado_sig
+    FROM kaf.tmovimiento mov
+    INNER JOIN wf.testado_wf ew
+    ON ew.id_estado_wf = mov.id_estado_wf
+    INNER JOIN wf.tproceso_wf pw
+    ON pw.id_proceso_wf = ew.id_proceso_wf
+    INNER JOIN wf.ttipo_estado te
+    ON te.id_tipo_proceso = pw.id_tipo_proceso
+    WHERE mov.id_movimiento = v_id_movimiento
+    AND te.codigo = 'finalizado';
+
+    --Definición de datos para la notificación
+    v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
+    v_clase = 'Movimiento';
+    v_parametros_ad = '{filtro_directo: {campo: "mov.id_proceso_wf", valor: "' || v_id_proceso_wf_act::varchar || '"}}';
+    v_tipo_noti = 'notificacion';
+    v_titulo  = 'Finalización';
+
+    --Cambio de estado a Finalizado
+    v_id_estado_actual = wf.f_registra_estado_wf
+                        (
+                            v_id_tipo_estado,
+                            NULL,
+                            v_id_estado_wf_act,
+                            v_id_proceso_wf_act,
+                            p_id_usuario,
+                            NULL,
+                            NULL,
+                            v_id_depto,
+                            'Obs: Finalización automática del movimiento',
+                            v_acceso_directo,
+                            v_clase,
+                            v_parametros_ad,
+                            v_tipo_noti,
+                            v_titulo
+                        );
+
     UPDATE kaf.tmovimiento SET
-    estado = 'finalizado'
+    id_estado_wf = v_id_estado_actual,
+    estado = v_codigo_estado_sig
     WHERE id_movimiento = v_id_movimiento;
     --FIn #ETR-3334
 
@@ -650,7 +711,8 @@ BEGIN
         mov_esp,
         id_movimiento_af_especial, --#57
         fecha_tc_ini_dep, --#60
-        codigo --#ETR-3334
+        codigo, --#ETR-3334
+        fecha_inicio --#ETR-3306
     )
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -664,7 +726,8 @@ BEGIN
         )
         SELECT
         mov.fecha_mov, mdep.id_activo_fijo_valor, mdep.monto_actualiz, mdep.depreciacion_acum,
-        mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento, afv.codigo --#ETR-3334
+        mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mov.id_movimiento, afv.codigo, --#ETR-3334
+        afv.vida_util_orig, afv.fecha_inicio --#ETR-3306
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -724,7 +787,7 @@ BEGIN
         WHEN v_id_moneda THEN tad.monto_actualiz + tad.costo_orig --#69
         ELSE tad.monto_actualiz + (tao.monto_actualiz * tad.porcentaje / 100)
     END AS monto_vigente,
-    tad.vida_util,
+    tao.vida_util_orig, --tad.vida_util, 3Etr-3306
     'activo' AS estado,
     param.f_convertir_moneda(v_id_moneda_base, tad.id_moneda, 1, v_fecha_mov, 'O', 2)  AS monto_rescate, --#69
     v_cod_afv AS tipo,
@@ -744,7 +807,8 @@ BEGIN
     'cafv-' || p_id_movimiento::varchar AS mov_esp,
     tad.id_movimiento_af_especial, --#57
     DATE_TRUNC('month', tad.fecha_mov) - '1 day'::INTERVAL, --#60
-    tao.codigo --#ETR-3334
+    tao.codigo, --#ETR-3334
+    tao.fecha_inicio --#ETR-3306
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
@@ -773,7 +837,7 @@ BEGIN
     v_id_cat_movimiento AS id_cat_movimiento,
     v_fecha_mov AS fecha_mov,
     v_id_depto AS id_depto,
-    'Ajuste de activos fijos Disgregación '|| v_num_tramite AS glosa, --#ETR-3334
+    'Ajuste de activos fijos Disgregación '|| v_num_tramite AS glosa,
     NULL AS id_funcionario,
     NULL AS id_oficina,
     NULL AS _id_usuario_ai,
@@ -809,8 +873,58 @@ BEGIN
     WHERE mov.id_movimiento = p_id_movimiento;
 
     --Finalizacion del ajuste
+    --Obtención del estado finalizado y datos principales para el cambio de estado
+    SELECT
+    te.id_tipo_estado,
+    ew.id_estado_wf,
+    ew.id_proceso_wf,
+    mov.id_depto,
+    te.codigo
+    INTO
+    v_id_tipo_estado,
+    v_id_estado_wf_act,
+    v_id_proceso_wf_act,
+    v_id_depto,
+    v_codigo_estado_sig
+    FROM kaf.tmovimiento mov
+    INNER JOIN wf.testado_wf ew
+    ON ew.id_estado_wf = mov.id_estado_wf
+    INNER JOIN wf.tproceso_wf pw
+    ON pw.id_proceso_wf = ew.id_proceso_wf
+    INNER JOIN wf.ttipo_estado te
+    ON te.id_tipo_proceso = pw.id_tipo_proceso
+    WHERE mov.id_movimiento = v_id_movimiento
+    AND te.codigo = 'finalizado';
+
+    --Definición de datos para la notificación
+    v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
+    v_clase = 'Movimiento';
+    v_parametros_ad = '{filtro_directo: {campo: "mov.id_proceso_wf", valor: "' || v_id_proceso_wf_act::varchar || '"}}';
+    v_tipo_noti = 'notificacion';
+    v_titulo  = 'Finalización';
+
+    --Cambio de estado a Finalizado
+    v_id_estado_actual = wf.f_registra_estado_wf
+                        (
+                            v_id_tipo_estado,
+                            NULL,
+                            v_id_estado_wf_act,
+                            v_id_proceso_wf_act,
+                            p_id_usuario,
+                            NULL,
+                            NULL,
+                            v_id_depto,
+                            'Obs: Finalización automática del movimiento',
+                            v_acceso_directo,
+                            v_clase,
+                            v_parametros_ad,
+                            v_tipo_noti,
+                            v_titulo
+                        );
+                        
     UPDATE kaf.tmovimiento SET
-    estado = 'finalizado'
+    id_estado_wf = v_id_estado_actual,
+    estado = v_codigo_estado_sig
     WHERE id_movimiento = v_id_movimiento;
 
     --Fin #ETR-3334
