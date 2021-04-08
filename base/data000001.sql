@@ -1601,5 +1601,5 @@ FROM (
 	'04.16.7.3466-0')
 	AND date_trunc('month', mdep.fecha) = '01-03-2021'
 ) DD
-WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep
+WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
 /***********************************F-DAT-RCM-KAF-ETR-3602-08/04/2021****************************************/
