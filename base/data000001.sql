@@ -1582,7 +1582,7 @@ WHERE AA.id = DD.id;
 --KARDEX
 UPDATE kaf.tmovimiento_af_dep AA SET
 depreciacion = 0,
-depreciacion_acum = DD.depreciacion_acum_ant
+depreciacion_acum = DD.depreciacion_acum_ant,
 depreciacion_per = DD.depreciacion_per_ant,
 monto_vigente = DD.monto_vigente_ant
 FROM (
