@@ -32,6 +32,7 @@ $body$
  #ETR-1717  KAF       ETR           09/11/2020  RCM         Cambio en la generación de cbte. de igualación considerando todas las monedas
  #ETR-2170  KAF       ETR           12/01/2020  RCM         Modificación comprobante de comparación de la depreciación
  #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
+ #ETR-3617  KAF       ETR           09/04/2021  RCM         Corrección consulta de comparación con conta considerando movimiento de depreciación y que estén finalizados
 ****************************************************************************/
 DECLARE
 
@@ -1346,6 +1347,12 @@ BEGIN
                     SUM(rd.aitb_dep_mes) AS depreciacion_per,
                     SUM(rd.depreciacion_acum) AS depreciacion_acum
                     FROM kaf.treporte_detalle_dep2 rd
+                    --Inicio #ETR-3617
+                    JOIN kaf.tmovimiento mov ON mov.id_movimiento = rd.id_movimiento
+                        AND mov.estado = 'finalizado'
+                    JOIN param.tcatalogo cat ON cat.id_catalogo = mov.id_cat_movimiento 
+                        AND cat.codigo = 'deprec'
+                    --Fin #ETR-3617
                     WHERE DATE_TRUNC('month', rd.fecha) = DATE_TRUNC('month', v_parametros.fecha)
                     GROUP BY rd.id_moneda, rd.cuenta_activo, rd.cuenta_dep_acum, rd.cuenta_deprec, rd.cuenta_dep_acum_dos
                 ), tdetalle_conta AS (
