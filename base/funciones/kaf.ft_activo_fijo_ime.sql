@@ -14,9 +14,10 @@ $body$
  FECHA:         29-10-2015 03:18:45
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #12    KAF       ETR           16/05/2019  RCM         Modificación funcionario por regularización
- #AF-11 KAF       ETR           24/08/2020  RCM         Adición de Nro. de serie en el código QR
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #12        KAF       ETR           16/05/2019  RCM         Modificación funcionario por regularización
+ #AF-11     KAF       ETR           24/08/2020  RCM         Adición de Nro. de serie en el código QR
+ #ETR-3627  KAF       ETR           13/04/2021  RCM         Modificación de formato de reporte de etiqueta
 ***************************************************************************/
 
 DECLARE
@@ -391,7 +392,10 @@ BEGIN
         COALESCE(dep.nombre_corto, '') as nombre_depto,
         COALESCE(ent.nombre, '') as nombre_entidad,
         kaf.descripcion,
-        kaf.nro_serie --#AF-11
+        kaf.nro_serie, --#AF-11
+        --Inicio #ETR-3627
+        kaf.marca
+        --Fin #ETR-3627
         into
         v_rec_af
         from kaf.tactivo_fijo  kaf
@@ -413,6 +417,7 @@ BEGIN
         v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
         v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
         v_resp = pxp.f_agrega_clave(v_resp,'nro_serie',v_rec_af.nro_serie::varchar); --#AF-11
+        v_resp = pxp.f_agrega_clave(v_resp,'marca','CCCCCCCC'); --#ETR-3627
 
         --Devuelve la respuesta
         return v_resp;

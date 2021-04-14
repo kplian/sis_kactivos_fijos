@@ -19,6 +19,7 @@ $body$
  #AF-38     KAF       ETR           12/01/2020  RCM         En el procesamiento del reporte de depreciación, para el caso de adiciones desde cierre de proyecto, cambiar el cálculo aritmético para obtener la adición sin actualización para utilizar directamente el nuevo campo en la tabla. Además Cambio criterio para caso Altas de tipo: AF
  #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
  #ETR-3360  KAF       ETR           31/03/2021  RCM         Cambio del campo importe sin act por el campo nuevo
+ #ETR-3361  KAF       ETR           13/04/2021  RCM         Adición de dos nuevos campos de los históricos de vida útil y fecha inicio depreciación
 ***************************************************************************/
 DECLARE
 
@@ -166,7 +167,11 @@ BEGIN
                 desc_grupo_clasif,
                 cuenta_dep_acum_dos,
                 bk_codigo,
-                tipo
+                tipo,
+                --Inicio #ETR-3361
+                vida_util_hist, 
+                fecha_ini_dep_hist
+                --Fin #ETR-3361
             )
             WITH tdata AS (
                 WITH tant_gestion AS (
@@ -658,7 +663,8 @@ BEGIN
                 --Fin #70
                 kaf.f_define_origen(afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo) AS tipo,
                 COALESCE(afv.aux_depmes_tot_del_inc, 0) AS aux_depmes_tot_del_inc,
-                afv.id_activo_fijo, afv.id_activo_fijo_valor
+                afv.id_activo_fijo, afv.id_activo_fijo_valor,
+                afv.vida_util as vida_util_hist, afv.fecha_inicio as fecha_ini_dep_hist --#ETR-3361
                 FROM kaf.tmovimiento_af_dep mdep
                 INNER JOIN kaf.tactivo_fijo_valores afv
                 ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -764,7 +770,8 @@ BEGIN
                 (aitb_dep_ene + aitb_dep_feb + aitb_dep_mar + aitb_dep_abr + aitb_dep_may + aitb_dep_jun + aitb_dep_jul + aitb_dep_ago + aitb_dep_sep + aitb_dep_oct + aitb_dep_nov + aitb_dep_dic) AS total_aitb_dep,
                 cuenta_activo, cuenta_dep_acum, cuenta_deprec, desc_grupo, desc_grupo_clasif,
                 cuenta_dep_acum_dos, bk_codigo, --#70
-                tipo
+                tipo,
+                vida_util_hist, fecha_ini_dep_hist --#ETR-3361
                 FROM tdata
                 ORDER BY codigo';
 

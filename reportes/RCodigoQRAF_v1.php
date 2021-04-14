@@ -19,6 +19,7 @@
         	KAF       ETR           21/07/2017  RCM         Creación del archivo
  #AF-11 	KAF       ETR           24/08/2020  RCM         Adición de Nro. de serie en el código QR
  #ETR-2116	KAF 	  ETR 			11/12/2020	RCM 		Modificación de formato de reporte de etiqueta
+ #ETR-3627	KAF 	  ETR 			13/04/2021	RCM 		Modificación de formato de reporte de etiqueta
 ***************************************************************************
  * */
 header('Content-Type: text/html; charset=utf-8');
@@ -37,6 +38,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 	var $codigo_qr;
 	var $cod;
 	var $tipo;
+	var $separador_codigo = '|'; //#ETR-3627
 
 	function datosHeader ( $tipo, $detalle ) {
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-2;
@@ -59,6 +61,8 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 
 			//formatea el codigo con el conteido requerido
 			$this->codigo_qr = json_encode($this->cod);
+			//$this->codigo_qr = $detalle['codigo'].$this->separador_codigo.$detalle['denominacion'].$this->separador_codigo.$detalle['marca'].$this->separador_codigo.'.'.$this->separador_codigo.$detalle['serie']; //#ETR-3627
+			$this->codigo_qr = $detalle['codigo'].' '.$this->separador_codigo.' '.$detalle['denominacion'].' '.$this->separador_codigo.' '.$detalle['marca'].' '.$this->separador_codigo.' . '.$this->separador_codigo.' '.$detalle['nro_serie']; //#ETR-3627
 		}
 		else{
 			// para imprimir varios codigos
@@ -103,6 +107,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 
 				//formatea el codigo con el conteido requrido
 				$this->codigo_qr = json_encode($this->cod);
+				$this->codigo_qr = $val['codigo'].' '.$this->separador_codigo.' '.$val['denominacion'].' '.$this->separador_codigo.' '.$val['marca'].' '.$this->separador_codigo.' . '.$this->separador_codigo.' '.$val['nro_serie']; //#ETR-3627
 				$this->imprimirCodigo($style);
 			}
 		}
@@ -110,11 +115,11 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 
    function imprimirCodigo($style){
 	    $this->AddPage();
-   	    $this->write2DBarcode($this->codigo_qr, 'QRCODE,L', 1, 1,73,73, $style,'T',true);
+   	    $this->write2DBarcode($this->codigo_qr, 'QRCODE,L', 1, 1,83,83, $style,'T',true); //#ETR-3627
    	    $this->Ln();
    	    $this->SetFont('','B',20);
    	    $this->SetXY(2,2);//ETR-2116
-   	    $this->cell(73, 145, $this->cod['cod'], 0, 1, 'C',false,'',0); //ETR-2116
+   	    //$this->cell(73, 145, $this->cod['cod'], 0, 1, 'C',false,'',0); //ETR-2116
 
    	    //Inicio #AF-11
 		$this->SetFont('','',10);
@@ -131,7 +136,7 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		$maxLength=140;
 
 		//Descripcion
-		$this->SetFont('','B',20);
+		$this->SetFont('','',20);
 		$maxLengthLinea=28;
 		$x=65;
 		$y=$fila;
@@ -153,14 +158,19 @@ class RCodigoQRAF_v1 extends  ReportePDF {
 		}
 
 		//Nro Serie //ETR-2116
-		$this->SetXY(70,30);
+		/*$this->SetXY(70,30);
 		$this->SetFont('','B',14);
 		$serie = $this->cod['serie'];
 		if(strlen($this->cod['serie'])>=30){
 			$serie=substr($this->cod['serie'],0,30).'...';
 		}
 
-		$this->cell(130, 85, 'SERIE: '.$serie, 0, 1, 'C',false,'',0);
+		$this->cell(130, 85, 'SERIE: '.$serie, 0, 1, 'C',false,'',0);*/
+		//#ETR-3627
+		$this->SetXY(80,30);
+		$this->SetFont('','B',36);
+		$this->cell(130, 78, $this->cod['cod'], 0, 1, 'C',false,'',0);
+		//Fin #ETR-3627
 		$fila+=10;
 		$maxLength-=10;
 		//Fin #AF-11

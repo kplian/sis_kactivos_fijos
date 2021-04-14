@@ -11,6 +11,7 @@
  #2     	KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
  #18    	KAF       ETR           15/07/2019  RCM         Corrección de filtro por característica
  #ETR-2116	KAF 	  ETR 			11/12/2020	RCM 		Modificación de formato de reporte de etiqueta, adición de parámetro Local
+ #ETR-3627	KAF 	  ETR 			12/04/2021	RCM 		Adición de filtro para imprimir por movimiento y por proyecto
 ***************************************************************************
 */
 require_once(dirname(__FILE__).'/../reportes/RCodigoQRAF.php');
@@ -465,6 +466,26 @@ class ACTActivoFijo extends ACTbase{
 			$this->objParam->addFiltro("kaf.id_ubicacion = ".$this->objParam->getParametro('id_ubicacion'));
 		}
 		//Fin #ETR-2116
+
+		//Inicio #ETR-3627
+		if($this->objParam->getParametro('id_movimiento')!='') {
+			$this->objParam->addFiltro("kaf.id_activo_fijo in (
+					SELECT
+					maf.id_activo_fijo
+					FROM kaf.tmovimiento_af maf
+					WHERE maf.id_movimiento = " . $this->objParam->getParametro('id_movimiento') . "
+				)");
+		}
+
+		if($this->objParam->getParametro('id_proyecto')!='') {
+			$this->objParam->addFiltro("kaf.id_activo_fijo in (
+					SELECT
+					pa.id_activo_fijo
+					FROM pro.tproyecto_activo pa
+					WHERE pa.id_proyecto = " . $this->objParam->getParametro('id_proyecto') . "
+				)");	
+		}
+		//Fin #ETR-3627
 
 		$dataSource = $this->listarCodigoQRVarios();
 		//parametros basicos

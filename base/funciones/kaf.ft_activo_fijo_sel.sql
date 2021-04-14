@@ -18,6 +18,7 @@ $body$
  #2         KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos (SKA_ULTDAT_SEL)
  #ETR-2116  KAF       ETR           28/12/2020  RCM         Adición de criterio de ordenación listado varios QR
  #AF-40     KAF       ETR           19/02/2021  RCM         Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
+ #ETR-3627  KAF       ETR           13/04/2021  RCM         Modificación de formato de reporte de etiqueta
  ***************************************************************************/
 
 DECLARE
@@ -400,7 +401,10 @@ BEGIN
                             kaf.codigo_ant::varchar,
                             kaf.denominacion::varchar,
                             COALESCE(dep.nombre_corto, '''')::varchar as nombre_depto,
-                            COALESCE(ent.nombre, '''')::varchar as nombre_entidad
+                            COALESCE(ent.nombre, '''')::varchar as nombre_entidad,
+                            --Inicio #ETR
+                            kaf.marca,
+                            kaf.nro_serie
                           from kaf.tactivo_fijo  kaf
                           inner join param.tdepto dep on dep.id_depto = kaf.id_depto
                           left join param.tentidad ent on ent.id_entidad = dep.id_entidad
@@ -631,7 +635,11 @@ BEGIN
                         coalesce(dep.nombre_corto, '''') as nombre_depto,
                         coalesce(ent.nombre, '''') as nombre_entidad,
                         kaf.descripcion,'''
-                        ||v_clase_reporte||'''::varchar as clase_rep
+                        ||v_clase_reporte||'''::varchar as clase_rep,
+                        --Inicio #ETR-3627
+                        kaf.nro_serie,
+                        kaf.marca
+                        --Fin #ETR-3627
                         from kaf.tactivo_fijo  kaf
                         inner join param.tdepto dep on dep.id_depto = kaf.id_depto
                         left join param.tentidad ent on ent.id_entidad = dep.id_entidad

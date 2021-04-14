@@ -9,6 +9,7 @@
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #ETR-2029  KAF       ETR           09/12/2020  RCM         Creación del archivo
  #ETR-2778  KAF       ETR           02/02/2021  RCM         Adición de campos para modificación de AFVs
+ #ETR-3627  KAF       ETR           14/04/2021  RCM         Corrección nombre definido en store para dos columnas
 *******************************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -738,7 +739,7 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config:{
-                name: 'usd_fechaufv_ini',
+                name: 'usd_fecha_ufv_ini', //#ETR-3627
                 fieldLabel: 'USD Fecha UFV Ini.',
                 allowBlank: true,
                 anchor: '80%',
@@ -952,7 +953,7 @@ Phx.vista.ActivoModMasivoDet=Ext.extend(Phx.gridInterfaz,{
         },
         {
             config:{
-                name: 'ufv_fechaufv_ini',
+                name: 'ufv_fecha_ufv_ini', //#ETR-3627
                 fieldLabel: 'UFV Fecha UFV Ini.',
                 allowBlank: true,
                 anchor: '80%',

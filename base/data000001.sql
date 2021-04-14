@@ -1603,3 +1603,11 @@ FROM (
 ) DD
 WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
 /***********************************F-DAT-RCM-KAF-ETR-3602-08/04/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-3361-13/04/2021****************************************/
+ALTER TABLE kaf.treporte_detalle_dep2
+	ADD COLUMN vida_util_hist INTEGER;
+
+ALTER TABLE kaf.treporte_detalle_dep2
+	ADD COLUMN fecha_ini_dep_hist DATE;
+/***********************************F-DAT-RCM-KAF-ETR-3361-13/04/2021****************************************/

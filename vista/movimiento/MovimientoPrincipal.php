@@ -14,6 +14,7 @@
  #58        KAF     ETR         20/04/2020  RCM     Adición de botón para nuevo reporte de depreciación
  #ETR-1443  KAF     ETR         22/10/2020  RCM     Modificación de servicio para procesamiento de Detalle Depreciación
  #ETR-2170  KAF     ETR         18/12/2020  RCM     Adición de campo para registro del tipo de cambio final para actualización
+ #ETR-3627  KAF     ETR         12/04/2021  RCM     Adición de filtro para imprimir por movimiento y por proyecto
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -263,6 +264,19 @@ Phx.vista.MovimientoPrincipal = {
             }
         );
         //Fin #58
+
+        //Inicio #ETR-3627
+        this.addButton('btnCodigoQR',
+            {
+                text: 'Códigos QR',
+                iconCls: 'bprintcheck',
+                disabled: false,
+                handler: this.imprimirQR,
+                tooltip: '<b>Impresión masiva de QR</b><br/>Genera los códigos QR de todos los activos fijos inlcuídos en el movimiento',
+                grupo: [0,1,2,3,4,5,6]
+            }
+        );
+        //Fin #ETR-3627
 
         //Oculta los botones
         this.getBoton('btnCbte1').hide();
@@ -516,6 +530,7 @@ Phx.vista.MovimientoPrincipal = {
             this.getBoton('btnImportDataDvalAF').hide();
             this.getBoton('btnImportDataDvalAL').hide();
             //fin #39
+            this.getBoton('btnCodigoQR').disable(); //#ETR-3627
         }
        return tb
     },
@@ -596,6 +611,8 @@ Phx.vista.MovimientoPrincipal = {
         if(data.id_int_comprobante_4){
             this.getBoton('btnCbte4').show();
         }
+
+        this.getBoton('btnCodigoQR').enable(); //#ETR-3627
 
         return tb;
     },
@@ -1060,9 +1077,32 @@ Phx.vista.MovimientoPrincipal = {
 
     abrirVentanaRep: function() {
         this.winRep.show();
-    }
+    },
     //Fin #ETR-1443
 
+    //Inicio #ETR-3627
+    imprimirQR: function() {
+        Phx.CP.loadingShow();
+
+        var rec = this.sm.getSelected(),
+            data = rec.data;
+
+        if (data) {
+
+            Ext.Ajax.request({
+                url: '../../sis_kactivos_fijos/control/ActivoFijo/repCodigoQRVarios',
+                params: {
+                    id_movimiento: data.id_movimiento
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        }
+
+    }
+    //Fin #ETR-3627
 
 };
 </script>

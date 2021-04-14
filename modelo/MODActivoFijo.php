@@ -10,6 +10,7 @@
  ISSUE  	SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2     	KAF       ETR           22/05/2019  RCM         Se aumenta consulta para obtener los datos más actuales de los activos fijos
  #AF-40     KAF       ETR           19/02/2021  RCM         Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
+ #ETR-3627	KAF 	  ETR 			12/04/2021	RCM 		Adición de filtro para imprimir por movimiento y por proyecto
 ***************************************************************************
 */
 class MODActivoFijo extends MODbase{
@@ -351,6 +352,7 @@ class MODActivoFijo extends MODbase{
 	    $this->captura('denominacion','varchar');
 	    $this->captura('nombre_depto','varchar');
 	    $this->captura('nombre_entidad','varchar');
+	    $this->captura('marca','varchar'); //#ETR-3627
 
 
 
@@ -611,6 +613,8 @@ class MODActivoFijo extends MODbase{
         $this->captura('nombre_entidad','varchar');
         $this->captura('descripcion','varchar');
         $this->captura('clase_rep','varchar');
+        $this->captura('nro_serie','varchar');
+        $this->captura('marca','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
