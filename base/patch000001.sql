@@ -2031,3 +2031,8 @@ ALTER TABLE kaf.tactivo_mod_masivo_det_original
 	ADD COLUMN ufv_inc_sact NUMERIC,
 	ADD COLUMN ufv_fechaufv_ini DATE;
 /***********************************F-DAT-RCM-KAF-ETR-2778-01/02/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-3660-19/04/2021****************************************/
+ALTER TABLE kaf.tcomparacion_af_conta
+	ADD COLUMN codigo_rel_cont VARCHAR;
+/***********************************F-DAT-RCM-KAF-ETR-3660-19/04/2021****************************************/

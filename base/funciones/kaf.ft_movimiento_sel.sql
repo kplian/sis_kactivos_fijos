@@ -14,9 +14,10 @@ $body$
  FECHA:         22-10-2015 20:42:41
  COMENTARIOS:
  ***************************************************************************
- ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
- #AF-41     KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
+ ISSUE          SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #ETR-2170      KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
+ #AF-41         KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
+ #ETR-3660      KAF       ETR           19/04/2021  RCM         Correción columna moneda original
 ***************************************************************************/
 
 DECLARE
@@ -400,7 +401,8 @@ BEGIN
         begin
 
             --Consulta
-            v_consulta:=' select
+            v_consulta:=' 
+                            select
                             af.codigo,
                             af.denominacion,
                             af.descripcion,
@@ -419,7 +421,24 @@ BEGIN
                             af.monto_compra_orig_100,
                             af.nro_cbte_asociado,
                             af.observaciones,
-                            af.vida_util_original --#AF-41
+                            af.vida_util_original, --#AF-41
+                            --Inicio #ETR-3660
+                            (SELECT monto_vigente_orig 
+                            FROM kaf.tactivo_fijo_valores 
+                            WHERE id_activo_fijo = af.id_activo_fijo
+                            AND tipo = ''alta''
+                            AND id_moneda = 1) as monto_orig_bs,
+                            (SELECT monto_vigente_orig 
+                            FROM kaf.tactivo_fijo_valores 
+                            WHERE id_activo_fijo = af.id_activo_fijo
+                            AND tipo = ''alta''
+                            AND id_moneda = 2) as monto_orig_usd,
+                            (SELECT monto_vigente_orig 
+                            FROM kaf.tactivo_fijo_valores 
+                            WHERE id_activo_fijo = af.id_activo_fijo
+                            AND tipo = ''alta''
+                            AND id_moneda = 3) as monto_orig_ufv
+                            --Fin #ETR-3660
                      from kaf.tmovimiento_af maf
                           inner join kaf.tactivo_fijo af on af.id_activo_fijo = maf.id_activo_fijo
                           left join param.tcatalogo cat2 on cat2.id_catalogo = maf.id_cat_estado_fun

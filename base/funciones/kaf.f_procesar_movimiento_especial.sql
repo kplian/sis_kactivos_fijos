@@ -81,6 +81,7 @@ DECLARE
     v_tipo_noti             VARCHAR;
     v_titulo                VARCHAR;
     v_id_estado_actual      INTEGER;
+    v_glosa                 VARCHAR;
     --Fin #ETR-3334
 
 BEGIN
@@ -174,9 +175,9 @@ BEGIN
     --Inicio RCM 07/11/2019
     --Obtención de la fecha
     SELECT
-    fecha_mov, num_tramite
+    fecha_mov, num_tramite, glosa --#ETR-3334
     INTO
-    v_fecha_mov, v_num_tramite --#ETR-3334
+    v_fecha_mov, v_num_tramite, v_glosa --#ETR-3334
     FROM kaf.tmovimiento
     WHERE id_movimiento = p_id_movimiento;
     --Fin RCM 07/11/2019
@@ -328,54 +329,6 @@ BEGIN
     -------------------------------------------------
     --CASO 2.3: CREACIÓN DE LOS ACTIVOS FIJOS NUEVOS
     -------------------------------------------------
-    --Inicio #ETR-3334: Creación de cabecera de Alta
-    --Obtención del ID del movimiento Alta
-    SELECT cat.id_catalogo
-    INTO v_id_cat_movimiento
-    FROM param.tcatalogo cat
-    INNER JOIN param.tcatalogo_tipo ctip
-    ON ctip.id_catalogo_tipo = cat.id_catalogo_tipo
-    WHERE ctip.tabla = 'tmovimiento__id_cat_movimiento'
-    AND cat.codigo = 'alta';
-
-    IF v_id_cat_movimiento IS NULL THEN
-        raise exception 'No se encuentra registrado el Proceso de Alta. Comuníquese con el administrador del sistema.';
-    END IF;
-
-    --Obtención del depto de AF en relación al depto de Conta
-    SELECT id_depto
-    INTO v_id_depto
-    FROM param.tdepto dep
-    WHERE dep.codigo = 'AF'
-    AND dep.modulo = 'KAF';
-
-    --Definción de parámetros
-    SELECT
-    'N/D' AS direccion,
-    NULL AS fecha_hasta,
-    v_id_cat_movimiento AS id_cat_movimiento,
-    v_fecha_mov AS fecha_mov,
-    v_id_depto AS id_depto,
-    'Alta de activos fijos Disgregación '|| v_num_tramite AS glosa,
-    NULL AS id_funcionario,
-    NULL AS id_oficina,
-    NULL AS _id_usuario_ai,
-    p_id_usuario AS id_usuario,
-    NULL AS _nombre_usuario_ai,
-    NULL AS id_persona,
-    NULL AS codigo,
-    NULL AS id_deposito,
-    NULL AS id_depto_dest,
-    NULL AS id_deposito_dest,
-    NULL AS id_funcionario_dest,
-    NULL AS id_movimiento_motivo,
-    'si' AS mov_rapido --#58
-    INTO v_rec_mov;
-
-    --Creación del movimiento
-    v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
-    --Fin #ETR-3334
-
     --Recorrido de los activos fijos nuevos
     FOR v_rec IN INSERT INTO kaf.tactivo_fijo ( --consulta verificada ..ok --#48
                     estado_reg,
@@ -484,7 +437,7 @@ BEGIN
         WHERE maf.id_movimiento = p_id_movimiento
         AND mafe.id_movimiento_af_especial = v_rec.id_proyecto
         AND mafe.tipo = 'af_nuevo';
-
+/*
         --Inicio #ETR-3334: Registro del detalle del Alta
         SELECT
         v_id_movimiento AS id_movimiento,
@@ -499,7 +452,7 @@ BEGIN
 
         --Inserción del detalle
         v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_rec_af_det));
-        --Fin #ETR-3334
+        --Fin #ETR-3334*/
 
         --Creación de los AFV
         INSERT INTO kaf.tactivo_fijo_valores(
@@ -592,61 +545,6 @@ BEGIN
 
     END LOOP;
 
-    --Inicio #ETR-3334: Se finaliza el Alta
-    --Obtención del estado finalizado y datos principales para el cambio de estado
-    SELECT
-    te.id_tipo_estado,
-    ew.id_estado_wf,
-    ew.id_proceso_wf,
-    mov.id_depto,
-    te.codigo
-    INTO
-    v_id_tipo_estado,
-    v_id_estado_wf_act,
-    v_id_proceso_wf_act,
-    v_id_depto,
-    v_codigo_estado_sig
-    FROM kaf.tmovimiento mov
-    INNER JOIN wf.testado_wf ew
-    ON ew.id_estado_wf = mov.id_estado_wf
-    INNER JOIN wf.tproceso_wf pw
-    ON pw.id_proceso_wf = ew.id_proceso_wf
-    INNER JOIN wf.ttipo_estado te
-    ON te.id_tipo_proceso = pw.id_tipo_proceso
-    WHERE mov.id_movimiento = v_id_movimiento
-    AND te.codigo = 'finalizado';
-
-    --Definición de datos para la notificación
-    v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
-    v_clase = 'Movimiento';
-    v_parametros_ad = '{filtro_directo: {campo: "mov.id_proceso_wf", valor: "' || v_id_proceso_wf_act::varchar || '"}}';
-    v_tipo_noti = 'notificacion';
-    v_titulo  = 'Finalización';
-
-    --Cambio de estado a Finalizado
-    v_id_estado_actual = wf.f_registra_estado_wf
-                        (
-                            v_id_tipo_estado,
-                            NULL,
-                            v_id_estado_wf_act,
-                            v_id_proceso_wf_act,
-                            p_id_usuario,
-                            NULL,
-                            NULL,
-                            v_id_depto,
-                            'Obs: Finalización automática del movimiento',
-                            v_acceso_directo,
-                            v_clase,
-                            v_parametros_ad,
-                            v_tipo_noti,
-                            v_titulo
-                        );
-
-    UPDATE kaf.tmovimiento SET
-    id_estado_wf = v_id_estado_actual,
-    estado = v_codigo_estado_sig
-    WHERE id_movimiento = v_id_movimiento;
-    --FIn #ETR-3334
 
     -----------------------------------
     --CASO 2: ACTIVOS FIJOS EXISTENTES
@@ -711,8 +609,7 @@ BEGIN
         mov_esp,
         id_movimiento_af_especial, --#57
         fecha_tc_ini_dep, --#60
-        codigo, --#ETR-3334
-        fecha_inicio --#ETR-3306
+        codigo --#ETR-3334
     )
     WITH tactivo_origen AS (
         WITH tult_dep AS (
@@ -753,7 +650,8 @@ BEGIN
         mdep.id_activo_fijo_valor, mafe.id_movimiento_af_especial, mafe.importe, mafe.porcentaje,
         mdep.monto_actualiz, mdep.depreciacion_acum,
         mdep.depreciacion_per, maf.id_movimiento_af, mdep.id_moneda, mafe.id_activo_fijo,
-        mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento, mafe.costo_orig --#ETR-1443
+        mov.fecha_mov, mod.id_moneda_dep, mdep.vida_util, mov.id_movimiento, mafe.costo_orig, --#ETR-1443
+        afv.codigo --#ETR-3334
         FROM kaf.tmovimiento mov
         INNER JOIN kaf.tmovimiento_af maf
         ON maf.id_movimiento = mov.id_movimiento
@@ -787,11 +685,11 @@ BEGIN
         WHEN v_id_moneda THEN tad.monto_actualiz + tad.costo_orig --#69
         ELSE tad.monto_actualiz + (tao.monto_actualiz * tad.porcentaje / 100)
     END AS monto_vigente,
-    tao.vida_util_orig, --tad.vida_util, 3Etr-3306
+    tao.vida_util_orig, --tad.vida_util, #ETR-3306
     'activo' AS estado,
     param.f_convertir_moneda(v_id_moneda_base, tad.id_moneda, 1, v_fecha_mov, 'O', 2)  AS monto_rescate, --#69
     v_cod_afv AS tipo,
-    tad.fecha_mov,
+    tao.fecha_inicio, --#ETR-3306 tad.fecha_mov,
     tad.id_moneda_dep,
     tad.id_moneda,
     CASE tad.id_moneda
@@ -807,128 +705,13 @@ BEGIN
     'cafv-' || p_id_movimiento::varchar AS mov_esp,
     tad.id_movimiento_af_especial, --#57
     DATE_TRUNC('month', tad.fecha_mov) - '1 day'::INTERVAL, --#60
-    tao.codigo, --#ETR-3334
-    tao.fecha_inicio --#ETR-3306
+    tad.codigo --#ETR-3334
     FROM tactivo_origen tao
     INNER JOIN tactivo_destino tad
     ON tad.id_movimiento_af = tao.id_movimiento_af
     AND tad.id_moneda = tao.id_moneda;
 
-    ------------------------------------------------------
-    --Inicio #ETR-3334: creacion del movimiento de Ajuste
-    ------------------------------------------------------
-    --Obtención del ID del movimiento Alta
-    SELECT cat.id_catalogo
-    INTO v_id_cat_movimiento
-    FROM param.tcatalogo cat
-    INNER JOIN param.tcatalogo_tipo ctip
-    ON ctip.id_catalogo_tipo = cat.id_catalogo_tipo
-    WHERE ctip.tabla = 'tmovimiento__id_cat_movimiento'
-    AND cat.codigo = 'ajuste';
-
-    IF v_id_cat_movimiento IS NULL THEN
-        raise exception 'No se encuentra registrado el Proceso de Ajuste. Comuníquese con el administrador del sistema.';
-    END IF;
-
-    --Definción de parámetros
-    SELECT
-    'N/D' AS direccion,
-    NULL AS fecha_hasta,
-    v_id_cat_movimiento AS id_cat_movimiento,
-    v_fecha_mov AS fecha_mov,
-    v_id_depto AS id_depto,
-    'Ajuste de activos fijos Disgregación '|| v_num_tramite AS glosa,
-    NULL AS id_funcionario,
-    NULL AS id_oficina,
-    NULL AS _id_usuario_ai,
-    p_id_usuario AS id_usuario,
-    NULL AS _nombre_usuario_ai,
-    NULL AS id_persona,
-    NULL AS codigo,
-    NULL AS id_deposito,
-    NULL AS id_depto_dest,
-    NULL AS id_deposito_dest,
-    NULL AS id_funcionario_dest,
-    NULL AS id_movimiento_motivo,
-    'si' AS mov_rapido --#58
-    INTO v_rec_mov;
-
-    --Creación del movimiento
-    v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
-
-    --Inclusion del detalle del Ajuste
-    INSERT INTO kaf.tmovimiento_af(
-        id_movimiento,
-        id_activo_fijo
-    )
-    SELECT
-    v_id_movimiento,
-    mafe.id_activo_fijo
-    FROM kaf.tmovimiento mov
-    INNER JOIN kaf.tmovimiento_af maf
-    ON maf.id_movimiento = mov.id_movimiento
-    INNER JOIN kaf.tmovimiento_af_especial mafe
-    ON mafe.id_movimiento_af = maf.id_movimiento_af
-    AND mafe.tipo = 'af_exist'
-    WHERE mov.id_movimiento = p_id_movimiento;
-
-    --Finalizacion del ajuste
-    --Obtención del estado finalizado y datos principales para el cambio de estado
-    SELECT
-    te.id_tipo_estado,
-    ew.id_estado_wf,
-    ew.id_proceso_wf,
-    mov.id_depto,
-    te.codigo
-    INTO
-    v_id_tipo_estado,
-    v_id_estado_wf_act,
-    v_id_proceso_wf_act,
-    v_id_depto,
-    v_codigo_estado_sig
-    FROM kaf.tmovimiento mov
-    INNER JOIN wf.testado_wf ew
-    ON ew.id_estado_wf = mov.id_estado_wf
-    INNER JOIN wf.tproceso_wf pw
-    ON pw.id_proceso_wf = ew.id_proceso_wf
-    INNER JOIN wf.ttipo_estado te
-    ON te.id_tipo_proceso = pw.id_tipo_proceso
-    WHERE mov.id_movimiento = v_id_movimiento
-    AND te.codigo = 'finalizado';
-
-    --Definición de datos para la notificación
-    v_acceso_directo = '../../../sis_kactivos_fijos/vista/movimiento/Movimiento.php';
-    v_clase = 'Movimiento';
-    v_parametros_ad = '{filtro_directo: {campo: "mov.id_proceso_wf", valor: "' || v_id_proceso_wf_act::varchar || '"}}';
-    v_tipo_noti = 'notificacion';
-    v_titulo  = 'Finalización';
-
-    --Cambio de estado a Finalizado
-    v_id_estado_actual = wf.f_registra_estado_wf
-                        (
-                            v_id_tipo_estado,
-                            NULL,
-                            v_id_estado_wf_act,
-                            v_id_proceso_wf_act,
-                            p_id_usuario,
-                            NULL,
-                            NULL,
-                            v_id_depto,
-                            'Obs: Finalización automática del movimiento',
-                            v_acceso_directo,
-                            v_clase,
-                            v_parametros_ad,
-                            v_tipo_noti,
-                            v_titulo
-                        );
-                        
-    UPDATE kaf.tmovimiento SET
-    id_estado_wf = v_id_estado_actual,
-    estado = v_codigo_estado_sig
-    WHERE id_movimiento = v_id_movimiento;
-
-    --Fin #ETR-3334
-
+    
     ----------------------------------------
     --3. GENERACIÓN DE COMPROBANTE CONTABLE
     ----------------------------------------

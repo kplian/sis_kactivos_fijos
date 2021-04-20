@@ -33,6 +33,7 @@ $body$
  #ETR-2170  KAF       ETR           12/01/2020  RCM         Modificación comprobante de comparación de la depreciación
  #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
  #ETR-3617  KAF       ETR           09/04/2021  RCM         Corrección consulta de comparación con conta considerando movimiento de depreciación y que estén finalizados
+ #ETR-3660  KAF       ETR           14/04/2021  RCM         MOdificación de aplicación de relaciones contables comprobante de comparación de saldos
 ****************************************************************************/
 DECLARE
 
@@ -82,6 +83,12 @@ DECLARE
     v_tc_usd           NUMERIC;
     v_tc_ufv           NUMERIC;
     --Fin ETR-1717
+    --Inicio #ETR-3660
+    v_id_cuenta_3      INTEGER;
+    v_id_partida_3     INTEGER;
+    v_id_cuenta_4      INTEGER;
+    v_id_partida_4     INTEGER;
+    --Fin #ETR-3660
 
 BEGIN
 
@@ -1487,21 +1494,32 @@ BEGIN
                     INTO v_id_centro_costo
                     FROM conta.f_get_config_relacion_contable ('CCDEPCON', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('YEAR', v_fecha_mov)), v_depto_conta, NULL);
 
-                    --Cuenta y partida para el Debe
+                    --Cuenta y partida Relacion 1
                     SELECT ps_id_cuenta, ps_id_partida
                     INTO v_id_cuenta_debe, v_id_partida_debe
-                    FROM conta.f_get_config_relacion_contable('DEPGASTO', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+                    FROM conta.f_get_config_relacion_contable('DEP-IGUAL-UNO', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
 
-                    --Cuenta y partida para el Haber
+                    --Cuenta y partida prelacion 2
                     SELECT ps_id_cuenta, ps_id_partida
                     INTO v_id_cuenta_haber, v_id_partida_haber
-                    FROM conta.f_get_config_relacion_contable('DEPACTIVO', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+                    FROM conta.f_get_config_relacion_contable('DEP-IGUAL-DOS', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
 
+                    --Inicio #ETR-3660
+                    --Cuenta y partida prelacion 3
+                    SELECT ps_id_cuenta, ps_id_partida
+                    INTO v_id_cuenta_3, v_id_partida_3
+                    FROM conta.f_get_config_relacion_contable('DEP-IGUAL-TRES', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+
+                    --Cuenta y partida prelacion 4
+                    SELECT ps_id_cuenta, ps_id_partida
+                    INTO v_id_cuenta_4, v_id_partida_4
+                    FROM conta.f_get_config_relacion_contable('DEP-IGUAL-CUATR', (SELECT id_gestion FROM param.tgestion WHERE DATE_TRUNC('year', fecha_ini) = DATE_TRUNC('year', v_fecha_mov)));
+                    --Fin #ETR-3660
 
                     ---------------------------------------------------------------------------------------------
                     -----------------------------------------(A) DEBE (lado_saldo: debe) ------------------------
                     ---------------------------------------------------------------------------------------------
-                    --(A) (1/2) Transacciones al Debe con saldo positivo (cuando Conta está de menos)
+                    --(A) (1/2) Transacciones al Debe con saldo positivo (cuando saldo AF es mayor y el saldo de la cuenta va al debe)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1581,7 +1599,7 @@ BEGIN
                     WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
                     AND tbs.lado_saldo = 'debe';
 
-                    --(A) (2/2) Transacciones al debe con saldo negativo (cuando Conta está de más)
+                    --(A) (2/2) Transacciones al debe con saldo negativo (cuando saldo AF es menor y el saldo de la cuenta va al debe)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1666,7 +1684,7 @@ BEGIN
                     ---------------------------------------------------------------------------------------------
                     -----------------------------------------(B) HABER (lado_saldo: debe) -----------------------
                     ---------------------------------------------------------------------------------------------
-                    --(B) (1/2) Transacciones al Haber con saldo positivo (cuando Conta está de menos)
+                    --(B) (1/2) Transacciones al Haber con saldo positivo (cuando saldo AF es mayor y el saldo de la cuenta al debe)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1723,8 +1741,8 @@ BEGIN
                     v_fecha_mov,
                     'activo',
                     v_id_int_cbte,
-                    v_id_cuenta_haber,
-                    v_id_partida_haber,
+                    v_id_cuenta_3, --#ETR-3660
+                    v_id_partida_3, --#ETR-3660
                     v_id_centro_costo,
                     0, 0, 0, 0, 0, 0, 0, 0,
                     --Inicio #ETR-1717
@@ -1748,7 +1766,7 @@ BEGIN
                     WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
                     AND tbs.lado_saldo = 'debe';
 
-                    --(B) (2/4) Transacciones al Debe (con saldo negativo)
+                    --(B) (2/2) Transacciones al Debe con saldo negativo (cuando saldo AF es menor y el saldo de la cuenta al debe)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1806,7 +1824,7 @@ BEGIN
                     'activo',
                     v_id_int_cbte,
                     tbs.id_cuenta,
-                    v_id_partida_debe,
+                    v_id_partida_4, --#ETR-3660
                     v_id_centro_costo,
                     0, 0, 0, 0, 0, 0, 0, 0,
                     --Inicio #ETR-1717
@@ -1834,7 +1852,7 @@ BEGIN
                     ---------------------------------------------------------------------------------------------
                     -----------------------------------------(C) HABER (lado_saldo: haber) ------------------------
                     ---------------------------------------------------------------------------------------------
-                    --(C) (1/2) Transacciones al HABER con saldo positivo (cuando Conta está de menos)
+                    --(C) (1/2) Transacciones al HABER con saldo positivo (cuando saldo AF es mayor y el saldo de la cuenta va al haber)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1891,7 +1909,7 @@ BEGIN
                     v_fecha_mov,
                     'activo',
                     v_id_int_cbte,
-                    tbs.id_cuenta,
+                    v_id_cuenta_debe, --#ETR-3660
                     v_id_partida_debe,
                     v_id_centro_costo,
                     0, 0, 0, 0, 0, 0, 0, 0,
@@ -1914,7 +1932,7 @@ BEGIN
                     WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
                     AND tbs.lado_saldo = 'haber';
 
-                    --(C) (2/2) Transacciones al HABER con saldo negativo (cuando Conta está de más)
+                    --(C) (2/2) Transacciones al HABER con saldo negativo (cuando saldo AF es menor y el saldo de la cuenta va al haber)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -1971,8 +1989,8 @@ BEGIN
                     v_fecha_mov,
                     'activo',
                     v_id_int_cbte,
-                    v_id_cuenta_debe,
-                    v_id_partida_debe,
+                    tbs.id_cuenta, --#ETR-3660
+                    v_id_partida_haber, --#ETR-3660
                     v_id_centro_costo,
                     --Inicio #ETR-1717
                     0, 0, 0, 0, 0, 0, 0, 0,
@@ -1999,7 +2017,7 @@ BEGIN
                     ---------------------------------------------------------------------------------------------
                     -----------------------------------------(D) DEBE (lado_saldo: haber) ----------------------
                     ---------------------------------------------------------------------------------------------
-                    --(D) (1/2) Transacciones al DEBE con saldo positivo (cuando Conta está de menos)
+                    --(D) (1/2) Transacciones al DEBE con saldo positivo (cuando saldo AF es mayor y el saldo de la cuenta va al haber)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -2056,8 +2074,8 @@ BEGIN
                     v_fecha_mov,
                     'activo',
                     v_id_int_cbte,
-                    v_id_cuenta_haber,
-                    v_id_partida_haber,
+                    tbs.id_cuenta, --#ETR-3660
+                    v_id_partida_3, --#ETR-3660
                     v_id_centro_costo,
                     --Inicio #ETR-1717
                     ROUND(tbs.diferencia_af_conta, 2),
@@ -2081,7 +2099,7 @@ BEGIN
                     WHERE ROUND(tbs.diferencia_af_conta, 2) > 0
                     AND tbs.lado_saldo = 'haber';
 
-                    --(D) (2/4) Transacciones al Debe (con saldo negativo)
+                    --(D) (2/4) Transacciones al Debe con saldo negativo (cuando saldo AF es menor y el saldo de la cuenta va al haber)
                     WITH tbs AS (
                         SELECT
                         id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
@@ -2138,8 +2156,8 @@ BEGIN
                     v_fecha_mov,
                     'activo',
                     v_id_int_cbte,
-                    tbs.id_cuenta,
-                    v_id_partida_debe,
+                    v_id_cuenta_3, --#ETR-3660
+                    v_id_partida_3, --#ETR3660
                     v_id_centro_costo,
                     --Inicio #ETR-1717
                     ROUND(ABS(tbs.diferencia_af_conta), 2),

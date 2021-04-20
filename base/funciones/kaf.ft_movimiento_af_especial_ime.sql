@@ -199,8 +199,9 @@ BEGIN
             --id_moneda,
             id_grupo,
             id_grupo_clasif,
-            observaciones
+            observaciones,
             --Fin #39
+            costo_orig
           	) VALUES (
 			v_parametros.id_activo_fijo,
 			v_parametros.id_activo_fijo_valor,
@@ -237,8 +238,9 @@ BEGIN
             --v_parametros.id_moneda,
             v_parametros.id_grupo,
             v_parametros.id_grupo_clasif,
-            v_parametros.observaciones
+            v_parametros.observaciones,
             --Fin #39
+            v_parametros.costo_orig
 			) RETURNING id_movimiento_af_especial INTO v_id_movimiento_af_especial;
 
 			--Definicion de la respuesta
@@ -368,7 +370,8 @@ BEGIN
             --id_moneda = v_parametros.id_moneda,
             id_grupo = v_parametros.id_grupo,
             id_grupo_clasif = v_parametros.id_grupo_clasif,
-            observaciones = v_parametros.observaciones
+            observaciones = v_parametros.observaciones,
+            costo_orig = v_parametros.costo_orig
 			WHERE id_movimiento_af_especial = v_parametros.id_movimiento_af_especial;
 
 			--Definicion de la respuesta

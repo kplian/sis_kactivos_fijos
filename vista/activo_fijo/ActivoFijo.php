@@ -7,12 +7,13 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 */
 /***************************************************************************
-#ISSUE      SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
- #8         KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
- #16        KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
- #18        KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
- #ETR-2941  KAF     ETR         11/02/2021  RCM     Al exportar los datos no esta saliendo la descripcion de la ubicacion sino el ID
- #AF-40     KAF     ETR         19/02/2021  RCM     Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
+#ISSUE          SIS     EMPRESA     FECHA       AUTOR   DESCRIPCION
+ #8             KAF     ETR         14/05/2019  MZM     Se incrementa opcion (boton) para subida de datos de AF con Centro de Costo
+ #16            KAF     ETR         18/06/2019  RCM     Botón para llamar al procedimiento para completar prorrateo CC con CC por defecto
+ #18            KAF     ETR         15/07/2019  RCM     Corrección filtro por característica
+ #ETR-2941      KAF     ETR         11/02/2021  RCM     Al exportar los datos no esta saliendo la descripcion de la ubicacion sino el ID
+ #AF-40         KAF     ETR         19/02/2021  RCM     Adicion de columnas: monto actualizado, depreciacion acumulada, valor neto
+ #ETR-3660      KAF     ETR         19/04/2021  RCM     Correción columna moneda original
 ***************************************************************************/
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -754,7 +755,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'codigo_ant',
-            fieldLabel: 'Código SAP',
+            fieldLabel: 'Código Bolsa/SAP',
             allowBlank: true,
             anchor: '80%',
             gwidth: 120,
@@ -1388,7 +1389,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'id_moneda',
-            fieldLabel: 'id_moneda',
+            fieldLabel: 'Moneda', //#ETR-3660
             allowBlank: true,
             emptyText: 'Elija una opción...',
             store: new Ext.data.JsonStore({
@@ -1470,7 +1471,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'id_moneda_orig',
-            fieldLabel: 'id_moneda_orig',
+            fieldLabel: 'Moneda Original', //#ETR-3660
             allowBlank: true,
             emptyText: 'Elija una opción...',
             store: new Ext.data.JsonStore({
@@ -1488,9 +1489,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                     par_filtro: 'movtip.nombre#movtip.codigo'
                 }
             }),
-            valueField: 'id_',
+            valueField: 'id_moneda_orig',
             displayField: 'nombre',
-            gdisplayField: 'desc_',
+            gdisplayField: 'desc_moneda_orig', //#ETR-3660
             hiddenName: 'id_moneda_orig',
             forceSelection: true,
             typeAhead: false,
@@ -1500,10 +1501,10 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
             pageSize: 15,
             queryDelay: 1000,
             anchor: '100%',
-            gwidth: 150,
+            gwidth: 100,
             minChars: 2,
             renderer: function(value, p, record) {
-                return String.format('{0}', record.data['desc_']);
+                return String.format('{0}', record.data['desc_moneda_orig']);
             }
         },
         type: 'ComboBox',
@@ -1946,7 +1947,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
              {name:'dep_valor_neto',type:'numeric'}
              //Fin #AF-40
              ],
-    arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', 'id_moneda_orig', 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'],
+    arrayDefaultColumHidden: ['fecha_reg', 'usr_reg', 'fecha_mod', 'usr_mod', 'estado_reg', 'id_usuario_ai', 'usuario_ai', 'id_persona', 'foto', 'id_proveedor', 'fecha_compra', 'id_cat_estado_fun', 'ubicacion', 'documento', 'observaciones', 'monto_rescate', 'id_deposito', 'monto_compra', 'id_moneda', 'depreciacion_mes', 'descripcion', , 'fecha_ini_dep', 'id_cat_estado_compra', 'vida_util_original'/*, 'id_centro_costo'*/, 'id_oficina', 'id_depto'], //#ETR-3660
     sortInfo: {
         field: 'id_activo_fijo',
         direction: 'DESC'

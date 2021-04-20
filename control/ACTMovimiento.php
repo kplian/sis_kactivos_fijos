@@ -124,12 +124,10 @@ class ACTMovimiento extends ACTbase{
 		$dataMaestro = $obj->getDatos();
         $dataDetalle = $objDetalle->getDatos();
 
-
 		//parametros basicos
 		$tamano = 'LETTER';
 		$orientacion = 'L';
 		$titulo = 'Consolidado';
-
 
 		$this->objParam->addParametro('orientacion',$orientacion);
 		$this->objParam->addParametro('tamano',$tamano);
@@ -141,6 +139,7 @@ class ACTMovimiento extends ACTbase{
 		$reporte->datosHeader($obj->getDatos(),  $objDetalle->getDatos());
 		$reporte->generarReporte();
 		$reporte->output($reporte->url_archivo,'F');
+
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);

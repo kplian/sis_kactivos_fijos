@@ -24,7 +24,7 @@
  #BB03		KAF 	  ETR 			08/09/2020  RCM 		Corrección tipo de dato, integer por numeric
  #AF-13		KAF 	  ETR 			18/10/2020  RCM 		Reporte de Saldos a una fecha
  #ETR-1717  KAF       ETR           10/11/2020  RCM         Cambio en la generación de cbte. de igualización considerando todas las monedas
- #ETR-3361  KAF       ETR           13/04/2021  RCM         Adición de dos nuevos campos de los históricos de vida útil y fecha inicio depreciación
+
 ***************************************************************************/
 class MODReportes extends MODbase{
 
@@ -1265,7 +1265,6 @@ class MODReportes extends MODbase{
 		$this->captura('codigo', 'VARCHAR');
 		$this->captura('codigo_sap', 'VARCHAR');
 		$this->captura('denominacion', 'VARCHAR');
-		$this->captura('fecha_ini_dep_hist', 'DATE'); //#ETR-3361
 		$this->captura('fecha_ini_dep', 'DATE');
 		$this->captura('cantidad_af', 'INTEGER');
 		$this->captura('unidad_medida', 'VARCHAR');
@@ -1274,7 +1273,6 @@ class MODReportes extends MODbase{
 		$this->captura('lugar', 'VARCHAR');
 		$this->captura('responsable', 'TEXT');
 
-		$this->captura('vida_util_hist', 'INTEGER'); //#ETR-3361
 		$this->captura('vida_util_orig', 'INTEGER');
 		$this->captura('vida_util_transc', 'INTEGER');
 		$this->captura('vida_util', 'INTEGER');

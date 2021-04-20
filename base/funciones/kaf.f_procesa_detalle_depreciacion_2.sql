@@ -19,7 +19,6 @@ $body$
  #AF-38     KAF       ETR           12/01/2020  RCM         En el procesamiento del reporte de depreciación, para el caso de adiciones desde cierre de proyecto, cambiar el cálculo aritmético para obtener la adición sin actualización para utilizar directamente el nuevo campo en la tabla. Además Cambio criterio para caso Altas de tipo: AF
  #AF-43     KAF       ETR           04/03/2021  RCM         Modificación reporte anual de deprecicación, columna alta para el caso de registro manual se toma en cuenta la fecha de alta para desplegarlo
  #ETR-3360  KAF       ETR           31/03/2021  RCM         Cambio del campo importe sin act por el campo nuevo
- #ETR-3361  KAF       ETR           13/04/2021  RCM         Adición de dos nuevos campos de los históricos de vida útil y fecha inicio depreciación
 ***************************************************************************/
 DECLARE
 
@@ -167,11 +166,7 @@ BEGIN
                 desc_grupo_clasif,
                 cuenta_dep_acum_dos,
                 bk_codigo,
-                tipo,
-                --Inicio #ETR-3361
-                vida_util_hist, 
-                fecha_ini_dep_hist
-                --Fin #ETR-3361
+                tipo
             )
             WITH tdata AS (
                 WITH tant_gestion AS (
@@ -528,8 +523,8 @@ BEGIN
                         mdep.depreciacion_acum_actualiz - mdep.depreciacion_acum_ant + COALESCE(mdep.aux_inc_dep_acum_del_inc, 0)
                 END AS aitb_dep_acum,
                 mdep.monto_actualiz as valor_actualiz,
-                COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig,
-                COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc,
+                COALESCE(af.vida_util_orig, 0) AS vida_util_orig, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig, --#ETR-3661
+                COALESCE(af.vida_util_orig, 0) - COALESCE(mdep.vida_util, 0) as as vida_util_transc, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc, --#ETR-3661
                 mdep.vida_util,
                 COALESCE(age.depreciacion_acum, 0) as depreciacion_acum_gest_ant,
                 COALESCE(ame.depreciacion_acum, 0) AS depreciacion_acum_mes_ant,
@@ -663,8 +658,7 @@ BEGIN
                 --Fin #70
                 kaf.f_define_origen(afv.id_proyecto_activo, afv.id_preingreso_det, afv.id_movimiento_af_especial, afv.id_movimiento_af, afv.mov_esp, afv.tipo) AS tipo,
                 COALESCE(afv.aux_depmes_tot_del_inc, 0) AS aux_depmes_tot_del_inc,
-                afv.id_activo_fijo, afv.id_activo_fijo_valor,
-                afv.vida_util as vida_util_hist, afv.fecha_inicio as fecha_ini_dep_hist --#ETR-3361
+                afv.id_activo_fijo, afv.id_activo_fijo_valor
                 FROM kaf.tmovimiento_af_dep mdep
                 INNER JOIN kaf.tactivo_fijo_valores afv
                 ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
@@ -746,10 +740,14 @@ BEGIN
                 id_activo_fijo,
                 id_activo_fijo_valor,
                 ROW_NUMBER() OVER(ORDER BY codigo) as numero,
-                codigo, codigo_sap, denominacion, fecha_ini_dep, cantidad_af, unidad_medida,
+                codigo, codigo_sap, denominacion, 
+                fecha_ini_dep, 
+                cantidad_af, unidad_medida,
                 cc, nro_serie, lugar, responsable, valor_compra, valor_inicial, valor_mes_ant, altas, bajas, traspasos,
                 (valor_actualiz - valor_mes_ant - altas - bajas - traspasos) as inc_actualiz,
-                valor_actualiz, vida_util_orig, vida_util_transc, vida_util, depreciacion_acum_gest_ant,
+                valor_actualiz, 
+                vida_util_orig, vida_util_transc, vida_util, 
+                depreciacion_acum_gest_ant,
                 depreciacion_acum_mes_ant,
                 (depreciacion_acum - depreciacion_acum_mes_ant - depreciacion - dep_acum_bajas - dep_acum_tras) as inc_actualiz_dep_acum, --##### considerar solo para primer mes
                 depreciacion, -- + aux_depmes_tot_del_inc,  --##### considerar solo para primer mes
@@ -770,8 +768,7 @@ BEGIN
                 (aitb_dep_ene + aitb_dep_feb + aitb_dep_mar + aitb_dep_abr + aitb_dep_may + aitb_dep_jun + aitb_dep_jul + aitb_dep_ago + aitb_dep_sep + aitb_dep_oct + aitb_dep_nov + aitb_dep_dic) AS total_aitb_dep,
                 cuenta_activo, cuenta_dep_acum, cuenta_deprec, desc_grupo, desc_grupo_clasif,
                 cuenta_dep_acum_dos, bk_codigo, --#70
-                tipo,
-                vida_util_hist, fecha_ini_dep_hist --#ETR-3361
+                tipo
                 FROM tdata
                 ORDER BY codigo';
 

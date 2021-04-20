@@ -514,28 +514,16 @@ class RMovimiento2 extends ReportePDF {
                 
             } else if($tipo=='alta'){
                     
-                $this->tablealigns = array('L', 'L', 'L', 'L', 'C', 'C', 'R'); //#AF-41
-                $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 1);
-                $this->tableborders = array('RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB');
+                $this->tablealigns = array('L', 'L', 'L', 'L', 'C', 'C', 'R', 'R'); //#AF-41 //#ETR-3660
+                $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 1, 1); //#ETR-3660
+                $this->tableborders = array('RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB', 'RLTB'); //#ETR-3660
                 $this->tabletextcolor = array();
                 //totales de montos
-                $totalAF += $datarow['monto_compra_orig'];
+                $totalAF += $datarow['monto_orig_bs'];//#ETR-3660
+                $totalAFusd += $datarow['monto_orig_usd'];//#ETR-3660
                 $totalCompra += $datarow['monto_compra_orig_100'];
 
                 //Inicio #AF-41
-                /*$RowArray = array(
-                            's0' => $i+1,
-                            's1' => $datarow['codigo'],
-                            's2' => $datarow['desc_clasificacion'],
-                            's3' => $datarow['denominacion'],
-                            's4' => $datarow['vida_util_original'],//#AF-41
-                            's5' => date("d/m/Y",strtotime($datarow['fecha_ini_dep'])),
-                            's6' => $datarow['monto_compra_orig'],
-                            's7' => $datarow['monto_compra_orig_100'],
-                            's8' => $datarow['nro_cbte_asociado'],
-                            's9' => ''
-                            );*/
-
                 $RowArray = array(
                             's0' => $i+1,
                             's1' => $datarow['codigo'],
@@ -543,7 +531,8 @@ class RMovimiento2 extends ReportePDF {
                             's3' => $datarow['denominacion'],
                             's4' => $datarow['vida_util_original'],//#AF-41
                             's5' => date("d/m/Y",strtotime($datarow['fecha_ini_dep'])),
-                            's6' => $datarow['monto_compra_orig']
+                            's6' => $datarow['monto_orig_bs'], //#ETR-3660
+                            's7' => $datarow['monto_orig_usd']  //#ETR-3660
                             );
                 //FIn #AF-41
                 
@@ -591,9 +580,11 @@ class RMovimiento2 extends ReportePDF {
         }
         if($tipo=='alta'){
             $this->tablealigns=array('L','L','L','L','L','C','R','R','L','L');
-            $this->tablenumbers=array(0,0,0,0,0,0,1,0,0,0);
-            $this->tableborders=array('','','','','','RLTB','RLTB','','','');
+            $this->tablenumbers=array(0,0,0,0,0,0,1,1,0,0);
+            $this->tableborders=array('','','','','','RLTB','RLTB','RLTB','','');
             $this->tabletextcolor=array();
+            $this->SetFont('', 'B'); //#ETR-3660
+
             $RowArray = array(
                 's0'  => '',
                 's1' => '',
@@ -601,7 +592,8 @@ class RMovimiento2 extends ReportePDF {
                 's3' => '',
                 's4' => '',
                 's5' => 'TOTALES', //#AF-41
-                's6' => $totalAF //#AF-41
+                's6' => $totalAF, //#AF-41
+                's7' => $totalAFusd //#ETR-3660
             );
 
             $this-> MultiRow($RowArray,false,1);
@@ -707,11 +699,11 @@ class RMovimiento2 extends ReportePDF {
             
         }  else if($tipo=='alta'){
                 
-              $this->tablewidthsHD = array(8, 23, 60, 90, 25, 25, 33); //#AF-41
-              $this->tablealignsHD = array('C', 'C', 'C', 'C', 'C', 'C', 'C');
-              $this->tablenumbersHD = array(0, 0, 0, 0, 0, 0, 0);
-              $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 0);
-              $this->tablebordersHD = array('LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR');
+              $this->tablewidthsHD = array(8, 23, 60, 72, 25, 25, 27, 27); //#AF-41 //#ETR-3660
+              $this->tablealignsHD = array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'); //#ETR-3660
+              $this->tablenumbersHD = array(0, 0, 0, 0, 0, 0, 0, 0); //#ETR-3660
+              $this->tablenumbers = array(0, 0, 0, 0, 0, 0, 0, 0); //#ETR-3660
+              $this->tablebordersHD = array('LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR', 'LTBR'); //#ETR-3660
               $this->tabletextcolorHD = array();
               $RowArray = array(
                             's0'  => 'Nro',
@@ -720,7 +712,8 @@ class RMovimiento2 extends ReportePDF {
                             's3' => 'Denominación',
                             's4' => 'Vida Útil Orig.',//#AF-41
                             's5' => 'Fecha Ini.Dep.',           
-                            's6' => 'Valor AF Bs.'
+                            's6' => 'Valor AF Bs.',
+                            's7' => 'Valor AF USD.' //#ETR-3660
                         );
             
             

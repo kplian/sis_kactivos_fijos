@@ -125,6 +125,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('id_grupo_clasif', 'id_grupo_clasif','integer');
 		$this->setParametro('observaciones', 'observaciones','varchar');
 		//Fin #39
+		$this->setParametro('costo_orig','costo_orig','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -173,6 +174,7 @@ class MODMovimientoAfEspecial extends MODbase{
 		$this->setParametro('id_grupo_clasif', 'id_grupo_clasif','integer');
 		$this->setParametro('observaciones', 'observaciones','varchar');
 		//Fin #39
+		$this->setParametro('costo_orig','costo_orig','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

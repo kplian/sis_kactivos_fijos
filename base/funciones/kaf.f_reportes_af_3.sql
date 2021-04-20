@@ -17,7 +17,6 @@ $body$
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #70        KAF       ETR           07/08/2020  RCM         Creación del archivo
  #AF-13     KAF       ETR           18/10/2020  RCM         Adición de consulta para reporte de saldos a una fecha
- #ETR-3361  KAF       ETR           13/04/2021  RCM         Adición de dos nuevos campos de los históricos de vida útil y fecha inicio depreciación
 ****************************************************************************/
 DECLARE
 
@@ -59,7 +58,6 @@ BEGIN
                         codigo,
                         codigo_sap,
                         denominacion,
-                        fecha_ini_dep_hist, --#ETR-3361
                         fecha_ini_dep,
                         cantidad_af,
                         unidad_medida,
@@ -67,7 +65,6 @@ BEGIN
                         nro_serie,
                         lugar,
                         responsable,
-                        vida_util_hist, --#ETR-3361
                         vida_util_orig,
                         vida_util_transc,
                         vida_util,

@@ -224,8 +224,8 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 			type: 'DateField',
 			filters: { pfiltro: 'actval.fecha_ini_dep', type: 'date' },
 			id_grupo: 1,
-			grid: true,
-			form: true
+			grid: false,
+			form: false
 		},
 		//#Fin #ETR-3306
 		{
@@ -328,8 +328,8 @@ Phx.vista.ActivoFijoValoresHist = Ext.extend(Phx.gridInterfaz, {
 			type: 'NumberField',
 			filters: { pfiltro: 'afv.vida_util', type: 'numeric' },
 			id_grupo: 1,
-			grid: true, //#ETR-3360
-			form: true
+			grid: false, //#ETR-3360
+			form: false
 		},
 		//Fin #ETR-3306
 		{
