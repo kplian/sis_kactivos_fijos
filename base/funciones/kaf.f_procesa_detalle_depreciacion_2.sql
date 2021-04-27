@@ -523,8 +523,8 @@ BEGIN
                         mdep.depreciacion_acum_actualiz - mdep.depreciacion_acum_ant + COALESCE(mdep.aux_inc_dep_acum_del_inc, 0)
                 END AS aitb_dep_acum,
                 mdep.monto_actualiz as valor_actualiz,
-                COALESCE(af.vida_util_orig, 0) AS vida_util_orig, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig, --#ETR-3661
-                COALESCE(af.vida_util_orig, 0) - COALESCE(mdep.vida_util, 0) as as vida_util_transc, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc, --#ETR-3661
+                COALESCE(af.vida_util_original, 0) AS vida_util_orig, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) AS vida_util_orig, --#ETR-3661
+                COALESCE(af.vida_util_original, 0) - COALESCE(mdep.vida_util, 0) as vida_util_transc, --COALESCE(afvo.vida_util_orig, COALESCE(afv.vida_util_orig, 0)) - COALESCE(mdep.vida_util, 0) as vida_util_transc, --#ETR-3661
                 mdep.vida_util,
                 COALESCE(age.depreciacion_acum, 0) as depreciacion_acum_gest_ant,
                 COALESCE(ame.depreciacion_acum, 0) AS depreciacion_acum_mes_ant,

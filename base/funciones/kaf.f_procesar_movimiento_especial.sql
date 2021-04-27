@@ -389,8 +389,8 @@ BEGIN
                 --Fin #48
                 mafe.denominacion,
                 maf.id_moneda,--id_moneda_orig,
-                mafe.fecha_ini_dep,
-                mafe.vida_util,
+                af.fecha_ini_dep, --#ETR-3306 --mafe.fecha_ini_dep,
+                af.vida_util_original, --#ETR-3306 --mafe.vida_util,
                 'registrado',
                 mafe.id_clasificacion,
                 mafe.id_centro_costo,
@@ -437,22 +437,6 @@ BEGIN
         WHERE maf.id_movimiento = p_id_movimiento
         AND mafe.id_movimiento_af_especial = v_rec.id_proyecto
         AND mafe.tipo = 'af_nuevo';
-/*
-        --Inicio #ETR-3334: Registro del detalle del Alta
-        SELECT
-        v_id_movimiento AS id_movimiento,
-        v_rec.id_activo_fijo AS id_activo_fijo,
-        NULL AS id_movimiento_motivo,
-        NULL AS importe,
-        NULL AS vida_util,
-        NULL AS _nombre_usuario_ai,
-        NULL AS _id_usuario_ai,
-        NULL AS depreciacion_acum
-        INTO v_rec_af_det;
-
-        --Inserción del detalle
-        v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_rec_af_det));
-        --Fin #ETR-3334*/
 
         --Creación de los AFV
         INSERT INTO kaf.tactivo_fijo_valores(

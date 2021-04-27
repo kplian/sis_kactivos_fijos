@@ -22,6 +22,7 @@ $body$
  #60        KAF       ETR           28/04/2020  RCM         Inclusión de TC inicial predefinido para la primera depreciación del AF
  #AF-10     KAF       ETR           21/08/2020  RCM         Volver dinámico el valor de rescate de UFV y USD en función a la fecha de fin de mes depreciado
  #ETR-2170  KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
+ #ETR-3660  KAF       ETR           23/04/2021  RCM         Actualización de la vida útil en el activo fijo (kaf.tactivo_fijo)
 ***************************************************************************/
 DECLARE
 
@@ -512,6 +513,16 @@ BEGIN
 
     --#AF-10: IGUALACION DE CALCULOS
     PERFORM kaf.f_depreciacion_iguala_ufv (p_id_usuario, p_id_movimiento);
+
+    --Inicio #ETR-3660: Actualiza la vida util restante en el activo fijo
+    UPDATE kaf.tactivo_fijo af SET
+    vida_util = mdep.vida_util 
+    FROM kaf.tmovimiento_af maf
+    JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_movimiento_af  = maf.id_movimiento_af 
+    WHERE maf.id_movimiento = p_id_movimiento
+    AND mdep.id_moneda = 1
+    AND af.id_activo_fijo = maf.id_activo_fijo;
+    --Fin #ETR-3660
 
     return 'hecho';
 

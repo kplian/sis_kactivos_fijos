@@ -1615,3 +1615,11 @@ ALTER TABLE kaf.treporte_detalle_dep2
 /***********************************I-DAT-RCM-KAF-ETR-3660-16/04/2021****************************************/
 select conta.f_import_tplantilla_comprobante ('insert','KAF-DEP-IGUALV2','kaf.f_gestionar_cbte_igualacion_eliminacion','id_movimiento','KAF','{$tabla.glosa_cbte}','','{$tabla.fecha_mov}','activo','ENDE TRANSMISIÓN S.A.','{$tabla.id_depto_conta}','presupuestario','','kaf.vdeprec_igualacion_conta_haber_cab','DIARIO','{$tabla.id_moneda}','{$tabla.id_gestion}','{$tabla.id_movimiento},{$tabla.gestion},{$tabla.id_depto_conta}','si','si','no','','','','','{$tabla.num_tramite}','','','','','','Comprobante para igualar saldos del cálculo de depreciación con saldos contables por diferencias por redondeo','','','','','');
 /***********************************F-DAT-RCM-KAF-ETR-3660-16/04/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-3660-22/04/2021****************************************/
+select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-UNO',NULL,'1 Igualación saldos deprec. caso 1','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-DOS',NULL,'2 Igualación saldos deprec. caso 2','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-TRES',NULL,'3 Igualación saldos deprec. caso 3','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-CUATR',NULL,'4 Igualación saldos deprec. caso 4','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+/***********************************F-DAT-RCM-KAF-ETR-3660-22/04/2021****************************************/
+

@@ -88,6 +88,8 @@ DECLARE
     v_id_partida_3     INTEGER;
     v_id_cuenta_4      INTEGER;
     v_id_partida_4     INTEGER;
+    v_id_cuenta_5      INTEGER;
+    v_id_partida_5     INTEGER;
     --Fin #ETR-3660
 
 BEGIN
@@ -1378,7 +1380,7 @@ BEGIN
                         ON cu.id_cuenta = rc.id_cuenta
                         WHERE tb.esquema = 'KAF'
                         AND tb.tabla = 'tclasificacion'
-                        AND trc.codigo_tipo_relacion IN ('ALTAAF', 'DEPACCLAS') --, 'DEPCLAS')
+                        AND trc.codigo_tipo_relacion IN ('ALTAAF', 'DEPACCLAS') --, 'DEPCLAS') --#ETR-3660
                     )
                     SELECT
                     c.nro_cuenta || '-' || c.nombre_cuenta AS desc_cuenta,
@@ -1386,10 +1388,12 @@ BEGIN
                     CASE c.codigo_tipo_relacion
                         WHEN 'ALTAAF' THEN 'debe'
                         WHEN 'DEPACCLAS' THEN 'haber'
+                        WHEN 'DEPCLAS' THEN 'debe'
                     END AS lado_saldo,
                     ABS(SUM(tr.importe_debe_mb) - SUM(tr.importe_haber_mb)) AS saldo_mb,
                     ABS(SUM(tr.importe_debe_mt) - SUM(tr.importe_haber_mt)) AS saldo_mt,
-                    ABS(SUM(tr.importe_debe_ma) - SUM(tr.importe_haber_ma)) AS saldo_ma
+                    ABS(SUM(tr.importe_debe_ma) - SUM(tr.importe_haber_ma)) AS saldo_ma,
+                    c.codigo_tipo_relacion
                     FROM conta.tint_transaccion tr
                     INNER JOIN conta.tint_comprobante cb
                     ON cb.id_int_comprobante = tr.id_int_comprobante
@@ -1410,7 +1414,8 @@ BEGIN
                     saldo_af,
                     saldo_conta,
                     diferencia_af_conta,
-                    lado_saldo
+                    lado_saldo,
+                    codigo_rel_cont --#ETR-3660
                 )
                 SELECT
                 p_id_usuario,
@@ -1431,7 +1436,8 @@ BEGIN
                     WHEN v_id_moneda_tri THEN af.importe - dc.saldo_mt
                     WHEN v_id_moneda_act THEN af.importe - dc.saldo_ma
                 END AS diferencia,
-                dc.lado_saldo
+                dc.lado_saldo,
+                dc.codigo_tipo_relacion --#ETR-3660
                 FROM (
                     SELECT
                     id_moneda, cuenta_activo AS desc_cuenta, SUM(monto_actualiz) AS importe
@@ -1522,21 +1528,21 @@ BEGIN
                     --(A) (1/2) Transacciones al Debe con saldo positivo (cuando saldo AF es mayor y el saldo de la cuenta va al debe)
                     WITH tbs AS (
                         SELECT
-                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta, codigo_rel_cont --#ETR-3660
                         FROM kaf.tcomparacion_af_conta
                         WHERE id_movimiento = v_parametros.id_movimiento
                         AND diferencia_af_conta <> 0
                         AND id_moneda = v_id_moneda_base
                     ), tusd AS (
                         SELECT
-                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta, codigo_rel_cont --#ETR-3660
                         FROM kaf.tcomparacion_af_conta
                         WHERE id_movimiento = v_parametros.id_movimiento
                         AND diferencia_af_conta <> 0
                         AND id_moneda = v_id_moneda_tri
                     ), tufv AS (
                         SELECT
-                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta
+                        id_moneda, id_cuenta, lado_saldo, diferencia_af_conta, codigo_rel_cont --#ETR-3660
                         FROM kaf.tcomparacion_af_conta
                         WHERE id_movimiento = v_parametros.id_movimiento
                         AND diferencia_af_conta <> 0
@@ -1577,7 +1583,7 @@ BEGIN
                     'activo',
                     v_id_int_cbte,
                     tbs.id_cuenta,
-                    v_id_partida_debe,
+                    v_id_partida_debe
                     v_id_centro_costo,
                     ROUND(tbs.diferencia_af_conta, 2),
                     ROUND(tbs.diferencia_af_conta, 2),

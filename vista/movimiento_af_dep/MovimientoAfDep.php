@@ -162,7 +162,7 @@ Phx.vista.MovimientoAfDep=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'vida_util_ant',
-				fieldLabel: 'Vida Util Ant.',
+				fieldLabel: 'Vida Util',
 				gwidth: 85,
 				maxLength:10
 			},

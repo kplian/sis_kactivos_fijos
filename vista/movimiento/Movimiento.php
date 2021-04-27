@@ -69,7 +69,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                     def: 'reset'
                 },
                 scope: me,
-                menu: [{
+                menu: [/*{
                     text: 'Reporte CSV',
                     iconCls: 'bexcel',
                     argument: {
@@ -78,7 +78,7 @@ Phx.vista.Movimiento=Ext.extend(Phx.gridInterfaz,{
                     },
                     handler: me.onButtonATDExcel,
                     scope: me
-                }, {
+                },*/ {
                     text: 'Reporte PDF',
                     iconCls: 'bpdf',
                     argument: {

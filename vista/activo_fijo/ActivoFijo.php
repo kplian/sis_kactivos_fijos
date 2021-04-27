@@ -963,8 +963,8 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         bottom_filter:true
     }, {
         config: {
-            name: 'vida_util_real_af',
-            fieldLabel: 'Vida Útil',
+            name: 'vida_util',
+            fieldLabel: 'Vida Útil Restante',
             allowBlank: true,
             anchor: '80%',
             gwidth: 50,
@@ -972,7 +972,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
         },
         type: 'NumberField',
         filters: {
-            pfiltro: 'afvi.vida_util_real_af',
+            pfiltro: 'afij.vida_util',
             type: 'numeric'
         },
         id_grupo: 1,
@@ -1585,7 +1585,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
     }, {
         config: {
             name: 'vida_util_original',
-            fieldLabel: 'vida_util_original',
+            fieldLabel: 'Vida Útil Original',
             allowBlank: true,
             anchor: '80%',
             gwidth: 100,
@@ -2117,7 +2117,7 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{clasificacion}</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp<small><i>{clasificacion_n1}</i></small><br>&nbsp&nbsp&nbsp&nbsp&nbsp<small><i>{clasificacion_n2}</i></small></p></div></tpl>'
                             }, {
                                 xtype: 'compositefield',
-                                fieldLabel: 'Vida útil inicial',
+                                fieldLabel: 'Vida útil Original',
                                 items: [{
                                     xtype: 'label',
                                     text: 'Meses'
@@ -2632,9 +2632,9 @@ Phx.vista.ActivoFijo = Ext.extend(Phx.gridInterfaz, {
                                 id: this.idContenedor+'_fecha_ult_dep_real_af'
                             }, {
                                 fieldLabel: 'Vida Útil restante',
-                                name: 'vida_util_real_af',
+                                name: 'vida_util',
                                 disabled: true,
-                                id: this.idContenedor+'_vida_util_real_af'
+                                id: this.idContenedor+'_vida_util'
                             }, {
                                 fieldLabel: 'Monto de rescate',
                                 name: 'monto_rescate',
