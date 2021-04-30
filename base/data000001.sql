@@ -1623,3 +1623,13 @@ select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-TRES',NULL,'3
 select conta.f_import_ttipo_relacion_contable ('insert','DEP-IGUAL-CUATR',NULL,'4 Igualación saldos deprec. caso 4','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
 /***********************************F-DAT-RCM-KAF-ETR-3660-22/04/2021****************************************/
 
+/***********************************I-DAT-RCM-KAF-ETR-3660-30/04/2021****************************************/
+UPDATE kaf.treporte_detalle_dep2 SET
+total_dep = dep_ene + dep_feb + dep_mar,
+fecha_mod = now(),
+id_usuario_reg = 1
+WHERE codigo IN ('04.16.7.2209-0','04.16.7.2235-0','04.16.7.3251-0','04.16.7.3256-0','04.16.7.3257-0','04.16.7.3430-0','04.16.7.3466-0')
+AND id_moneda = 1
+AND id_movimiento = 495
+AND rd.fecha = '01/03/2021';
+/***********************************F-DAT-RCM-KAF-ETR-3660-30/04/2021****************************************/
