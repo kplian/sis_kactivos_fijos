@@ -18,6 +18,7 @@ $body$
  ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #2         KAF       ETR           12/06/2019  RCM         Creación del archivo
  #ETR-3334  KAF       ETR           26/03/2021  RCM         Creación de movimientos de Alta y Ajustes según corresponda
+ #ETR-3831  KAF       ETR           03/05/2021  RCM         Al crear Ajuste cuando no hay Alta el IdDepto esta vacio. Se mueve la obtencion al comienzo para que aplique a ambos casos
 ***************************************************************************/
 
 DECLARE
@@ -120,6 +121,16 @@ BEGIN
     ---------------------
     --Inicio #ETR-3334: creación de Movimientos de Alta y Ajuste
     ---------------------
+    --Inicio #ETR-3831
+    --Obtencion de datos del movimiento original
+    SELECT
+    fecha_mov, id_depto, num_tramite, glosa
+    INTO
+    v_fecha_mov, v_id_depto, v_num_tramite, v_glosa
+    FROM kaf.tmovimiento
+    WHERE id_movimiento = v_registros.id_movimiento;
+    --Fin #ETR-3831
+        
     --Alta
     IF EXISTS(SELECT 1
             FROM kaf.tmovimiento_af maf
@@ -140,14 +151,6 @@ BEGIN
         IF v_id_cat_movimiento IS NULL THEN
             raise exception 'No se encuentra registrado el Proceso de Ajuste. Comuníquese con el administrador del sistema.';
         END IF;
-
-        --Obtencion de datos del movimiento original
-        SELECT
-        fecha_mov, id_depto, num_tramite, glosa
-        INTO
-        v_fecha_mov, v_id_depto, v_num_tramite, v_glosa
-        FROM kaf.tmovimiento
-        WHERE id_movimiento = v_registros.id_movimiento;
 
         --Definción de parámetros
         SELECT
