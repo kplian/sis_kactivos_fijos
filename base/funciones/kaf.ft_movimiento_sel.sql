@@ -18,6 +18,7 @@ $body$
  #ETR-2170      KAF       ETR           18/12/2020  RCM         Adición de campo para registro del tipo de cambio final para actualización
  #AF-41         KAF       ETR           01/03/2021  RCM         Modificación de Columnas para el caso de Altas
  #ETR-3660      KAF       ETR           19/04/2021  RCM         Correción columna moneda original
+ #AF-44         KAF       ETR           05/05/2021  RCM         Para obtener los importes para el reporte, es necesario considear tambien el origen dval
 ***************************************************************************/
 
 DECLARE
@@ -426,17 +427,17 @@ BEGIN
                             (SELECT monto_vigente_orig 
                             FROM kaf.tactivo_fijo_valores 
                             WHERE id_activo_fijo = af.id_activo_fijo
-                            AND tipo = ''alta''
+                            AND (tipo = ''alta'' OR tipo = ''dval'') --#AF-44
                             AND id_moneda = 1) as monto_orig_bs,
                             (SELECT monto_vigente_orig 
                             FROM kaf.tactivo_fijo_valores 
                             WHERE id_activo_fijo = af.id_activo_fijo
-                            AND tipo = ''alta''
+                            AND (tipo = ''alta'' OR tipo = ''dval'') --#AF-44
                             AND id_moneda = 2) as monto_orig_usd,
                             (SELECT monto_vigente_orig 
                             FROM kaf.tactivo_fijo_valores 
                             WHERE id_activo_fijo = af.id_activo_fijo
-                            AND tipo = ''alta''
+                            AND (tipo = ''alta'' OR tipo = ''dval'') --#AF-44
                             AND id_moneda = 3) as monto_orig_ufv
                             --Fin #ETR-3660
                      from kaf.tmovimiento_af maf
