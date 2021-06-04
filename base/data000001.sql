@@ -1691,3 +1691,40 @@ FROM (
 ) DD
 WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
 /***********************************F-DAT-RCM-KAF-ETR-3901-07/05/2021****************************************/
+ 
+/***********************************I-DAT-RCM-KAF-ETR-4171-04/06/2021****************************************/
+--ID a mantener 78056
+--IDs a borrar
+--78057, 78058, 78059, 78060     , id_clasificacion: 428
+
+--Eliminciión AFs en demasia del movimiento de Alta
+DELETE FROM kaf.tmovimiento_af ta WHERE ta.id_movimiento = 520 AND ta.id_activo_fijo IN (78057, 78058, 78059, 78060);
+
+--Actualización disgregación que apunte a un solo AF
+UPDATE kaf.tmovimiento_af_especial SET id_activo_fijo = 78056 WHERE id_movimiento_af_especial IN (18390,18391,18392,18393);
+
+--Eliminación de registros AFV
+DELETE FROM kaf.tactivo_fijo_valores afv WHERE afv.id_activo_fijo IN (78057, 78058, 78059, 78060);
+
+--Eliminación de activos fijos
+DELETE FROM kaf.tactivo_fijo af WHERE af.id_activo_fijo IN (78057, 78058, 78059, 78060);
+
+--Actualización correlativo de clasificacion
+UPDATE kaf.tclasificacion SET correlativo_act = 1512 WHERE id_clasificacion = 428;
+
+--Actualización de importes
+UPDATE kaf.tactivo_fijo SET monto_compra = 1635.58, monto_compra_orig = 1635.58, monto_compra_orig_100 = 1635.58 WHERE id_activo_fijo = 78056;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 12258.46085, monto_vigente_orig_100 = 12258.46085, monto_vigente_actualiz_inicial = 12258.46085, 
+depreciacion_acum_inicial = 4085.746193
+WHERE id_activo_fijo = 78056 AND id_moneda = 1;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 1635.58, monto_vigente_orig_100 = 1635.58, monto_vigente_actualiz_inicial = 1635.58,
+depreciacion_acum_inicial = 545.1334963
+WHERE id_activo_fijo = 78056 AND id_moneda = 2;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 5194.307091, monto_vigente_orig_100 = 5194.307091, monto_vigente_actualiz_inicial = 5194.307091,
+depreciacion_acum_inicial = 1731.263058
+WHERE id_activo_fijo = 78056 AND id_moneda = 3;
+
+/***********************************F-DAT-RCM-KAF-ETR-4171-04/06/2021****************************************/
