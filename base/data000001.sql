@@ -1814,3 +1814,10 @@ FROM (
 ) DD
 WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
 /***********************************F-DAT-RCM-KAF-ETR-4216-08/06/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-4216_1-08/06/2021****************************************/
+UPDATE kaf.tmovimiento SET glosa = 'DISGREGACIÓN ACTIVO (02.20.5.00002) P151 SUBESTACION YAPACANI' WHERE num_tramite = 'KAF-DIVIS-000014-2021';
+UPDATE kaf.tmovimiento SET glosa = 'KAF-DIVIS-000014-2021 DISGREGACIÓN ACTIVO (02.20.5.00002) P151 SUBESTACION YAPACANI' WHERE num_tramite = 'KAF-AJU-000012-2021';
+UPDATE kaf.tmovimiento SET glosa = 'Alta rápida de activos fijos - ADQ-000464-2021' WHERE num_tramite = 'KAF-ALTA-000066-2021';
+UPDATE kaf.tactivo_fijo SET monto_compra = 2411.64, monto_compra_orig = 2411.64, monto_compra_orig_100 = 2772 WHERE codigo = '04.16.7.01108';
+/***********************************F-DAT-RCM-KAF-ETR-4216_1-08/06/2021****************************************/
