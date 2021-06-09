@@ -12,10 +12,11 @@ $body$
  FECHA:         05/08/2017
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
-        KAF     ETR      05/08/2017   RCM         Creación del archivo
- #58    KAF     ETR      21/04/2020   RCM         Agregación de datos para la creación del activo fijo
- #AF-14 KAF     ETR      03/11/2020   RCM         Adición de validación de la marca de generación de activos previamente
+ ISSUE      SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+            KAF     ETR      05/08/2017   RCM         Creación del archivo
+ #58        KAF     ETR      21/04/2020   RCM         Agregación de datos para la creación del activo fijo
+ #AF-14     KAF     ETR      03/11/2020   RCM         Adición de validación de la marca de generación de activos previamente
+ #ETR-4195  KAF     ETR      09/06/2021   RCM         Actualización de bandera 'generado' para no incluirlo posteriormente para altas parciales
 ***************************************************************************
 */
 DECLARE
@@ -63,56 +64,56 @@ BEGIN
     from param.tunidad_medida
     where codigo = 'Und.';
 
-  for v_rec in select
-                cot.fecha_adju,
-                pdet.precio_compra,
-                ping.id_moneda,
-                pdet.cantidad_det::integer,
-                pdet.id_depto,
-                pdet.id_clasificacion,
-                pdet.observaciones,
-                cot.numero_oc,
-                cot.id_cotizacion,
-                pdet.id_cotizacion_det,
-                sol.id_solicitud,
-                pdet.id_centro_costo,
-                cc.id_ep,
-                cc.id_uo,
-                cc.id_gestion,
-                cg.desc_ingas,
-                pdet.nombre,
-                pdet.descripcion,
-                pdet.precio_compra_87,
-                pdet.id_lugar,
-                pdet.ubicacion,
-                pdet.c31,
-                pdet.fecha_conformidad,
-                dep.codigo,
-                pdet.fecha_compra,
-                cot.id_proveedor,
-                dep.id_depto,
-                pdet.id_preingreso_det,
-                pdet.id_ubicacion,
-                pdet.id_grupo,
-                pdet.id_grupo_clasif,
-                pdet.nro_serie,
-                pdet.marca,
-                pdet.vida_util
-                from alm.tpreingreso ping
-                inner join alm.tpreingreso_det pdet on pdet.id_preingreso = ping.id_preingreso
-                inner join adq.tcotizacion_det  cd on cd.id_cotizacion_det = pdet.id_cotizacion_det
-                inner join adq.tsolicitud_det sdet on sdet.id_solicitud_det =cd.id_solicitud_det
-                inner join param.tconcepto_ingas cg on cg.id_concepto_ingas = sdet.id_concepto_ingas
-                inner join adq.tcotizacion cot on cot.id_cotizacion = cd.id_cotizacion
-                inner join adq.tproceso_compra pro on pro.id_proceso_compra = cot.id_proceso_compra
-                inner join adq.tsolicitud sol on sol.id_solicitud = pro.id_solicitud
-                inner join param.tcentro_costo cc on cc.id_centro_costo = sdet.id_centro_costo
-                left join param.tdepto dep on dep.id_depto = pdet.id_depto
-                where ping.id_preingreso  = p_id_preingreso
-                and pdet.sw_generar = 'si'
-                and pdet.estado = 'mod'
-                and pdet.estado_reg = 'activo'
-                and pdet.generado = 'no' loop --#AF-14
+      for v_rec in select
+                    cot.fecha_adju,
+                    pdet.precio_compra,
+                    ping.id_moneda,
+                    pdet.cantidad_det::integer,
+                    pdet.id_depto,
+                    pdet.id_clasificacion,
+                    pdet.observaciones,
+                    cot.numero_oc,
+                    cot.id_cotizacion,
+                    pdet.id_cotizacion_det,
+                    sol.id_solicitud,
+                    pdet.id_centro_costo,
+                    cc.id_ep,
+                    cc.id_uo,
+                    cc.id_gestion,
+                    cg.desc_ingas,
+                    pdet.nombre,
+                    pdet.descripcion,
+                    pdet.precio_compra_87,
+                    pdet.id_lugar,
+                    pdet.ubicacion,
+                    pdet.c31,
+                    pdet.fecha_conformidad,
+                    dep.codigo,
+                    pdet.fecha_compra,
+                    cot.id_proveedor,
+                    dep.id_depto,
+                    pdet.id_preingreso_det,
+                    pdet.id_ubicacion,
+                    pdet.id_grupo,
+                    pdet.id_grupo_clasif,
+                    pdet.nro_serie,
+                    pdet.marca,
+                    pdet.vida_util
+                    from alm.tpreingreso ping
+                    inner join alm.tpreingreso_det pdet on pdet.id_preingreso = ping.id_preingreso
+                    inner join adq.tcotizacion_det  cd on cd.id_cotizacion_det = pdet.id_cotizacion_det
+                    inner join adq.tsolicitud_det sdet on sdet.id_solicitud_det =cd.id_solicitud_det
+                    inner join param.tconcepto_ingas cg on cg.id_concepto_ingas = sdet.id_concepto_ingas
+                    inner join adq.tcotizacion cot on cot.id_cotizacion = cd.id_cotizacion
+                    inner join adq.tproceso_compra pro on pro.id_proceso_compra = cot.id_proceso_compra
+                    inner join adq.tsolicitud sol on sol.id_solicitud = pro.id_solicitud
+                    inner join param.tcentro_costo cc on cc.id_centro_costo = sdet.id_centro_costo
+                    left join param.tdepto dep on dep.id_depto = pdet.id_depto
+                    where ping.id_preingreso  = p_id_preingreso
+                    and pdet.sw_generar = 'si'
+                    and pdet.estado = 'mod'
+                    and pdet.estado_reg = 'activo'
+                    and pdet.generado = 'no' loop --#AF-14
 
         --Vida útil
         /*select vida_util
@@ -194,6 +195,10 @@ BEGIN
         and uof.estado_reg = 'activo'
         and uof.tipo = 'oficial';
 
+        IF COALESCE(v_rec.cantidad_det, 0) <= 0 THEN
+            RAISE EXCEPTION 'Existen cantidades en cero. Todos los registros a activar/ingresar deben tener cantidad mayor a cero';
+        END IF;
+
         --Inserción de la cantidad definida de activos fijos
         for v_i in 1..v_rec.cantidad_det::integer loop
 
@@ -251,6 +256,30 @@ BEGIN
         end loop;
 
     end loop;
+
+    --Inicio #ETR-4195
+    UPDATE alm.tpreingreso_det DEST SET
+    generado = 'si'
+    FROM (
+        SELECT pdet.id_preingreso_det
+        FROM alm.tpreingreso ping
+        INNER JOIN alm.tpreingreso_det pdet ON pdet.id_preingreso = ping.id_preingreso
+        INNER JOIN adq.tcotizacion_det  cd ON cd.id_cotizacion_det = pdet.id_cotizacion_det
+        INNER JOIN adq.tsolicitud_det sdet ON sdet.id_solicitud_det =cd.id_solicitud_det
+        INNER JOIN param.tconcepto_ingas cg ON cg.id_concepto_ingas = sdet.id_concepto_ingas
+        INNER JOIN adq.tcotizacion cot ON cot.id_cotizacion = cd.id_cotizacion
+        INNER JOIN adq.tproceso_compra pro ON pro.id_proceso_compra = cot.id_proceso_compra
+        INNER JOIN adq.tsolicitud sol ON sol.id_solicitud = pro.id_solicitud
+        INNER JOIN param.tcentro_costo cc ON cc.id_centro_costo = sdet.id_centro_costo
+        LEFT JOIN param.tdepto dep ON dep.id_depto = pdet.id_depto
+        WHERE ping.id_preingreso  = p_id_preingreso
+        AND pdet.sw_generar = 'si'
+        AND pdet.estado = 'mod'
+        AND pdet.estado_reg = 'activo'
+        AND pdet.generado = 'no'
+    ) ORIG
+    WHERE DEST.id_preingreso_det = ORIG.id_preingreso_det;
+    --Fin #ETR-4195
 
     return 'Hecho';
 
