@@ -1821,3 +1821,56 @@ UPDATE kaf.tmovimiento SET glosa = 'KAF-DIVIS-000014-2021 DISGREGACIÓN ACTIVO (
 UPDATE kaf.tmovimiento SET glosa = 'Alta rápida de activos fijos - ADQ-000464-2021' WHERE num_tramite = 'KAF-ALTA-000066-2021';
 UPDATE kaf.tactivo_fijo SET monto_compra = 2411.64, monto_compra_orig = 2411.64, monto_compra_orig_100 = 2772 WHERE codigo = '04.16.7.01108';
 /***********************************F-DAT-RCM-KAF-ETR-4216_1-08/06/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-4361-06/07/2021****************************************/
+/*SELECT * FROM kaf.tmovimiento_af WHERE id_movimiento = 546 --Disgregacion
+SELECT * FROM kaf.tmovimiento_af WHERE id_movimiento = 547 --Alta
+
+--Identificar los activos generados
+SELECT mesp.id_movimiento_af_especial, mesp.id_activo_fijo, af.codigo, af.id_clasificacion 
+FROM kaf.tmovimiento_af_especial mesp
+JOIN kaf.tmovimiento_af maf ON maf.id_movimiento_af = mesp.id_movimiento_af 
+JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = mesp.id_activo_fijo 
+WHERE maf.id_movimiento = 546; --Mantener:78158, Remover: 78159, 78160, 78161, 78162
+
+--Clasificacion
+SELECT id_clasificacion, correlativo_act FROM kaf.tclasificacion WHERE id_clasificacion = 418
+
+--Movimientos especiales
+SELECT
+id_moneda, sum(monto_vigente_orig) AS monto_vigente_orig, sum(monto_vigente_orig_100) AS monto_vigente_orig_100, 
+sum(monto_vigente_actualiz_inicial) AS monto_vigente_actualiz_inicial, sum(depreciacion_acum_inicial) AS depreciacion_acum_inicial
+FROM kaf.tactivo_fijo_valores afv
+WHERE afv.id_activo_fijo IN (78158, 78159, 78160, 78161, 78162)
+GROUP BY afv.id_moneda*/
+
+--Eliminación AFs en demasia del movimiento de Alta ..ok
+DELETE FROM kaf.tmovimiento_af ta WHERE ta.id_movimiento = 547 AND ta.id_activo_fijo IN (78159, 78160, 78161, 78162);
+
+--Actualización disgregación que apunte a un solo AF ..ok
+UPDATE kaf.tmovimiento_af_especial SET id_activo_fijo = 78158 WHERE id_movimiento_af_especial IN (18434, 18433, 18437, 18435);
+
+--Eliminación de registros AFV ..ok
+DELETE FROM kaf.tactivo_fijo_valores afv WHERE afv.id_activo_fijo IN (78159, 78160, 78161, 78162);
+
+--Eliminación de activos fijos ..ok
+DELETE FROM kaf.tactivo_fijo af WHERE af.id_activo_fijo IN (78159, 78160, 78161, 78162);
+
+--Actualización correlativo de clasificacion ..ok
+UPDATE kaf.tclasificacion SET correlativo_act = 85 WHERE id_clasificacion = 418;
+
+--Actualización de importes ..ok
+UPDATE kaf.tactivo_fijo SET monto_compra = 46382.36, monto_compra_orig = 46382.36, monto_compra_orig_100 = 46382.36 WHERE id_activo_fijo = 78158;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 339204.70, monto_vigente_orig_100 = 339204.70, monto_vigente_actualiz_inicial = 339204.70, 
+depreciacion_acum_inicial = 27560.34
+WHERE id_activo_fijo = 78158 AND id_moneda = 1;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 46382.36, monto_vigente_orig_100 = 46382.36, monto_vigente_actualiz_inicial = 46382.36,
+depreciacion_acum_inicial = 3768.55
+WHERE id_activo_fijo = 78158 AND id_moneda = 2;
+
+UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 143732.03, monto_vigente_orig_100 = 143732.03, monto_vigente_actualiz_inicial = 143732.03,
+depreciacion_acum_inicial = 11678.21
+WHERE id_activo_fijo = 78158 AND id_moneda = 3;
+/***********************************F`-DAT-RCM-KAF-ETR-4361-06/07/2021****************************************/
