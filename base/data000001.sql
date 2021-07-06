@@ -1873,4 +1873,4 @@ WHERE id_activo_fijo = 78158 AND id_moneda = 2;
 UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 143732.03, monto_vigente_orig_100 = 143732.03, monto_vigente_actualiz_inicial = 143732.03,
 depreciacion_acum_inicial = 11678.21
 WHERE id_activo_fijo = 78158 AND id_moneda = 3;
-/***********************************F`-DAT-RCM-KAF-ETR-4361-06/07/2021****************************************/
+/***********************************F-DAT-RCM-KAF-ETR-4361-06/07/2021****************************************/
