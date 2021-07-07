@@ -246,6 +246,94 @@ BEGIN
 						);
 			--Fin #ETR-1443
 
+			--Inicio #ETR-4517 temporal
+			--REPORTE PROCESADO (DEP JUNIO 2021)
+			UPDATE kaf.treporte_detalle_dep2 AA SET
+			depreciacion = 0,
+			dep_jun = 0,
+			depreciacion_acum = DD.depreciacion_acum_ant,
+			monto_vigente = DD.monto_vigente_ant,
+			total_dep = dep_ene + dep_feb + dep_mar + dep_abr + dep_may,
+			fecha_mod = now(),
+			id_usuario_mod = 1
+			FROM (
+			  SELECT
+			  rd.id, rd.id_movimiento, 
+			  mdep.depreciacion_acum_ant, mdep.monto_vigente_ant
+			  FROM kaf.treporte_detalle_dep2 rd
+			  JOIN kaf.tactivo_fijo af ON af.codigo = rd.codigo
+			  JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = af.id_activo_fijo 
+			  JOIN kaf.tmovimiento_af_dep mdep ON mdep.id_activo_fijo_valor = afv.id_activo_fijo_valor 
+			    AND mdep.id_moneda = rd.id_moneda 
+			    AND date_trunc('month', mdep.fecha) = '01-06-2021'
+			  WHERE rd.fecha = '01-06-2021'
+			  AND rd.codigo IN (
+			  '04.16.7.2209-0',
+			  '04.16.7.2235-0',
+			  '04.16.7.3251-0',
+			  '04.16.7.3256-0',
+			  '04.16.7.3257-0',
+			  '04.16.7.3430-0',
+			  '04.16.7.3466-0',
+			  '01.07.10.00004',
+			  '01.07.10.00006',
+			  '01.07.10.00008',
+			  '01.07.10.00010',
+			  '01.07.10.00013',
+			  '01.07.10.00016',
+			  '01.07.10.00017',
+			  '01.07.10.00018',
+			  '01.07.10.00033',
+			  '01.07.10.00035',
+			  '01.07.10.00110',
+			  '01.07.10.00131',
+			  '01.07.10.00242'
+			  )
+			) DD
+			WHERE AA.id = DD.id;
+
+			--KARDEX
+			UPDATE kaf.tmovimiento_af_dep AA SET
+			depreciacion = 0,
+			depreciacion_acum = DD.depreciacion_acum_ant,
+			depreciacion_per = DD.depreciacion_per_ant,
+			monto_vigente = DD.monto_vigente_ant,
+			fecha_mod = now(),
+			id_usuario_mod = 1
+			FROM (
+			  SELECT 
+			  af.codigo, afv.id_moneda, mdep.id_movimiento_af_dep,
+			  0 AS depreciacion_ant, mdep.depreciacion_acum_ant , mdep.depreciacion_per_ant , mdep.monto_vigente_ant 
+			  FROM kaf.tmovimiento_af_dep mdep
+			  JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor 
+			  JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = afv.id_activo_fijo
+			  WHERE af.codigo IN (
+			  '04.16.7.2209-0',
+			  '04.16.7.2235-0',
+			  '04.16.7.3251-0',
+			  '04.16.7.3256-0',
+			  '04.16.7.3257-0',
+			  '04.16.7.3430-0',
+			  '04.16.7.3466-0',
+			  '01.07.10.00004',
+			  '01.07.10.00006',
+			  '01.07.10.00008',
+			  '01.07.10.00010',
+			  '01.07.10.00013',
+			  '01.07.10.00016',
+			  '01.07.10.00017',
+			  '01.07.10.00018',
+			  '01.07.10.00033',
+			  '01.07.10.00035',
+			  '01.07.10.00110',
+			  '01.07.10.00131',
+			  '01.07.10.00242'
+			  )
+			  AND date_trunc('month', mdep.fecha) = '01-06-2021'
+			) DD
+			WHERE AA.id_movimiento_af_dep = DD.id_movimiento_af_dep;
+			--Fin #ETR-4517
+
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Procesamiento detalle depreciación realizado con éxito');
             v_resp = pxp.f_agrega_clave(v_resp, 'respuesta', v_result);
