@@ -1874,3 +1874,27 @@ UPDATE kaf.tactivo_fijo_valores SET monto_vigente_orig = 143732.03, monto_vigent
 depreciacion_acum_inicial = 11678.21
 WHERE id_activo_fijo = 78158 AND id_moneda = 3;
 /***********************************F-DAT-RCM-KAF-ETR-4361-06/07/2021****************************************/
+
+/***********************************I-DAT-RCM-KAF-ETR-4517-07/07/2021****************************************/
+DELETE FROM kaf.tactivo_fijo_valores 
+WHERE id_activo_fijo_valor IN (
+  SELECT 
+  afv.id_activo_fijo_valor 
+  FROM kaf.tactivo_fijo af 
+  JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = af.id_activo_fijo 
+    AND afv.tipo = 'ajuste'
+  WHERE af.codigo_ant = '01.29.6.00011'
+);
+
+UPDATE kaf.tactivo_fijo_valores AA SET
+fecha_fin = NULL
+FROM (
+  SELECT 
+  afv.id_activo_fijo_valor
+  FROM kaf.tactivo_fijo af 
+  JOIN kaf.tactivo_fijo_valores afv ON afv.id_activo_fijo = af.id_activo_fijo 
+    AND afv.tipo = 'dval'
+  WHERE af.codigo_ant = '01.29.6.00011'
+) DD
+WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor;
+/***********************************F-DAT-RCM-KAF-ETR-4517-07/07/2021****************************************/
