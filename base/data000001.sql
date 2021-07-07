@@ -1897,4 +1897,14 @@ FROM (
   WHERE af.codigo_ant = '01.29.6.00011'
 ) DD
 WHERE AA.id_activo_fijo_valor = DD.id_activo_fijo_valor;
+
+DELETE FROM kaf.tmovimiento_af 
+WHERE id_movimiento_af IN (
+  SELECT 
+  maf.id_movimiento_af 
+  FROM kaf.tmovimiento_af maf
+  JOIN kaf.tactivo_fijo af ON af.id_activo_fijo = maf.id_activo_fijo 
+    AND af.codigo_ant = '01.29.6.00011'
+  WHERE maf.id_movimiento = 559
+);
 /***********************************F-DAT-RCM-KAF-ETR-4517-07/07/2021****************************************/
