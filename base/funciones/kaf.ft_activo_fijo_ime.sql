@@ -18,6 +18,7 @@ $body$
  #12        KAF       ETR           16/05/2019  RCM         Modificación funcionario por regularización
  #AF-11     KAF       ETR           24/08/2020  RCM         Adición de Nro. de serie en el código QR
  #ETR-3627  KAF       ETR           13/04/2021  RCM         Modificación de formato de reporte de etiqueta
+ #ETR-4671  KAF       ETR           20/07/2021  RCM         Cambio de valor por defecto por la marca
 ***************************************************************************/
 
 DECLARE
@@ -417,7 +418,7 @@ BEGIN
         v_resp = pxp.f_agrega_clave(v_resp,'v_clase_reporte',COALESCE(v_clase_reporte,'RCodigoQRAF')::varchar);
         v_resp = pxp.f_agrega_clave(v_resp,'descripcion',v_rec_af.descripcion::varchar);
         v_resp = pxp.f_agrega_clave(v_resp,'nro_serie',v_rec_af.nro_serie::varchar); --#AF-11
-        v_resp = pxp.f_agrega_clave(v_resp,'marca','CCCCCCCC'); --#ETR-3627
+        v_resp = pxp.f_agrega_clave(v_resp,'marca',v_rec_af.marca); --#ETR-4671
 
         --Devuelve la respuesta
         return v_resp;
